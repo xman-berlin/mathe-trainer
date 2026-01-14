@@ -1,7 +1,112 @@
-# mathe-trainer
-Mathertrainer für die Grundschule
+# Mathe-Trainer
 
-## 🚀 GitHub Actions
+Ein interaktiver Mathematik-Trainer für die Grundschule, entwickelt mit Angular und TypeScript.
+
+## 📖 Über das Projekt
+
+Der Mathe-Trainer ist eine webbasierte Anwendung, die Grundschülern hilft, ihre mathematischen Fähigkeiten zu verbessern. Das Projekt wurde mit [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4 erstellt und nutzt moderne Web-Technologien.
+
+## 🚀 Quick Start
+
+### Voraussetzungen
+
+- Node.js (Version 18.x oder 20.x)
+- npm (kommt mit Node.js)
+- Angular CLI: `npm install -g @angular/cli`
+
+### Installation
+
+```bash
+# Repository klonen
+git clone https://github.com/xman-berlin/mathe-trainer.git
+cd mathe-trainer
+
+# Dependencies installieren
+npm install
+
+# Development Server starten
+ng serve
+```
+
+Die Anwendung ist dann unter `http://localhost:4200/` erreichbar.
+
+## 💻 Entwicklung
+
+### Development Server
+
+```bash
+ng serve
+```
+
+Der Server startet auf `http://localhost:4200/` und lädt automatisch neu bei Dateiänderungen.
+
+### Code Scaffolding
+
+Neue Komponente erstellen:
+```bash
+ng generate component components/component-name
+```
+
+Neue Service erstellen:
+```bash
+ng generate service services/service-name
+```
+
+Alle verfügbaren Schematics anzeigen:
+```bash
+ng generate --help
+```
+
+### Build
+
+Production Build erstellen:
+```bash
+ng build
+```
+
+Die Build-Artefakte werden im `dist/` Verzeichnis gespeichert.
+
+### Tests
+
+Unit Tests ausführen:
+```bash
+ng test
+```
+
+Tests mit Code Coverage:
+```bash
+ng test --code-coverage
+```
+
+### Linting
+
+Code-Qualität prüfen:
+```bash
+ng lint
+```
+
+## 📁 Projekt-Struktur
+
+```
+mathe-trainer/
+├── src/
+│   ├── app/
+│   │   ├── components/     # UI-Komponenten
+│   │   ├── services/       # Business-Logik und Datendienste
+│   │   ├── utils/          # Hilfsfunktionen
+│   │   ├── app.ts          # Hauptkomponente
+│   │   ├── app.config.ts   # App-Konfiguration
+│   │   └── app.routes.ts   # Routing-Konfiguration
+│   ├── index.html
+│   ├── main.ts
+│   └── styles.css
+├── public/                 # Statische Assets
+├── .github/
+│   └── workflows/          # CI/CD Workflows
+└── angular.json            # Angular-Konfiguration
+```
+
+## 🚀 GitHub Actions & CI/CD
 
 Dieses Projekt nutzt GitHub Actions für Continuous Integration und Deployment:
 
@@ -28,34 +133,27 @@ Dieses Projekt nutzt GitHub Actions für Continuous Integration und Deployment:
 - **Gruppierung**: Angular-Packages und Development-Dependencies werden gruppiert
 - **Labels**: Automatisches Hinzufügen von `dependencies` Label
 
-## 📝 Setup-Hinweise
+## 🛠️ Technologie-Stack
 
-### Codecov (Optional)
-Falls Code Coverage hochgeladen werden soll:
-1. Account auf [codecov.io](https://codecov.io) erstellen
-2. Repository hinzufügen
-3. `CODECOV_TOKEN` als Secret in GitHub Repository Settings hinterlegen
+- **Framework**: Angular 20.3.4 (zoneless)
+- **Sprache**: TypeScript
+- **Styling**: CSS
+- **Testing**: Karma + Jasmine
+- **Build-Tool**: Angular CLI
+- **CI/CD**: GitHub Actions
+- **Hosting**: GitHub Pages
 
-### GitHub Pages aktivieren
-1. Gehe zu Repository Settings → Pages
-2. Source: "Deploy from a branch"
-3. Branch: `gh-pages` / `root`
+## 📚 Ressourcen
 
-### Lokale Entwicklung
-```bash
-# Dependencies installieren
-npm install
+- [Angular Dokumentation](https://angular.dev/)
+- [TypeScript Dokumentation](https://www.typescriptlang.org/)
+- [Angular CLI Command Reference](https://angular.dev/tools/cli)
+- [GitHub Actions Workflows](.github/workflows/)
 
-# Development Server starten
-npm start
+## 🤝 Beitragen
 
-# Tests ausführen
-npm test
+Contributions sind willkommen! Bitte erstelle einen Pull Request oder öffne ein Issue für Verbesserungsvorschläge.
 
-# Linting
-npm run lint
+## 📝 Lizenz
 
-# Production Build
-npm run build
-```
-
+Dieses Projekt ist für Bildungszwecke erstellt.
