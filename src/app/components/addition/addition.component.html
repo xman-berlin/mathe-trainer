@@ -1,0 +1,61 @@
+<div class="addition-root">
+  <div class="addition-container">
+    <!-- Main Content Area -->
+    <div class="main-area">
+      <div class="problem-display">
+        <div class="operand-display">{{ operandA() }}</div>
+        <div class="operator">+</div>
+        <div class="operand-display">{{ operandB() }}</div>
+        <div class="equals">=</div>
+        <div class="question-mark">?</div>
+      </div>
+
+      <div class="input-section">
+        <input
+          #answerInput
+          type="text"
+          inputmode="none"
+          readonly
+          [value]="userAnswer()"
+          (keydown.enter)="submitAnswer()"
+          aria-label="Ergebnis eingeben"
+          autocomplete="off"
+          class="answer-input"
+          placeholder="0"
+          tabindex="0"
+        />
+      </div>
+
+      <div class="keypad">
+        <button type="button" (click)="addDigit('1')">1</button>
+        <button type="button" (click)="addDigit('2')">2</button>
+        <button type="button" (click)="addDigit('3')">3</button>
+        <button type="button" (click)="addDigit('4')">4</button>
+        <button type="button" (click)="addDigit('5')">5</button>
+        <button type="button" (click)="addDigit('6')">6</button>
+        <button type="button" (click)="addDigit('7')">7</button>
+        <button type="button" (click)="addDigit('8')">8</button>
+        <button type="button" (click)="addDigit('9')">9</button>
+        <button type="button" class="btn-del" (click)="deleteDigit()">⌫</button>
+        <button type="button" (click)="addDigit('0')">0</button>
+        <button type="button" class="btn-ok" (click)="submitFromKeypad()">OK</button>
+      </div>
+
+      <div class="feedback-area">
+        <div *ngIf="feedback() === 'correct'" class="feedback correct">✓ Richtig!</div>
+        <div *ngIf="feedback() === 'incorrect'" class="feedback incorrect">
+          ✗ Falsch. <span *ngIf="showCorrectAnswer()">Richtige Antwort: {{ correctAnswer }}</span>
+        </div>
+      </div>
+
+      <div class="result-summary">
+        <span class="badge badge-correct">✓ {{ correctCount }}</span>
+        <span class="badge badge-incorrect">✗ {{ incorrectCount }}</span>
+        <span class="badge badge-total">Σ {{ totalCount }}</span>
+        <span class="summary-label">Heute</span>
+      </div>
+    </div>
+
+    <!-- History removed -->
+  </div>
+</div>

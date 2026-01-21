@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --live-reload",
+    "start:poll": "ng serve --live-reload --poll=200",
+    "start:hmr": "ng serve --hmr --configuration development",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

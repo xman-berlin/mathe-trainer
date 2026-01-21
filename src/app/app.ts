@@ -1,12 +1,48 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, signal, computed } from '@angular/core';
+import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { filter } from 'rxjs';
+import { StatsService } from './services/stats.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
   protected readonly title = signal('Mathe-Trainer');
+  isExercisePage = signal(false);
+
+  constructor(private router: Router, protected stats: StatsService) {
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        const isExercise = event.urlAfterRedirects.includes('/addition');
+        this.isExercisePage.set(isExercise);
+      });
+
+    const isExercise = this.router.url.includes('/addition');
+    this.isExercisePage.set(isExercise);
+  }
+
+  exerciseTypes = computed(() => {
+    const types = this.stats.statsByType();
+    return Object.keys(types).sort();
+  });
+
+  getTypeStats(type: string) {
+    const types = this.stats.statsByType();
+    return types[type] || { correct: 0, incorrect: 0 };
+  }
+
+  getExerciseLabel(type: string): string {
+    const labels: Record<string, string> = {
+      'addition': '➕ Addition',
+      'subtraction': '➖ Subtraktion',
+      'multiplication': '✕ Multiplikation',
+      'division': '÷ Division'
+    };
+    return labels[type] || type;
+  }
 }
