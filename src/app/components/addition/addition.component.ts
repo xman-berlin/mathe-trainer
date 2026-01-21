@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, signal, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, ViewChild, signal, AfterViewInit, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
@@ -35,6 +35,10 @@ export class AdditionComponent implements AfterViewInit {
   constructor(private stats: StatsService) {
     this.generateProblem();
   }
+
+  typeCorrectCount = computed(() => this.stats.statsByType()['addition']?.correct ?? 0);
+  typeIncorrectCount = computed(() => this.stats.statsByType()['addition']?.incorrect ?? 0);
+  typeTotalCount = computed(() => this.typeCorrectCount() + this.typeIncorrectCount());
 
   ngAfterViewInit() {
     this.isInitialized = true;

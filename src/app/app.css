@@ -117,7 +117,8 @@ router-outlet {
   display: contents;
 }
 
-app-addition {
+app-addition,
+app-subtraction {
   display: flex;
   width: 100%;
   height: calc(100vh - 70px);

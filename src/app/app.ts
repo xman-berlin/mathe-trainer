@@ -18,11 +18,13 @@ export class App {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
-        const isExercise = event.urlAfterRedirects.includes('/addition');
+        const url = event.urlAfterRedirects;
+        const isExercise = url.includes('/addition') || url.includes('/subtraction');
         this.isExercisePage.set(isExercise);
       });
 
-    const isExercise = this.router.url.includes('/addition');
+    const initialUrl = this.router.url;
+    const isExercise = initialUrl.includes('/addition') || initialUrl.includes('/subtraction');
     this.isExercisePage.set(isExercise);
   }
 
