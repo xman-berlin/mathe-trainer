@@ -134,15 +134,17 @@ export class ExerciseComponent implements AfterViewInit {
 
   generateProblem() {
     const types = Array.from(this.selectedTypes());
-    const type = types[Math.floor(Math.random() * types.length)];
-    this.currentType.set(type);
-
+    const prevType = this.currentType();
     const prevA = this.operandA();
     const prevB = this.operandB();
+
+    let type: ExerciseType;
     let a: number;
     let b: number;
 
     do {
+      type = types[Math.floor(Math.random() * types.length)];
+
       if (type === 'addition') {
         // b is 1-10, tens crossing: (a % 10) + b > 10
         b = this.randomInt(1, 10);
@@ -183,8 +185,9 @@ export class ExerciseComponent implements AfterViewInit {
         const quotient = this.randomInt(1, 10);
         a = b * quotient;
       }
-    } while (a === prevA && b === prevB);
+    } while (type === prevType && a === prevA && b === prevB);
 
+    this.currentType.set(type);
     this.operandA.set(a);
     this.operandB.set(b);
 

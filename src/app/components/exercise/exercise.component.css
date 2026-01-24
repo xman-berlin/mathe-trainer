@@ -26,26 +26,29 @@
   border-radius: 8px;
   border: 2px solid var(--gray-300);
   background: var(--gray-100);
-  color: var(--gray-600);
+  color: var(--gray-400);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  opacity: 0.5;
 }
 
 .type-toggle:hover {
-  border-color: var(--gray-400);
-  background: var(--gray-200);
+  opacity: 0.7;
 }
 
 .type-toggle.active {
   border-color: var(--bright-blue);
   background: rgba(51, 130, 191, 0.1);
   color: var(--bright-blue);
+  opacity: 1;
 }
 
 .type-icon {
   font-weight: 700;
+  font-family: "Arial", "Helvetica", sans-serif;
+  font-size: 1.1em;
 }
 
 .type-label {
