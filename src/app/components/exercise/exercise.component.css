@@ -44,6 +44,14 @@
   color: var(--bright-blue);
 }
 
+.type-icon {
+  font-weight: 700;
+}
+
+.type-label {
+  margin-left: 0.3rem;
+}
+
 /* Main Content Area */
 .main-area {
   flex: 1;
@@ -222,8 +230,8 @@
 /* Keypad Styles */
 .keypad {
   display: grid;
-  grid-template-columns: repeat(3, minmax(90px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
   width: 100%;
   max-width: 420px;
   margin-top: 0.75rem;
@@ -309,13 +317,15 @@
 
 @media (max-width: 768px) {
   .main-area {
-    padding: 1.25rem 1rem;
-    gap: 1rem;
+    padding: 1rem;
+    gap: 0.75rem;
     width: 100%;
+    justify-content: space-evenly;
+    overflow-y: hidden;
   }
 
   .type-selector {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
   }
 
   .type-toggle {
@@ -324,59 +334,128 @@
   }
 
   .problem-display {
-    font-size: 2.6rem;
-    gap: 0.6rem;
+    font-size: 2.4rem;
+    gap: 0.5rem;
   }
 
   .operand-display,
   .question-mark {
     min-width: auto;
-    padding: 0.45rem 0.9rem;
+    padding: 0.4rem 0.8rem;
   }
 
   .operator,
   .equals {
-    font-size: 2.1rem;
+    font-size: 1.9rem;
+    margin: 0 0.25rem;
+  }
+
+  .input-section {
+    margin: 0;
   }
 
   .answer-input {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
+    padding: 0.6rem 1rem;
     width: 100%;
-    max-width: 320px;
+    max-width: 280px;
   }
 
   .keypad {
     max-width: 100%;
-    gap: 0.8rem;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
   }
 
   .keypad button {
-    padding: 0.95rem 0;
-    font-size: 1.4rem;
+    padding: 0.75rem 0;
+    font-size: 1.3rem;
+  }
+
+  .feedback-area {
+    min-height: 1.5rem;
+  }
+
+  .feedback {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .result-summary {
+    margin-top: 0.25rem;
+  }
+
+  .badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .summary-label {
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 540px) {
+  .main-area {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .type-selector {
+    margin-bottom: 0.25rem;
+  }
+
   .type-toggle {
-    padding: 0.45rem 0.75rem;
-    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 1.1rem;
+  }
+
+  .type-label {
+    display: none;
   }
 
   .problem-display {
-    font-size: 2.1rem;
+    font-size: 2rem;
+    gap: 0.4rem;
+  }
+
+  .operand-display,
+  .question-mark {
+    padding: 0.35rem 0.6rem;
+    border-radius: 8px;
+  }
+
+  .operator,
+  .equals {
+    font-size: 1.6rem;
   }
 
   .answer-input {
-    font-size: 1.35rem;
-    max-width: 240px;
+    font-size: 1.25rem;
+    padding: 0.5rem 0.75rem;
+    max-width: 220px;
+  }
+
+  .keypad {
+    gap: 0.35rem;
   }
 
   .keypad button {
-    padding: 0.85rem 0;
-    font-size: 1.25rem;
+    padding: 0.65rem 0;
+    font-size: 1.15rem;
+    border-radius: 8px;
+  }
+
+  .feedback {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
   }
 
   .badge {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .summary-label {
+    font-size: 0.8rem;
   }
 }

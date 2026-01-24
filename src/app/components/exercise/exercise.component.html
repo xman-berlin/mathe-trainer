@@ -7,28 +7,32 @@
           class="type-toggle"
           [class.active]="isTypeSelected('addition')"
           (click)="toggleType('addition')">
-          + Addition
+          <span class="type-icon">+</span>
+          <span class="type-label">Addition</span>
         </button>
         <button
           type="button"
           class="type-toggle"
           [class.active]="isTypeSelected('subtraction')"
           (click)="toggleType('subtraction')">
-          − Subtraktion
+          <span class="type-icon">−</span>
+          <span class="type-label">Subtraktion</span>
         </button>
         <button
           type="button"
           class="type-toggle"
           [class.active]="isTypeSelected('multiplication')"
           (click)="toggleType('multiplication')">
-          × Multiplikation
+          <span class="type-icon">×</span>
+          <span class="type-label">Multiplikation</span>
         </button>
         <button
           type="button"
           class="type-toggle"
           [class.active]="isTypeSelected('division')"
           (click)="toggleType('division')">
-          ÷ Division
+          <span class="type-icon">÷</span>
+          <span class="type-label">Division</span>
         </button>
       </div>
 
