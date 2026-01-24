@@ -1,9 +1,26 @@
 <div class="exercise-root" tabindex="0" (keydown)="handleKeydown($event)">
   <div class="exercise-container">
     <div class="main-area">
+      <div class="type-selector">
+        <button
+          type="button"
+          class="type-toggle"
+          [class.active]="isTypeSelected('addition')"
+          (click)="toggleType('addition')">
+          + Addition
+        </button>
+        <button
+          type="button"
+          class="type-toggle"
+          [class.active]="isTypeSelected('subtraction')"
+          (click)="toggleType('subtraction')">
+          − Subtraktion
+        </button>
+      </div>
+
       <div class="problem-display">
         <div class="operand-display">{{ operandA() }}</div>
-        <div class="operator">+</div>
+        <div class="operator">{{ operatorSymbol() }}</div>
         <div class="operand-display">{{ operandB() }}</div>
         <div class="equals">=</div>
         <div class="question-mark">?</div>

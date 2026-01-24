@@ -24,12 +24,12 @@ export class App {
       )
       .subscribe((event: NavigationEnd) => {
         const url = event.urlAfterRedirects;
-        const isExercise = url.includes('/addition') || url.includes('/subtraction');
+        const isExercise = url.includes('/rechnen');
         this.isExercisePage.set(isExercise);
       });
 
     const initialUrl = this.router.url;
-    const isExercise = initialUrl.includes('/addition') || initialUrl.includes('/subtraction');
+    const isExercise = initialUrl.includes('/rechnen');
     this.isExercisePage.set(isExercise);
   }
 

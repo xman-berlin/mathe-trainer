@@ -3,20 +3,25 @@ import { StatsService } from '../../services/stats.service';
 
 const MAX_DIGITS = 3;
 
+type ExerciseType = 'addition' | 'subtraction';
+
 @Component({
   standalone: true,
-  selector: 'app-addition',
+  selector: 'app-exercise',
   imports: [],
-  templateUrl: './addition.component.html',
-  styleUrls: ['./addition.component.css'],
+  templateUrl: './exercise.component.html',
+  styleUrls: ['./exercise.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdditionComponent implements AfterViewInit {
+export class ExerciseComponent implements AfterViewInit {
   operandA = signal(0);
   operandB = signal(0);
   userAnswer = signal('');
   feedback = signal<'idle' | 'correct' | 'incorrect'>('idle');
   showCorrectAnswer = signal(false);
+
+  selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction']));
+  currentType = signal<ExerciseType>('addition');
 
   @ViewChild('answerInput', { static: false }) answerInput?: ElementRef<HTMLInputElement>;
 
@@ -26,10 +31,50 @@ export class AdditionComponent implements AfterViewInit {
     this.generateProblem();
   }
 
-  correctAnswer = computed(() => this.operandA() + this.operandB());
-  typeCorrectCount = computed(() => this.stats.statsByType()['addition']?.correct ?? 0);
-  typeIncorrectCount = computed(() => this.stats.statsByType()['addition']?.incorrect ?? 0);
+  operatorSymbol = computed(() =>
+    this.currentType() === 'addition' ? '+' : '−'
+  );
+
+  correctAnswer = computed(() => {
+    const a = this.operandA();
+    const b = this.operandB();
+    return this.currentType() === 'addition' ? a + b : a - b;
+  });
+
+  typeCorrectCount = computed(() => {
+    const types = this.stats.statsByType();
+    let total = 0;
+    for (const type of this.selectedTypes()) {
+      total += types[type]?.correct ?? 0;
+    }
+    return total;
+  });
+
+  typeIncorrectCount = computed(() => {
+    const types = this.stats.statsByType();
+    let total = 0;
+    for (const type of this.selectedTypes()) {
+      total += types[type]?.incorrect ?? 0;
+    }
+    return total;
+  });
+
   typeTotalCount = computed(() => this.typeCorrectCount() + this.typeIncorrectCount());
+
+  isTypeSelected(type: ExerciseType): boolean {
+    return this.selectedTypes().has(type);
+  }
+
+  toggleType(type: ExerciseType) {
+    const current = this.selectedTypes();
+    const newSet = new Set(current);
+    if (newSet.has(type)) {
+      if (newSet.size > 1) newSet.delete(type);
+    } else {
+      newSet.add(type);
+    }
+    this.selectedTypes.set(newSet);
+  }
 
   ngAfterViewInit() {
     this.isInitialized = true;
@@ -37,15 +82,23 @@ export class AdditionComponent implements AfterViewInit {
   }
 
   generateProblem() {
+    const types = Array.from(this.selectedTypes());
+    const type = types[Math.floor(Math.random() * types.length)];
+    this.currentType.set(type);
+
     const prevA = this.operandA();
     const prevB = this.operandB();
     let a: number;
     let b: number;
 
-    // Generate new problem, avoiding exact repeat
     do {
-      a = this.randomInt(0, 100);
-      b = this.randomInt(0, 100 - a);
+      if (type === 'addition') {
+        a = this.randomInt(0, 100);
+        b = this.randomInt(0, 100 - a);
+      } else {
+        a = this.randomInt(0, 100);
+        b = this.randomInt(0, a);
+      }
     } while (a === prevA && b === prevB);
 
     this.operandA.set(a);
@@ -55,7 +108,6 @@ export class AdditionComponent implements AfterViewInit {
     this.feedback.set('idle');
     this.showCorrectAnswer.set(false);
 
-    // focus input on next tick with longer delay to ensure DOM is updated
     if (this.isInitialized) {
       setTimeout(() => this.focusInput(), 150);
     }
@@ -67,7 +119,7 @@ export class AdditionComponent implements AfterViewInit {
 
   addDigit(digit: string) {
     const current = this.userAnswer();
-    if (current.length >= MAX_DIGITS) return; // Enforce max length
+    if (current.length >= MAX_DIGITS) return;
     const next = (current + digit).replace(/^0+(\d)/, '$1');
     this.userAnswer.set(next);
   }
@@ -80,21 +132,18 @@ export class AdditionComponent implements AfterViewInit {
   handleKeydown(event: KeyboardEvent) {
     const key = event.key;
 
-    // Handle digit keys (0-9)
     if (/^[0-9]$/.test(key)) {
       event.preventDefault();
       this.addDigit(key);
       return;
     }
 
-    // Handle backspace/delete
     if (key === 'Backspace' || key === 'Delete') {
       event.preventDefault();
       this.deleteDigit();
       return;
     }
 
-    // Handle enter
     if (key === 'Enter') {
       event.preventDefault();
       this.submitAnswer();
@@ -104,11 +153,10 @@ export class AdditionComponent implements AfterViewInit {
 
   submitAnswer() {
     const userInputValue = this.userAnswer();
-    if (userInputValue === '') return; // Prevent empty submission
+    if (userInputValue === '') return;
     const parsed = Number(userInputValue);
     const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer();
 
-    // Always generate next problem after brief feedback
     if (isCorrect) {
       this.feedback.set('correct');
       setTimeout(() => this.generateProblem(), 600);
@@ -118,7 +166,7 @@ export class AdditionComponent implements AfterViewInit {
       setTimeout(() => this.generateProblem(), 1200);
     }
 
-    this.stats.recordResult(isCorrect, 'addition');
+    this.stats.recordResult(isCorrect, this.currentType());
   }
 
   focusInput() {
@@ -127,8 +175,8 @@ export class AdditionComponent implements AfterViewInit {
       const inputElement = this.answerInput.nativeElement;
       inputElement.focus();
       inputElement.select();
-    } catch (e) {
-      console.error('Focus error:', e);
+    } catch {
+      // Silently ignore focus errors
     }
   }
 }

@@ -1,16 +1,46 @@
-.subtraction-root {
+.exercise-root {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.subtraction-container {
+.exercise-container {
   display: flex;
   width: 100%;
   height: 100%;
   background: white;
-  /* remove horizontal padding to match addition */
+}
+
+/* Type Selector Toggle Buttons */
+.type-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+}
+
+.type-toggle {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: 2px solid var(--gray-300);
+  background: var(--gray-100);
+  color: var(--gray-600);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.type-toggle:hover {
+  border-color: var(--gray-400);
+  background: var(--gray-200);
+}
+
+.type-toggle.active {
+  border-color: var(--bright-blue);
+  background: rgba(51, 130, 191, 0.1);
+  color: var(--bright-blue);
 }
 
 /* Main Content Area */
@@ -23,7 +53,6 @@
   padding: 3rem 2rem;
   gap: 2rem;
   overflow-y: auto;
-  /* remove max-width and auto margins to match addition */
 }
 
 .problem-display {
@@ -224,6 +253,12 @@
 .keypad .btn-ok {
   background: var(--red-to-pink-to-purple-horizontal-gradient);
   color: white;
+  transition: opacity 0.2s ease;
+}
+
+.keypad .btn-ok.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Result summary badges */
@@ -260,22 +295,87 @@
   color: var(--gray-900);
 }
 
-/* Responsive Design */
+.summary-label {
+  font-size: 0.95rem;
+  color: var(--gray-700);
+  font-weight: 600;
+}
+
+/* Hide history remnants */
+.history-sidebar {
+  display: none;
+}
+
 @media (max-width: 768px) {
-  .subtraction-container { flex-direction: column; }
-  .main-area { padding: 1.5rem 1rem; gap: 1.25rem; }
-  .problem-display { font-size: 2.8rem; gap: 0.75rem; }
-  .operand-display, .question-mark { min-width: 4rem; padding: 0.5rem 1rem; }
-  .operator, .equals { font-size: 2.3rem; }
-  .answer-input { font-size: 1.6rem; width: 100%; max-width: 320px; }
-  .keypad { max-width: 100%; gap: 0.8rem; }
-  .keypad button { padding: 0.95rem 0; font-size: 1.4rem; }
+  .main-area {
+    padding: 1.25rem 1rem;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .type-selector {
+    margin-bottom: 1rem;
+  }
+
+  .type-toggle {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.9rem;
+  }
+
+  .problem-display {
+    font-size: 2.6rem;
+    gap: 0.6rem;
+  }
+
+  .operand-display,
+  .question-mark {
+    min-width: auto;
+    padding: 0.45rem 0.9rem;
+  }
+
+  .operator,
+  .equals {
+    font-size: 2.1rem;
+  }
+
+  .answer-input {
+    font-size: 1.5rem;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .keypad {
+    max-width: 100%;
+    gap: 0.8rem;
+  }
+
+  .keypad button {
+    padding: 0.95rem 0;
+    font-size: 1.4rem;
+  }
 }
 
 @media (max-width: 540px) {
-  .problem-display { font-size: 2.2rem; flex-wrap: wrap; }
-  .operand-display, .question-mark { min-width: auto; padding: 0.4rem 0.8rem; }
-  .answer-input { font-size: 1.4rem; max-width: 240px; }
-  .keypad button { padding: 0.85rem 0; font-size: 1.25rem; }
-  .badge { font-size: 0.9rem; }
+  .type-toggle {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .problem-display {
+    font-size: 2.1rem;
+  }
+
+  .answer-input {
+    font-size: 1.35rem;
+    max-width: 240px;
+  }
+
+  .keypad button {
+    padding: 0.85rem 0;
+    font-size: 1.25rem;
+  }
+
+  .badge {
+    font-size: 0.9rem;
+  }
 }
