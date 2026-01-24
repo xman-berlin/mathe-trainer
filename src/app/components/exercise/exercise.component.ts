@@ -3,7 +3,7 @@ import { StatsService } from '../../services/stats.service';
 
 const MAX_DIGITS = 3;
 
-type ExerciseType = 'addition' | 'subtraction';
+type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
 
 @Component({
   standalone: true,
@@ -20,7 +20,7 @@ export class ExerciseComponent implements AfterViewInit {
   feedback = signal<'idle' | 'correct' | 'incorrect'>('idle');
   showCorrectAnswer = signal(false);
 
-  selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction']));
+  selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
   currentType = signal<ExerciseType>('addition');
 
   @ViewChild('answerInput', { static: false }) answerInput?: ElementRef<HTMLInputElement>;
@@ -31,14 +31,24 @@ export class ExerciseComponent implements AfterViewInit {
     this.generateProblem();
   }
 
-  operatorSymbol = computed(() =>
-    this.currentType() === 'addition' ? '+' : '−'
-  );
+  operatorSymbol = computed(() => {
+    switch (this.currentType()) {
+      case 'addition': return '+';
+      case 'subtraction': return '−';
+      case 'multiplication': return '×';
+      case 'division': return '÷';
+    }
+  });
 
   correctAnswer = computed(() => {
     const a = this.operandA();
     const b = this.operandB();
-    return this.currentType() === 'addition' ? a + b : a - b;
+    switch (this.currentType()) {
+      case 'addition': return a + b;
+      case 'subtraction': return a - b;
+      case 'multiplication': return a * b;
+      case 'division': return a / b;
+    }
   });
 
   typeCorrectCount = computed(() => {
@@ -69,11 +79,18 @@ export class ExerciseComponent implements AfterViewInit {
     const current = this.selectedTypes();
     const newSet = new Set(current);
     if (newSet.has(type)) {
-      if (newSet.size > 1) newSet.delete(type);
+      if (newSet.size > 1) {
+        newSet.delete(type);
+        this.selectedTypes.set(newSet);
+        // Generate new problem if current type was deselected
+        if (this.currentType() === type) {
+          this.generateProblem();
+        }
+      }
     } else {
       newSet.add(type);
+      this.selectedTypes.set(newSet);
     }
-    this.selectedTypes.set(newSet);
   }
 
   ngAfterViewInit() {
@@ -92,29 +109,32 @@ export class ExerciseComponent implements AfterViewInit {
     let b: number;
 
     do {
-      // b is always 1-10
-      b = this.randomInt(1, 10);
-
       if (type === 'addition') {
-        // Tens crossing: (a % 10) + b > 10
-        // So ones digit of a must be >= (11 - b)
+        // b is 1-10, tens crossing: (a % 10) + b > 10
+        b = this.randomInt(1, 10);
         const minOnes = 11 - b;
         const maxOnes = 9;
         const ones = this.randomInt(minOnes, maxOnes);
-        // Tens can be 0-9, but a + b <= 100
         const maxTens = Math.floor((100 - b) / 10);
         const tens = this.randomInt(0, maxTens);
         a = tens * 10 + ones;
-      } else {
-        // Tens crossing: (a % 10) < b, need to borrow
-        // So ones digit of a must be 0 to (b - 1)
+      } else if (type === 'subtraction') {
+        // b is 1-10, tens crossing: (a % 10) < b, need to borrow
+        b = this.randomInt(1, 10);
         const ones = this.randomInt(0, b - 1);
-        // a must be >= 10 to have a meaningful subtraction with borrowing
-        // and a >= b for non-negative result
         const minTens = 1;
         const maxTens = 10;
         const tens = this.randomInt(minTens, maxTens);
         a = tens * 10 + ones;
+      } else if (type === 'multiplication') {
+        // Small multiplication table: 1-10 x 1-10
+        a = this.randomInt(1, 10);
+        b = this.randomInt(1, 10);
+      } else {
+        // Division: b divides a evenly, both factors 1-10
+        b = this.randomInt(1, 10);
+        const quotient = this.randomInt(1, 10);
+        a = b * quotient;
       }
     } while (a === prevA && b === prevB);
 

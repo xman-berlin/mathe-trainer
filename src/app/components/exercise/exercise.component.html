@@ -16,6 +16,20 @@
           (click)="toggleType('subtraction')">
           − Subtraktion
         </button>
+        <button
+          type="button"
+          class="type-toggle"
+          [class.active]="isTypeSelected('multiplication')"
+          (click)="toggleType('multiplication')">
+          × Multiplikation
+        </button>
+        <button
+          type="button"
+          class="type-toggle"
+          [class.active]="isTypeSelected('division')"
+          (click)="toggleType('division')">
+          ÷ Division
+        </button>
       </div>
 
       <div class="problem-display">
