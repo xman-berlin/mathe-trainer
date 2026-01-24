@@ -92,12 +92,29 @@ export class ExerciseComponent implements AfterViewInit {
     let b: number;
 
     do {
+      // b is always 1-10
+      b = this.randomInt(1, 10);
+
       if (type === 'addition') {
-        a = this.randomInt(0, 100);
-        b = this.randomInt(0, 100 - a);
+        // Tens crossing: (a % 10) + b > 10
+        // So ones digit of a must be >= (11 - b)
+        const minOnes = 11 - b;
+        const maxOnes = 9;
+        const ones = this.randomInt(minOnes, maxOnes);
+        // Tens can be 0-9, but a + b <= 100
+        const maxTens = Math.floor((100 - b) / 10);
+        const tens = this.randomInt(0, maxTens);
+        a = tens * 10 + ones;
       } else {
-        a = this.randomInt(0, 100);
-        b = this.randomInt(0, a);
+        // Tens crossing: (a % 10) < b, need to borrow
+        // So ones digit of a must be 0 to (b - 1)
+        const ones = this.randomInt(0, b - 1);
+        // a must be >= 10 to have a meaningful subtraction with borrowing
+        // and a >= b for non-negative result
+        const minTens = 1;
+        const maxTens = 10;
+        const tens = this.randomInt(minTens, maxTens);
+        a = tens * 10 + ones;
       }
     } while (a === prevA && b === prevB);
 
