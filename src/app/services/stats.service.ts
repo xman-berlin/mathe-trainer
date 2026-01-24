@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 
 interface ExerciseTypeStats {
   correct: number;
@@ -23,7 +23,7 @@ export class StatsService {
 
   readonly correctCount = this.correct.asReadonly();
   readonly incorrectCount = this.incorrect.asReadonly();
-  readonly totalCount = signal(0);
+  readonly totalCount = computed(() => this.correct() + this.incorrect());
   readonly statsByType = this.byType.asReadonly();
 
   constructor() {
@@ -37,7 +37,6 @@ export class StatsService {
     } else {
       this.incorrect.update(v => v + 1);
     }
-    this.totalCount.set(this.correct() + this.incorrect());
 
     // Update by type (immutable update to avoid mutating signal value)
     const current = this.byType();
@@ -58,7 +57,6 @@ export class StatsService {
     this.date.set(today);
     this.correct.set(0);
     this.incorrect.set(0);
-    this.totalCount.set(0);
     this.byType.set({});
     this.persist();
   }
@@ -94,7 +92,6 @@ export class StatsService {
       if (parsed.byType && Object.keys(parsed.byType).length > 0) {
         this.correct.set(parsed.correct || 0);
         this.incorrect.set(parsed.incorrect || 0);
-        this.totalCount.set((parsed.correct || 0) + (parsed.incorrect || 0));
         this.byType.set(parsed.byType);
       } else {
         // Old format detected, reset to start fresh with new structure

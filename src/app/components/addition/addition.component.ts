@@ -37,12 +37,17 @@ export class AdditionComponent implements AfterViewInit {
   }
 
   generateProblem() {
-    const a = this.randomInt(0, 100);
-    let b = this.randomInt(0, 100 - a);
-    // avoid repeating the exact same pair
-    if (a === this.operandA() && b === this.operandB()) {
+    const prevA = this.operandA();
+    const prevB = this.operandB();
+    let a: number;
+    let b: number;
+
+    // Generate new problem, avoiding exact repeat
+    do {
+      a = this.randomInt(0, 100);
       b = this.randomInt(0, 100 - a);
-    }
+    } while (a === prevA && b === prevB);
+
     this.operandA.set(a);
     this.operandB.set(b);
 

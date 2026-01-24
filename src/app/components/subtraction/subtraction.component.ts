@@ -36,10 +36,18 @@ export class SubtractionComponent implements AfterViewInit {
   }
 
   generateProblem() {
-    // Ensure A - B is between 0 and 100 and A <= 100
-    const a = this.randomInt(0, 100);
-    const bMax = Math.min(a, 100); // b cannot exceed a to keep result >= 0
-    const b = this.randomInt(0, bMax);
+    const prevA = this.operandA();
+    const prevB = this.operandB();
+    let a: number;
+    let b: number;
+
+    // Generate new problem, avoiding exact repeat
+    // Constraint: A - B >= 0 (b cannot exceed a)
+    do {
+      a = this.randomInt(0, 100);
+      b = this.randomInt(0, a);
+    } while (a === prevA && b === prevB);
+
     this.operandA.set(a);
     this.operandB.set(b);
 
