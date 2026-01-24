@@ -1,7 +1,8 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, DestroyRef, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StatsService } from './services/stats.service';
 
 @Component({
@@ -14,10 +15,15 @@ export class App {
   protected readonly title = signal('Mathe-Trainer');
   isExercisePage = signal(false);
 
+  private destroyRef = inject(DestroyRef);
+
   constructor(private router: Router, protected stats: StatsService) {
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: any) => {
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((event: NavigationEnd) => {
         const url = event.urlAfterRedirects;
         const isExercise = url.includes('/addition') || url.includes('/subtraction');
         this.isExercisePage.set(isExercise);

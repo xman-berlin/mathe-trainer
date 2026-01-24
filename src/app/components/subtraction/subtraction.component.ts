@@ -82,7 +82,9 @@ export class SubtractionComponent implements AfterViewInit {
   }
 
   submitAnswer() {
-    const parsed = Number(this.userAnswer());
+    const userInputValue = this.userAnswer();
+    if (userInputValue === '') return; // Prevent empty submission
+    const parsed = Number(userInputValue);
     const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer;
 
     this.feedback.set(isCorrect ? 'correct' : 'incorrect');

@@ -39,17 +39,16 @@ export class StatsService {
     }
     this.totalCount.set(this.correct() + this.incorrect());
 
-    // Update by type
+    // Update by type (immutable update to avoid mutating signal value)
     const current = this.byType();
-    if (!current[exerciseType]) {
-      current[exerciseType] = { correct: 0, incorrect: 0 };
-    }
-    if (isCorrect) {
-      current[exerciseType].correct++;
-    } else {
-      current[exerciseType].incorrect++;
-    }
-    this.byType.set({ ...current });
+    const typeStats = current[exerciseType] ?? { correct: 0, incorrect: 0 };
+    this.byType.set({
+      ...current,
+      [exerciseType]: {
+        correct: typeStats.correct + (isCorrect ? 1 : 0),
+        incorrect: typeStats.incorrect + (isCorrect ? 0 : 1)
+      }
+    });
 
     this.persist();
   }

@@ -104,6 +104,7 @@ export class AdditionComponent implements AfterViewInit {
 
   submitAnswer() {
     const userInputValue = this.userAnswer();
+    if (userInputValue === '') return; // Prevent empty submission
     const parsed = Number(userInputValue);
     const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer;
 
