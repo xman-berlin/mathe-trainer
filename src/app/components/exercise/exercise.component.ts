@@ -23,6 +23,10 @@ export class ExerciseComponent implements AfterViewInit {
   selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
   currentType = signal<ExerciseType>('addition');
 
+  // Selected multipliers for multiplication (empty = all, otherwise specific ones)
+  selectedMultipliers = signal<Set<number>>(new Set());
+  multiplierOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
   @ViewChild('answerInput', { static: false }) answerInput?: ElementRef<HTMLInputElement>;
 
   private isInitialized = false;
@@ -73,6 +77,36 @@ export class ExerciseComponent implements AfterViewInit {
 
   isTypeSelected(type: ExerciseType): boolean {
     return this.selectedTypes().has(type);
+  }
+
+  toggleMultiplier(value: number) {
+    const current = this.selectedMultipliers();
+    const newSet = new Set(current);
+    if (newSet.has(value)) {
+      newSet.delete(value);
+    } else {
+      newSet.add(value);
+    }
+    this.selectedMultipliers.set(newSet);
+    // Generate new problem if multiplication is active
+    if (this.currentType() === 'multiplication') {
+      this.generateProblem();
+    }
+  }
+
+  isMultiplierSelected(value: number): boolean {
+    return this.selectedMultipliers().has(value);
+  }
+
+  allMultipliersSelected(): boolean {
+    return this.selectedMultipliers().size === 0;
+  }
+
+  selectAllMultipliers() {
+    this.selectedMultipliers.set(new Set());
+    if (this.currentType() === 'multiplication') {
+      this.generateProblem();
+    }
   }
 
   toggleType(type: ExerciseType) {
@@ -128,8 +162,16 @@ export class ExerciseComponent implements AfterViewInit {
         a = tens * 10 + ones;
       } else if (type === 'multiplication') {
         // Small multiplication table: 1-10 x 1-10
-        a = this.randomInt(1, 10);
-        b = this.randomInt(1, 10);
+        const selected = this.selectedMultipliers();
+        if (selected.size > 0) {
+          // Practice specific multiplication tables
+          const multipliers = Array.from(selected);
+          a = multipliers[Math.floor(Math.random() * multipliers.length)];
+          b = this.randomInt(1, 10);
+        } else {
+          a = this.randomInt(1, 10);
+          b = this.randomInt(1, 10);
+        }
       } else {
         // Division: b divides a evenly, both factors 1-10
         b = this.randomInt(1, 10);

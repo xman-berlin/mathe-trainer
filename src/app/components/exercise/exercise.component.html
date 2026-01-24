@@ -36,6 +36,28 @@
         </button>
       </div>
 
+      @if (isTypeSelected('multiplication')) {
+        <div class="multiplier-selector">
+          <span class="multiplier-label">Malfolge:</span>
+          <button
+            type="button"
+            class="multiplier-btn"
+            [class.active]="allMultipliersSelected()"
+            (click)="selectAllMultipliers()">
+            Alle
+          </button>
+          @for (opt of multiplierOptions; track opt) {
+            <button
+              type="button"
+              class="multiplier-btn"
+              [class.active]="isMultiplierSelected(opt)"
+              (click)="toggleMultiplier(opt)">
+              {{ opt }}
+            </button>
+          }
+        </div>
+      }
+
       <div class="problem-display">
         <div class="operand-display">{{ operandA() }}</div>
         <div class="operator">{{ operatorSymbol() }}</div>
