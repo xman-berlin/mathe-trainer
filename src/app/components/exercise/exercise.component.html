@@ -36,22 +36,22 @@
         </button>
       </div>
 
-      @if (isTypeSelected('multiplication')) {
+      @if (isTypeSelected('multiplication') || isTypeSelected('division')) {
         <div class="multiplier-selector">
-          <span class="multiplier-label">Malfolge:</span>
+          <span class="multiplier-label">Reihe:</span>
           <button
             type="button"
             class="multiplier-btn"
-            [class.active]="allMultipliersSelected()"
-            (click)="selectAllMultipliers()">
+            [class.active]="allNumbersSelected()"
+            (click)="selectAllNumbers()">
             Alle
           </button>
-          @for (opt of multiplierOptions; track opt) {
+          @for (opt of numberOptions; track opt) {
             <button
               type="button"
               class="multiplier-btn"
-              [class.active]="isMultiplierSelected(opt)"
-              (click)="toggleMultiplier(opt)">
+              [class.active]="isNumberSelected(opt)"
+              (click)="toggleNumber(opt)">
               {{ opt }}
             </button>
           }

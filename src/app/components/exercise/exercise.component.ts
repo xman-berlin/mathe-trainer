@@ -23,9 +23,9 @@ export class ExerciseComponent implements AfterViewInit {
   selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
   currentType = signal<ExerciseType>('addition');
 
-  // Selected multipliers for multiplication (empty = all, otherwise specific ones)
-  selectedMultipliers = signal<Set<number>>(new Set());
-  multiplierOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  // Selected numbers for multiplication and division (empty = all, otherwise specific ones)
+  selectedNumbers = signal<Set<number>>(new Set());
+  numberOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   @ViewChild('answerInput', { static: false }) answerInput?: ElementRef<HTMLInputElement>;
 
@@ -79,32 +79,32 @@ export class ExerciseComponent implements AfterViewInit {
     return this.selectedTypes().has(type);
   }
 
-  toggleMultiplier(value: number) {
-    const current = this.selectedMultipliers();
+  toggleNumber(value: number) {
+    const current = this.selectedNumbers();
     const newSet = new Set(current);
     if (newSet.has(value)) {
       newSet.delete(value);
     } else {
       newSet.add(value);
     }
-    this.selectedMultipliers.set(newSet);
-    // Generate new problem if multiplication is active
-    if (this.currentType() === 'multiplication') {
+    this.selectedNumbers.set(newSet);
+    // Generate new problem if multiplication or division is active
+    if (this.currentType() === 'multiplication' || this.currentType() === 'division') {
       this.generateProblem();
     }
   }
 
-  isMultiplierSelected(value: number): boolean {
-    return this.selectedMultipliers().has(value);
+  isNumberSelected(value: number): boolean {
+    return this.selectedNumbers().has(value);
   }
 
-  allMultipliersSelected(): boolean {
-    return this.selectedMultipliers().size === 0;
+  allNumbersSelected(): boolean {
+    return this.selectedNumbers().size === 0;
   }
 
-  selectAllMultipliers() {
-    this.selectedMultipliers.set(new Set());
-    if (this.currentType() === 'multiplication') {
+  selectAllNumbers() {
+    this.selectedNumbers.set(new Set());
+    if (this.currentType() === 'multiplication' || this.currentType() === 'division') {
       this.generateProblem();
     }
   }
@@ -162,11 +162,10 @@ export class ExerciseComponent implements AfterViewInit {
         a = tens * 10 + ones;
       } else if (type === 'multiplication') {
         // Small multiplication table: 1-10 x 1-10
-        const selected = this.selectedMultipliers();
+        const selected = this.selectedNumbers();
         if (selected.size > 0) {
-          // Practice specific multiplication tables
-          const multipliers = Array.from(selected);
-          a = multipliers[Math.floor(Math.random() * multipliers.length)];
+          const numbers = Array.from(selected);
+          a = numbers[Math.floor(Math.random() * numbers.length)];
           b = this.randomInt(1, 10);
         } else {
           a = this.randomInt(1, 10);
@@ -174,7 +173,13 @@ export class ExerciseComponent implements AfterViewInit {
         }
       } else {
         // Division: b divides a evenly, both factors 1-10
-        b = this.randomInt(1, 10);
+        const selected = this.selectedNumbers();
+        if (selected.size > 0) {
+          const numbers = Array.from(selected);
+          b = numbers[Math.floor(Math.random() * numbers.length)];
+        } else {
+          b = this.randomInt(1, 10);
+        }
         const quotient = this.randomInt(1, 10);
         a = b * quotient;
       }
