@@ -1,6 +1,5 @@
-<div class="addition-root">
+<div class="addition-root" tabindex="0" (keydown)="handleKeydown($event)">
   <div class="addition-container">
-    <!-- Main Content Area -->
     <div class="main-area">
       <div class="problem-display">
         <div class="operand-display">{{ operandA() }}</div>
@@ -23,6 +22,7 @@
           class="answer-input"
           placeholder="0"
           tabindex="0"
+          maxlength="3"
         />
       </div>
 
@@ -36,26 +36,35 @@
         <button type="button" (click)="addDigit('7')">7</button>
         <button type="button" (click)="addDigit('8')">8</button>
         <button type="button" (click)="addDigit('9')">9</button>
-        <button type="button" class="btn-del" (click)="deleteDigit()">⌫</button>
+        <button type="button" class="btn-del" (click)="deleteDigit()">&#x232b;</button>
         <button type="button" (click)="addDigit('0')">0</button>
-        <button type="button" class="btn-ok" (click)="submitFromKeypad()">OK</button>
+        <button
+          type="button"
+          class="btn-ok"
+          [class.btn-disabled]="userAnswer() === ''"
+          [disabled]="userAnswer() === ''"
+          (click)="submitAnswer()">OK</button>
       </div>
 
       <div class="feedback-area">
-        <div *ngIf="feedback() === 'correct'" class="feedback correct">✓ Richtig!</div>
-        <div *ngIf="feedback() === 'incorrect'" class="feedback incorrect">
-          ✗ Falsch. <span *ngIf="showCorrectAnswer()">Richtige Antwort: {{ correctAnswer }}</span>
-        </div>
+        @if (feedback() === 'correct') {
+          <div class="feedback correct">&#x2713; Richtig!</div>
+        }
+        @if (feedback() === 'incorrect') {
+          <div class="feedback incorrect">
+            &#x2717; Falsch. @if (showCorrectAnswer()) {
+              <span>Richtige Antwort: {{ correctAnswer() }}</span>
+            }
+          </div>
+        }
       </div>
 
       <div class="result-summary">
-        <span class="badge badge-correct">✓ {{ typeCorrectCount() }}</span>
-        <span class="badge badge-incorrect">✗ {{ typeIncorrectCount() }}</span>
-        <span class="badge badge-total">Σ {{ typeTotalCount() }}</span>
+        <span class="badge badge-correct">&#x2713; {{ typeCorrectCount() }}</span>
+        <span class="badge badge-incorrect">&#x2717; {{ typeIncorrectCount() }}</span>
+        <span class="badge badge-total">&#x3a3; {{ typeTotalCount() }}</span>
         <span class="summary-label">Heute</span>
       </div>
     </div>
-
-    <!-- History removed -->
   </div>
 </div>

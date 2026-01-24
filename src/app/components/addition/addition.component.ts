@@ -1,21 +1,12 @@
 import { Component, ElementRef, ViewChild, signal, AfterViewInit, ChangeDetectionStrategy, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
 
-interface HistoryEntry {
-  operandA: number;
-  operandB: number;
-  correctAnswer: number;
-  userAnswer: number | null;
-  isCorrect: boolean;
-  timestamp: number;
-}
+const MAX_DIGITS = 3;
 
 @Component({
   standalone: true,
   selector: 'app-addition',
-  imports: [CommonModule, FormsModule],
+  imports: [],
   templateUrl: './addition.component.html',
   styleUrls: ['./addition.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -26,7 +17,6 @@ export class AdditionComponent implements AfterViewInit {
   userAnswer = signal('');
   feedback = signal<'idle' | 'correct' | 'incorrect'>('idle');
   showCorrectAnswer = signal(false);
-  history = signal<HistoryEntry[]>([]);
 
   @ViewChild('answerInput', { static: false }) answerInput?: ElementRef<HTMLInputElement>;
 
@@ -36,6 +26,7 @@ export class AdditionComponent implements AfterViewInit {
     this.generateProblem();
   }
 
+  correctAnswer = computed(() => this.operandA() + this.operandB());
   typeCorrectCount = computed(() => this.stats.statsByType()['addition']?.correct ?? 0);
   typeIncorrectCount = computed(() => this.stats.statsByType()['addition']?.incorrect ?? 0);
   typeTotalCount = computed(() => this.typeCorrectCount() + this.typeIncorrectCount());
@@ -45,34 +36,15 @@ export class AdditionComponent implements AfterViewInit {
     setTimeout(() => this.focusInput(), 50);
   }
 
-  get correctAnswer(): number {
-    return this.operandA() + this.operandB();
-  }
-
-  get correctCount(): number {
-    return this.stats.correctCount();
-  }
-
-  get incorrectCount(): number {
-    return this.stats.incorrectCount();
-  }
-
-  get totalCount(): number {
-    return this.stats.totalCount();
-  }
-
   generateProblem() {
     const a = this.randomInt(0, 100);
-    const b = this.randomInt(0, 100 - a);
+    let b = this.randomInt(0, 100 - a);
     // avoid repeating the exact same pair
     if (a === this.operandA() && b === this.operandB()) {
-      const b2 = this.randomInt(0, 100 - a);
-      this.operandA.set(a);
-      this.operandB.set(b2);
-    } else {
-      this.operandA.set(a);
-      this.operandB.set(b);
+      b = this.randomInt(0, 100 - a);
     }
+    this.operandA.set(a);
+    this.operandB.set(b);
 
     this.userAnswer.set('');
     this.feedback.set('idle');
@@ -89,7 +61,9 @@ export class AdditionComponent implements AfterViewInit {
   }
 
   addDigit(digit: string) {
-    const next = (this.userAnswer() + digit).replace(/^0+(\d)/, '$1');
+    const current = this.userAnswer();
+    if (current.length >= MAX_DIGITS) return; // Enforce max length
+    const next = (current + digit).replace(/^0+(\d)/, '$1');
     this.userAnswer.set(next);
   }
 
@@ -98,28 +72,36 @@ export class AdditionComponent implements AfterViewInit {
     this.userAnswer.set(val.length > 0 ? val.slice(0, -1) : '');
   }
 
-  submitFromKeypad() {
-    this.submitAnswer();
+  handleKeydown(event: KeyboardEvent) {
+    const key = event.key;
+
+    // Handle digit keys (0-9)
+    if (/^[0-9]$/.test(key)) {
+      event.preventDefault();
+      this.addDigit(key);
+      return;
+    }
+
+    // Handle backspace/delete
+    if (key === 'Backspace' || key === 'Delete') {
+      event.preventDefault();
+      this.deleteDigit();
+      return;
+    }
+
+    // Handle enter
+    if (key === 'Enter') {
+      event.preventDefault();
+      this.submitAnswer();
+      return;
+    }
   }
 
   submitAnswer() {
     const userInputValue = this.userAnswer();
     if (userInputValue === '') return; // Prevent empty submission
     const parsed = Number(userInputValue);
-    const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer;
-
-    // Add to history
-    const historyEntry: HistoryEntry = {
-      operandA: this.operandA(),
-      operandB: this.operandB(),
-      correctAnswer: this.correctAnswer,
-      userAnswer: Number.isFinite(parsed) && Number.isInteger(parsed) ? parsed : null,
-      isCorrect: isCorrect,
-      timestamp: Date.now()
-    };
-
-    const currentHistory = this.history();
-    this.history.set([historyEntry, ...currentHistory]);
+    const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer();
 
     // Always generate next problem after brief feedback
     if (isCorrect) {
@@ -132,11 +114,6 @@ export class AdditionComponent implements AfterViewInit {
     }
 
     this.stats.recordResult(isCorrect, 'addition');
-  }
-
-  next() {
-    // This method is no longer needed but kept for backward compatibility
-    this.generateProblem();
   }
 
   focusInput() {

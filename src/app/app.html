@@ -11,7 +11,7 @@
 <main>
   <router-outlet></router-outlet>
 
-  <ng-container *ngIf="!isExercisePage()">
+  @if (!isExercisePage()) {
     <section class="content-area stats-area" style="margin-top: 2rem;">
       <div class="stats-card">
         <h2>Heutige Statistik</h2>
@@ -21,22 +21,28 @@
           <span class="badge badge-total">Σ {{ stats.totalCount() }}</span>
         </div>
 
-        <div *ngIf="exerciseTypes().length > 0" class="stats-by-type">
-          <div class="type-stats">
-            <div *ngFor="let type of exerciseTypes()" class="type-item">
-              <span class="type-name">{{ getExerciseLabel(type) }}</span>
-              <span class="type-badges">
-                <span class="type-badge type-correct">✓ {{ getTypeStats(type).correct }}</span>
-                <span class="type-badge type-incorrect">✗ {{ getTypeStats(type).incorrect }}</span>
-              </span>
+        @if (exerciseTypes().length > 0) {
+          <div class="stats-by-type">
+            <div class="type-stats">
+              @for (type of exerciseTypes(); track type) {
+                <div class="type-item">
+                  <span class="type-name">{{ getExerciseLabel(type) }}</span>
+                  <span class="type-badges">
+                    <span class="type-badge type-correct">✓ {{ getTypeStats(type).correct }}</span>
+                    <span class="type-badge type-incorrect">✗ {{ getTypeStats(type).incorrect }}</span>
+                  </span>
+                </div>
+              }
             </div>
           </div>
-        </div>
+        }
       </div>
     </section>
-  </ng-container>
+  }
 </main>
 
-<footer *ngIf="!isExercisePage()">
-  <p>&copy; 2026 Mathe-Trainer. Alle Rechte vorbehalten.</p>
-</footer>
+@if (!isExercisePage()) {
+  <footer>
+    <p>&copy; 2026 Mathe-Trainer. Alle Rechte vorbehalten.</p>
+  </footer>
+}

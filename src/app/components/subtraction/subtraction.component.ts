@@ -1,12 +1,12 @@
 import { Component, ElementRef, ViewChild, signal, AfterViewInit, ChangeDetectionStrategy, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
+
+const MAX_DIGITS = 3;
 
 @Component({
   standalone: true,
   selector: 'app-subtraction',
-  imports: [CommonModule, FormsModule],
+  imports: [],
   templateUrl: './subtraction.component.html',
   styleUrls: ['../addition/addition.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -21,10 +21,11 @@ export class SubtractionComponent implements AfterViewInit {
   @ViewChild('answerInput', { static: false }) answerInput?: ElementRef<HTMLInputElement>;
   private isInitialized = false;
 
-  constructor(public stats: StatsService) {
+  constructor(private stats: StatsService) {
     this.generateProblem();
   }
 
+  correctAnswer = computed(() => this.operandA() - this.operandB());
   typeCorrectCount = computed(() => this.stats.statsByType()['subtraction']?.correct ?? 0);
   typeIncorrectCount = computed(() => this.stats.statsByType()['subtraction']?.incorrect ?? 0);
   typeTotalCount = computed(() => this.typeCorrectCount() + this.typeIncorrectCount());
@@ -34,10 +35,6 @@ export class SubtractionComponent implements AfterViewInit {
     setTimeout(() => this.focusInput(), 50);
   }
 
-  get correctAnswer(): number {
-    return this.operandA() - this.operandB();
-  }
-
   generateProblem() {
     // Ensure A - B is between 0 and 100 and A <= 100
     const a = this.randomInt(0, 100);
@@ -45,14 +42,6 @@ export class SubtractionComponent implements AfterViewInit {
     const b = this.randomInt(0, bMax);
     this.operandA.set(a);
     this.operandB.set(b);
-
-    // If result exceeds 100 (it can't with above), but keep defensive check
-    const res = a - b;
-    if (res < 0 || res > 100) {
-      // regenerate conservatively
-      this.operandA.set(100);
-      this.operandB.set(this.randomInt(0, 100));
-    }
 
     this.userAnswer.set('');
     this.feedback.set('idle');
@@ -68,7 +57,9 @@ export class SubtractionComponent implements AfterViewInit {
   }
 
   addDigit(digit: string) {
-    const next = (this.userAnswer() + digit).replace(/^0+(\d)/, '$1');
+    const current = this.userAnswer();
+    if (current.length >= MAX_DIGITS) return; // Enforce max length
+    const next = (current + digit).replace(/^0+(\d)/, '$1');
     this.userAnswer.set(next);
   }
 
@@ -77,15 +68,36 @@ export class SubtractionComponent implements AfterViewInit {
     this.userAnswer.set(val.length > 0 ? val.slice(0, -1) : '');
   }
 
-  submitFromKeypad() {
-    this.submitAnswer();
+  handleKeydown(event: KeyboardEvent) {
+    const key = event.key;
+
+    // Handle digit keys (0-9)
+    if (/^[0-9]$/.test(key)) {
+      event.preventDefault();
+      this.addDigit(key);
+      return;
+    }
+
+    // Handle backspace/delete
+    if (key === 'Backspace' || key === 'Delete') {
+      event.preventDefault();
+      this.deleteDigit();
+      return;
+    }
+
+    // Handle enter
+    if (key === 'Enter') {
+      event.preventDefault();
+      this.submitAnswer();
+      return;
+    }
   }
 
   submitAnswer() {
     const userInputValue = this.userAnswer();
     if (userInputValue === '') return; // Prevent empty submission
     const parsed = Number(userInputValue);
-    const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer;
+    const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer();
 
     this.feedback.set(isCorrect ? 'correct' : 'incorrect');
     if (!isCorrect) {
@@ -105,6 +117,8 @@ export class SubtractionComponent implements AfterViewInit {
       const inputElement = this.answerInput.nativeElement;
       inputElement.focus();
       inputElement.select();
-    } catch {}
+    } catch {
+      // Silently ignore focus errors
+    }
   }
 }

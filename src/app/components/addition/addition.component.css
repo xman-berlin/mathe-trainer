@@ -222,6 +222,12 @@
 .keypad .btn-ok {
   background: var(--red-to-pink-to-purple-horizontal-gradient);
   color: white;
+  transition: opacity 0.2s ease;
+}
+
+.keypad .btn-ok.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Result summary badges */
