@@ -1,0 +1,37 @@
+<section class="content-area achievements-container">
+  <h1 class="achievements-title">🏆 Malfolgen-Meister</h1>
+
+  <div class="badges-grid">
+    @for (reihe of reihen; track reihe) {
+      <div
+        class="badge-card"
+        [class.mastered]="isMastered(reihe)"
+        [class.in-progress]="!isMastered(reihe) && getMastery(reihe).currentStreak > 0">
+        <div class="badge-number">{{ reihe }}</div>
+        <div class="badge-icon">
+          @if (isMastered(reihe)) {
+            🏅
+          } @else {
+            📊
+          }
+        </div>
+        <div class="badge-progress">{{ getProgressText(reihe) }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="summary">
+    <p>
+      <strong>{{ achievements.totalMastered() }}</strong> von <strong>10</strong> Reihen gemeistert
+    </p>
+    @if (achievements.totalMastered() === 10) {
+      <p class="congratulations">🎉 Herzlichen Glückwunsch! Du hast alle Reihen gemeistert!</p>
+    }
+  </div>
+
+  <div class="info-box">
+    <h3>So funktioniert's</h3>
+    <p>Beantworte 10 Aufgaben einer Malfolge hintereinander richtig, um sie zu meistern!</p>
+    <p>Eine falsche Antwort setzt den Fortschritt zurück, aber bereits gemeisterte Reihen bleiben erhalten.</p>
+  </div>
+</section>

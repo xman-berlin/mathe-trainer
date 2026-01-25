@@ -1,0 +1,211 @@
+.achievements-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.achievements-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 2rem;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.badge-card {
+  background: white;
+  border: 2px solid var(--gray-400);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-card.in-progress {
+  border-color: var(--bright-blue);
+  background: color-mix(in srgb, var(--bright-blue) 5%, white);
+}
+
+.badge-card.mastered {
+  border-color: #f39c12;
+  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+  animation: pulse 0.5s ease-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.badge-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.badge-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.badge-progress {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.badge-card.mastered .badge-progress {
+  font-size: 1.5rem;
+  color: #d68910;
+}
+
+.summary {
+  text-align: center;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.summary p {
+  font-size: 1.1rem;
+  color: var(--gray-900);
+  margin: 0.5rem 0;
+}
+
+.congratulations {
+  font-size: 1.3rem !important;
+  font-weight: 600;
+  color: var(--bright-blue);
+  margin-top: 1rem !important;
+}
+
+.info-box {
+  background: color-mix(in srgb, var(--bright-blue) 5%, white);
+  border: 1px solid var(--bright-blue);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.info-box h3 {
+  color: var(--bright-blue);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.info-box p {
+  color: var(--gray-700);
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.info-box p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .achievements-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .badges-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+  }
+
+  .badge-card {
+    padding: 1rem;
+    min-height: 110px;
+  }
+
+  .badge-number {
+    font-size: 1.2rem;
+  }
+
+  .badge-icon {
+    font-size: 2rem;
+  }
+
+  .badge-progress {
+    font-size: 0.75rem;
+  }
+
+  .badge-card.mastered .badge-progress {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 540px) {
+  .badges-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+  }
+
+  .badge-card {
+    padding: 0.75rem;
+    min-height: 90px;
+  }
+
+  .badge-number {
+    font-size: 1rem;
+  }
+
+  .badge-icon {
+    font-size: 1.5rem;
+  }
+
+  .badge-progress {
+    font-size: 0.65rem;
+  }
+
+  .badge-card.mastered .badge-progress {
+    font-size: 1rem;
+  }
+
+  .summary {
+    padding: 1rem;
+  }
+
+  .summary p {
+    font-size: 0.95rem;
+  }
+
+  .congratulations {
+    font-size: 1.1rem !important;
+  }
+
+  .info-box {
+    padding: 1rem;
+  }
+
+  .info-box h3 {
+    font-size: 1rem;
+  }
+
+  .info-box p {
+    font-size: 0.9rem;
+  }
+}

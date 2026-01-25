@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild, signal, AfterViewInit, ChangeDetectionStrategy, computed, inject } from '@angular/core';
 import { StatsService } from '../../services/stats.service';
+import { AchievementsService } from '../../services/achievements.service';
 
 const MAX_DIGITS = 3;
 
@@ -42,6 +43,7 @@ export class ExerciseComponent implements AfterViewInit {
 
   private isInitialized = false;
   private stats = inject(StatsService);
+  private achievements = inject(AchievementsService);
 
   constructor() {
     this.generateProblem();
@@ -286,6 +288,12 @@ export class ExerciseComponent implements AfterViewInit {
     }
 
     this.stats.recordResult(isCorrect, this.currentType());
+
+    // Track multiplication mastery
+    if (this.currentType() === 'multiplication') {
+      const reihe = this.operandB();
+      this.achievements.recordMultiplicationResult(reihe, isCorrect);
+    }
   }
 
   focusInput() {
