@@ -30,7 +30,7 @@ export class StatsService {
     this.load();
   }
 
-  recordResult(isCorrect: boolean, exerciseType: string = 'addition') {
+  recordResult(isCorrect: boolean, exerciseType = 'addition') {
     this.ensureToday();
     if (isCorrect) {
       this.correct.update(v => v + 1);

@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, signal, AfterViewInit, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, ElementRef, ViewChild, signal, AfterViewInit, ChangeDetectionStrategy, computed, inject } from '@angular/core';
 import { StatsService } from '../../services/stats.service';
 
 const MAX_DIGITS = 3;
@@ -41,8 +41,9 @@ export class ExerciseComponent implements AfterViewInit {
   @ViewChild('answerInput', { static: false }) answerInput?: ElementRef<HTMLInputElement>;
 
   private isInitialized = false;
+  private stats = inject(StatsService);
 
-  constructor(private stats: StatsService) {
+  constructor() {
     this.generateProblem();
   }
 

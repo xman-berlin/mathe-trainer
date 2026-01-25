@@ -15,8 +15,10 @@ export class App {
   isExercisePage = signal(false);
 
   private destroyRef = inject(DestroyRef);
+  private router = inject(Router);
+  protected stats = inject(StatsService);
 
-  constructor(private router: Router, protected stats: StatsService) {
+  constructor() {
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd),
