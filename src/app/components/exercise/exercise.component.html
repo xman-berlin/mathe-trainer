@@ -116,6 +116,20 @@
         }
       </div>
 
+      <div class="streak-display" [class.has-streak]="streak() > 0">
+        <span class="streak-icon">&#x1F525;</span>
+        <span class="streak-count">{{ streak() }}</span>
+        @if (bestStreak() > 0 && bestStreak() > streak()) {
+          <span class="best-streak">Rekord: {{ bestStreak() }}</span>
+        }
+      </div>
+
+      @if (showMilestone()) {
+        <div class="milestone-popup">
+          &#x1F389; {{ milestoneValue() }}er Serie! &#x1F389;
+        </div>
+      }
+
       <div class="result-summary">
         <span class="badge badge-correct">&#x2713; {{ typeCorrectCount() }}</span>
         <span class="badge badge-incorrect">&#x2717; {{ typeIncorrectCount() }}</span>

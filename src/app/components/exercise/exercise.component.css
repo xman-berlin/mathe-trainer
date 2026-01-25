@@ -313,6 +313,78 @@
   cursor: not-allowed;
 }
 
+/* Streak Display */
+.streak-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  background: var(--gray-100);
+  color: var(--gray-400);
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.streak-display.has-streak {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7c531 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+.streak-icon {
+  font-size: 1.1rem;
+}
+
+.streak-count {
+  font-size: 1rem;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.best-streak {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-left: 0.3rem;
+}
+
+/* Milestone Popup */
+.milestone-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 16px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+  z-index: 1000;
+  animation: milestonePopIn 0.5s ease-out;
+  pointer-events: none;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@keyframes milestonePopIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
 /* Result summary badges */
 .result-summary {
   display: flex;
@@ -429,6 +501,27 @@
     font-size: 1.3rem;
   }
 
+  .streak-display {
+    padding: 0.3rem 0.6rem;
+  }
+
+  .streak-icon {
+    font-size: 0.9rem;
+  }
+
+  .streak-count {
+    font-size: 0.85rem;
+  }
+
+  .best-streak {
+    font-size: 0.65rem;
+  }
+
+  .milestone-popup {
+    font-size: 1.2rem;
+    padding: 0.75rem 1.5rem;
+  }
+
   .feedback-area {
     min-height: 1.5rem;
   }
@@ -516,6 +609,27 @@
   .feedback {
     font-size: 0.9rem;
     padding: 0.4rem 0.8rem;
+  }
+
+  .streak-display {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .streak-icon {
+    font-size: 0.8rem;
+  }
+
+  .streak-count {
+    font-size: 0.8rem;
+  }
+
+  .best-streak {
+    font-size: 0.6rem;
+  }
+
+  .milestone-popup {
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
   }
 
   .badge {

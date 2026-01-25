@@ -20,6 +20,13 @@ export class ExerciseComponent implements AfterViewInit {
   feedback = signal<'idle' | 'correct' | 'incorrect'>('idle');
   showCorrectAnswer = signal(false);
 
+  // Streak tracking
+  streak = signal(0);
+  bestStreak = signal(0);
+  showMilestone = signal(false);
+  milestoneValue = signal(0);
+  private streakMilestones = [5, 10, 25, 50, 100];
+
   selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
   currentType = signal<ExerciseType>('addition');
 
@@ -167,8 +174,8 @@ export class ExerciseComponent implements AfterViewInit {
         const selected = this.selectedNumbers();
         if (selected.size > 0) {
           const numbers = Array.from(selected);
-          a = numbers[Math.floor(Math.random() * numbers.length)];
-          b = this.randomInt(1, 10);
+          a = this.randomInt(1, 10);
+          b = numbers[Math.floor(Math.random() * numbers.length)];
         } else {
           a = this.randomInt(1, 10);
           b = this.randomInt(1, 10);
@@ -241,15 +248,34 @@ export class ExerciseComponent implements AfterViewInit {
   submitAnswer() {
     const userInputValue = this.userAnswer();
     if (userInputValue === '') return;
+    // Prevent multiple submissions while showing feedback
+    if (this.feedback() !== 'idle') return;
+
     const parsed = Number(userInputValue);
     const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer();
 
     if (isCorrect) {
       this.feedback.set('correct');
+      const newStreak = this.streak() + 1;
+      this.streak.set(newStreak);
+
+      // Update best streak
+      if (newStreak > this.bestStreak()) {
+        this.bestStreak.set(newStreak);
+      }
+
+      // Check for milestone
+      if (this.streakMilestones.includes(newStreak)) {
+        this.milestoneValue.set(newStreak);
+        this.showMilestone.set(true);
+        setTimeout(() => this.showMilestone.set(false), 1500);
+      }
+
       setTimeout(() => this.generateProblem(), 600);
     } else {
       this.feedback.set('incorrect');
       this.showCorrectAnswer.set(true);
+      this.streak.set(0); // Reset streak on wrong answer
       setTimeout(() => this.generateProblem(), 1200);
     }
 
