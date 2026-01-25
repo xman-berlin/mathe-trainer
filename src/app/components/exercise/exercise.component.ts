@@ -25,7 +25,11 @@ export class ExerciseComponent implements AfterViewInit {
   bestStreak = signal(0);
   showMilestone = signal(false);
   milestoneValue = signal(0);
-  private streakMilestones = [5, 10, 25, 50, 100];
+  private streakMilestones = [5, 10, 20, 30, 40, 50, 75, 100];
+
+  // Confetti
+  confettiPieces = Array.from({ length: 20 }, (_, i) => i);
+  confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
 
   selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
   currentType = signal<ExerciseType>('addition');
@@ -267,8 +271,9 @@ export class ExerciseComponent implements AfterViewInit {
       // Check for milestone
       if (this.streakMilestones.includes(newStreak)) {
         this.milestoneValue.set(newStreak);
+        this.confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
         this.showMilestone.set(true);
-        setTimeout(() => this.showMilestone.set(false), 1500);
+        setTimeout(() => this.showMilestone.set(false), 2000);
       }
 
       setTimeout(() => this.generateProblem(), 600);

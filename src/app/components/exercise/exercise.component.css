@@ -385,6 +385,37 @@
   }
 }
 
+/* Confetti */
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  top: -10px;
+  left: calc(var(--x) * 1%);
+  width: 10px;
+  height: 10px;
+  animation: confettiFall 1.5s ease-out forwards;
+  animation-delay: var(--delay);
+  opacity: 0;
+}
+
+.confetti:nth-child(3n) { background: #ff6b6b; }
+.confetti:nth-child(3n+1) { background: #feca57; }
+.confetti:nth-child(3n+2) { background: #48dbfb; }
+.confetti:nth-child(odd) { border-radius: 2px; }
+.confetti:nth-child(even) { border-radius: 50%; }
+
+@keyframes confettiFall {
+  0% { opacity: 1; top: -10px; transform: rotate(0deg); }
+  100% { opacity: 0; top: 100vh; transform: rotate(720deg); }
+}
+
 /* Result summary badges */
 .result-summary {
   display: flex;
