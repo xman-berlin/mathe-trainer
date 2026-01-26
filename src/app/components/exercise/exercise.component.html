@@ -1,6 +1,30 @@
 <div class="exercise-root" tabindex="0" (keydown)="handleKeydown($event)">
   <div class="exercise-container">
     <div class="main-area">
+      <a routerLink="/" class="back-home-btn">← Zurück</a>
+
+      @if (timeTrialActive()) {
+        <div class="timer-display" [class.critical]="timeRemaining() <= 10">
+          <div class="timer-value">{{ timeRemaining() }}s</div>
+          <div class="timer-score">{{ timeTrialCorrect() }}/{{ timeTrialTotal() }} richtig</div>
+        </div>
+      }
+
+      @if (mode() === 'timeTrial' && !timeTrialActive()) {
+        <div class="trial-start-section">
+          <p class="trial-description">Löse so viele Aufgaben wie möglich in 60 Sekunden!</p>
+          <button class="start-trial-btn" (click)="startTimeTrial()">
+            ▶️ Starten
+          </button>
+          @if (currentPersonalBest()) {
+            <div class="current-best">
+              🏆 Dein Rekord: {{ currentPersonalBest()!.correctCount }} richtig
+              ({{ currentPersonalBest()!.accuracy }}%)
+            </div>
+          }
+        </div>
+      }
+
       <div class="type-selector">
         <button
           type="button"
@@ -36,7 +60,7 @@
         </button>
       </div>
 
-      @if (isTypeSelected('multiplication') || isTypeSelected('division')) {
+      @if (mode() === 'practice' && (isTypeSelected('multiplication') || isTypeSelected('division'))) {
         <div class="multiplier-selector">
           <span class="multiplier-label">Reihe:</span>
           <button
@@ -116,13 +140,15 @@
         }
       </div>
 
-      <div class="streak-display" [class.has-streak]="streak() > 0">
-        <span class="streak-icon">&#x1F525;</span>
-        <span class="streak-count">{{ streak() }}</span>
-        @if (bestStreak() > 0 && bestStreak() > streak()) {
-          <span class="best-streak">Rekord: {{ bestStreak() }}</span>
-        }
-      </div>
+      @if (mode() === 'practice') {
+        <div class="streak-display" [class.has-streak]="streak() > 0">
+          <span class="streak-icon">&#x1F525;</span>
+          <span class="streak-count">{{ streak() }}</span>
+          @if (bestStreak() > 0 && bestStreak() > streak()) {
+            <span class="best-streak">Rekord: {{ bestStreak() }}</span>
+          }
+        </div>
+      }
 
       @if (showMilestone()) {
         <div class="confetti-container">
@@ -135,12 +161,67 @@
         </div>
       }
 
-      <div class="result-summary">
-        <span class="badge badge-correct">&#x2713; {{ typeCorrectCount() }}</span>
-        <span class="badge badge-incorrect">&#x2717; {{ typeIncorrectCount() }}</span>
-        <span class="badge badge-total">&#x3a3; {{ typeTotalCount() }}</span>
-        <span class="summary-label">Heute</span>
-      </div>
+      @if (mode() === 'practice') {
+        <div class="result-summary">
+          <span class="badge badge-correct">&#x2713; {{ typeCorrectCount() }}</span>
+          <span class="badge badge-incorrect">&#x2717; {{ typeIncorrectCount() }}</span>
+          <span class="badge badge-total">&#x3a3; {{ typeTotalCount() }}</span>
+          <span class="summary-label">Heute</span>
+        </div>
+      }
     </div>
   </div>
 </div>
+
+@if (showTimeTrialResults()) {
+  <div class="modal-overlay">
+    <div class="results-modal" [class.new-record]="isNewPersonalBest()">
+      @if (isNewPersonalBest()) {
+        <div class="record-confetti-container">
+          @for (i of confettiPieces; track i) {
+            <div class="record-confetti" [style.--delay]="i * 0.1 + 's'" [style.--x]="confettiX[i]"></div>
+          }
+        </div>
+      }
+
+      <h2>
+        @if (isNewPersonalBest()) {
+          🏆 Neuer Rekord! 🏆
+        } @else {
+          🏁 Zeit abgelaufen!
+        }
+      </h2>
+
+      <div class="results-stats">
+        <div class="result-item">
+          <span class="result-label">Richtige Antworten</span>
+          <span class="result-value" [class.record-value]="isNewPersonalBest()">{{ timeTrialCorrect() }}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Gesamt bearbeitet</span>
+          <span class="result-value">{{ timeTrialTotal() }}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Genauigkeit</span>
+          <span class="result-value">{{ timeTrialAccuracy() }}%</span>
+        </div>
+      </div>
+
+      @if (isNewPersonalBest()) {
+        <div class="personal-best-badge">
+          <div class="trophy-icon">🏆</div>
+          <div class="best-text">Fantastisch! Du hast deinen Rekord verbessert!</div>
+        </div>
+      }
+      @if (currentPersonalBest() && !isNewPersonalBest()) {
+        <div class="previous-best">
+          Dein Rekord: {{ currentPersonalBest()!.correctCount }} richtig
+        </div>
+      }
+      <div class="results-actions">
+        <button class="primary-btn" (click)="restartTimeTrial()">🔄 Nochmal</button>
+        <a routerLink="/" class="secondary-btn">← Zurück</a>
+      </div>
+    </div>
+  </div>
+}

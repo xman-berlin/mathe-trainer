@@ -1,48 +1,100 @@
-<nav>
-  <div class="nav-container">
-    <a routerLink="/" class="logo">🧮 Mathe-Trainer</a>
-    <ul class="nav-menu">
-      <li><a routerLink="/rechnen">Rechnen</a></li>
-      <li><a routerLink="/erfolge">Erfolge</a></li>
-    </ul>
-  </div>
-</nav>
-
 <main>
-  <router-outlet></router-outlet>
+  @if (isHomePage()) {
+    <div class="home-page">
+      <div class="hero">
+        <div class="hero-content">
+          <h1>🧮 Mathe-Trainer</h1>
+          <p>Trainiere Addition, Subtraktion, Multiplikation und Division!</p>
+        </div>
+      </div>
 
-  @if (!isExercisePage()) {
-    <section class="content-area stats-area" style="margin-top: 2rem;">
-      <div class="stats-card">
-        <h2>Heutige Statistik</h2>
-        <div class="stats-badges">
-          <span class="badge badge-correct">✓ {{ stats.correctCount() }}</span>
-          <span class="badge badge-incorrect">✗ {{ stats.incorrectCount() }}</span>
-          <span class="badge badge-total">Σ {{ stats.totalCount() }}</span>
+      <section class="content-area">
+        <div class="stats-card">
+          <h2>Heutige Statistik</h2>
+          <div class="stats-badges">
+            <span class="badge badge-correct">✓ {{ stats.correctCount() }}</span>
+            <span class="badge badge-incorrect">✗ {{ stats.incorrectCount() }}</span>
+            <span class="badge badge-total">Σ {{ stats.totalCount() }}</span>
+          </div>
+
+          <div class="goal-section">
+            <div class="goal-header">
+              <span class="goal-label">Tagesziel: {{ stats.correctCount() }} / {{ stats.currentGoal() }}</span>
+              <button class="goal-edit-btn" (click)="editGoal()" aria-label="Ziel bearbeiten">⚙️</button>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" [style.width.%]="stats.goalProgressPercent()"></div>
+            </div>
+            @if (stats.isGoalReached()) {
+              <div class="goal-reached-badge">🎯 Ziel erreicht!</div>
+            }
+          </div>
+
+          @if (exerciseTypes().length > 0) {
+            <div class="stats-by-type">
+              <div class="type-stats">
+                @for (type of exerciseTypes(); track type) {
+                  <div class="type-item">
+                    <span class="type-name">{{ getExerciseLabel(type) }}</span>
+                    <span class="type-badges">
+                      <span class="type-badge type-correct">✓ {{ getTypeStats(type).correct }}</span>
+                      <span class="type-badge type-incorrect">✗ {{ getTypeStats(type).incorrect }}</span>
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </div>
 
-        @if (exerciseTypes().length > 0) {
-          <div class="stats-by-type">
-            <div class="type-stats">
-              @for (type of exerciseTypes(); track type) {
-                <div class="type-item">
-                  <span class="type-name">{{ getExerciseLabel(type) }}</span>
-                  <span class="type-badges">
-                    <span class="type-badge type-correct">✓ {{ getTypeStats(type).correct }}</span>
-                    <span class="type-badge type-incorrect">✗ {{ getTypeStats(type).incorrect }}</span>
-                  </span>
-                </div>
-              }
-            </div>
-          </div>
-        }
-      </div>
-    </section>
+        <div class="action-cards">
+          <a routerLink="/uebung" class="action-card practice-card">
+            <div class="card-icon">📚</div>
+            <h3>Übung</h3>
+            <p>Trainiere in deinem eigenen Tempo</p>
+          </a>
+
+          <a routerLink="/zeitrennen" class="action-card timetrial-card">
+            <div class="card-icon">⏱️</div>
+            <h3>Zeitrennen</h3>
+            <p>60 Sekunden Challenge</p>
+          </a>
+
+          <a routerLink="/erfolge" class="action-card achievements-card">
+            <div class="card-icon">🏆</div>
+            <h3>Erfolge</h3>
+            <p>Deine Abzeichen & Rekorde</p>
+          </a>
+        </div>
+      </section>
+
+      <footer>
+        <p>&copy; 2026 Mathe-Trainer. Alle Rechte vorbehalten.</p>
+      </footer>
+    </div>
+  } @else {
+    <router-outlet></router-outlet>
   }
 </main>
 
-@if (!isExercisePage()) {
-  <footer>
-    <p>&copy; 2026 Mathe-Trainer. Alle Rechte vorbehalten.</p>
-  </footer>
+@if (showGoalEditor()) {
+  <div class="modal-overlay" (click)="cancelGoalEdit()" (keydown.escape)="cancelGoalEdit()" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="goal-editor-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="document">
+      <h3>Tagesziel festlegen</h3>
+      <p>Wie viele Aufgaben möchtest du heute richtig lösen?</p>
+      <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
+      <div class="modal-actions">
+        <button class="primary-btn" (click)="saveGoal()">Speichern</button>
+        <button class="secondary-btn" (click)="cancelGoalEdit()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showGoalConfetti()) {
+  <div class="confetti-overlay">
+    @for (i of [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]; track i) {
+      <div class="confetti-piece" [style.left.%]="(i * 5) + 2.5" [style.animation-delay.ms]="i * 50"></div>
+    }
+  </div>
 }

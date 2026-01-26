@@ -12,31 +12,54 @@
 - Bunte Konfetti-Stücke bei Meilensteinen
 - Zufällige Positionen
 
+### Malfolgen-Meister Badge ✓
+- Badge pro Einmaleins-Reihe (10x fehlerfrei)
+- Achievements-Seite zur Anzeige
+
+### Tägliches Ziel mit Fortschrittsbalken ✓
+- Anpassbares Tagesziel (Standard: 20 Aufgaben)
+- Visueller Fortschrittsbalken auf der Startseite
+- "Ziel erreicht" Badge mit Konfetti-Animation
+- Persistierung über localStorage
+
+### Zeitrennen-Modus (60 Sekunden) ✓
+- Separate Route `/zeitrennen` für Time Trial
+- 60-Sekunden Countdown mit kritischem Zustand (< 10s)
+- Single-Select für Rechenart (nur eine gleichzeitig)
+- Personal Best Tracking pro Rechenart
+- Rekord-Anzeige auf Erfolge-Seite
+- Spezielle Celebration bei neuem Rekord (Konfetti, Trophäe, Animationen)
+- Keine Reihenauswahl bei Multiplikation/Division (immer 1-10)
+
+### UI-Verbesserungen ✓
+- Navigation entfernt
+- Action Cards auf Startseite (Übung / Zeitrennen / Erfolge)
+- Zurück-Button auf allen Unterseiten (Desktop: oben links, Mobile: floating unten links)
+- Statistik prominent auf Startseite
+
 ---
 
 ## Offen
 
 ### Fortschritt & Belohnungen
-- [ ] Tägliche Ziele mit Fortschrittsbalken (z.B. "Löse 20 Aufgaben")
 - [ ] Sterne/Medaillen pro Rechenart (Bronze/Silber/Gold)
 
 ### Levels & Progression
 - [ ] XP-System mit Level-Aufstieg
 - [ ] Schwierigkeitsgrade freischalten (größere Zahlenräume)
-- [ ] Malfolgen-Meister Badge (10x fehlerfrei pro Reihe)
 
 ### Visuelles Feedback
 - [ ] Charaktere/Avatare die sich freuen oder traurig schauen
 - [ ] Fortschritts-Baum der mit jeder Aufgabe wächst
 
 ### Wettbewerb & Motivation
-- [ ] Bestzeit-Modus (Aufgaben in 60 Sekunden)
-- [ ] Tages-Highscore (persönlicher Rekord schlagen)
+- [ ] Tages-Highscore für Übungsmodus
 - [ ] Wochen-Challenge (Gesamtziel über die Woche)
+- [ ] Mehrere Zeitrennen-Modi (30s, 60s, 120s)
 
 ---
 
-## Priorität (einfach zu implementieren)
-1. Tägliches Ziel mit Fortschrittsbalken
-2. Bestzeit-Modus
-3. Malfolgen-Meister Badge
+## Nächste Schritte
+1. Sterne-System für Rechenarten
+2. XP-System mit Levels
+3. Wochen-Challenges

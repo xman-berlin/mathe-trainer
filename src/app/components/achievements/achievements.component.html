@@ -1,4 +1,6 @@
 <section class="content-area achievements-container">
+  <a routerLink="/" class="back-home-btn">← Zurück</a>
+
   <h1 class="achievements-title">🏆 Malfolgen-Meister</h1>
 
   <div class="badges-grid">
@@ -20,18 +22,31 @@
     }
   </div>
 
-  <div class="summary">
-    <p>
-      <strong>{{ achievements.totalMastered() }}</strong> von <strong>10</strong> Reihen gemeistert
-    </p>
-    @if (achievements.totalMastered() === 10) {
+  @if (achievements.totalMastered() === 10) {
+    <div class="summary">
       <p class="congratulations">🎉 Herzlichen Glückwunsch! Du hast alle Reihen gemeistert!</p>
-    }
-  </div>
+    </div>
+  }
 
-  <div class="info-box">
-    <h3>So funktioniert's</h3>
-    <p>Beantworte 10 Aufgaben einer Malfolge hintereinander richtig, um sie zu meistern!</p>
-    <p>Eine falsche Antwort setzt den Fortschritt zurück, aber bereits gemeisterte Reihen bleiben erhalten.</p>
+  <h2 class="section-title">⏱️ Zeitrennen-Rekorde</h2>
+
+  <div class="timetrial-grid">
+    @for (type of exerciseTypes; track type.key) {
+      <div class="timetrial-card" [class.has-record]="hasTimeTrialBest(type.key)">
+        <div class="timetrial-icon">{{ type.icon }}</div>
+        <div class="timetrial-label">{{ type.label }}</div>
+        @if (hasTimeTrialBest(type.key)) {
+          <div class="timetrial-score">
+            <span class="score-number">{{ getTimeTrialBest(type.key)!.correctCount }}</span>
+            <span class="score-label">richtig</span>
+          </div>
+          <div class="timetrial-accuracy">{{ getTimeTrialBest(type.key)!.accuracy }}% genau</div>
+        } @else {
+          <div class="timetrial-placeholder">
+            <span>Noch kein Rekord</span>
+          </div>
+        }
+      </div>
+    }
   </div>
 </section>

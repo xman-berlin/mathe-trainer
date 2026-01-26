@@ -1,6 +1,33 @@
 .achievements-container {
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
+}
+
+/* Back Button */
+.back-home-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 2px solid var(--gray-400);
+  border-radius: 8px;
+  color: var(--gray-900);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.back-home-btn:hover {
+  background: var(--gray-100);
+  border-color: var(--bright-blue);
+  color: var(--bright-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .achievements-title {
@@ -9,6 +36,7 @@
   font-weight: 700;
   color: var(--gray-900);
   margin-bottom: 2rem;
+  margin-top: 3rem;
 }
 
 .badges-grid {
@@ -125,15 +153,155 @@
   margin-bottom: 0;
 }
 
+/* Section Title */
+.section-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 3rem 0 1.5rem 0;
+}
+
+/* Time Trial Records */
+.timetrial-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.timetrial-card {
+  background: white;
+  border: 2px solid var(--gray-400);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timetrial-card.has-record {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  animation: pulse 0.5s ease-out;
+}
+
+.timetrial-icon {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: "Arial", "Helvetica", sans-serif;
+  color: var(--gray-700);
+  line-height: 1;
+}
+
+.timetrial-card.has-record .timetrial-icon {
+  color: #0369a1;
+}
+
+.timetrial-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.timetrial-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.score-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0369a1;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 0.75rem;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.timetrial-accuracy {
+  font-size: 0.75rem;
+  color: var(--gray-600);
+  font-weight: 600;
+}
+
+.timetrial-placeholder {
+  font-size: 0.85rem;
+  color: var(--gray-400);
+  font-style: italic;
+}
+
 @media (max-width: 768px) {
+  .back-home-btn {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    top: auto;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .back-home-btn:hover {
+    transform: scale(1.05);
+  }
+
   .achievements-title {
     font-size: 2rem;
     margin-bottom: 1.5rem;
+    margin-top: 0;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    margin: 2rem 0 1rem 0;
   }
 
   .badges-grid {
     grid-template-columns: repeat(5, 1fr);
     gap: 0.75rem;
+  }
+
+  .timetrial-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .timetrial-card {
+    padding: 1rem;
+    min-height: 110px;
+  }
+
+  .timetrial-icon {
+    font-size: 1.5rem;
+  }
+
+  .timetrial-label {
+    font-size: 0.8rem;
+  }
+
+  .score-number {
+    font-size: 1.5rem;
+  }
+
+  .score-label {
+    font-size: 0.7rem;
+  }
+
+  .timetrial-accuracy {
+    font-size: 0.7rem;
   }
 
   .badge-card {
@@ -159,9 +327,54 @@
 }
 
 @media (max-width: 540px) {
+  .back-home-btn {
+    bottom: 0.75rem;
+    left: 0.75rem;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+  }
+
   .badges-grid {
     grid-template-columns: repeat(5, 1fr);
     gap: 0.5rem;
+  }
+
+  .timetrial-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .timetrial-card {
+    padding: 0.75rem;
+    min-height: 90px;
+  }
+
+  .timetrial-icon {
+    font-size: 1.3rem;
+  }
+
+  .timetrial-label {
+    font-size: 0.7rem;
+  }
+
+  .score-number {
+    font-size: 1.3rem;
+  }
+
+  .score-label {
+    font-size: 0.65rem;
+  }
+
+  .timetrial-accuracy {
+    font-size: 0.65rem;
+  }
+
+  .timetrial-placeholder {
+    font-size: 0.75rem;
   }
 
   .badge-card {

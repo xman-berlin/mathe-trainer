@@ -1,0 +1,20 @@
+# Java/Maven spezifisch
+target/
+*.class
+*.jar
+*.war
+
+# Oder Java/Gradle
+build/
+.gradle/
+*.class
+
+# Frontend (falls vorhanden)
+node_modules/
+dist/
+build/
+
+# Datenbank
+*.db
+*.sqlite
+*.sql

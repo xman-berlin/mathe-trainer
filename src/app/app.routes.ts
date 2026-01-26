@@ -5,7 +5,8 @@ import { AchievementsComponent } from './components/achievements/achievements.co
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'rechnen', component: ExerciseComponent },
+  { path: 'uebung', component: ExerciseComponent, data: { mode: 'practice' } },
+  { path: 'zeitrennen', component: ExerciseComponent, data: { mode: 'timeTrial' } },
   { path: 'erfolge', component: AchievementsComponent },
   { path: '**', redirectTo: '' }
 ];

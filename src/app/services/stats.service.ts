@@ -10,6 +10,7 @@ interface DailyStats {
   correct: number;
   incorrect: number;
   byType: Record<string, ExerciseTypeStats>;
+  dailyGoal?: number; // Optional for backward compatibility
 }
 
 @Injectable({ providedIn: 'root' })
@@ -20,11 +21,17 @@ export class StatsService {
   private incorrect = signal(0);
   private date = signal(this.today());
   private byType = signal<Record<string, ExerciseTypeStats>>({});
+  private dailyGoal = signal(20); // Default goal
 
   readonly correctCount = this.correct.asReadonly();
   readonly incorrectCount = this.incorrect.asReadonly();
   readonly totalCount = computed(() => this.correct() + this.incorrect());
   readonly statsByType = this.byType.asReadonly();
+  readonly currentGoal = this.dailyGoal.asReadonly();
+  readonly goalProgressPercent = computed(() =>
+    Math.min(100, Math.round((this.correct() / this.dailyGoal()) * 100))
+  );
+  readonly isGoalReached = computed(() => this.correct() >= this.dailyGoal());
 
   constructor() {
     this.load();
@@ -49,6 +56,13 @@ export class StatsService {
       }
     });
 
+    this.persist();
+  }
+
+  setDailyGoal(count: number): void {
+    if (count < 1) count = 1;
+    if (count > 100) count = 100;
+    this.dailyGoal.set(count);
     this.persist();
   }
 
@@ -93,6 +107,9 @@ export class StatsService {
         this.correct.set(parsed.correct || 0);
         this.incorrect.set(parsed.incorrect || 0);
         this.byType.set(parsed.byType);
+        if (parsed.dailyGoal) {
+          this.dailyGoal.set(parsed.dailyGoal);
+        }
       } else {
         // Old format detected, reset to start fresh with new structure
         this.resetToday();
@@ -107,7 +124,8 @@ export class StatsService {
       date: this.date(),
       correct: this.correct(),
       incorrect: this.incorrect(),
-      byType: this.byType()
+      byType: this.byType(),
+      dailyGoal: this.dailyGoal()
     };
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(payload));
