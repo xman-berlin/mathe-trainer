@@ -17,10 +17,9 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render logo', () => {
+  it('should initialize with home page state', () => {
     const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.logo')?.textContent).toContain('Mathe-Trainer');
+    const app = fixture.componentInstance;
+    expect(app.isHomePage()).toBe(true);
   });
 });
