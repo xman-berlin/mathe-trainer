@@ -28,6 +28,27 @@
     </div>
   }
 
+  <h2 class="section-title">🏅 Medaillen pro Rechenart</h2>
+
+  <div class="medals-grid">
+    @for (type of exerciseTypes; track type.key) {
+      <div class="medal-card" [class.has-medal]="getMedalLevel(type.key) !== 'none'">
+        <div class="medal-icon-large">{{ getMedalEmoji(type.key) }}</div>
+        <div class="medal-exercise-icon">{{ type.icon }}</div>
+        <div class="medal-label">{{ type.label }}</div>
+        <div class="medal-status">{{ getMedalLabel(type.key) }}</div>
+        <div class="medal-progress-section">
+          <div class="progress-bar-mini">
+            <div class="progress-fill-mini" [style.width.%]="getProgress(type.key).percent"></div>
+          </div>
+          <div class="progress-text">
+            {{ getProgress(type.key).current }}/{{ getProgress(type.key).target }} {{ getNextMedalLabel(type.key) }}
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
   <h2 class="section-title">⏱️ Zeitrennen-Rekorde</h2>
 
   <div class="timetrial-grid">

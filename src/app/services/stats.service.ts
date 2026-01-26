@@ -13,15 +13,21 @@ interface DailyStats {
   dailyGoal?: number; // Optional for backward compatibility
 }
 
+interface LifetimeStats {
+  byType: Record<string, number>; // Cumulative correct answers per type
+}
+
 @Injectable({ providedIn: 'root' })
 export class StatsService {
   private readonly storageKey = 'mathe-trainer-stats';
+  private readonly lifetimeStorageKey = 'mathe-trainer-lifetime-stats';
 
   private correct = signal(0);
   private incorrect = signal(0);
   private date = signal(this.today());
   private byType = signal<Record<string, ExerciseTypeStats>>({});
   private dailyGoal = signal(20); // Default goal
+  private lifetimeByType = signal<Record<string, number>>({});
 
   readonly correctCount = this.correct.asReadonly();
   readonly incorrectCount = this.incorrect.asReadonly();
@@ -32,9 +38,11 @@ export class StatsService {
     Math.min(100, Math.round((this.correct() / this.dailyGoal()) * 100))
   );
   readonly isGoalReached = computed(() => this.correct() >= this.dailyGoal());
+  readonly lifetimeStatsByType = this.lifetimeByType.asReadonly();
 
   constructor() {
     this.load();
+    this.loadLifetime();
   }
 
   recordResult(isCorrect: boolean, exerciseType = 'addition') {
@@ -55,6 +63,16 @@ export class StatsService {
         incorrect: typeStats.incorrect + (isCorrect ? 0 : 1)
       }
     });
+
+    // Update lifetime stats for correct answers
+    if (isCorrect) {
+      const lifetimeCurrent = this.lifetimeByType();
+      this.lifetimeByType.set({
+        ...lifetimeCurrent,
+        [exerciseType]: (lifetimeCurrent[exerciseType] ?? 0) + 1
+      });
+      this.persistLifetime();
+    }
 
     this.persist();
   }
@@ -132,5 +150,54 @@ export class StatsService {
     } catch {
       // ignore storage errors
     }
+  }
+
+  private loadLifetime(): void {
+    try {
+      const raw = localStorage.getItem(this.lifetimeStorageKey);
+      if (!raw) {
+        this.persistLifetime();
+        return;
+      }
+      const parsed: LifetimeStats = JSON.parse(raw);
+      this.lifetimeByType.set(parsed.byType || {});
+    } catch {
+      this.lifetimeByType.set({});
+    }
+  }
+
+  private persistLifetime(): void {
+    const payload: LifetimeStats = {
+      byType: this.lifetimeByType()
+    };
+    try {
+      localStorage.setItem(this.lifetimeStorageKey, JSON.stringify(payload));
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  getMedalLevel(exerciseType: string): 'none' | 'bronze' | 'silver' | 'gold' {
+    const count = this.lifetimeByType()[exerciseType] ?? 0;
+    if (count >= 1000) return 'gold';
+    if (count >= 500) return 'silver';
+    if (count >= 100) return 'bronze';
+    return 'none';
+  }
+
+  getProgressToNextMedal(exerciseType: string): { current: number; target: number; percent: number } {
+    const count = this.lifetimeByType()[exerciseType] ?? 0;
+    let target = 100;
+
+    if (count >= 1000) {
+      target = 1000;
+    } else if (count >= 500) {
+      target = 1000;
+    } else if (count >= 100) {
+      target = 500;
+    }
+
+    const percent = Math.min(100, Math.round((count / target) * 100));
+    return { current: count, target, percent };
   }
 }

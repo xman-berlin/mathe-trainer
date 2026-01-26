@@ -37,12 +37,21 @@
 - Zurück-Button auf allen Unterseiten (Desktop: oben links, Mobile: floating unten links)
 - Statistik prominent auf Startseite
 
+### Medaillen-System pro Rechenart ✓
+- Kumulative Erfolge pro Rechenart (Addition, Subtraktion, Multiplikation, Division)
+- 🥉 Bronze: 100 richtige Antworten (gesamt, über alle Tage)
+- 🥈 Silber: 500 richtige Antworten
+- 🥇 Gold: 1000 richtige Antworten
+- Fortschrittsbalken bis zur nächsten Stufe (z.B. "247/500 bis Silber")
+- Lebenslange Statistik (separater localStorage Key)
+- Anzeige auf Erfolge-Seite zwischen Malfolgen-Meister und Zeitrennen
+- Kompakte Card-Darstellung mit 4 Spalten (Desktop), 2 Spalten (Mobile)
+
 ---
 
 ## Offen
 
 ### Fortschritt & Belohnungen
-- [ ] Sterne/Medaillen pro Rechenart (Bronze/Silber/Gold)
 
 ### Levels & Progression
 - [ ] XP-System mit Level-Aufstieg
@@ -60,6 +69,7 @@
 ---
 
 ## Nächste Schritte
-1. Sterne-System für Rechenarten
-2. XP-System mit Levels
-3. Wochen-Challenges
+1. XP-System mit Levels
+2. Wochen-Challenges
+3. Schwierigkeitsgrade / größere Zahlenräume
+4. Mehrere Zeitrennen-Modi (30s, 120s)
