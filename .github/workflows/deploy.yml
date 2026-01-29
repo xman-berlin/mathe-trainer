@@ -28,7 +28,7 @@ jobs:
       run: npm ci
 
     - name: Build with base-href
-      run: npm run build -- --base-href=/schlaufuchs/
+      run: npm run build -- --base-href=/mathe-trainer/
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4

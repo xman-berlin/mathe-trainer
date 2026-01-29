@@ -126,7 +126,7 @@ Dieses Projekt nutzt GitHub Actions für Continuous Integration und Deployment:
 - **Features**:
   - Automatischer Build mit korrektem `base-href`
   - Deployment via `peaceiris/actions-gh-pages`
-  - Die App ist verfügbar unter: `https://xman-berlin.github.io/schlaufuchs/`
+  - Die App ist verfügbar unter: `https://xman-berlin.github.io/mathe-trainer/`
 
 ### Dependabot
 - **Aktualisierung**: Wöchentlich montags um 09:00 Uhr

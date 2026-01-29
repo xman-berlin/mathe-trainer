@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Schlaufuchs is an interactive learning app for elementary school students, built with Angular 20+ (zoneless, standalone components) and TypeScript. It provides math exercises (addition, subtraction, multiplication, division) and clock/time learning with a mobile-friendly interface.
 
-**Live:** https://xman-berlin.github.io/schlaufuchs/
+**Live:** https://xman-berlin.github.io/mathe-trainer/
 
 ## Commands
 
@@ -52,6 +52,6 @@ Each exercise component (addition, subtraction) follows the same structure:
 
 - **Signals over RxJS**: Use `signal()` for state, `computed()` for derived values
 - **CSS Variables**: Use the defined color variables (e.g., `--bright-blue`, `--gray-900`)
-- **GitHub Pages**: Production uses `base href="/schlaufuchs/"`, local dev uses `/`
+- **GitHub Pages**: Production uses `base href="/mathe-trainer/"`, local dev uses `/`
 - **Mobile-first**: Responsive breakpoints at 1024px, 768px, 540px
 - **Standalone components**: All components use `standalone: true`
