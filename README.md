@@ -1,10 +1,10 @@
-# Mathe-Trainer
+# Schlaufuchs 🦊
 
-Ein interaktiver Mathematik-Trainer für die Grundschule, entwickelt mit Angular und TypeScript.
+Eine interaktive Lern-App für Mathematik und Uhrzeiten lernen, entwickelt mit Angular und TypeScript.
 
 ## 📖 Über das Projekt
 
-Der Mathe-Trainer ist eine webbasierte Anwendung, die Grundschülern hilft, ihre mathematischen Fähigkeiten zu verbessern. Das Projekt wurde mit [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4 erstellt und nutzt moderne Web-Technologien.
+Schlaufuchs ist eine webbasierte Anwendung, die Grundschülern hilft, ihre mathematischen Fähigkeiten zu verbessern und das Ablesen der Uhr zu lernen. Das Projekt wurde mit [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4 erstellt und nutzt moderne Web-Technologien.
 
 ## 🚀 Quick Start
 
@@ -19,7 +19,7 @@ Der Mathe-Trainer ist eine webbasierte Anwendung, die Grundschülern hilft, ihre
 ```bash
 # Repository klonen
 git clone https://github.com/xman-berlin/mathe-trainer.git
-cd mathe-trainer
+cd schlaufuchs
 
 # Dependencies installieren
 npm install
@@ -88,7 +88,7 @@ ng lint
 ## 📁 Projekt-Struktur
 
 ```
-mathe-trainer/
+schlaufuchs/
 ├── src/
 │   ├── app/
 │   │   ├── components/     # UI-Komponenten
@@ -126,7 +126,7 @@ Dieses Projekt nutzt GitHub Actions für Continuous Integration und Deployment:
 - **Features**:
   - Automatischer Build mit korrektem `base-href`
   - Deployment via `peaceiris/actions-gh-pages`
-  - Die App ist verfügbar unter: `https://xman-berlin.github.io/mathe-trainer/`
+  - Die App ist verfügbar unter: `https://xman-berlin.github.io/schlaufuchs/`
 
 ### Dependabot
 - **Aktualisierung**: Wöchentlich montags um 09:00 Uhr

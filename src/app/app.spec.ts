@@ -17,9 +17,9 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should initialize with home page state', () => {
+  it('should have the correct title', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
-    expect(app.isHomePage()).toBe(true);
+    expect(app.title()).toBe('Schlaufuchs 🦊');
   });
 });

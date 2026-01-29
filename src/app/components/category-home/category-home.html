@@ -1,0 +1,85 @@
+<div class="home-page">
+  <div class="hero">
+    <div class="hero-content">
+      <h1>🦊 Schlaufuchs</h1>
+      <p>Üben macht den Meister! Trainiere spielerisch und werde zum Schlaufuchs.</p>
+    </div>
+  </div>
+
+  <section class="content-area">
+    <!-- Kategorien zuerst -->
+    <div class="categories-section">
+      <h2>Wähle eine Kategorie</h2>
+      <div class="category-cards">
+        <a routerLink="/mathe" class="category-card mathe-card">
+          <div class="card-icon">📐</div>
+          <h3>Mathe</h3>
+          <p>Addition, Subtraktion, Multiplikation & Division</p>
+        </a>
+
+        <a routerLink="/uhrzeit" class="category-card uhrzeit-card">
+          <div class="card-icon">🕐</div>
+          <h3>Uhrzeit lernen</h3>
+          <p>Lerne die Uhr zu lesen</p>
+          <span class="coming-soon-badge">Bald verfügbar</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Kompakte Statistik -->
+    <div class="stats-section">
+      <h2>📊 Heutige Statistik</h2>
+
+      <div class="stats-compact">
+        <!-- Mathe -->
+        <div class="stat-item">
+          <div class="stat-header">
+            <span class="stat-category">📐 Mathe</span>
+            <span class="stat-badges">
+              <span class="badge badge-correct">✓ {{ stats.correctCount() }}</span>
+              <span class="badge badge-incorrect">✗ {{ stats.incorrectCount() }}</span>
+            </span>
+          </div>
+          <div class="stat-goal">
+            <span class="goal-text">Ziel: {{ stats.correctCount() }}/{{ stats.currentGoal() }}</span>
+            <button class="goal-edit-btn-inline" (click)="editGoal()" aria-label="Ziel bearbeiten">⚙️</button>
+          </div>
+          <div class="progress-bar-container-mini">
+            <div class="progress-bar-fill" [style.width.%]="stats.goalProgressPercent()"></div>
+          </div>
+          @if (stats.isGoalReached()) {
+            <div class="goal-reached-mini">🎯 Ziel erreicht!</div>
+          }
+        </div>
+
+        <!-- Uhrzeit -->
+        <div class="stat-item stat-item-empty">
+          <div class="stat-header">
+            <span class="stat-category">🕐 Uhrzeit</span>
+            <span class="stat-badges">
+              <span class="badge badge-total">Keine Daten</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 Schlaufuchs. Alle Rechte vorbehalten.</p>
+  </footer>
+</div>
+
+@if (showGoalEditor()) {
+  <div class="modal-overlay" (click)="cancelGoalEdit()" (keydown.escape)="cancelGoalEdit()" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="goal-editor-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="document">
+      <h3>Tagesziel festlegen</h3>
+      <p>Wie viele Aufgaben möchtest du heute richtig lösen?</p>
+      <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
+      <div class="modal-actions">
+        <button class="primary-btn" (click)="saveGoal()">Speichern</button>
+        <button class="secondary-btn" (click)="cancelGoalEdit()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+}

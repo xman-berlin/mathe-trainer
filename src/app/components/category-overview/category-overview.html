@@ -1,0 +1,51 @@
+<div class="overview-page">
+  <a routerLink="/" class="back-home-btn">← Zurück</a>
+
+  <div class="hero">
+    <div class="hero-content">
+      <h1>{{ getCategoryTitle() }}</h1>
+      <p>{{ getCategoryDescription() }}</p>
+    </div>
+  </div>
+
+  <section class="content-area">
+    <div class="stats-card">
+      <h2>Heutige Statistik</h2>
+      <div class="stats-badges">
+        <span class="badge badge-correct">✓ {{ stats.correctCount() }}</span>
+        <span class="badge badge-incorrect">✗ {{ stats.incorrectCount() }}</span>
+        <span class="badge badge-total">Σ {{ stats.totalCount() }}</span>
+      </div>
+
+      <div class="goal-section">
+        <div class="goal-label">Tagesziel: {{ stats.correctCount() }} / {{ stats.currentGoal() }}</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" [style.width.%]="stats.goalProgressPercent()"></div>
+        </div>
+        @if (stats.isGoalReached()) {
+          <div class="goal-reached-badge">🎯 Ziel erreicht!</div>
+        }
+      </div>
+    </div>
+
+    <div class="action-cards">
+      <a [routerLink]="getBasePath() + '/uebung'" class="action-card practice-card">
+        <div class="card-icon">📚</div>
+        <h3>Übung</h3>
+        <p>Trainiere in deinem eigenen Tempo</p>
+      </a>
+
+      <a [routerLink]="getBasePath() + '/zeitrennen'" class="action-card timetrial-card">
+        <div class="card-icon">⏱️</div>
+        <h3>Zeitrennen</h3>
+        <p>60 Sekunden Challenge</p>
+      </a>
+
+      <a [routerLink]="getBasePath() + '/erfolge'" class="action-card achievements-card">
+        <div class="card-icon">🏆</div>
+        <h3>Erfolge</h3>
+        <p>Deine Abzeichen & Rekorde</p>
+      </a>
+    </div>
+  </section>
+</div>

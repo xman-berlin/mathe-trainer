@@ -51,7 +51,7 @@ export class TimedChallengeService {
 
   private load(): void {
     try {
-      const stored = localStorage.getItem('mathe-trainer-time-trials');
+      const stored = localStorage.getItem('schlaufuchs-time-trials');
       if (stored) {
         this.personalBests.set(JSON.parse(stored));
       }
@@ -62,7 +62,7 @@ export class TimedChallengeService {
 
   private persist(): void {
     try {
-      localStorage.setItem('mathe-trainer-time-trials', JSON.stringify(this.personalBests()));
+      localStorage.setItem('schlaufuchs-time-trials', JSON.stringify(this.personalBests()));
     } catch (error) {
       console.error('Failed to persist time trial data:', error);
     }

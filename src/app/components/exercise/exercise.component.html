@@ -1,7 +1,7 @@
 <div class="exercise-root" tabindex="0" (keydown)="handleKeydown($event)">
   <div class="exercise-container">
     <div class="main-area">
-      <a routerLink="/" class="back-home-btn">← Zurück</a>
+      <a routerLink="/mathe" class="back-home-btn">← Zurück</a>
 
       @if (timeTrialActive()) {
         <div class="timer-display" [class.critical]="timeRemaining() <= 10">

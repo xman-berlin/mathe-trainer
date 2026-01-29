@@ -9,7 +9,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "mathe-trainer": {
+    "schlaufuchs": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -59,10 +59,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "mathe-trainer:build:production"
+              "buildTarget": "schlaufuchs:build:production"
             },
             "development": {
-              "buildTarget": "mathe-trainer:build:development"
+              "buildTarget": "schlaufuchs:build:development"
             }
           },
           "defaultConfiguration": "development"

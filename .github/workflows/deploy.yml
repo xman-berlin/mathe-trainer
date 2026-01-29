@@ -28,12 +28,12 @@ jobs:
       run: npm ci
 
     - name: Build with base-href
-      run: npm run build -- --base-href=/mathe-trainer/
+      run: npm run build -- --base-href=/schlaufuchs/
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist/mathe-trainer/browser
+        publish_dir: ./dist/schlaufuchs/browser
         cname: false
 

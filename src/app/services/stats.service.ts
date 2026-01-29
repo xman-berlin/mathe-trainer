@@ -19,8 +19,8 @@ interface LifetimeStats {
 
 @Injectable({ providedIn: 'root' })
 export class StatsService {
-  private readonly storageKey = 'mathe-trainer-stats';
-  private readonly lifetimeStorageKey = 'mathe-trainer-lifetime-stats';
+  private readonly storageKey = 'schlaufuchs-stats';
+  private readonly lifetimeStorageKey = 'schlaufuchs-lifetime-stats';
 
   private correct = signal(0);
   private incorrect = signal(0);
