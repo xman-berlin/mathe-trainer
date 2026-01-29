@@ -1,0 +1,86 @@
+<div class="clock-exercise-root" tabindex="0" (keydown)="handleKeydown($event)">
+  <div class="clock-exercise-container">
+    <a routerLink="/uhrzeit" class="back-btn">← Zurück</a>
+
+    <div class="exercise-content">
+      <!-- Type Selector -->
+      <div class="type-selector">
+        @for (type of exerciseTypes; track type) {
+          <button
+            class="type-btn"
+            [class.active]="selectedType() === type"
+            (click)="selectType(type)">
+            {{ getTypeLabel(type) }}
+          </button>
+        }
+      </div>
+
+      @if (currentProblem()) {
+        <!-- Time of Day -->
+        <div class="time-of-day">
+          {{ timeOfDayLabel() }}
+        </div>
+
+        <!-- Clock Display -->
+        <app-clock-display
+          [hours]="currentProblem()!.hours"
+          [minutes]="currentProblem()!.minutes"
+        />
+
+        <!-- Question -->
+        <div class="question">
+          <h2>Wie spät ist es?</h2>
+          <p class="hint">Gib die Zeit im 24-Stunden-Format ein (z.B. 15:30)</p>
+        </div>
+
+        <!-- Time Input -->
+        <div class="input-section">
+          <input
+            type="text"
+            class="time-input"
+            [(ngModel)]="userAnswer"
+            placeholder="HH:MM"
+            maxlength="5"
+            [disabled]="showFeedback()"
+          />
+        </div>
+
+        <!-- Numpad -->
+        <div class="numpad">
+          @for (digit of ['1', '2', '3', '4', '5', '6', '7', '8', '9']; track digit) {
+            <button class="num-btn" (click)="addDigit(digit)">{{ digit }}</button>
+          }
+          <button class="num-btn special" (click)="addColon()">:</button>
+          <button class="num-btn" (click)="addDigit('0')">0</button>
+          <button class="num-btn special" (click)="backspace()">←</button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+          <button class="clear-btn" (click)="clear()">Löschen</button>
+          <button
+            class="submit-btn"
+            (click)="submitAnswer()"
+            [disabled]="showFeedback() || !userAnswer()">
+            Prüfen
+          </button>
+        </div>
+
+        <!-- Feedback -->
+        @if (showFeedback()) {
+          <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
+            @if (isCorrect()) {
+              <div class="feedback-icon">✓</div>
+              <div class="feedback-text">Richtig!</div>
+            } @else {
+              <div class="feedback-icon">✗</div>
+              <div class="feedback-text">
+                Leider falsch. Die richtige Antwort ist: {{ currentProblem()!.correctAnswer }}
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

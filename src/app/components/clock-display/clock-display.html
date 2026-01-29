@@ -1,0 +1,53 @@
+<div class="clock-container">
+  <svg viewBox="0 0 200 200" class="clock-svg">
+    <!-- Clock face circle -->
+    <circle cx="100" cy="100" r="95" class="clock-face" />
+
+    <!-- Hour markers (dots) -->
+    @for (hour of hourMarkers; track hour) {
+      <circle
+        [attr.cx]="getHourPosition(hour).x"
+        [attr.cy]="getHourPosition(hour).y"
+        r="3"
+        class="hour-marker"
+      />
+    }
+
+    <!-- Hour numbers -->
+    @for (hour of hourMarkers; track hour) {
+      <text
+        [attr.x]="getHourPosition(hour).x"
+        [attr.y]="getHourPosition(hour).y + 1"
+        class="hour-number"
+        text-anchor="middle"
+        dominant-baseline="middle">
+        {{ hour }}
+      </text>
+    }
+
+    <!-- Center dot -->
+    <circle cx="100" cy="100" r="5" class="center-dot" />
+
+    <!-- Minute hand -->
+    <line
+      x1="100"
+      y1="100"
+      x2="100"
+      y2="30"
+      class="minute-hand"
+      [style.transform]="'rotate(' + minuteAngle() + 'deg)'"
+      [style.transform-origin]="'100px 100px'"
+    />
+
+    <!-- Hour hand -->
+    <line
+      x1="100"
+      y1="100"
+      x2="100"
+      y2="50"
+      class="hour-hand"
+      [style.transform]="'rotate(' + hourAngle() + 'deg)'"
+      [style.transform-origin]="'100px 100px'"
+    />
+  </svg>
+</div>

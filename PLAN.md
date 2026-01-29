@@ -150,33 +150,38 @@ Anzeige auf `/uhrzeit/erfolge` - gleiches Design wie Mathe-Medaillen.
 
 ---
 
-### Phase 2: Clock Basics
+### Phase 2: Clock Basics ✅ ABGESCHLOSSEN
 **Ziel**: Analoge Uhr-Komponente & Grundübungen
 
 1. **ClockDisplayComponent (SVG)**
-   - [ ] Zifferblatt zeichnen (1-12)
-   - [ ] Stundenzeiger
-   - [ ] Minutenzeiger
-   - [ ] Input: Stunden & Minuten
-   - [ ] Responsive Design
+   - [x] Zifferblatt zeichnen (1-12)
+   - [x] Stundenzeiger mit korrekter Berechnung
+   - [x] Minutenzeiger mit korrekter Berechnung
+   - [x] Input: Stunden & Minuten (als Signals)
+   - [x] Responsive Design
 
 2. **ClockService**
-   - [ ] Zufällige Zeit generieren (Typ-abhängig)
-   - [ ] Validierung (HH:MM Format)
-   - [ ] Vormittag/Nachmittag Logik
-   - [ ] Konvertierung: Analog → 24h
+   - [x] Zufällige Zeit generieren (Typ-abhängig: full/half/quarter)
+   - [x] Validierung (HH:MM Format mit Regex)
+   - [x] Vormittag/Nachmittag Logik
+   - [x] Konvertierung: Analog → 24h Format
+   - [x] Helper-Methoden (getTypeLabel, getTimeOfDayLabel)
 
 3. **ClockExerciseComponent**
-   - [ ] Type-Selector (Volle / Halbe / Viertel)
-   - [ ] ClockDisplay einbinden
-   - [ ] Tageszeit-Anzeige (☀️ Vormittag / 🌙 Nachmittag)
-   - [ ] HH:MM Eingabefeld
-   - [ ] Feedback (richtig/falsch)
-   - [ ] Auto-advance nach Antwort
+   - [x] Type-Selector (Volle / Halbe / Viertel)
+   - [x] ClockDisplay eingebunden
+   - [x] Tageszeit-Anzeige (☀️ Vormittag / 🌙 Nachmittag)
+   - [x] HH:MM Eingabefeld mit Auto-Format
+   - [x] Numpad für mobile Eingabe
+   - [x] Feedback (richtig/falsch mit Animation)
+   - [x] Auto-advance nach Antwort
+   - [x] Keyboard Support (Enter, Backspace, Digits, Colon)
 
 4. **Routes**
-   - [ ] `/uhrzeit` → Uhrzeit-Übersicht
-   - [ ] `/uhrzeit/uebung` → ClockExerciseComponent
+   - [x] `/uhrzeit` → Uhrzeit-Übersicht (CategoryOverviewComponent)
+   - [x] `/uhrzeit/uebung` → ClockExerciseComponent
+   - [x] CategoryOverviewComponent angepasst (nur Übung für Uhrzeit)
+   - [x] "Bald verfügbar" Badge entfernt
 
 ---
 

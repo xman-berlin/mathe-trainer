@@ -1,0 +1,58 @@
+.clock-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.clock-svg {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+}
+
+.clock-face {
+  fill: white;
+  stroke: var(--gray-900);
+  stroke-width: 3;
+}
+
+.hour-marker {
+  fill: var(--gray-400);
+}
+
+.hour-number {
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--gray-900);
+  user-select: none;
+}
+
+.center-dot {
+  fill: var(--gray-900);
+}
+
+.hour-hand {
+  stroke: var(--gray-900);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: transform 0.3s ease;
+}
+
+.minute-hand {
+  stroke: var(--gray-700);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 540px) {
+  .clock-svg {
+    max-width: 250px;
+  }
+
+  .hour-number {
+    font-size: 12px;
+  }
+}
