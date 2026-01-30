@@ -71,8 +71,8 @@
 </div>
 
 @if (showGoalEditor()) {
-  <div class="modal-overlay" (click)="cancelGoalEdit()">
-    <div class="goal-editor-modal" (click)="$event.stopPropagation()">
+  <div class="modal-overlay" (click)="cancelGoalEdit()" (keydown.escape)="cancelGoalEdit()" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="goal-editor-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="document">
       <h3>Tagesziel festlegen</h3>
       <p>Wie viele Aufgaben möchtest du heute richtig lösen?</p>
       <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
