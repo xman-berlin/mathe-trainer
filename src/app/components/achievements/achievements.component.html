@@ -1,73 +1,120 @@
 <section class="content-area achievements-container">
-  <a routerLink="/mathe" class="back-home-btn">← Zurück</a>
+  <a [routerLink]="getBackLink()" class="back-home-btn">← Zurück</a>
 
-  <h1 class="achievements-title">🏆 Malfolgen-Meister</h1>
+  <h1 class="achievements-title">{{ getTitle() }}</h1>
 
-  <div class="badges-grid">
-    @for (reihe of reihen; track reihe) {
-      <div
-        class="badge-card"
-        [class.mastered]="isMastered(reihe)"
-        [class.in-progress]="!isMastered(reihe) && getMastery(reihe).currentStreak > 0">
-        <div class="badge-number">{{ reihe }}</div>
-        <div class="badge-icon">
-          @if (isMastered(reihe)) {
-            🏅
-          } @else {
-            📊
-          }
+  @if (category() === 'math') {
+    <div class="badges-grid">
+      @for (reihe of reihen; track reihe) {
+        <div
+          class="badge-card"
+          [class.mastered]="isMastered(reihe)"
+          [class.in-progress]="!isMastered(reihe) && getMastery(reihe).currentStreak > 0">
+          <div class="badge-number">{{ reihe }}</div>
+          <div class="badge-icon">
+            @if (isMastered(reihe)) {
+              🏅
+            } @else {
+              📊
+            }
+          </div>
+          <div class="badge-progress">{{ getProgressText(reihe) }}</div>
         </div>
-        <div class="badge-progress">{{ getProgressText(reihe) }}</div>
+      }
+    </div>
+
+    @if (achievements.totalMastered() === 10) {
+      <div class="summary">
+        <p class="congratulations">🎉 Herzlichen Glückwunsch! Du hast alle Reihen gemeistert!</p>
       </div>
     }
-  </div>
-
-  @if (achievements.totalMastered() === 10) {
-    <div class="summary">
-      <p class="congratulations">🎉 Herzlichen Glückwunsch! Du hast alle Reihen gemeistert!</p>
-    </div>
   }
 
-  <h2 class="section-title">🏅 Medaillen pro Rechenart</h2>
+  <h2 class="section-title">
+    @if (category() === 'math') {
+      🏅 Medaillen pro Rechenart
+    } @else {
+      🏅 Medaillen pro Uhrzeit-Typ
+    }
+  </h2>
 
   <div class="medals-grid">
-    @for (type of exerciseTypes; track type.key) {
-      <div class="medal-card" [class.has-medal]="getMedalLevel(type.key) !== 'none'">
-        <div class="medal-icon-large">{{ getMedalEmoji(type.key) }}</div>
-        <div class="medal-exercise-icon">{{ type.icon }}</div>
-        <div class="medal-label">{{ type.label }}</div>
-        <div class="medal-status">{{ getMedalLabel(type.key) }}</div>
-        <div class="medal-progress-section">
-          <div class="progress-bar-mini">
-            <div class="progress-fill-mini" [style.width.%]="getProgress(type.key).percent"></div>
-          </div>
-          <div class="progress-text">
-            {{ getProgress(type.key).current }}/{{ getProgress(type.key).target }} {{ getNextMedalLabel(type.key) }}
+    @if (category() === 'math') {
+      @for (type of exerciseTypes; track type.key) {
+        <div class="medal-card" [class.has-medal]="getMedalLevel(type.key) !== 'none'">
+          <div class="medal-icon-large">{{ getMedalEmoji(type.key) }}</div>
+          <div class="medal-exercise-icon">{{ type.icon }}</div>
+          <div class="medal-label">{{ type.label }}</div>
+          <div class="medal-status">{{ getMedalLabel(type.key) }}</div>
+          <div class="medal-progress-section">
+            <div class="progress-bar-mini">
+              <div class="progress-fill-mini" [style.width.%]="getProgress(type.key).percent"></div>
+            </div>
+            <div class="progress-text">
+              {{ getProgress(type.key).current }}/{{ getProgress(type.key).target }} {{ getNextMedalLabel(type.key) }}
+            </div>
           </div>
         </div>
-      </div>
+      }
+    } @else {
+      @for (type of clockExerciseTypes; track type.key) {
+        <div class="medal-card" [class.has-medal]="getMedalLevel(type.key) !== 'none'">
+          <div class="medal-icon-large">{{ getMedalEmoji(type.key) }}</div>
+          <div class="medal-exercise-icon">{{ type.icon }}</div>
+          <div class="medal-label">{{ type.label }}</div>
+          <div class="medal-status">{{ getMedalLabel(type.key) }}</div>
+          <div class="medal-progress-section">
+            <div class="progress-bar-mini">
+              <div class="progress-fill-mini" [style.width.%]="getProgress(type.key).percent"></div>
+            </div>
+            <div class="progress-text">
+              {{ getProgress(type.key).current }}/{{ getProgress(type.key).target }} {{ getNextMedalLabel(type.key) }}
+            </div>
+          </div>
+        </div>
+      }
     }
   </div>
 
   <h2 class="section-title">⏱️ Zeitrennen-Rekorde</h2>
 
   <div class="timetrial-grid">
-    @for (type of exerciseTypes; track type.key) {
-      <div class="timetrial-card" [class.has-record]="hasTimeTrialBest(type.key)">
-        <div class="timetrial-icon">{{ type.icon }}</div>
-        <div class="timetrial-label">{{ type.label }}</div>
-        @if (hasTimeTrialBest(type.key)) {
-          <div class="timetrial-score">
-            <span class="score-number">{{ getTimeTrialBest(type.key)!.correctCount }}</span>
-            <span class="score-label">richtig</span>
-          </div>
-          <div class="timetrial-accuracy">{{ getTimeTrialBest(type.key)!.accuracy }}% genau</div>
-        } @else {
-          <div class="timetrial-placeholder">
-            <span>Noch kein Rekord</span>
-          </div>
-        }
-      </div>
+    @if (category() === 'math') {
+      @for (type of exerciseTypes; track type.key) {
+        <div class="timetrial-card" [class.has-record]="hasTimeTrialBest(type.key)">
+          <div class="timetrial-icon">{{ type.icon }}</div>
+          <div class="timetrial-label">{{ type.label }}</div>
+          @if (hasTimeTrialBest(type.key)) {
+            <div class="timetrial-score">
+              <span class="score-number">{{ getTimeTrialBest(type.key)!.correctCount }}</span>
+              <span class="score-label">richtig</span>
+            </div>
+            <div class="timetrial-accuracy">{{ getTimeTrialBest(type.key)!.accuracy }}% genau</div>
+          } @else {
+            <div class="timetrial-placeholder">
+              <span>Noch kein Rekord</span>
+            </div>
+          }
+        </div>
+      }
+    } @else {
+      @for (type of clockExerciseTypes; track type.key) {
+        <div class="timetrial-card" [class.has-record]="hasTimeTrialBest(type.key)">
+          <div class="timetrial-icon">{{ type.icon }}</div>
+          <div class="timetrial-label">{{ type.label }}</div>
+          @if (hasTimeTrialBest(type.key)) {
+            <div class="timetrial-score">
+              <span class="score-number">{{ getTimeTrialBest(type.key)!.correctCount }}</span>
+              <span class="score-label">richtig</span>
+            </div>
+            <div class="timetrial-accuracy">{{ getTimeTrialBest(type.key)!.accuracy }}% genau</div>
+          } @else {
+            <div class="timetrial-placeholder">
+              <span>Noch kein Rekord</span>
+            </div>
+          }
+        </div>
+      }
     }
   </div>
 </section>

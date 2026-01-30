@@ -1,11 +1,12 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, ChangeDetectionStrategy, signal, OnInit } from '@angular/core';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService, PersonalBest } from '../../services/timed-challenge.service';
 import { StatsService } from '../../services/stats.service';
 import { CommonModule } from '@angular/common';
 
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
+type ClockExerciseType = 'clock-full' | 'clock-half' | 'clock-quarter' | 'clock-fiveMin';
 type MedalLevel = 'none' | 'bronze' | 'silver' | 'gold';
 
 @Component({
@@ -16,10 +17,13 @@ type MedalLevel = 'none' | 'bronze' | 'silver' | 'gold';
   styleUrls: ['./achievements.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AchievementsComponent {
+export class AchievementsComponent implements OnInit {
   achievements = inject(AchievementsService);
   timedChallenge = inject(TimedChallengeService);
   stats = inject(StatsService);
+  private route = inject(ActivatedRoute);
+
+  readonly category = signal<'math' | 'clock'>('math');
   reihen = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   exerciseTypes: { key: ExerciseType; label: string; icon: string }[] = [
@@ -28,6 +32,20 @@ export class AchievementsComponent {
     { key: 'multiplication', label: 'Multiplikation', icon: '×' },
     { key: 'division', label: 'Division', icon: '÷' }
   ];
+
+  clockExerciseTypes: { key: ClockExerciseType; label: string; icon: string }[] = [
+    { key: 'clock-full', label: 'Volle Stunde', icon: '🕐' },
+    { key: 'clock-half', label: 'Halbe Stunde', icon: '🕧' },
+    { key: 'clock-quarter', label: 'Viertelstunde', icon: '🕒' },
+    { key: 'clock-fiveMin', label: '5-Minuten', icon: '🕔' }
+  ];
+
+  ngOnInit(): void {
+    const category = this.route.snapshot.data['category'] as 'math' | 'clock' | undefined;
+    if (category) {
+      this.category.set(category);
+    }
+  }
 
   getMastery(reihe: number) {
     return this.achievements.getMastery(reihe);
@@ -45,19 +63,19 @@ export class AchievementsComponent {
     return this.getMastery(reihe).mastered;
   }
 
-  getTimeTrialBest(type: ExerciseType): PersonalBest | null {
+  getTimeTrialBest(type: ExerciseType | ClockExerciseType): PersonalBest | null {
     return this.timedChallenge.getBestForTypes([type]);
   }
 
-  hasTimeTrialBest(type: ExerciseType): boolean {
+  hasTimeTrialBest(type: ExerciseType | ClockExerciseType): boolean {
     return this.getTimeTrialBest(type) !== null;
   }
 
-  getMedalLevel(type: ExerciseType): MedalLevel {
+  getMedalLevel(type: ExerciseType | ClockExerciseType): MedalLevel {
     return this.stats.getMedalLevel(type);
   }
 
-  getMedalEmoji(type: ExerciseType): string {
+  getMedalEmoji(type: ExerciseType | ClockExerciseType): string {
     const level = this.getMedalLevel(type);
     switch (level) {
       case 'gold': return '🥇';
@@ -67,7 +85,7 @@ export class AchievementsComponent {
     }
   }
 
-  getMedalLabel(type: ExerciseType): string {
+  getMedalLabel(type: ExerciseType | ClockExerciseType): string {
     const level = this.getMedalLevel(type);
     switch (level) {
       case 'gold': return 'Gold';
@@ -77,15 +95,23 @@ export class AchievementsComponent {
     }
   }
 
-  getProgress(type: ExerciseType) {
+  getProgress(type: ExerciseType | ClockExerciseType) {
     return this.stats.getProgressToNextMedal(type);
   }
 
-  getNextMedalLabel(type: ExerciseType): string {
+  getNextMedalLabel(type: ExerciseType | ClockExerciseType): string {
     const progress = this.getProgress(type);
     if (progress.current >= 1000) return 'Gold erreicht!';
     if (progress.current >= 500) return 'bis Gold';
     if (progress.current >= 100) return 'bis Silber';
     return 'bis Bronze';
+  }
+
+  getBackLink(): string {
+    return this.category() === 'clock' ? '/uhrzeit' : '/mathe';
+  }
+
+  getTitle(): string {
+    return this.category() === 'clock' ? '🏆 Uhrzeit-Meister' : '🏆 Malfolgen-Meister';
   }
 }

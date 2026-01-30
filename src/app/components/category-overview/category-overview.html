@@ -61,13 +61,11 @@
         <p>60 Sekunden Challenge</p>
       </a>
 
-      @if (category() === 'math') {
-        <a [routerLink]="getBasePath() + '/erfolge'" class="action-card achievements-card">
-          <div class="card-icon">🏆</div>
-          <h3>Erfolge</h3>
-          <p>Deine Abzeichen & Rekorde</p>
-        </a>
-      }
+      <a [routerLink]="getBasePath() + '/erfolge'" class="action-card achievements-card">
+        <div class="card-icon">🏆</div>
+        <h3>Erfolge</h3>
+        <p>Deine Abzeichen & Rekorde</p>
+      </a>
     </div>
   </section>
 </div>

@@ -18,6 +18,7 @@ export const routes: Routes = [
   { path: 'uhrzeit', component: CategoryOverviewComponent, data: { category: 'clock' } },
   { path: 'uhrzeit/uebung', component: ClockExerciseComponent, data: { mode: 'practice' } },
   { path: 'uhrzeit/zeitrennen', component: ClockExerciseComponent, data: { mode: 'timeTrial' } },
+  { path: 'uhrzeit/erfolge', component: AchievementsComponent, data: { category: 'clock' } },
 
   // Redirects for backward compatibility
   { path: 'uebung', redirectTo: 'mathe/uebung', pathMatch: 'full' },
