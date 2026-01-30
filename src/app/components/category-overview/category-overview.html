@@ -12,20 +12,22 @@
     <div class="stats-card">
       <h2>Heutige Statistik</h2>
       <div class="stats-badges">
-        <span class="badge badge-correct">✓ {{ stats.correctCount() }}</span>
-        <span class="badge badge-incorrect">✗ {{ stats.incorrectCount() }}</span>
-        <span class="badge badge-total">Σ {{ stats.totalCount() }}</span>
+        <span class="badge badge-correct">✓ {{ categoryCorrectCount() }}</span>
+        <span class="badge badge-incorrect">✗ {{ categoryIncorrectCount() }}</span>
+        <span class="badge badge-total">Σ {{ categoryTotalCount() }}</span>
       </div>
 
-      <div class="goal-section">
-        <div class="goal-label">Tagesziel: {{ stats.correctCount() }} / {{ stats.currentGoal() }}</div>
-        <div class="progress-bar-container">
-          <div class="progress-bar-fill" [style.width.%]="stats.goalProgressPercent()"></div>
+      @if (category() === 'math') {
+        <div class="goal-section">
+          <div class="goal-label">Tagesziel: {{ stats.correctCount() }} / {{ stats.currentGoal() }}</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" [style.width.%]="stats.goalProgressPercent()"></div>
+          </div>
+          @if (stats.isGoalReached()) {
+            <div class="goal-reached-badge">🎯 Ziel erreicht!</div>
+          }
         </div>
-        @if (stats.isGoalReached()) {
-          <div class="goal-reached-badge">🎯 Ziel erreicht!</div>
-        }
-      </div>
+      }
     </div>
 
     <div class="action-cards">
@@ -35,7 +37,7 @@
         <p>Trainiere in deinem eigenen Tempo</p>
       </a>
 
-      @if (category === 'math') {
+      @if (category() === 'math') {
         <a [routerLink]="getBasePath() + '/zeitrennen'" class="action-card timetrial-card">
           <div class="card-icon">⏱️</div>
           <h3>Zeitrennen</h3>

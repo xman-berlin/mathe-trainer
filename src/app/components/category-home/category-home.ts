@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
@@ -17,6 +17,28 @@ export class CategoryHomeComponent {
   editGoalValue = signal(20);
 
   exerciseTypes = ['addition', 'subtraction', 'multiplication', 'division'];
+  clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin'];
+
+  // Computed stats for clock exercises
+  readonly clockCorrectCount = computed(() => {
+    const types = this.stats.statsByType();
+    let total = 0;
+    for (const type of this.clockTypes) {
+      total += types[type]?.correct ?? 0;
+    }
+    return total;
+  });
+
+  readonly clockIncorrectCount = computed(() => {
+    const types = this.stats.statsByType();
+    let total = 0;
+    for (const type of this.clockTypes) {
+      total += types[type]?.incorrect ?? 0;
+    }
+    return total;
+  });
+
+  readonly clockTotalCount = computed(() => this.clockCorrectCount() + this.clockIncorrectCount());
 
   getTypeStats(type: string) {
     const types = this.stats.statsByType();

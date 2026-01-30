@@ -47,12 +47,42 @@
   transition: transform 0.3s ease;
 }
 
-@media (max-width: 540px) {
+@media (max-width: 768px) {
   .clock-svg {
-    max-width: 250px;
+    max-width: 220px;
   }
 
   .hour-number {
     font-size: 12px;
+  }
+}
+
+@media (max-width: 540px) {
+  .clock-container {
+    padding: 0.15rem;
+  }
+
+  .clock-svg {
+    max-width: 110px;
+  }
+
+  .hour-number {
+    font-size: 8px;
+  }
+
+  .hour-marker {
+    r: 2;
+  }
+
+  .hour-hand {
+    stroke-width: 4;
+  }
+
+  .minute-hand {
+    stroke-width: 3;
+  }
+
+  .center-dot {
+    r: 3;
   }
 }

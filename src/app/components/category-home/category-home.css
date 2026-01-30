@@ -250,6 +250,14 @@
   border-radius: 7px;
 }
 
+.stat-summary {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  text-align: center;
+}
+
 .goal-reached-mini {
   margin-top: 0.4rem;
   padding: 0.3rem 0.6rem;

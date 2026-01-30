@@ -52,13 +52,17 @@
         </div>
 
         <!-- Uhrzeit -->
-        <div class="stat-item stat-item-empty">
+        <div class="stat-item">
           <div class="stat-header">
             <span class="stat-category">🕐 Uhrzeit</span>
             <span class="stat-badges">
-              <span class="badge badge-total">Keine Daten</span>
+              <span class="badge badge-correct">✓ {{ clockCorrectCount() }}</span>
+              <span class="badge badge-incorrect">✗ {{ clockIncorrectCount() }}</span>
             </span>
           </div>
+          @if (clockTotalCount() > 0) {
+            <div class="stat-summary">Σ {{ clockTotalCount() }}</div>
+          }
         </div>
       </div>
     </div>

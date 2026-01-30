@@ -8,29 +8,33 @@
         @for (type of exerciseTypes; track type) {
           <button
             class="type-btn"
-            [class.active]="selectedType() === type"
-            (click)="selectType(type)">
-            {{ getTypeLabel(type) }}
+            [class.active]="isTypeSelected(type)"
+            (click)="toggleType(type)">
+            <span class="type-icon">{{ getTypeIcon(type) }}</span>
+            <span class="type-label">{{ getTypeLabel(type) }}</span>
           </button>
         }
       </div>
 
       @if (currentProblem()) {
-        <!-- Time of Day -->
-        <div class="time-of-day">
-          {{ timeOfDayLabel() }}
+        <!-- Clock with Time of Day Indicators -->
+        <div class="clock-with-indicators">
+          <div class="time-indicator left" [class.active]="currentProblem()!.timeOfDay === 'morning'">
+            ☀️
+          </div>
+          <app-clock-display
+            [hours]="currentProblem()!.hours"
+            [minutes]="currentProblem()!.minutes"
+          />
+          <div class="time-indicator right" [class.active]="currentProblem()!.timeOfDay === 'afternoon'">
+            🌙
+          </div>
         </div>
-
-        <!-- Clock Display -->
-        <app-clock-display
-          [hours]="currentProblem()!.hours"
-          [minutes]="currentProblem()!.minutes"
-        />
 
         <!-- Question -->
         <div class="question">
           <h2>Wie spät ist es?</h2>
-          <p class="hint">Gib die Zeit im 24-Stunden-Format ein (z.B. 15:30)</p>
+          <p class="hint">Gib die Zeit mit führender Null ein (z.B. 0900 oder 1530)</p>
         </div>
 
         <!-- Time Input -->
@@ -46,40 +50,67 @@
         </div>
 
         <!-- Numpad -->
-        <div class="numpad">
-          @for (digit of ['1', '2', '3', '4', '5', '6', '7', '8', '9']; track digit) {
-            <button class="num-btn" (click)="addDigit(digit)">{{ digit }}</button>
-          }
-          <button class="num-btn special" (click)="addColon()">:</button>
-          <button class="num-btn" (click)="addDigit('0')">0</button>
-          <button class="num-btn special" (click)="backspace()">←</button>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="actions">
-          <button class="clear-btn" (click)="clear()">Löschen</button>
+        <div class="keypad">
+          <button type="button" (click)="addDigit('1')">1</button>
+          <button type="button" (click)="addDigit('2')">2</button>
+          <button type="button" (click)="addDigit('3')">3</button>
+          <button type="button" (click)="addDigit('4')">4</button>
+          <button type="button" (click)="addDigit('5')">5</button>
+          <button type="button" (click)="addDigit('6')">6</button>
+          <button type="button" (click)="addDigit('7')">7</button>
+          <button type="button" (click)="addDigit('8')">8</button>
+          <button type="button" (click)="addDigit('9')">9</button>
+          <button type="button" (click)="backspace()">←</button>
+          <button type="button" (click)="addDigit('0')">0</button>
           <button
-            class="submit-btn"
-            (click)="submitAnswer()"
-            [disabled]="showFeedback() || !userAnswer()">
-            Prüfen
-          </button>
+            type="button"
+            class="btn-ok"
+            [class.btn-disabled]="!userAnswer() || showFeedback()"
+            [disabled]="!userAnswer() || showFeedback()"
+            (click)="submitAnswer()">OK</button>
         </div>
 
-        <!-- Feedback -->
-        @if (showFeedback()) {
-          <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
-            @if (isCorrect()) {
-              <div class="feedback-icon">✓</div>
-              <div class="feedback-text">Richtig!</div>
-            } @else {
-              <div class="feedback-icon">✗</div>
-              <div class="feedback-text">
-                Leider falsch. Die richtige Antwort ist: {{ currentProblem()!.correctAnswer }}
-              </div>
+        <div class="feedback-area">
+          @if (showFeedback() && isCorrect()) {
+            <div class="feedback correct">✓ Richtig!</div>
+          }
+          @if (showFeedback() && !isCorrect()) {
+            <div class="feedback incorrect">
+              ✗ Falsch. @if (currentProblem()) {
+                <span>Richtige Antwort: {{ currentProblem()!.correctAnswer }}</span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Streak Display -->
+        <div class="streak-display" [class.has-streak]="streak() > 0">
+          <span class="streak-icon">🔥</span>
+          <span class="streak-count">{{ streak() }}</span>
+          @if (bestStreak() > 0 && bestStreak() > streak()) {
+            <span class="best-streak">Rekord: {{ bestStreak() }}</span>
+          }
+        </div>
+
+        <!-- Milestone Popup -->
+        @if (showMilestone()) {
+          <div class="confetti-container">
+            @for (i of confettiPieces; track i) {
+              <div class="confetti" [style.--delay]="i * 0.1 + 's'" [style.--x]="confettiX[i]"></div>
             }
           </div>
+          <div class="milestone-popup">
+            🎉 {{ milestoneValue() }}er Serie! 🎉
+          </div>
         }
+
+        <!-- Result Summary -->
+        <div class="result-summary">
+          <span class="badge badge-correct">✓ {{ typeCorrectCount() }}</span>
+          <span class="badge badge-incorrect">✗ {{ typeIncorrectCount() }}</span>
+          <span class="badge badge-total">Σ {{ typeTotalCount() }}</span>
+          <span class="summary-label">Heute</span>
+        </div>
       }
     </div>
   </div>

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 
-export type ClockExerciseType = 'full' | 'half' | 'quarter';
+export type ClockExerciseType = 'full' | 'half' | 'quarter' | 'fiveMin';
 export type TimeOfDay = 'morning' | 'afternoon';
 
 export interface ClockProblem {
   hours: number;      // 0-11 (for analog display)
-  minutes: number;    // 0, 15, 30, 45
+  minutes: number;    // 0-59
   timeOfDay: TimeOfDay;
   correctAnswer: string; // HH:MM in 24h format
 }
@@ -40,6 +40,12 @@ export class ClockService {
         // Quarter hours: minutes = 15 or 45, hours = 1-12
         hours = Math.floor(Math.random() * 12);
         minutes = Math.random() < 0.5 ? 15 : 45;
+        break;
+
+      case 'fiveMin':
+        // Five minute intervals: 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55
+        hours = Math.floor(Math.random() * 12);
+        minutes = Math.floor(Math.random() * 12) * 5; // 0-11 * 5 = 0, 5, 10, ..., 55
         break;
     }
 
@@ -91,9 +97,23 @@ export class ClockService {
     const labels: Record<ClockExerciseType, string> = {
       'full': 'Volle Stunden',
       'half': 'Halbe Stunden',
-      'quarter': 'Viertelstunden'
+      'quarter': 'Viertelstunden',
+      'fiveMin': '5 Minuten'
     };
     return labels[type];
+  }
+
+  /**
+   * Gets the icon for exercise type
+   */
+  getTypeIcon(type: ClockExerciseType): string {
+    const icons: Record<ClockExerciseType, string> = {
+      'full': '60',
+      'half': '30',
+      'quarter': '15',
+      'fiveMin': '05'
+    };
+    return icons[type];
   }
 
   /**
