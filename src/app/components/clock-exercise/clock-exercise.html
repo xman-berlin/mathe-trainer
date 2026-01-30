@@ -3,20 +3,60 @@
     <a routerLink="/uhrzeit" class="back-btn">← Zurück</a>
 
     <div class="exercise-content">
-      <!-- Type Selector -->
-      <div class="type-selector">
-        @for (type of exerciseTypes; track type) {
-          <button
-            class="type-btn"
-            [class.active]="isTypeSelected(type)"
-            (click)="toggleType(type)">
-            <span class="type-icon">{{ getTypeIcon(type) }}</span>
-            <span class="type-label">{{ getTypeLabel(type) }}</span>
-          </button>
-        }
-      </div>
+      @if (mode() === 'timeTrial' && !timeTrialActive()) {
+        <div class="trial-start-section">
+          <h2>⏱️ Zeitrennen</h2>
+          <p class="trial-description">Löse so viele Aufgaben wie möglich in 60 Sekunden!</p>
 
-      @if (currentProblem()) {
+          <!-- Type Selector -->
+          <div class="type-selector">
+            @for (type of exerciseTypes; track type) {
+              <button
+                class="type-btn"
+                [class.active]="isTypeSelected(type)"
+                (click)="toggleType(type)">
+                <span class="type-icon">{{ getTypeIcon(type) }}</span>
+                <span class="type-label">{{ getTypeLabel(type) }}</span>
+              </button>
+            }
+          </div>
+
+          <button class="start-trial-btn" (click)="startTimeTrial()">
+            ▶️ Starten
+          </button>
+          @if (currentPersonalBest()) {
+            <div class="current-best">
+              🏆 Dein Rekord: {{ currentPersonalBest()!.correctCount }} richtig
+              ({{ currentPersonalBest()!.accuracy }}%)
+            </div>
+          }
+        </div>
+      }
+
+      @if (timeTrialActive()) {
+        <div class="timer-display" [class.critical]="timeRemaining() <= 10">
+          <div class="timer-value">{{ timeRemaining() }}s</div>
+          <div class="timer-score">{{ timeTrialCorrect() }}/{{ timeTrialTotal() }} richtig</div>
+        </div>
+      }
+
+      @if (mode() === 'practice' || timeTrialActive()) {
+        <!-- Type Selector (for practice mode) -->
+        @if (mode() === 'practice') {
+          <div class="type-selector">
+            @for (type of exerciseTypes; track type) {
+              <button
+                class="type-btn"
+                [class.active]="isTypeSelected(type)"
+                (click)="toggleType(type)">
+                <span class="type-icon">{{ getTypeIcon(type) }}</span>
+                <span class="type-label">{{ getTypeLabel(type) }}</span>
+              </button>
+            }
+          </div>
+        }
+
+        @if (currentProblem()) {
         <!-- Clock with Time of Day Indicators -->
         <div class="clock-with-indicators">
           <div class="time-indicator left" [class.active]="currentProblem()!.timeOfDay === 'morning'">
@@ -83,35 +123,86 @@
           }
         </div>
 
-        <!-- Streak Display -->
-        <div class="streak-display" [class.has-streak]="streak() > 0">
-          <span class="streak-icon">🔥</span>
-          <span class="streak-count">{{ streak() }}</span>
-          @if (bestStreak() > 0 && bestStreak() > streak()) {
-            <span class="best-streak">Rekord: {{ bestStreak() }}</span>
-          }
-        </div>
-
-        <!-- Milestone Popup -->
-        @if (showMilestone()) {
-          <div class="confetti-container">
-            @for (i of confettiPieces; track i) {
-              <div class="confetti" [style.--delay]="i * 0.1 + 's'" [style.--x]="confettiX[i]"></div>
+        @if (mode() === 'practice') {
+          <!-- Streak Display -->
+          <div class="streak-display" [class.has-streak]="streak() > 0">
+            <span class="streak-icon">🔥</span>
+            <span class="streak-count">{{ streak() }}</span>
+            @if (bestStreak() > 0 && bestStreak() > streak()) {
+              <span class="best-streak">Rekord: {{ bestStreak() }}</span>
             }
           </div>
-          <div class="milestone-popup">
-            🎉 {{ milestoneValue() }}er Serie! 🎉
+
+          <!-- Milestone Popup -->
+          @if (showMilestone()) {
+            <div class="confetti-container">
+              @for (i of confettiPieces; track i) {
+                <div class="confetti" [style.--delay]="i * 0.1 + 's'" [style.--x]="confettiX[i]"></div>
+              }
+            </div>
+            <div class="milestone-popup">
+              🎉 {{ milestoneValue() }}er Serie! 🎉
+            </div>
+          }
+
+          <!-- Result Summary -->
+          <div class="result-summary">
+            <span class="badge badge-correct">✓ {{ typeCorrectCount() }}</span>
+            <span class="badge badge-incorrect">✗ {{ typeIncorrectCount() }}</span>
+            <span class="badge badge-total">Σ {{ typeTotalCount() }}</span>
+            <span class="summary-label">Heute</span>
           </div>
         }
-
-        <!-- Result Summary -->
-        <div class="result-summary">
-          <span class="badge badge-correct">✓ {{ typeCorrectCount() }}</span>
-          <span class="badge badge-incorrect">✗ {{ typeIncorrectCount() }}</span>
-          <span class="badge badge-total">Σ {{ typeTotalCount() }}</span>
-          <span class="summary-label">Heute</span>
-        </div>
       }
+    }
     </div>
   </div>
 </div>
+
+@if (showTimeTrialResults()) {
+  <div class="modal-overlay">
+    <div class="results-modal" [class.new-record]="isNewPersonalBest()">
+      @if (isNewPersonalBest()) {
+        <div class="record-confetti-container">
+          @for (i of confettiPieces; track i) {
+            <div class="record-confetti" [style.--delay]="i * 0.1 + 's'" [style.--x]="confettiX[i]"></div>
+          }
+        </div>
+      }
+
+      <h2>
+        @if (isNewPersonalBest()) {
+          🏆 Neuer Rekord! 🏆
+        } @else {
+          🏁 Zeit abgelaufen!
+        }
+      </h2>
+
+      <div class="results-stats">
+        <div class="result-item">
+          <span class="result-label">Richtige Antworten</span>
+          <span class="result-value" [class.record-value]="isNewPersonalBest()">{{ timeTrialCorrect() }}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Gesamt bearbeitet</span>
+          <span class="result-value">{{ timeTrialTotal() }}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Genauigkeit</span>
+          <span class="result-value">{{ timeTrialAccuracy() }}%</span>
+        </div>
+      </div>
+
+      @if (currentPersonalBest() && !isNewPersonalBest()) {
+        <div class="previous-best">
+          Dein Rekord: {{ currentPersonalBest()!.correctCount }} richtig
+        </div>
+      }
+
+      <div class="results-actions">
+        <button class="primary-btn" (click)="restartTimeTrial()">🔄 Nochmal</button>
+        <button class="secondary-btn" (click)="exitTimeTrial()">← Zurück zur Übung</button>
+      </div>
+    </div>
+  </div>
+}
