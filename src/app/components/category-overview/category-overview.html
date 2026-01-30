@@ -19,11 +19,29 @@
 
       @if (category() === 'math') {
         <div class="goal-section">
-          <div class="goal-label">Tagesziel: {{ stats.correctCount() }} / {{ stats.currentGoal() }}</div>
+          <div class="goal-header">
+            <div class="goal-label">Tagesziel: {{ stats.correctCount() }} / {{ stats.currentGoal() }}</div>
+            <button class="goal-edit-btn-inline" (click)="editGoal()" aria-label="Ziel bearbeiten">⚙️</button>
+          </div>
           <div class="progress-bar-container">
             <div class="progress-bar-fill" [style.width.%]="stats.goalProgressPercent()"></div>
           </div>
           @if (stats.isGoalReached()) {
+            <div class="goal-reached-badge">🎯 Ziel erreicht!</div>
+          }
+        </div>
+      }
+
+      @if (category() === 'clock') {
+        <div class="goal-section">
+          <div class="goal-header">
+            <div class="goal-label">Tagesziel: {{ stats.clockCorrectCount() }} / {{ stats.currentClockGoal() }}</div>
+            <button class="goal-edit-btn-inline" (click)="editGoal()" aria-label="Ziel bearbeiten">⚙️</button>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" [style.width.%]="stats.clockGoalProgressPercent()"></div>
+          </div>
+          @if (stats.isClockGoalReached()) {
             <div class="goal-reached-badge">🎯 Ziel erreicht!</div>
           }
         </div>
@@ -53,3 +71,17 @@
     </div>
   </section>
 </div>
+
+@if (showGoalEditor()) {
+  <div class="modal-overlay" (click)="cancelGoalEdit()">
+    <div class="goal-editor-modal" (click)="$event.stopPropagation()">
+      <h3>Tagesziel festlegen</h3>
+      <p>Wie viele Aufgaben möchtest du heute richtig lösen?</p>
+      <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
+      <div class="modal-actions">
+        <button class="primary-btn" (click)="saveGoal()">Speichern</button>
+        <button class="secondary-btn" (click)="cancelGoalEdit()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+}

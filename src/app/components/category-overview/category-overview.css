@@ -124,11 +124,29 @@
   margin-top: 1.5rem;
 }
 
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
 .goal-label {
   font-weight: 600;
   color: var(--gray-900);
-  margin-bottom: 0.5rem;
-  display: block;
+}
+
+.goal-edit-btn-inline {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  transition: transform 0.2s;
+}
+
+.goal-edit-btn-inline:hover {
+  transform: scale(1.1);
 }
 
 .progress-bar-container {
@@ -306,4 +324,66 @@
   .action-card h3 {
     font-size: 1.1rem;
   }
+}
+
+
+/* Goal Editor Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.goal-editor-modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.goal-editor-modal h3 {
+  margin-top: 0;
+  color: var(--gray-900);
+}
+
+.goal-editor-modal input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1.2rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: var(--bright-blue);
+  color: white;
+}
+
+.secondary-btn {
+  background: #e5e7eb;
+  color: var(--gray-900);
 }

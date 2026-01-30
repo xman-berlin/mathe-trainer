@@ -14,6 +14,7 @@ export class CategoryHomeComponent {
   protected stats = inject(StatsService);
 
   showGoalEditor = signal(false);
+  showClockGoalEditor = signal(false);
   editGoalValue = signal(20);
 
   exerciseTypes = ['addition', 'subtraction', 'multiplication', 'division'];
@@ -67,5 +68,19 @@ export class CategoryHomeComponent {
 
   cancelGoalEdit(): void {
     this.showGoalEditor.set(false);
+  }
+
+  editClockGoal(): void {
+    this.editGoalValue.set(this.stats.currentClockGoal());
+    this.showClockGoalEditor.set(true);
+  }
+
+  saveClockGoal(): void {
+    this.stats.setClockDailyGoal(this.editGoalValue());
+    this.showClockGoalEditor.set(false);
+  }
+
+  cancelClockGoalEdit(): void {
+    this.showClockGoalEditor.set(false);
   }
 }

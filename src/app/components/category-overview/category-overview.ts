@@ -1,11 +1,12 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
 
 @Component({
   standalone: true,
   selector: 'app-category-overview',
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './category-overview.html',
   styleUrl: './category-overview.css'
 })
@@ -43,6 +44,10 @@ export class CategoryOverviewComponent implements OnInit {
 
   readonly categoryTotalCount = computed(() => this.categoryCorrectCount() + this.categoryIncorrectCount());
 
+  // Goal editor state
+  showGoalEditor = signal(false);
+  editGoalValue = signal(20);
+
   ngOnInit(): void {
     // Read category from route data
     this.route.data.subscribe(data => {
@@ -64,5 +69,27 @@ export class CategoryOverviewComponent implements OnInit {
 
   getBasePath(): string {
     return this.category() === 'math' ? '/mathe' : '/uhrzeit';
+  }
+
+  editGoal(): void {
+    if (this.category() === 'math') {
+      this.editGoalValue.set(this.stats.currentGoal());
+    } else {
+      this.editGoalValue.set(this.stats.currentClockGoal());
+    }
+    this.showGoalEditor.set(true);
+  }
+
+  saveGoal(): void {
+    if (this.category() === 'math') {
+      this.stats.setDailyGoal(this.editGoalValue());
+    } else {
+      this.stats.setClockDailyGoal(this.editGoalValue());
+    }
+    this.showGoalEditor.set(false);
+  }
+
+  cancelGoalEdit(): void {
+    this.showGoalEditor.set(false);
   }
 }

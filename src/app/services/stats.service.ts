@@ -11,6 +11,7 @@ interface DailyStats {
   incorrect: number;
   byType: Record<string, ExerciseTypeStats>;
   dailyGoal?: number; // Optional for backward compatibility
+  clockDailyGoal?: number; // Optional for backward compatibility
 }
 
 interface LifetimeStats {
@@ -26,8 +27,14 @@ export class StatsService {
   private incorrect = signal(0);
   private date = signal(this.today());
   private byType = signal<Record<string, ExerciseTypeStats>>({});
-  private dailyGoal = signal(20); // Default goal
+  private dailyGoal = signal(20); // Default goal for math
+  private clockDailyGoal = signal(20); // Default goal for clock
   private lifetimeByType = signal<Record<string, number>>({});
+
+  // Math exercise types
+  private readonly mathTypes = ['addition', 'subtraction', 'multiplication', 'division'];
+  // Clock exercise types
+  private readonly clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin'];
 
   readonly correctCount = this.correct.asReadonly();
   readonly incorrectCount = this.incorrect.asReadonly();
@@ -39,6 +46,22 @@ export class StatsService {
   );
   readonly isGoalReached = computed(() => this.correct() >= this.dailyGoal());
   readonly lifetimeStatsByType = this.lifetimeByType.asReadonly();
+
+  // Clock-specific stats
+  readonly clockCorrectCount = computed(() => {
+    const types = this.byType();
+    let total = 0;
+    for (const type of this.clockTypes) {
+      total += types[type]?.correct ?? 0;
+    }
+    return total;
+  });
+
+  readonly currentClockGoal = this.clockDailyGoal.asReadonly();
+  readonly clockGoalProgressPercent = computed(() =>
+    Math.min(100, Math.round((this.clockCorrectCount() / this.clockDailyGoal()) * 100))
+  );
+  readonly isClockGoalReached = computed(() => this.clockCorrectCount() >= this.clockDailyGoal());
 
   constructor() {
     this.load();
@@ -81,6 +104,13 @@ export class StatsService {
     if (count < 1) count = 1;
     if (count > 100) count = 100;
     this.dailyGoal.set(count);
+    this.persist();
+  }
+
+  setClockDailyGoal(count: number): void {
+    if (count < 1) count = 1;
+    if (count > 100) count = 100;
+    this.clockDailyGoal.set(count);
     this.persist();
   }
 
@@ -128,6 +158,9 @@ export class StatsService {
         if (parsed.dailyGoal) {
           this.dailyGoal.set(parsed.dailyGoal);
         }
+        if (parsed.clockDailyGoal) {
+          this.clockDailyGoal.set(parsed.clockDailyGoal);
+        }
       } else {
         // Old format detected, reset to start fresh with new structure
         this.resetToday();
@@ -143,7 +176,8 @@ export class StatsService {
       correct: this.correct(),
       incorrect: this.incorrect(),
       byType: this.byType(),
-      dailyGoal: this.dailyGoal()
+      dailyGoal: this.dailyGoal(),
+      clockDailyGoal: this.clockDailyGoal()
     };
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(payload));

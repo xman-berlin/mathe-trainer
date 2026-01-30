@@ -60,8 +60,15 @@
               <span class="badge badge-incorrect">✗ {{ clockIncorrectCount() }}</span>
             </span>
           </div>
-          @if (clockTotalCount() > 0) {
-            <div class="stat-summary">Σ {{ clockTotalCount() }}</div>
+          <div class="stat-goal">
+            <span class="goal-text">Ziel: {{ clockCorrectCount() }}/{{ stats.currentClockGoal() }}</span>
+            <button class="goal-edit-btn-inline" (click)="editClockGoal()" aria-label="Ziel bearbeiten">⚙️</button>
+          </div>
+          <div class="progress-bar-container-mini">
+            <div class="progress-bar-fill" [style.width.%]="stats.clockGoalProgressPercent()"></div>
+          </div>
+          @if (stats.isClockGoalReached()) {
+            <div class="goal-reached-mini">🎯 Ziel erreicht!</div>
           }
         </div>
       </div>
@@ -76,12 +83,26 @@
 @if (showGoalEditor()) {
   <div class="modal-overlay" (click)="cancelGoalEdit()" (keydown.escape)="cancelGoalEdit()" role="dialog" aria-modal="true" tabindex="-1">
     <div class="goal-editor-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="document">
-      <h3>Tagesziel festlegen</h3>
-      <p>Wie viele Aufgaben möchtest du heute richtig lösen?</p>
+      <h3>Mathe Tagesziel festlegen</h3>
+      <p>Wie viele Mathe-Aufgaben möchtest du heute richtig lösen?</p>
       <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
       <div class="modal-actions">
         <button class="primary-btn" (click)="saveGoal()">Speichern</button>
         <button class="secondary-btn" (click)="cancelGoalEdit()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showClockGoalEditor()) {
+  <div class="modal-overlay" (click)="cancelClockGoalEdit()">
+    <div class="goal-editor-modal" (click)="$event.stopPropagation()">
+      <h3>Uhrzeit Tagesziel festlegen</h3>
+      <p>Wie viele Uhrzeit-Aufgaben möchtest du heute richtig lösen?</p>
+      <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
+      <div class="modal-actions">
+        <button class="primary-btn" (click)="saveClockGoal()">Speichern</button>
+        <button class="secondary-btn" (click)="cancelClockGoalEdit()">Abbrechen</button>
       </div>
     </div>
   </div>
