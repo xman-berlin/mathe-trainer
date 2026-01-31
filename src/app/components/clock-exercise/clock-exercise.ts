@@ -109,6 +109,12 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
     const mode = this.route.snapshot.data['mode'] as 'practice' | 'timeTrial' | undefined;
     if (mode) {
       this.mode.set(mode);
+
+      // In time trial mode, only one type can be selected
+      if (mode === 'timeTrial' && this.selectedTypes().size > 1) {
+        const firstType = Array.from(this.selectedTypes())[0];
+        this.selectedTypes.set(new Set([firstType]));
+      }
     }
   }
 
@@ -133,16 +139,22 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
   }
 
   toggleType(type: ClockExerciseType): void {
-    const current = new Set(this.selectedTypes());
-    if (current.has(type)) {
-      // Don't allow deselecting if it's the only one selected
-      if (current.size > 1) {
-        current.delete(type);
-      }
+    if (this.mode() === 'timeTrial') {
+      // Time trial mode: only one type can be selected
+      this.selectedTypes.set(new Set([type]));
     } else {
-      current.add(type);
+      // Practice mode: multi-select allowed
+      const current = new Set(this.selectedTypes());
+      if (current.has(type)) {
+        // Don't allow deselecting if it's the only one selected
+        if (current.size > 1) {
+          current.delete(type);
+        }
+      } else {
+        current.add(type);
+      }
+      this.selectedTypes.set(current);
     }
-    this.selectedTypes.set(current);
     this.generateProblem();
   }
 
