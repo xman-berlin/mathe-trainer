@@ -48,6 +48,62 @@ Each exercise component (addition, subtraction) follows the same structure:
 - Auto-advance after feedback (600ms correct, 1200ms incorrect)
 - Computed signals for type-specific stats
 
+## Responsive Design
+
+### Breakpoints
+- **Desktop**: > 1024px
+- **Tablet Landscape**: 768-1024px with `orientation: landscape`
+- **Tablet Portrait**: 768-1024px
+- **Mobile**: < 768px
+- **Small Mobile**: < 540px
+
+### Tablet Landscape Optimizations
+
+#### Clock Exercise (`clock-exercise.css`)
+**Problem**: Vertical layout exceeded viewport height (~750px) on tablet landscape, requiring scrolling.
+
+**Solution**: Horizontal 2-column CSS Grid layout
+- **Container**: Expanded from 600px to 1000px max-width
+- **Left column (320px)**: Clock display (rows 1-3) + Streak display (row 4)
+- **Right column (1fr)**: Type selector, question, input, keypad, feedback
+- **Result**: ~250px height reduction (33%), all content visible without scrolling
+
+**Key changes**:
+```css
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape)
+```
+- Grid: `grid-template-columns: 320px 1fr`
+- Clock size: 260px (between mobile 220px and desktop 300px)
+- Reduced padding and font sizes for compact layout
+- Margin-top: 4rem → 1.5rem
+
+#### Clock Display Component (`clock-display.css`)
+- Clock SVG: 260px for tablet landscape (optimal between mobile 220px and desktop 300px)
+- Hour numbers: 13px font-size
+
+#### Category Overview (`category-overview.css`)
+**Solution**: Horizontal 2-column layout for better space utilization
+
+**Layout**:
+- **Left column (340px)**: Stats card with daily progress
+- **Right column (1fr)**: Action cards in vertical stack
+
+**Key changes**:
+- Hero padding reduced: 4rem → 2.5rem (top), 2rem → 1.5rem (bottom)
+- Hero h1: 2.5rem → 2rem
+- Action cards: Changed to horizontal layout (icon left, text right)
+- Stats card: More compact (padding 1.5rem → 1.2rem)
+- All content visible on one screen without scrolling
+
+### Pattern for Future Tablet Landscape Optimizations
+When optimizing components for tablet landscape:
+1. Use CSS Grid with horizontal splits (typically 300-400px left column + flexible right)
+2. Position static/visual elements on the left (charts, displays, stats)
+3. Position interactive elements on the right (inputs, buttons, forms)
+4. Reduce vertical padding and margins by ~30-40%
+5. Reduce font sizes by 10-15%
+6. Test on iPad Air (820×1080) and iPad Pro 11" (1024×768) landscape
+
 ## Development Notes
 
 - **Signals over RxJS**: Use `signal()` for state, `computed()` for derived values
@@ -56,4 +112,4 @@ Each exercise component (addition, subtraction) follows the same structure:
 - **Mobile-first**: Responsive breakpoints at 1024px, 768px, 540px
 - **Standalone components**: All components use `standalone: true`
 - **Commit and push**: Commit and push changes only on my command
-- 
+-

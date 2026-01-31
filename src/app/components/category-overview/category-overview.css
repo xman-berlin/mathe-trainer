@@ -224,6 +224,82 @@
   line-height: 1.5;
 }
 
+/* Tablet Landscape: Compact horizontal layout */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .hero {
+    padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+  }
+
+  .content-area {
+    padding: 1rem 1.5rem;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .stats-card {
+    margin: 0;
+    padding: 1.2rem;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .stats-card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .goal-section {
+    margin-top: 1rem;
+  }
+
+  .goal-label {
+    font-size: 0.9rem;
+  }
+
+  .progress-bar-container {
+    height: 20px;
+  }
+
+  .action-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 0;
+  }
+
+  .action-card {
+    padding: 1.2rem;
+    flex-direction: row;
+    text-align: left;
+    gap: 1rem;
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .action-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .action-card p {
+    font-size: 0.85rem;
+  }
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .back-home-btn {

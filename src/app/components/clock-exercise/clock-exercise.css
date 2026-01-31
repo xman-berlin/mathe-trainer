@@ -184,6 +184,164 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
+/* Tablet Landscape: Horizontal split layout */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .clock-exercise-container {
+    max-width: 1000px;
+  }
+
+  .exercise-content {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: auto auto auto auto auto auto auto;
+    gap: 0.75rem 1.5rem;
+    align-items: start;
+    margin-top: 1.5rem;
+  }
+
+  /* Type selector at top right */
+  .type-selector {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /* Time Trial Timer Display - takes full width at top */
+  .timer-display {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    margin-bottom: 0.5rem;
+    padding: 1rem;
+  }
+
+  .timer-value {
+    font-size: 2.2rem;
+  }
+
+  .timer-score {
+    font-size: 1rem;
+  }
+
+  /* Clock spans rows 2-4, column 1 (works for both Practice and Time Trial) */
+  .clock-with-indicators {
+    grid-column: 1;
+    grid-row: 2 / 5;
+  }
+
+  /* Clock sizing - larger than mobile, smaller than desktop */
+  .clock-with-indicators {
+    gap: 1.2rem;
+  }
+
+  .time-indicator {
+    font-size: 2.8rem;
+  }
+
+  /* Question in column 2, row 2 */
+  .question {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .question h2 {
+    font-size: 1.3rem;
+  }
+
+  .question .hint {
+    font-size: 0.85rem;
+  }
+
+  /* Input section in column 2, row 3 */
+  .input-section {
+    grid-column: 2;
+    grid-row: 3;
+    max-width: 360px;
+  }
+
+  .time-input {
+    font-size: 1.75rem;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Keypad in column 2, row 4 */
+  app-keypad {
+    grid-column: 2;
+    grid-row: 4;
+  }
+
+  /* Feedback in column 2, row 5 */
+  .feedback-area {
+    grid-column: 2;
+    grid-row: 5;
+  }
+
+  /* Streak below clock (column 1, row 5) */
+  .streak-display {
+    grid-column: 1;
+    grid-row: 5;
+    justify-self: center;
+  }
+
+  /* Milestone popup (for confetti) */
+  .milestone-popup {
+    grid-column: 1 / 3;
+  }
+
+  /* Result summary spans both columns in row 6 */
+  .result-summary {
+    grid-column: 1 / 3;
+    grid-row: 6;
+  }
+
+  /* Type selector - more compact */
+  .type-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  /* Time Trial Start Section */
+  .trial-start-section {
+    padding: 1.5rem;
+    max-width: 500px;
+  }
+
+  .trial-description {
+    font-size: 1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .start-trial-btn {
+    padding: 0.85rem 1.75rem;
+    font-size: 1.1rem;
+  }
+
+  .current-best {
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+  }
+
+  /* Results Modal */
+  .results-modal {
+    padding: 1.75rem;
+    max-width: 450px;
+  }
+
+  .results-modal h2 {
+    font-size: 1.6rem;
+  }
+
+  .result-item {
+    padding: 0.85rem;
+  }
+
+  .result-value {
+    font-size: 1.3rem;
+  }
+
+  .result-value.record-value {
+    font-size: 1.7rem;
+  }
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .back-btn {

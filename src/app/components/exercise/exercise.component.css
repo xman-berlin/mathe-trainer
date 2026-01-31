@@ -769,6 +769,171 @@
   display: none;
 }
 
+/* Tablet Landscape: Compact Time Trial layout */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .main-area {
+    padding: 1.5rem 2rem;
+    gap: 1rem;
+  }
+
+  /* Timer Display */
+  .timer-display {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    max-width: 100%;
+  }
+
+  .timer-value {
+    font-size: 2.2rem;
+  }
+
+  .timer-score {
+    font-size: 1rem;
+    margin-top: 0.3rem;
+  }
+
+  /* Trial Start Section */
+  .trial-start-section {
+    padding: 1.5rem;
+    max-width: 500px;
+  }
+
+  .trial-description {
+    font-size: 1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .start-trial-btn {
+    padding: 0.85rem 1.75rem;
+    font-size: 1.1rem;
+  }
+
+  .current-best {
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+  }
+
+  /* Type Selector */
+  .type-selector {
+    margin-bottom: 1rem;
+  }
+
+  .type-toggle {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Multiplier Selector */
+  .multiplier-selector {
+    gap: 0.25rem;
+  }
+
+  .multiplier-label {
+    font-size: 0.8rem;
+  }
+
+  .multiplier-btn {
+    padding: 0.25rem 0.45rem;
+    min-width: 1.9rem;
+    font-size: 0.75rem;
+  }
+
+  /* Problem Display */
+  .problem-display {
+    font-size: 3.5rem;
+    gap: 1rem;
+  }
+
+  .operand-display {
+    min-width: 4.5rem;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .operator,
+  .equals {
+    font-size: 3rem;
+  }
+
+  .question-mark {
+    min-width: 4.5rem;
+    padding: 0.75rem 1.5rem;
+  }
+
+  /* Input Section */
+  .answer-input {
+    font-size: 2rem;
+    padding: 0.8rem 1.2rem;
+    width: 10rem;
+  }
+
+  /* Streak Display */
+  .streak-display {
+    padding: 0.35rem 0.7rem;
+  }
+
+  .streak-icon {
+    font-size: 1rem;
+  }
+
+  .streak-count {
+    font-size: 0.95rem;
+  }
+
+  .best-streak {
+    font-size: 0.7rem;
+  }
+
+  /* Feedback */
+  .feedback {
+    font-size: 1.1rem;
+    padding: 0.6rem 1.2rem;
+  }
+
+  /* Badges */
+  .badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .summary-label {
+    font-size: 0.9rem;
+  }
+
+  /* Results Modal */
+  .results-modal {
+    padding: 1.75rem;
+    max-width: 450px;
+  }
+
+  .results-modal h2 {
+    font-size: 1.6rem;
+  }
+
+  .result-item {
+    padding: 0.85rem;
+  }
+
+  .result-value {
+    font-size: 1.3rem;
+  }
+
+  .result-value.record-value {
+    font-size: 1.7rem;
+  }
+
+  .trophy-icon {
+    font-size: 2.5rem;
+  }
+
+  .best-text {
+    font-size: 1rem;
+  }
+
+  .personal-best-badge {
+    padding: 1.2rem;
+  }
+}
+
 @media (max-width: 768px) {
   .main-area {
     padding: 1rem;
