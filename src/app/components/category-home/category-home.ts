@@ -23,7 +23,28 @@ export class CategoryHomeComponent {
   exerciseTypes = ['addition', 'subtraction', 'multiplication', 'division'];
   clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin'];
 
-  // Computed stats for clock exercises
+  // Computed stats for MATH exercises only
+  readonly mathCorrectCount = computed(() => {
+    const types = this.stats.statsByType();
+    let total = 0;
+    for (const type of this.exerciseTypes) {
+      total += types[type]?.correct ?? 0;
+    }
+    return total;
+  });
+
+  readonly mathIncorrectCount = computed(() => {
+    const types = this.stats.statsByType();
+    let total = 0;
+    for (const type of this.exerciseTypes) {
+      total += types[type]?.incorrect ?? 0;
+    }
+    return total;
+  });
+
+  readonly mathTotalCount = computed(() => this.mathCorrectCount() + this.mathIncorrectCount());
+
+  // Computed stats for CLOCK exercises only
   readonly clockCorrectCount = computed(() => {
     const types = this.stats.statsByType();
     let total = 0;
@@ -43,6 +64,18 @@ export class CategoryHomeComponent {
   });
 
   readonly clockTotalCount = computed(() => this.clockCorrectCount() + this.clockIncorrectCount());
+
+  // Goal progress for MATH only
+  readonly mathGoalProgressPercent = computed(() =>
+    Math.min(100, Math.round((this.mathCorrectCount() / this.stats.currentGoal()) * 100))
+  );
+  readonly isMathGoalReached = computed(() => this.mathCorrectCount() >= this.stats.currentGoal());
+
+  // Goal progress for CLOCK only
+  readonly clockGoalProgressPercent = computed(() =>
+    Math.min(100, Math.round((this.clockCorrectCount() / this.stats.currentClockGoal()) * 100))
+  );
+  readonly isClockGoalReached = computed(() => this.clockCorrectCount() >= this.stats.currentClockGoal());
 
   getTypeStats(type: string) {
     const types = this.stats.statsByType();

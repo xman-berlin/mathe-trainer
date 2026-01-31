@@ -1,4 +1,6 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { SupabaseService } from './supabase.service';
+import { AuthService } from './auth.service';
 
 interface ReihenMastery {
   currentStreak: number;
@@ -17,6 +19,10 @@ export class AchievementsService {
   private readonly storageKey = 'mathe-trainer-achievements';
   private readonly MASTERY_THRESHOLD = 10;
 
+  // Server sync dependencies
+  private supabase = inject(SupabaseService);
+  private auth = inject(AuthService);
+
   private multiplicationMastery = signal<MultiplicationMastery>({});
 
   readonly masteryData = this.multiplicationMastery.asReadonly();
@@ -33,6 +39,7 @@ export class AchievementsService {
 
   constructor() {
     this.load();
+    this.loadFromServerIfAuthenticated();
   }
 
   recordMultiplicationResult(reihe: number, isCorrect: boolean) {
@@ -66,6 +73,9 @@ export class AchievementsService {
     }
 
     this.persist();
+
+    // Sync to server in background
+    this.syncToServer(reihe);
   }
 
   getMastery(reihe: number): ReihenMastery {
@@ -95,6 +105,85 @@ export class AchievementsService {
       localStorage.setItem(this.storageKey, JSON.stringify(payload));
     } catch {
       // ignore storage errors
+    }
+  }
+
+  /**
+   * Clear all user data (called on logout)
+   */
+  clearUserData(): void {
+    console.log('[Achievements] Clearing user data');
+    this.multiplicationMastery.set({});
+    localStorage.removeItem(this.storageKey);
+  }
+
+  /**
+   * Load achievements from server for specific user (called on login)
+   */
+  async loadFromServer(userId: string): Promise<void> {
+    try {
+      console.log('[Achievements] Loading mastery from server for user:', userId);
+
+      const masteryRecords = await this.supabase.getMastery(userId);
+
+      // Convert array to Record<number, ReihenMastery>
+      const masteryMap: MultiplicationMastery = {};
+      for (const record of masteryRecords) {
+        masteryMap[record.reihe] = {
+          currentStreak: record.current_streak,
+          mastered: record.mastered,
+          masteredAt: record.mastered_at || undefined
+        };
+      }
+
+      console.log('[Achievements] Loaded mastery data:', masteryMap);
+      this.multiplicationMastery.set(masteryMap);
+      this.persist(); // Cache locally
+    } catch (error) {
+      console.warn('[Achievements] Failed to load from server, using local cache:', error);
+    }
+  }
+
+  // ============================================================================
+  // SERVER SYNC METHODS
+  // ============================================================================
+
+  /**
+   * Load achievements from server if authenticated
+   */
+  private async loadFromServerIfAuthenticated(): Promise<void> {
+    if (!this.auth.isAuthenticated()) {
+      console.log('[Achievements] Not authenticated, skipping server load');
+      return;
+    }
+
+    const userId = this.auth.currentUser()!.id;
+    await this.loadFromServer(userId);
+  }
+
+  /**
+   * Sync single reihe to server
+   */
+  private async syncToServer(reihe: number): Promise<void> {
+    if (!this.auth.isAuthenticated()) {
+      return;
+    }
+
+    try {
+      const userId = this.auth.currentUser()!.id;
+      const masteryData = this.getMastery(reihe);
+
+      await this.supabase.upsertMastery(userId, {
+        user_id: userId,
+        reihe,
+        current_streak: masteryData.currentStreak,
+        mastered: masteryData.mastered,
+        mastered_at: masteryData.masteredAt || null
+      });
+
+      console.log('[Achievements] Synced mastery for reihe', reihe, 'to server');
+    } catch (error) {
+      console.warn('[Achievements] Failed to sync to server:', error);
     }
   }
 }

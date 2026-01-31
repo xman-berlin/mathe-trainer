@@ -28,7 +28,10 @@
 - [x] Auth Guard implementiert (`authGuard`)
 - [x] Routes aktualisiert (Login public, Rest protected)
 - [x] StatsService migriert (Server-Sync + Streak-Integration)
+- [x] AchievementsService migriert (Server-Sync für Multiplication Mastery)
+- [x] TimedChallengeService migriert (Server-Sync für Personal Bests)
 - [x] CategoryHomeComponent aktualisiert (User Profile + Streak Display)
+- [x] Stats-Trennung implementiert (Math vs Clock separate Zähler)
 
 ### Phase 5: Testing & Dokumentation
 - [x] Build erfolgreich (✅ keine Fehler)
@@ -37,14 +40,15 @@
 - [x] Migration-Flow getestet und validiert
 - [x] User-Wechsel-Button getestet und funktioniert
 - [x] Stats-Synchronisierung mit Supabase getestet
+- [x] User-Daten-Clearing beim Logout implementiert
 
 ## 📊 Statistiken
 
 - **Neue Dateien:** 23
-- **Geänderte Dateien:** 5
+- **Geänderte Dateien:** 12
 - **Neue Dependencies:** 1 (Supabase)
 - **Bundle-Größe:** +87 KB (Supabase Client)
-- **Implementierungszeit:** ~4-5 Stunden
+- **Implementierungszeit:** ~6-7 Stunden (inkl. Bug-Fixes)
 
 ### Neue Dateien im Detail
 
@@ -86,19 +90,17 @@
 - `package.json` (Supabase Dependency)
 - `angular.json` (FileReplacements für Environments)
 - `src/app/app.routes.ts` (Auth Guard + Login Route)
-- `src/app/services/stats.service.ts` (Server Sync Integration)
-- `src/app/components/category-home/category-home.ts` (Imports)
+- `src/app/services/stats.service.ts` (Server Sync + clearUserData + loadFromServer)
+- `src/app/services/achievements.service.ts` (Server Sync + clearUserData + loadFromServer)
+- `src/app/services/timed-challenge.service.ts` (Server Sync + clearUserData + loadFromServer)
+- `src/app/services/daily-streak.service.ts` (clearUserData + corrupted state fix)
+- `src/app/services/auth.service.ts` (clearAllUserData beim Logout + loadUserData)
+- `src/app/components/category-home/category-home.ts` (Separate Math/Clock Stats)
 - `src/app/components/category-home/category-home.html` (User Profile + Streak)
 - `src/app/components/category-home/category-home.css` (Hero Layout)
+- `src/app/components/streak-display/streak-display.component.css` (Spacing + max-width)
 
 ## ⏭️ Noch nicht implementiert
-
-### Niedrige Priorität (funktioniert mit localStorage)
-- [ ] Server-Sync für AchievementsService
-- [ ] Server-Sync für TimedChallengeService
-- [ ] Server-Sync für Multiplication Mastery
-
-**Grund:** Diese Features funktionieren weiterhin mit localStorage. Server-Integration kann in zukünftiger Iteration erfolgen.
 
 ### Zukünftige Features (Phase 2)
 - [ ] Leaderboards
@@ -148,9 +150,9 @@
    - Performance-Metriken messen
 
 3. **Weitere Features**
-   - Achievement-Sync implementieren
-   - Time Trial-Sync implementieren
-   - Phase 2 Features planen
+   - Phase 2 Features planen (Leaderboards, Freunde, etc.)
+   - PWA mit Offline-Support erwägen
+   - Analytics hinzufügen (optional)
 
 ## 🔧 Behobene Bugs (Post-Implementation)
 
@@ -169,6 +171,37 @@
 - **Lösung:** Migration-Service unterstützt beide Formate
 - **Status:** ✅ Behoben
 
+### Streak nicht sichtbar
+- **Problem:** Streak-Display zeigte sich nur bei currentStreak > 0
+- **Lösung:** Komponente immer anzeigen, mit speziellem Zustand für "Keine Streak"
+- **Status:** ✅ Behoben
+
+### Streak wird nicht aktualisiert
+- **Problem:** Streak blieb bei 0 trotz gelöster Aufgaben (corrupted state)
+- **Lösung:**
+  - Streak-Update auf JEDEN korrekten Answer (nicht nur ersten)
+  - Auto-Reparatur von corrupted state in checkAndUpdateStreak
+  - Spezielle Logik für same-day mit streak=0
+- **Status:** ✅ Behoben
+
+### Math und Clock Stats nicht getrennt
+- **Problem:** Math und Clock Stats zeigten identische Werte an
+- **Lösung:** Separate computed signals (mathCorrectCount, clockCorrectCount) in CategoryHomeComponent
+- **Status:** ✅ Behoben
+
+### User-Daten nicht getrennt beim Wechsel
+- **Problem:** Beim User-Wechsel wurden die Stats/Erfolge vom letzten User angezeigt
+- **Lösung:**
+  - clearUserData() Methoden in allen Services (Stats, Achievements, TimedChallenge, DailyStreak)
+  - AuthService ruft beim Logout alle clearUserData() auf
+  - Explizites Laden aller User-Daten beim Login
+- **Status:** ✅ Behoben
+
+### Streak-Display Layout
+- **Problem:** Kein Abstand nach oben, ragte über die Ränder hinaus
+- **Lösung:** margin-top + max-width + auto margins für Zentrierung
+- **Status:** ✅ Behoben
+
 ## 🐛 Bekannte Einschränkungen
 
 ### Bundle-Größe
@@ -182,9 +215,9 @@
 - **Lösung:** localStorage dient als Cache, Sync erfolgt beim nächsten Online-Status
 
 ### Circular Dependencies
-- **Problem:** StatsService injiziert AuthService, DailyStreakService
+- **Problem:** StatsService injiziert AuthService, DailyStreakService (und umgekehrt)
 - **Impact:** Möglicherweise zirkuläre Dependency-Warnungen
-- **Lösung:** Optional Injection verwendet ({ optional: true })
+- **Lösung:** Injector-Pattern verwendet mit dynamischen Imports für lazy loading
 
 ### Migration
 - **Problem:** Migration ist einmalig, kann nicht wiederholt werden
@@ -243,8 +276,11 @@
 | Multi-User Login | ✅ | Funktioniert einwandfrei |
 | Avatar-Generierung | ✅ | 6 Stile verfügbar |
 | Server-Sync (Stats) | ✅ | Cache-First mit Background Sync |
-| Streak-System | ✅ | 3-Tage-Grace-Period implementiert |
+| Server-Sync (Achievements) | ✅ | Multiplication Mastery |
+| Server-Sync (Time Trials) | ✅ | Personal Bests |
+| Streak-System | ✅ | 3-Tage-Grace-Period + Auto-Repair |
 | Data Migration | ✅ | Einmalige Migration von localStorage |
+| User-Wechsel | ✅ | Daten korrekt getrennt |
 | Auth Guard | ✅ | Alle Routes geschützt |
 | Responsive Design | ✅ | Alle Breakpoints optimiert |
 | Build erfolgreich | ✅ | Keine Compile-Fehler |
@@ -255,9 +291,12 @@
 Die Implementierung ist vollständig, getestet und produktionsbereit:
 - ✅ Alle Features funktionieren wie geplant
 - ✅ Migration von localStorage zu Supabase erfolgreich
-- ✅ User-Wechsel funktioniert einwandfrei
-- ✅ Stats werden korrekt synchronisiert
-- ✅ Streak-System trackt Daily Practice
+- ✅ User-Wechsel funktioniert einwandfrei (Daten korrekt getrennt)
+- ✅ Stats werden korrekt synchronisiert (Daily, Lifetime, Achievements, Time Trials)
+- ✅ Streak-System trackt Daily Practice mit Auto-Repair
+- ✅ Math und Clock Stats korrekt getrennt
+- ✅ Alle User-Daten werden beim Logout gelöscht
+- ✅ Responsive Layout optimiert
 - ✅ Build ohne Fehler
 
 Die App ist bereit für Deployment!

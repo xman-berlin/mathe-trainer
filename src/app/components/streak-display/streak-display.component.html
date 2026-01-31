@@ -1,14 +1,18 @@
-@if (currentStreak() > 0) {
-  <div class="streak-display">
+<div class="streak-display" [class.no-streak]="currentStreak() === 0">
     <div class="streak-header">
       <div class="streak-flame">🔥</div>
       <div class="streak-info">
-        <div class="streak-count">
-          {{ currentStreak() }} Tag{{ currentStreak() === 1 ? '' : 'e' }}
-        </div>
-        <div class="streak-label">Tägliche Streak!</div>
+        @if (currentStreak() > 0) {
+          <div class="streak-count">
+            {{ currentStreak() }} Tag{{ currentStreak() === 1 ? '' : 'e' }}
+          </div>
+          <div class="streak-label">Tägliche Streak!</div>
+        } @else {
+          <div class="streak-count">Keine Streak</div>
+          <div class="streak-label">Löse eine Aufgabe um zu starten!</div>
+        }
       </div>
-      @if (longestStreak() > currentStreak()) {
+      @if (longestStreak() > currentStreak() && longestStreak() > 0) {
         <div class="longest-streak">
           <div class="longest-label">Rekord:</div>
           <div class="longest-count">{{ longestStreak() }}</div>
@@ -16,7 +20,7 @@
       }
     </div>
 
-    @if (nextMilestone()) {
+    @if (currentStreak() > 0 && nextMilestone()) {
       <div class="streak-progress">
         <div class="progress-header">
           <span>Nächster Meilenstein: {{ nextMilestone() }} Tage {{ getMilestoneEmoji(nextMilestone()!) }}</span>
@@ -32,14 +36,15 @@
           ></div>
         </div>
       </div>
-    } @else {
+    } @else if (currentStreak() > 0) {
       <div class="max-milestone">
         <span class="trophy">👑</span>
         <span>Maximale Streak erreicht!</span>
       </div>
     }
 
-    <div class="milestone-badges">
+    @if (currentStreak() > 0) {
+      <div class="milestone-badges">
       @for (milestone of milestones; track milestone) {
         <div
           class="milestone-badge"
@@ -51,6 +56,6 @@
           <div class="badge-count">{{ milestone }}</div>
         </div>
       }
-    </div>
-  </div>
-}
+      </div>
+    }
+</div>

@@ -12,9 +12,6 @@
   </div>
 
   <section class="content-area">
-    <!-- Daily Streak Display -->
-    <app-streak-display />
-
     <!-- Kategorien zuerst -->
     <div class="categories-section">
       <h2>Wähle eine Kategorie</h2>
@@ -43,19 +40,19 @@
           <div class="stat-header">
             <span class="stat-category">📐 Mathe</span>
             <app-stats-badge
-              [correctCount]="stats.correctCount"
-              [incorrectCount]="stats.incorrectCount"
+              [correctCount]="mathCorrectCount"
+              [incorrectCount]="mathIncorrectCount"
               layout="compact"
             />
           </div>
           <div class="stat-goal">
-            <span class="goal-text">Ziel: {{ stats.correctCount() }}/{{ stats.currentGoal() }}</span>
+            <span class="goal-text">Ziel: {{ mathCorrectCount() }}/{{ stats.currentGoal() }}</span>
             <button class="goal-edit-btn-inline" (click)="editGoal()" aria-label="Ziel bearbeiten">⚙️</button>
           </div>
           <div class="progress-bar-container-mini">
-            <div class="progress-bar-fill" [style.width.%]="stats.goalProgressPercent()"></div>
+            <div class="progress-bar-fill" [style.width.%]="mathGoalProgressPercent()"></div>
           </div>
-          @if (stats.isGoalReached()) {
+          @if (isMathGoalReached()) {
             <div class="goal-reached-mini">🎯 Ziel erreicht!</div>
           }
         </div>
@@ -75,14 +72,17 @@
             <button class="goal-edit-btn-inline" (click)="editClockGoal()" aria-label="Ziel bearbeiten">⚙️</button>
           </div>
           <div class="progress-bar-container-mini">
-            <div class="progress-bar-fill" [style.width.%]="stats.clockGoalProgressPercent()"></div>
+            <div class="progress-bar-fill" [style.width.%]="clockGoalProgressPercent()"></div>
           </div>
-          @if (stats.isClockGoalReached()) {
+          @if (isClockGoalReached()) {
             <div class="goal-reached-mini">🎯 Ziel erreicht!</div>
           }
         </div>
       </div>
     </div>
+
+    <!-- Daily Streak Display - unter den Stats -->
+    <app-streak-display />
   </section>
 
   <footer>

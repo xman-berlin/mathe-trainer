@@ -26,10 +26,10 @@ export class StatsService {
   private readonly storageKey = 'schlaufuchs-stats';
   private readonly lifetimeStorageKey = 'schlaufuchs-lifetime-stats';
 
-  // Server sync dependencies (optional to avoid breaking existing functionality)
-  private supabase = inject(SupabaseService, { optional: true });
-  private auth = inject(AuthService, { optional: true });
-  private streakService = inject(DailyStreakService, { optional: true });
+  // Server sync dependencies - not optional, circular dep resolved by lazy loading
+  private supabase = inject(SupabaseService);
+  private auth = inject(AuthService);
+  private streakService = inject(DailyStreakService);
   private hasAnsweredToday = signal(false);
 
   private correct = signal(0);
@@ -83,9 +83,6 @@ export class StatsService {
   recordResult(isCorrect: boolean, exerciseType = 'addition') {
     this.ensureToday();
 
-    // Track if this is the first correct answer of the day (for streak)
-    const wasFirstCorrectToday = !this.hasAnsweredToday() && isCorrect;
-
     if (isCorrect) {
       this.correct.update(v => v + 1);
     } else {
@@ -111,17 +108,17 @@ export class StatsService {
         [exerciseType]: (lifetimeCurrent[exerciseType] ?? 0) + 1
       });
       this.persistLifetime();
+
+      // Always check and update streak on correct answers
+      // The StreakService will handle "already practiced today" logic
+      console.log('Correct answer! Checking streak...');
+      this.updateStreak();
     }
 
     this.persist();
 
-    // Update streak if this was the first correct answer today
-    if (wasFirstCorrectToday) {
-      this.hasAnsweredToday.set(true);
-      this.updateStreak();
-    }
-
     // Sync to server in background (non-blocking)
+    console.log('Syncing stats to server...');
     this.syncToServer();
   }
 
@@ -260,6 +257,25 @@ export class StatsService {
     return { current: count, target, percent };
   }
 
+  /**
+   * Clear all user data (called on logout)
+   */
+  clearUserData(): void {
+    console.log('[StatsService] Clearing user data');
+    this.correct.set(0);
+    this.incorrect.set(0);
+    this.date.set(this.today());
+    this.byType.set({});
+    this.dailyGoal.set(20);
+    this.clockDailyGoal.set(20);
+    this.lifetimeByType.set({});
+    this.hasAnsweredToday.set(false);
+
+    // Clear localStorage
+    localStorage.removeItem(this.storageKey);
+    localStorage.removeItem(this.lifetimeStorageKey);
+  }
+
   // ============================================================================
   // SERVER SYNC METHODS
   // ============================================================================
@@ -269,16 +285,22 @@ export class StatsService {
    */
   private async loadFromServerIfAuthenticated(): Promise<void> {
     if (!this.auth || !this.auth.isAuthenticated()) {
+      console.log('Not authenticated, skipping server load');
       return;
     }
 
+    console.log('Loading from server (authenticated)...');
     await this.loadFromServer();
 
     // Also load and check streak
     if (this.streakService && this.auth.currentUser()) {
       const userId = this.auth.currentUser()!.id;
+      console.log('Loading streak for user:', userId);
       await this.streakService.loadStreak(userId);
       await this.streakService.checkAndUpdateStreak(userId);
+      console.log('Streak data loaded and checked');
+    } else {
+      console.warn('StreakService not available or no current user');
     }
   }
 
@@ -294,8 +316,11 @@ export class StatsService {
       const userId = this.auth.currentUser()!.id;
       const today = this.today();
 
+      console.log('Loading stats from server for user:', userId, 'date:', today);
+
       // Load daily stats
       const serverDaily = await this.supabase.getDailyStats(userId, today);
+      console.log('Server daily stats:', serverDaily);
 
       // Convert server format to local format
       const dailyStats: DailyStats = {
@@ -316,11 +341,14 @@ export class StatsService {
       if (dailyStats.clockDailyGoal) this.clockDailyGoal.set(dailyStats.clockDailyGoal);
 
       // Check if user has answered today
-      this.hasAnsweredToday.set(dailyStats.correct > 0 || dailyStats.incorrect > 0);
+      const hasAnswered = dailyStats.correct > 0 || dailyStats.incorrect > 0;
+      this.hasAnsweredToday.set(hasAnswered);
+      console.log('Has answered today:', hasAnswered);
 
       // Load lifetime stats
       const serverLifetime = await this.supabase.getLifetimeStats(userId);
       this.lifetimeByType.set(serverLifetime.stats_by_type || {});
+      console.log('Lifetime stats loaded:', serverLifetime.stats_by_type);
 
       // Persist to localStorage (cache)
       this.persist();
@@ -370,14 +398,17 @@ export class StatsService {
    */
   private async updateStreak(): Promise<void> {
     if (!this.streakService || !this.auth || !this.auth.isAuthenticated()) {
+      console.warn('Cannot update streak - missing dependencies');
       return;
     }
 
     try {
       const userId = this.auth.currentUser()!.id;
+      console.log('Recording practice for streak, userId:', userId);
       await this.streakService.recordPractice(userId);
+      console.log('Streak updated successfully');
     } catch (error) {
-      console.warn('Failed to update streak:', error);
+      console.error('Failed to update streak:', error);
     }
   }
 

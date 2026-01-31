@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject, Injector } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import type { User, CreateUserData } from '../models/user.model';
 
@@ -15,6 +15,8 @@ export class AuthService {
   // Signals
   currentUser = signal<User | null>(null);
   isAuthenticated = computed(() => this.currentUser() !== null);
+
+  private injector = inject(Injector);
 
   constructor(private supabase: SupabaseService) {
     // Load user from localStorage on initialization
@@ -38,6 +40,9 @@ export class AuthService {
       // Update state and persist
       this.currentUser.set(user);
       this.saveUserToStorage(user);
+
+      // Load streak data for this user
+      await this.loadUserData(user.id);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -48,8 +53,42 @@ export class AuthService {
    * Logout current user
    */
   async logout(): Promise<void> {
+    console.log('[AuthService] Logging out, clearing all user data');
+
+    // Clear data from all services
+    await this.clearAllUserData();
+
+    // Clear current user
     this.currentUser.set(null);
     localStorage.removeItem(CURRENT_USER_KEY);
+  }
+
+  /**
+   * Clear data from all services
+   */
+  private async clearAllUserData(): Promise<void> {
+    try {
+      // Import and clear each service using injector
+      const { StatsService } = await import('./stats.service');
+      const statsService = this.injector.get(StatsService);
+      statsService.clearUserData();
+
+      const { AchievementsService } = await import('./achievements.service');
+      const achievementsService = this.injector.get(AchievementsService);
+      achievementsService.clearUserData();
+
+      const { TimedChallengeService } = await import('./timed-challenge.service');
+      const timedChallengeService = this.injector.get(TimedChallengeService);
+      timedChallengeService.clearUserData();
+
+      const { DailyStreakService } = await import('./daily-streak.service');
+      const streakService = this.injector.get(DailyStreakService);
+      streakService.clearUserData();
+
+      console.log('[AuthService] All user data cleared');
+    } catch (error) {
+      console.warn('Error clearing user data:', error);
+    }
   }
 
   /**
@@ -62,6 +101,9 @@ export class AuthService {
       // Auto-login after creation
       this.currentUser.set(user);
       this.saveUserToStorage(user);
+
+      // Load streak data for new user
+      await this.loadUserData(user.id);
 
       return user;
     } catch (error) {
@@ -106,10 +148,49 @@ export class AuthService {
         this.supabase.updateLastActive(user.id).catch((err) => {
           console.warn('Failed to update last active:', err);
         });
+
+        // Load user data (streak, stats)
+        this.loadUserData(user.id).catch((err) => {
+          console.warn('Failed to load user data:', err);
+        });
       }
     } catch (error) {
       console.error('Error loading user from storage:', error);
       localStorage.removeItem(CURRENT_USER_KEY);
+    }
+  }
+
+  /**
+   * Load user-specific data (streak, stats, achievements, time trials) after login
+   */
+  private async loadUserData(userId: string): Promise<void> {
+    try {
+      console.log('[AuthService] Loading all user data for:', userId);
+
+      // Load streak
+      const { DailyStreakService } = await import('./daily-streak.service');
+      const streakService = this.injector.get(DailyStreakService);
+      await streakService.loadStreak(userId);
+      await streakService.checkAndUpdateStreak(userId);
+
+      // Load stats
+      const { StatsService } = await import('./stats.service');
+      const statsService = this.injector.get(StatsService);
+      await statsService.loadFromServer();
+
+      // Load achievements
+      const { AchievementsService } = await import('./achievements.service');
+      const achievementsService = this.injector.get(AchievementsService);
+      await achievementsService.loadFromServer(userId);
+
+      // Load time trials
+      const { TimedChallengeService } = await import('./timed-challenge.service');
+      const timedChallengeService = this.injector.get(TimedChallengeService);
+      await timedChallengeService.loadFromServer(userId);
+
+      console.log('[AuthService] All user data loaded successfully');
+    } catch (error) {
+      console.warn('[AuthService] Error loading user data:', error);
     }
   }
 

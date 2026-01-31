@@ -3,7 +3,29 @@
   border: 2px solid #fed7aa;
   border-radius: 16px;
   padding: 1.5rem;
+  margin-top: 2rem;
   margin-bottom: 1.5rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.streak-display.no-streak {
+  background: linear-gradient(135deg, #f7fafc 0%, #e2e8f0 100%);
+  border-color: #cbd5e0;
+}
+
+.no-streak .streak-flame {
+  opacity: 0.4;
+  animation: none;
+}
+
+.no-streak .streak-count {
+  color: #718096;
+}
+
+.no-streak .streak-label {
+  color: #4a5568;
 }
 
 .streak-header {
