@@ -1,0 +1,160 @@
+<div class="login-page">
+  <div class="login-header">
+    <h1>🦊 Willkommen bei Schlaufuchs!</h1>
+    <p>Wähle deinen Charakter oder erstelle einen neuen</p>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (users().length > 0) {
+    <div class="user-search">
+      <input
+        type="text"
+        placeholder="Suche nach Namen..."
+        [(ngModel)]="searchTerm"
+        class="search-input"
+      />
+    </div>
+
+    <div class="user-grid">
+      @for (user of filteredUsers(); track user.id) {
+        <div
+          class="user-card"
+          (click)="selectUser(user)"
+          [class.loading]="isLoading()"
+        >
+          <img
+            [src]="getAvatarUrl(user)"
+            [alt]="user.username"
+            class="user-avatar"
+          />
+          <div class="user-name">{{ user.username }}</div>
+          <div class="last-active">{{ formatLastActive(user.last_active_at) }}</div>
+        </div>
+      }
+
+      @if (filteredUsers().length === 0) {
+        <div class="no-results">
+          <p>Keine Benutzer gefunden.</p>
+        </div>
+      }
+    </div>
+  }
+
+  @if (isLoading() && users().length === 0) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Lade Benutzer...</p>
+    </div>
+  }
+
+  <button
+    class="create-user-btn"
+    (click)="openCreateModal()"
+    [disabled]="isLoading()"
+  >
+    ➕ Neuer Charakter
+  </button>
+</div>
+
+<!-- Create User Modal -->
+@if (showCreateModal()) {
+  <div class="modal-overlay" (click)="closeCreateModal()">
+    <div class="create-user-modal" (click)="$event.stopPropagation()">
+      <h2>Neuer Charakter erstellen</h2>
+
+      <div class="avatar-preview">
+        <img [src]="previewAvatarUrl()" alt="Avatar Vorschau" />
+      </div>
+
+      <div class="form-group">
+        <label for="username">Dein Name:</label>
+        <input
+          id="username"
+          type="text"
+          placeholder="Gib deinen Namen ein"
+          [(ngModel)]="newUsername"
+          maxlength="20"
+          class="username-input"
+          [class.invalid]="newUsername() && !isValidUsername()"
+        />
+        @if (newUsername() && !isValidUsername()) {
+          <p class="validation-hint">
+            2-20 Zeichen, nur Buchstaben, Zahlen, - und _
+          </p>
+        }
+      </div>
+
+      <div class="avatar-style-selector">
+        <label>Avatar-Stil:</label>
+        <div class="style-options">
+          @for (style of avatarStyles; track style) {
+            <button
+              class="style-btn"
+              [class.active]="selectedStyle() === style"
+              (click)="selectAvatarStyle(style)"
+              type="button"
+            >
+              <img [src]="getStylePreview(style)" [alt]="style" />
+              <span>{{ getStyleLabel(style) }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          class="primary-btn"
+          (click)="createUser()"
+          [disabled]="!isValidUsername() || isLoading()"
+        >
+          @if (isLoading()) {
+            <span class="spinner-small"></span>
+          } @else {
+            Erstellen
+          }
+        </button>
+        <button
+          class="secondary-btn"
+          (click)="closeCreateModal()"
+          [disabled]="isLoading()"
+        >
+          Abbrechen
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Migration Dialog -->
+@if (showMigrationDialog()) {
+  <div class="modal-overlay">
+    <div class="migration-modal">
+      <h2>🎉 Willkommen zur neuen Version!</h2>
+      <p>Wir haben Multi-User-Support hinzugefügt!</p>
+      <p class="migration-info">Erstelle jetzt deinen Charakter:</p>
+
+      <div class="migration-options">
+        <button class="primary-btn migration-btn" (click)="migrateAndCreateUser()">
+          <div class="btn-icon">📦</div>
+          <div class="btn-content">
+            <strong>Mit meinen Daten starten</strong>
+            <small>Erstelle einen Charakter und übernimm deine bisherigen Statistiken</small>
+          </div>
+        </button>
+
+        <button class="secondary-btn migration-btn" (click)="startFresh()">
+          <div class="btn-icon">🆕</div>
+          <div class="btn-content">
+            <strong>Frisch beginnen</strong>
+            <small>Erstelle einen neuen Charakter ohne alte Daten</small>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+}

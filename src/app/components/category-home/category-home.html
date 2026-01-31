@@ -1,12 +1,20 @@
 <div class="home-page">
   <div class="hero">
     <div class="hero-content">
-      <h1>🦊 Schlaufuchs</h1>
-      <p>Üben macht den Meister! Trainiere spielerisch und werde zum Schlaufuchs.</p>
+      <div class="hero-text">
+        <h1>🦊 Schlaufuchs</h1>
+        <p>Üben macht den Meister! Trainiere spielerisch und werde zum Schlaufuchs.</p>
+      </div>
+      <div class="hero-profile">
+        <app-user-profile />
+      </div>
     </div>
   </div>
 
   <section class="content-area">
+    <!-- Daily Streak Display -->
+    <app-streak-display />
+
     <!-- Kategorien zuerst -->
     <div class="categories-section">
       <h2>Wähle eine Kategorie</h2>

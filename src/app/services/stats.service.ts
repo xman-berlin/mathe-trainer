@@ -1,4 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { SupabaseService } from './supabase.service';
+import { AuthService } from './auth.service';
+import { DailyStreakService } from './daily-streak.service';
 
 interface ExerciseTypeStats {
   correct: number;
@@ -22,6 +25,12 @@ interface LifetimeStats {
 export class StatsService {
   private readonly storageKey = 'schlaufuchs-stats';
   private readonly lifetimeStorageKey = 'schlaufuchs-lifetime-stats';
+
+  // Server sync dependencies (optional to avoid breaking existing functionality)
+  private supabase = inject(SupabaseService, { optional: true });
+  private auth = inject(AuthService, { optional: true });
+  private streakService = inject(DailyStreakService, { optional: true });
+  private hasAnsweredToday = signal(false);
 
   private correct = signal(0);
   private incorrect = signal(0);
@@ -66,10 +75,17 @@ export class StatsService {
   constructor() {
     this.load();
     this.loadLifetime();
+
+    // Load from server if authenticated
+    this.loadFromServerIfAuthenticated();
   }
 
   recordResult(isCorrect: boolean, exerciseType = 'addition') {
     this.ensureToday();
+
+    // Track if this is the first correct answer of the day (for streak)
+    const wasFirstCorrectToday = !this.hasAnsweredToday() && isCorrect;
+
     if (isCorrect) {
       this.correct.update(v => v + 1);
     } else {
@@ -98,6 +114,15 @@ export class StatsService {
     }
 
     this.persist();
+
+    // Update streak if this was the first correct answer today
+    if (wasFirstCorrectToday) {
+      this.hasAnsweredToday.set(true);
+      this.updateStreak();
+    }
+
+    // Sync to server in background (non-blocking)
+    this.syncToServer();
   }
 
   setDailyGoal(count: number): void {
@@ -233,5 +258,144 @@ export class StatsService {
 
     const percent = Math.min(100, Math.round((count / target) * 100));
     return { current: count, target, percent };
+  }
+
+  // ============================================================================
+  // SERVER SYNC METHODS
+  // ============================================================================
+
+  /**
+   * Load stats from server if user is authenticated
+   */
+  private async loadFromServerIfAuthenticated(): Promise<void> {
+    if (!this.auth || !this.auth.isAuthenticated()) {
+      return;
+    }
+
+    await this.loadFromServer();
+
+    // Also load and check streak
+    if (this.streakService && this.auth.currentUser()) {
+      const userId = this.auth.currentUser()!.id;
+      await this.streakService.loadStreak(userId);
+      await this.streakService.checkAndUpdateStreak(userId);
+    }
+  }
+
+  /**
+   * Load stats from server and merge with local cache
+   */
+  async loadFromServer(): Promise<void> {
+    if (!this.supabase || !this.auth || !this.auth.isAuthenticated()) {
+      return;
+    }
+
+    try {
+      const userId = this.auth.currentUser()!.id;
+      const today = this.today();
+
+      // Load daily stats
+      const serverDaily = await this.supabase.getDailyStats(userId, today);
+
+      // Convert server format to local format
+      const dailyStats: DailyStats = {
+        date: serverDaily.date,
+        correct: serverDaily.correct,
+        incorrect: serverDaily.incorrect,
+        byType: this.convertStatsToLocal(serverDaily.stats_by_type),
+        dailyGoal: serverDaily.math_daily_goal,
+        clockDailyGoal: serverDaily.clock_daily_goal,
+      };
+
+      // Update local state from server (server is source of truth)
+      this.date.set(dailyStats.date);
+      this.correct.set(dailyStats.correct);
+      this.incorrect.set(dailyStats.incorrect);
+      this.byType.set(dailyStats.byType);
+      if (dailyStats.dailyGoal) this.dailyGoal.set(dailyStats.dailyGoal);
+      if (dailyStats.clockDailyGoal) this.clockDailyGoal.set(dailyStats.clockDailyGoal);
+
+      // Check if user has answered today
+      this.hasAnsweredToday.set(dailyStats.correct > 0 || dailyStats.incorrect > 0);
+
+      // Load lifetime stats
+      const serverLifetime = await this.supabase.getLifetimeStats(userId);
+      this.lifetimeByType.set(serverLifetime.stats_by_type || {});
+
+      // Persist to localStorage (cache)
+      this.persist();
+      this.persistLifetime();
+    } catch (error) {
+      console.warn('Failed to load from server, using local cache:', error);
+    }
+  }
+
+  /**
+   * Sync current stats to server
+   */
+  private async syncToServer(): Promise<void> {
+    if (!this.supabase || !this.auth || !this.auth.isAuthenticated()) {
+      return;
+    }
+
+    try {
+      const userId = this.auth.currentUser()!.id;
+
+      // Convert local format to server format
+      const dailyStats = {
+        date: this.date(),
+        correct: this.correct(),
+        incorrect: this.incorrect(),
+        stats_by_type: this.convertStatsToServer(this.byType()),
+        math_daily_goal: this.dailyGoal(),
+        clock_daily_goal: this.clockDailyGoal(),
+      };
+
+      // Upsert daily stats
+      await this.supabase.upsertDailyStats(userId, dailyStats);
+
+      // Upsert lifetime stats
+      const lifetimeStats = {
+        stats_by_type: this.lifetimeByType(),
+      };
+      await this.supabase.upsertLifetimeStats(userId, lifetimeStats);
+    } catch (error) {
+      console.warn('Failed to sync to server:', error);
+      // Don't throw - sync is non-critical
+    }
+  }
+
+  /**
+   * Update streak when first correct answer of the day
+   */
+  private async updateStreak(): Promise<void> {
+    if (!this.streakService || !this.auth || !this.auth.isAuthenticated()) {
+      return;
+    }
+
+    try {
+      const userId = this.auth.currentUser()!.id;
+      await this.streakService.recordPractice(userId);
+    } catch (error) {
+      console.warn('Failed to update streak:', error);
+    }
+  }
+
+  /**
+   * Convert server stats format to local format
+   */
+  private convertStatsToLocal(
+    serverStats: Record<string, { correct: number; incorrect: number }>
+  ): Record<string, ExerciseTypeStats> {
+    return serverStats;
+  }
+
+  /**
+   * Convert local stats format to server format
+   */
+  private convertStatsToServer(
+    localStats: Record<string, ExerciseTypeStats>
+  ): Record<string, { correct: number; incorrect: number }> {
+    return localStats;
   }
 }
