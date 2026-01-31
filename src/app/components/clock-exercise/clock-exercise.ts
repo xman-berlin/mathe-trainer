@@ -46,6 +46,10 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
   readonly isNewPersonalBest = signal(false);
   private timerInterval: ReturnType<typeof setInterval> | null = null;
 
+  // Problem history - prevent same problem within 10 exercises
+  private problemHistory: { hours: number; minutes: number }[] = [];
+  private readonly historySize = 10;
+
   // Confetti
   confettiPieces = Array.from({ length: 20 }, (_, i) => i);
   confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
@@ -132,10 +136,34 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
     const type = selected[Math.floor(Math.random() * selected.length)];
     this.currentType.set(type);
 
-    const problem = this.clockService.generateProblem(type);
+    // Generate problem, ensuring it's not in recent history
+    let problem: ClockProblem;
+    let attempts = 0;
+    const maxAttempts = 50;
+
+    do {
+      problem = this.clockService.generateProblem(type);
+      attempts++;
+    } while (
+      attempts < maxAttempts &&
+      this.isProblemInHistory(problem.hours, problem.minutes)
+    );
+
+    // Add to history
+    this.problemHistory.push({ hours: problem.hours, minutes: problem.minutes });
+    if (this.problemHistory.length > this.historySize) {
+      this.problemHistory.shift(); // Remove oldest
+    }
+
     this.currentProblem.set(problem);
     this.userAnswer.set('');
     this.showFeedback.set(false);
+  }
+
+  private isProblemInHistory(hours: number, minutes: number): boolean {
+    return this.problemHistory.some(
+      p => p.hours === hours && p.minutes === minutes
+    );
   }
 
   toggleType(type: ClockExerciseType): void {
@@ -244,6 +272,7 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
     this.timeTrialActive.set(true);
     this.showTimeTrialResults.set(false);
     this.isNewPersonalBest.set(false);
+    this.problemHistory = []; // Reset history for new trial
     this.generateProblem();
 
     this.timerInterval = setInterval(() => {
