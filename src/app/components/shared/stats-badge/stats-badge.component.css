@@ -1,0 +1,72 @@
+:host {
+  display: inline-block;
+}
+
+.stat-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.badge-correct {
+  background: rgba(39, 174, 96, 0.15);
+  color: #1e8449;
+}
+
+.badge-incorrect {
+  background: rgba(192, 57, 43, 0.15);
+  color: #a93226;
+}
+
+.badge-total {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--gray-900);
+}
+
+/* Compact layout variant (for category-home) */
+.stat-badges.compact .badge {
+  gap: 0.2rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.8rem;
+}
+
+.stat-badges.compact .badge-total {
+  color: var(--gray-600);
+  font-size: 0.75rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .badge {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.85rem;
+  }
+
+  .stat-badges.compact .badge {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 540px) {
+  .badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .stat-badges.compact .badge {
+    padding: 0.2rem 0.35rem;
+    font-size: 0.7rem;
+  }
+}

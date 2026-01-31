@@ -55,3 +55,5 @@ Each exercise component (addition, subtraction) follows the same structure:
 - **GitHub Pages**: Production uses `base href="/mathe-trainer/"`, local dev uses `/`
 - **Mobile-first**: Responsive breakpoints at 1024px, 768px, 540px
 - **Standalone components**: All components use `standalone: true`
+- **Commit and push**: Commit and push changes only on my command
+- 

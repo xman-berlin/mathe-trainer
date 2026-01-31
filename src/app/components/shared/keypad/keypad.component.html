@@ -1,0 +1,19 @@
+<div class="keypad">
+  @for (num of numbers; track num) {
+    <button type="button" (click)="addDigit(num.toString())">{{ num }}</button>
+  }
+  <button type="button" class="btn-del" (click)="deleteDigit()">
+    @if (mode === 'time') {
+      ←
+    } @else {
+      &#x232b;
+    }
+  </button>
+  <button type="button" (click)="addDigit('0')">0</button>
+  <button
+    type="button"
+    class="btn-ok"
+    [class.btn-disabled]="value() === '' || disabled()"
+    [disabled]="value() === '' || disabled()"
+    (click)="onSubmit()">OK</button>
+</div>

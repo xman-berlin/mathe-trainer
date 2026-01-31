@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { StatsService } from '../../services/stats.service';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService } from '../../services/timed-challenge.service';
+import { KeypadComponent } from '../shared/keypad/keypad.component';
 
 const MAX_DIGITS = 3;
 
@@ -11,7 +12,7 @@ type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
 @Component({
   standalone: true,
   selector: 'app-exercise',
-  imports: [RouterLink],
+  imports: [RouterLink, KeypadComponent],
   templateUrl: './exercise.component.html',
   styleUrls: ['./exercise.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -95,6 +96,8 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
       case 'division': return a / b;
     }
   });
+
+  keypadDisabled = computed(() => this.feedback() !== 'idle');
 
   typeCorrectCount = computed(() => {
     const types = this.stats.statsByType();
@@ -267,30 +270,22 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  addDigit(digit: string) {
-    const current = this.userAnswer();
-    if (current.length >= MAX_DIGITS) return;
-    const next = (current + digit).replace(/^0+(\d)/, '$1');
-    this.userAnswer.set(next);
-  }
-
-  deleteDigit() {
-    const val = this.userAnswer();
-    this.userAnswer.set(val.length > 0 ? val.slice(0, -1) : '');
-  }
-
   handleKeydown(event: KeyboardEvent) {
     const key = event.key;
 
     if (/^[0-9]$/.test(key)) {
       event.preventDefault();
-      this.addDigit(key);
+      const current = this.userAnswer();
+      if (current.length >= MAX_DIGITS) return;
+      const next = (current + key).replace(/^0+(\d)/, '$1');
+      this.userAnswer.set(next);
       return;
     }
 
     if (key === 'Backspace' || key === 'Delete') {
       event.preventDefault();
-      this.deleteDigit();
+      const val = this.userAnswer();
+      this.userAnswer.set(val.length > 0 ? val.slice(0, -1) : '');
       return;
     }
 

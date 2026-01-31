@@ -160,46 +160,6 @@
   cursor: not-allowed;
 }
 
-/* Keypad - same as math trainer */
-.keypad {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  width: 100%;
-  max-width: 420px;
-  margin-top: 0.75rem;
-}
-
-.keypad button {
-  font-size: 1.5rem;
-  font-weight: 700;
-  padding: 1.05rem 0;
-  border: none;
-  border-radius: 12px;
-  background: var(--gray-100);
-  color: var(--gray-900);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.keypad button:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-}
-
-.keypad .btn-ok {
-  background: var(--red-to-pink-to-purple-horizontal-gradient);
-  color: white;
-  transition: opacity 0.2s ease;
-}
-
-.keypad .btn-ok.btn-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 /* Feedback */
 .feedback-area {
   min-height: 2rem;

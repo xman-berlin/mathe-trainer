@@ -5,11 +5,12 @@ import { ClockService, ClockExerciseType, ClockProblem } from '../../services/cl
 import { ClockDisplayComponent } from '../clock-display/clock-display';
 import { StatsService } from '../../services/stats.service';
 import { TimedChallengeService } from '../../services/timed-challenge.service';
+import { KeypadComponent } from '../shared/keypad/keypad.component';
 
 @Component({
   standalone: true,
   selector: 'app-clock-exercise',
-  imports: [RouterLink, FormsModule, ClockDisplayComponent],
+  imports: [RouterLink, FormsModule, ClockDisplayComponent, KeypadComponent],
   templateUrl: './clock-exercise.html',
   styleUrl: './clock-exercise.css'
 })
@@ -316,30 +317,21 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
     this.mode.set('practice');
   }
 
-  // Handle number pad clicks
-  addDigit(digit: string): void {
-    const current = this.userAnswer();
-
-    // Auto-format with colon
-    if (current.length === 2 && !current.includes(':')) {
-      this.userAnswer.set(current + ':' + digit);
-    } else if (current.length < 5) {
-      this.userAnswer.set(current + digit);
-    }
-  }
-
-  backspace(): void {
-    const current = this.userAnswer();
-    this.userAnswer.set(current.slice(0, -1));
-  }
-
   handleKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !this.showFeedback()) {
       this.submitAnswer();
     } else if (event.key === 'Backspace') {
-      this.backspace();
+      const current = this.userAnswer();
+      this.userAnswer.set(current.slice(0, -1));
+      event.preventDefault();
     } else if (/^\d$/.test(event.key)) {
-      this.addDigit(event.key);
+      const current = this.userAnswer();
+      // Auto-format with colon
+      if (current.length === 2 && !current.includes(':')) {
+        this.userAnswer.set(current + ':' + event.key);
+      } else if (current.length < 5) {
+        this.userAnswer.set(current + event.key);
+      }
       event.preventDefault();
     }
   }

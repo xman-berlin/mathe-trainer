@@ -90,25 +90,13 @@
         </div>
 
         <!-- Numpad -->
-        <div class="keypad">
-          <button type="button" (click)="addDigit('1')">1</button>
-          <button type="button" (click)="addDigit('2')">2</button>
-          <button type="button" (click)="addDigit('3')">3</button>
-          <button type="button" (click)="addDigit('4')">4</button>
-          <button type="button" (click)="addDigit('5')">5</button>
-          <button type="button" (click)="addDigit('6')">6</button>
-          <button type="button" (click)="addDigit('7')">7</button>
-          <button type="button" (click)="addDigit('8')">8</button>
-          <button type="button" (click)="addDigit('9')">9</button>
-          <button type="button" (click)="backspace()">←</button>
-          <button type="button" (click)="addDigit('0')">0</button>
-          <button
-            type="button"
-            class="btn-ok"
-            [class.btn-disabled]="!userAnswer() || showFeedback()"
-            [disabled]="!userAnswer() || showFeedback()"
-            (click)="submitAnswer()">OK</button>
-        </div>
+        <app-keypad
+          mode="time"
+          [value]="userAnswer"
+          [disabled]="showFeedback"
+          (valueChange)="userAnswer.set($event)"
+          (keypadSubmit)="submitAnswer()"
+        />
 
         <div class="feedback-area">
           @if (showFeedback() && isCorrect()) {

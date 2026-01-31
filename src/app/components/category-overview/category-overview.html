@@ -11,11 +11,11 @@
   <section class="content-area">
     <div class="stats-card">
       <h2>Heutige Statistik</h2>
-      <div class="stats-badges">
-        <span class="badge badge-correct">✓ {{ categoryCorrectCount() }}</span>
-        <span class="badge badge-incorrect">✗ {{ categoryIncorrectCount() }}</span>
-        <span class="badge badge-total">Σ {{ categoryTotalCount() }}</span>
-      </div>
+      <app-stats-badge
+        [correctCount]="categoryCorrectCount"
+        [incorrectCount]="categoryIncorrectCount"
+        [showTotal]="true"
+      />
 
       @if (category() === 'math') {
         <div class="goal-section">

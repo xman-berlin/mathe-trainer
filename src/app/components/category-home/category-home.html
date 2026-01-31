@@ -34,10 +34,11 @@
         <div class="stat-item">
           <div class="stat-header">
             <span class="stat-category">📐 Mathe</span>
-            <span class="stat-badges">
-              <span class="badge badge-correct">✓ {{ stats.correctCount() }}</span>
-              <span class="badge badge-incorrect">✗ {{ stats.incorrectCount() }}</span>
-            </span>
+            <app-stats-badge
+              [correctCount]="stats.correctCount"
+              [incorrectCount]="stats.incorrectCount"
+              layout="compact"
+            />
           </div>
           <div class="stat-goal">
             <span class="goal-text">Ziel: {{ stats.correctCount() }}/{{ stats.currentGoal() }}</span>
@@ -55,10 +56,11 @@
         <div class="stat-item">
           <div class="stat-header">
             <span class="stat-category">🕐 Uhrzeit</span>
-            <span class="stat-badges">
-              <span class="badge badge-correct">✓ {{ clockCorrectCount() }}</span>
-              <span class="badge badge-incorrect">✗ {{ clockIncorrectCount() }}</span>
-            </span>
+            <app-stats-badge
+              [correctCount]="clockCorrectCount"
+              [incorrectCount]="clockIncorrectCount"
+              layout="compact"
+            />
           </div>
           <div class="stat-goal">
             <span class="goal-text">Ziel: {{ clockCorrectCount() }}/{{ stats.currentClockGoal() }}</span>

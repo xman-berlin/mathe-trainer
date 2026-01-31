@@ -2,11 +2,12 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
+import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component';
 
 @Component({
   standalone: true,
   selector: 'app-category-home',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, StatsBadgeComponent],
   templateUrl: './category-home.html',
   styleUrl: './category-home.css'
 })

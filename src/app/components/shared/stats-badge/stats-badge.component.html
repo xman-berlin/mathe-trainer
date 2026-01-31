@@ -1,0 +1,7 @@
+<span class="stat-badges" [class.compact]="layout === 'compact'">
+  <span class="badge badge-correct">✓ {{ correctCount() }}</span>
+  <span class="badge badge-incorrect">✗ {{ incorrectCount() }}</span>
+  @if (showTotal) {
+    <span class="badge badge-total">Σ {{ totalCount() }}</span>
+  }
+</span>

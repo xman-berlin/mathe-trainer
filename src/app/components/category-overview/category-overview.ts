@@ -2,11 +2,12 @@ import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
+import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component';
 
 @Component({
   standalone: true,
   selector: 'app-category-overview',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, StatsBadgeComponent],
   templateUrl: './category-overview.html',
   styleUrl: './category-overview.css'
 })
