@@ -169,10 +169,11 @@ export class LoginComponent implements OnInit {
 
       this.showCreateModal.set(false);
       this.router.navigate(['/']);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Create user error:', error);
 
-      if (error.message?.includes('duplicate') || error.code === '23505') {
+      const errorObj = error as { message?: string; code?: string };
+      if (errorObj.message?.includes('duplicate') || errorObj.code === '23505') {
         this.errorMessage.set('Dieser Benutzername ist bereits vergeben.');
       } else {
         this.errorMessage.set('Fehler beim Erstellen des Benutzers. Bitte versuche es erneut.');

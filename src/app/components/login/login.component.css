@@ -232,7 +232,8 @@
   margin-bottom: 1.5rem;
 }
 
-.form-group label {
+.form-group label,
+.style-label {
   display: block;
   font-weight: 600;
   color: var(--gray-700, #4a5568);

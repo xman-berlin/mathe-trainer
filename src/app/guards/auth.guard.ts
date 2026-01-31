@@ -6,7 +6,7 @@ import { AuthService } from '../services/auth.service';
  * Auth guard to protect routes that require authentication
  * Redirects to /login if user is not authenticated
  */
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 

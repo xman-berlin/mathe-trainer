@@ -24,7 +24,11 @@
       @for (user of filteredUsers(); track user.id) {
         <div
           class="user-card"
+          role="button"
+          tabindex="0"
           (click)="selectUser(user)"
+          (keydown.enter)="selectUser(user)"
+          (keydown.space)="selectUser(user)"
           [class.loading]="isLoading()"
         >
           <img
@@ -63,8 +67,20 @@
 
 <!-- Create User Modal -->
 @if (showCreateModal()) {
-  <div class="modal-overlay" (click)="closeCreateModal()">
-    <div class="create-user-modal" (click)="$event.stopPropagation()">
+  <div
+    class="modal-overlay"
+    role="button"
+    tabindex="0"
+    (click)="closeCreateModal()"
+    (keydown.escape)="closeCreateModal()"
+  >
+    <div
+      class="create-user-modal"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+    >
       <h2>Neuer Charakter erstellen</h2>
 
       <div class="avatar-preview">
@@ -90,7 +106,7 @@
       </div>
 
       <div class="avatar-style-selector">
-        <label>Avatar-Stil:</label>
+        <div class="style-label">Avatar-Stil:</div>
         <div class="style-options">
           @for (style of avatarStyles; track style) {
             <button

@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import type { DailyStreak } from '../models/daily-streak.model';
 import { STREAK_MILESTONES, STREAK_GRACE_PERIOD_DAYS } from '../models/daily-streak.model';
@@ -22,7 +22,7 @@ export class DailyStreakService {
   readonly MILESTONES = STREAK_MILESTONES;
   readonly GRACE_PERIOD_DAYS = STREAK_GRACE_PERIOD_DAYS;
 
-  constructor(private supabase: SupabaseService) {}
+  private supabase = inject(SupabaseService);
 
   /**
    * Load streak data for a user

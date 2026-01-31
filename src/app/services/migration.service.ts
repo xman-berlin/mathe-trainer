@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import type { DailyStats, LifetimeStats } from '../models/stats.model';
 
@@ -6,6 +6,19 @@ const MIGRATION_KEY = 'schlaufuchs-migrated';
 const STATS_KEY = 'schlaufuchs-stats';
 const LIFETIME_KEY = 'schlaufuchs-lifetime-stats';
 const TIME_TRIALS_KEY = 'schlaufuchs-time-trials';
+
+interface TimeTrialRecord {
+  exercise_types: string[];
+  correct_count: number;
+  total_count: number;
+  accuracy: number;
+}
+
+interface LocalTimeTrialValue {
+  correctCount: number;
+  totalCount: number;
+  accuracy: number;
+}
 
 /**
  * Service for migrating old localStorage data to user-based server storage
@@ -15,7 +28,7 @@ const TIME_TRIALS_KEY = 'schlaufuchs-time-trials';
   providedIn: 'root',
 })
 export class MigrationService {
-  constructor(private supabase: SupabaseService) {}
+  private supabase = inject(SupabaseService);
 
   /**
    * Check if user has already migrated their data
@@ -159,12 +172,12 @@ export class MigrationService {
   /**
    * Load time trial personal bests from old localStorage format
    */
-  private loadLocalTimeTrials(): any[] | null {
+  private loadLocalTimeTrials(): TimeTrialRecord[] | null {
     try {
       const stored = localStorage.getItem(TIME_TRIALS_KEY);
       if (!stored) return null;
 
-      const data = JSON.parse(stored);
+      const data = JSON.parse(stored) as unknown;
 
       // Convert array of personal bests
       if (Array.isArray(data)) {
@@ -178,7 +191,7 @@ export class MigrationService {
 
       // Convert object format (old format)
       if (typeof data === 'object' && data !== null) {
-        return Object.entries(data).map(([key, value]: [string, any]) => ({
+        return Object.entries(data as Record<string, LocalTimeTrialValue>).map(([key, value]) => ({
           exercise_types: key.split(','),
           correct_count: value.correctCount || 0,
           total_count: value.totalCount || 0,

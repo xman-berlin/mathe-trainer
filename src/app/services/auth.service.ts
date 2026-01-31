@@ -17,8 +17,9 @@ export class AuthService {
   isAuthenticated = computed(() => this.currentUser() !== null);
 
   private injector = inject(Injector);
+  private supabase = inject(SupabaseService);
 
-  constructor(private supabase: SupabaseService) {
+  constructor() {
     // Load user from localStorage on initialization
     this.loadUserFromStorage();
   }
