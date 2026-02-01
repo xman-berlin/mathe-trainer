@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService, PersonalBest } from '../../services/timed-challenge.service';
@@ -14,8 +14,7 @@ type MedalLevel = 'none' | 'bronze' | 'silver' | 'gold';
   selector: 'app-achievements',
   imports: [CommonModule, RouterLink],
   templateUrl: './achievements.component.html',
-  styleUrls: ['./achievements.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./achievements.component.css']
 })
 export class AchievementsComponent implements OnInit {
   achievements = inject(AchievementsService);
