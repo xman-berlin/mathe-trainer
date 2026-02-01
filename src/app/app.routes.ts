@@ -4,6 +4,7 @@ import { CategoryHomeComponent } from './components/category-home/category-home'
 import { CategoryOverviewComponent } from './components/category-overview/category-overview';
 import { AchievementsComponent } from './components/achievements/achievements.component';
 import { ClockExerciseComponent } from './components/clock-exercise/clock-exercise';
+import { WordProblemExerciseComponent } from './components/word-problem-exercise/word-problem-exercise.component';
 import { LoginComponent } from './components/login/login.component';
 import { authGuard } from './guards/auth.guard';
 
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'mathe', component: CategoryOverviewComponent, data: { category: 'math' }, canActivate: [authGuard] },
   { path: 'mathe/uebung', component: ExerciseComponent, data: { mode: 'practice' }, canActivate: [authGuard] },
   { path: 'mathe/zeitrennen', component: ExerciseComponent, data: { mode: 'timeTrial' }, canActivate: [authGuard] },
+  { path: 'mathe/sachaufgaben', component: WordProblemExerciseComponent, data: { mode: 'practice' }, canActivate: [authGuard] },
   { path: 'mathe/erfolge', component: AchievementsComponent, canActivate: [authGuard] },
 
   // Uhrzeit routes

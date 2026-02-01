@@ -5,7 +5,7 @@ import { TimedChallengeService, PersonalBest } from '../../services/timed-challe
 import { StatsService } from '../../services/stats.service';
 import { CommonModule } from '@angular/common';
 
-type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
+type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'word-problems';
 type ClockExerciseType = 'clock-full' | 'clock-half' | 'clock-quarter' | 'clock-fiveMin';
 type MedalLevel = 'none' | 'bronze' | 'silver' | 'gold';
 
@@ -29,7 +29,8 @@ export class AchievementsComponent implements OnInit {
     { key: 'addition', label: 'Addition', icon: '+' },
     { key: 'subtraction', label: 'Subtraktion', icon: '−' },
     { key: 'multiplication', label: 'Multiplikation', icon: '×' },
-    { key: 'division', label: 'Division', icon: '÷' }
+    { key: 'division', label: 'Division', icon: '÷' },
+    { key: 'word-problems', label: 'Sachaufgaben', icon: '📝' }
   ];
 
   clockExerciseTypes: { key: ClockExerciseType; label: string; icon: string }[] = [

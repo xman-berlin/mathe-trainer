@@ -331,7 +331,8 @@
   font-style: italic;
 }
 
-@media (max-width: 768px) {
+/* Portrait: Bottom back button for all portrait devices (mobile & tablet) */
+@media (orientation: portrait) {
   .back-home-btn {
     position: fixed;
     bottom: 1rem;
@@ -449,7 +450,7 @@
   }
 }
 
-@media (max-width: 540px) {
+@media (orientation: portrait) and (max-width: 540px) {
   .back-home-btn {
     bottom: 0.75rem;
     left: 0.75rem;

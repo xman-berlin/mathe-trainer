@@ -206,6 +206,16 @@
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, white 100%);
 }
 
+.word-problem-card {
+  border-color: #8B5CF6;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.03) 0%, white 100%);
+}
+
+.word-problem-card:hover {
+  border-color: #8B5CF6;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, white 100%);
+}
+
 .card-icon {
   font-size: 3rem;
   margin-bottom: 1rem;

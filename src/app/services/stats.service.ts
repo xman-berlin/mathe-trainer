@@ -41,7 +41,7 @@ export class StatsService {
   private lifetimeByType = signal<Record<string, number>>({});
 
   // Math exercise types
-  private readonly mathTypes = ['addition', 'subtraction', 'multiplication', 'division'];
+  private readonly mathTypes = ['addition', 'subtraction', 'multiplication', 'division', 'word-problems'];
   // Clock exercise types
   private readonly clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin'];
 

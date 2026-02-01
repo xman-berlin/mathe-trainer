@@ -1,0 +1,112 @@
+<div class="word-problem-container">
+  <a routerLink="/mathe" class="back-btn">← Zurück</a>
+
+  <!-- Rechenart-Auswahl -->
+  <div class="type-selector">
+    <button
+      [class.active]="isTypeSelected('addition')"
+      (click)="toggleType('addition')"
+      class="type-btn">
+      +
+    </button>
+    <button
+      [class.active]="isTypeSelected('subtraction')"
+      (click)="toggleType('subtraction')"
+      class="type-btn">
+      −
+    </button>
+    <button
+      [class.active]="isTypeSelected('multiplication')"
+      (click)="toggleType('multiplication')"
+      class="type-btn">
+      ×
+    </button>
+    <button
+      [class.active]="isTypeSelected('division')"
+      (click)="toggleType('division')"
+      class="type-btn">
+      ÷
+    </button>
+  </div>
+
+  <!-- Zahlenbereich-Toggle -->
+  <div class="range-selector">
+    <button
+      [class.active]="numberRange() === 'bis20'"
+      (click)="setNumberRange('bis20')"
+      class="range-btn">
+      Bis 20
+    </button>
+    <button
+      [class.active]="numberRange() === 'bis100'"
+      (click)="setNumberRange('bis100')"
+      class="range-btn">
+      Bis 100
+    </button>
+  </div>
+
+  <!-- Story-Anzeige -->
+  <div class="story-display">
+    <div class="story-icon">{{ storyIcon() }}</div>
+    <div class="story-text">{{ storyText() }}</div>
+  </div>
+
+  <!-- Eingabe -->
+  <div class="input-section">
+    <input readonly [value]="userAnswer()" placeholder="?" class="answer-input" />
+  </div>
+
+  <!-- Keypad -->
+  <app-keypad
+    [value]="userAnswer"
+    [mode]="'numeric'"
+    [disabled]="keypadDisabled"
+    (valueChange)="userAnswer.set($event)"
+    (keypadSubmit)="submitAnswer()"
+  />
+
+  <!-- Feedback -->
+  <div class="feedback-area">
+    @if (feedback() === 'correct') {
+      <div class="feedback-correct">✓ Richtig!</div>
+    }
+    @if (feedback() === 'incorrect' && showCorrectAnswer()) {
+      <div class="feedback-incorrect">
+        ✗ Die richtige Antwort ist: {{ correctAnswer() }}
+      </div>
+    }
+  </div>
+
+  <!-- Streak -->
+  <div class="streak-display">
+    <div class="streak-item">
+      <span class="streak-label">Serie:</span>
+      <span class="streak-value">{{ streak() }}</span>
+    </div>
+    <div class="streak-item">
+      <span class="streak-label">Beste:</span>
+      <span class="streak-value">{{ bestStreak() }}</span>
+    </div>
+  </div>
+
+  <!-- Statistik -->
+  <div class="stats-badge-container">
+    <app-stats-badge
+      [correctCount]="wordProblemCorrectCount"
+      [incorrectCount]="wordProblemIncorrectCount"
+      [showTotal]="true" />
+  </div>
+
+  <!-- Meilenstein-Popup -->
+  @if (showMilestone()) {
+    <div class="milestone-popup">
+      <div class="milestone-content">
+        <div class="milestone-icon">🎉</div>
+        <div class="milestone-text">{{ milestoneValue() }} in Folge!</div>
+      </div>
+      @for (piece of confettiPieces; track piece) {
+        <div class="confetti" [style.left.%]="confettiX[piece]"></div>
+      }
+    </div>
+  }
+</div>

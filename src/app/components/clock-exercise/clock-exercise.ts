@@ -317,22 +317,4 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
     this.mode.set('practice');
   }
 
-  handleKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && !this.showFeedback()) {
-      this.submitAnswer();
-    } else if (event.key === 'Backspace') {
-      const current = this.userAnswer();
-      this.userAnswer.set(current.slice(0, -1));
-      event.preventDefault();
-    } else if (/^\d$/.test(event.key)) {
-      const current = this.userAnswer();
-      // Auto-format with colon
-      if (current.length === 2 && !current.includes(':')) {
-        this.userAnswer.set(current + ':' + event.key);
-      } else if (current.length < 5) {
-        this.userAnswer.set(current + event.key);
-      }
-      event.preventDefault();
-    }
-  }
 }

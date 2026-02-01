@@ -5,8 +5,6 @@ import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService } from '../../services/timed-challenge.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
 
-const MAX_DIGITS = 3;
-
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
 
 @Component({
@@ -268,32 +266,6 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
 
   randomInt(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
-  handleKeydown(event: KeyboardEvent) {
-    const key = event.key;
-
-    if (/^[0-9]$/.test(key)) {
-      event.preventDefault();
-      const current = this.userAnswer();
-      if (current.length >= MAX_DIGITS) return;
-      const next = (current + key).replace(/^0+(\d)/, '$1');
-      this.userAnswer.set(next);
-      return;
-    }
-
-    if (key === 'Backspace' || key === 'Delete') {
-      event.preventDefault();
-      const val = this.userAnswer();
-      this.userAnswer.set(val.length > 0 ? val.slice(0, -1) : '');
-      return;
-    }
-
-    if (key === 'Enter') {
-      event.preventDefault();
-      this.submitAnswer();
-      return;
-    }
   }
 
   submitAnswer() {
