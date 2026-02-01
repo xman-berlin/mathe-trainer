@@ -184,8 +184,8 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
-/* Tablet Landscape: Horizontal split layout */
-@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+/* Landscape: Horizontal 2-column grid for all landscape devices */
+@media (orientation: landscape) and (min-width: 700px) {
   .clock-exercise-container {
     max-width: 1000px;
   }
@@ -194,9 +194,9 @@
     display: grid;
     grid-template-columns: 320px 1fr;
     grid-template-rows: auto auto auto auto auto auto auto;
-    gap: 0.75rem 1.5rem;
+    gap: 1rem 1.75rem;
     align-items: start;
-    margin-top: 1.5rem;
+    margin-top: 1.75rem;
   }
 
   /* Type selector at top right */
@@ -227,13 +227,14 @@
     grid-row: 2 / 5;
   }
 
-  /* Clock sizing - larger than mobile, smaller than desktop */
+  /* Clock sizing - optimized for landscape */
   .clock-with-indicators {
-    gap: 1.2rem;
+    gap: 1.3rem;
+    max-width: 300px;
   }
 
   .time-indicator {
-    font-size: 2.8rem;
+    font-size: 3rem;
   }
 
   /* Question in column 2, row 2 */
@@ -243,23 +244,23 @@
   }
 
   .question h2 {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
 
   .question .hint {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
   /* Input section in column 2, row 3 */
   .input-section {
     grid-column: 2;
     grid-row: 3;
-    max-width: 360px;
+    max-width: 400px;
   }
 
   .time-input {
-    font-size: 1.75rem;
-    padding: 0.75rem 1rem;
+    font-size: 1.85rem;
+    padding: 0.8rem 1.1rem;
   }
 
   /* Keypad in column 2, row 4 */
@@ -342,8 +343,8 @@
   }
 }
 
-/* Mobile */
-@media (max-width: 768px) {
+/* Portrait: Vertical layout for all portrait devices */
+@media (orientation: portrait) {
   .back-btn {
     position: fixed;
     bottom: 1rem;
@@ -459,7 +460,8 @@
   }
 }
 
-@media (max-width: 540px) {
+/* Portrait Small: Ultra-compact for small portrait devices */
+@media (orientation: portrait) and (max-width: 540px) {
   .clock-exercise-root {
     min-height: 100svh;
   }

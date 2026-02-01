@@ -224,39 +224,40 @@
   line-height: 1.5;
 }
 
-/* Tablet Landscape: Compact horizontal layout */
-@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+/* Landscape: 2-column grid for all landscape devices */
+@media (orientation: landscape) and (min-width: 700px) {
   .hero {
-    padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+    padding: 3rem 1.5rem 1.75rem 1.5rem;
   }
 
   .hero h1 {
-    font-size: 2rem;
-    margin-bottom: 0.3rem;
+    font-size: 2.2rem;
+    margin-bottom: 0.4rem;
   }
 
   .hero p {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .content-area {
-    padding: 1rem 1.5rem;
+    padding: 1.25rem 1.75rem;
     display: grid;
     grid-template-columns: 340px 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
     align-items: start;
+    max-width: 1200px;
   }
 
   .stats-card {
     margin: 0;
-    padding: 1.2rem;
+    padding: 1.4rem;
     max-width: 100%;
     width: 100%;
   }
 
   .stats-card h2 {
-    font-size: 1.1rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.15rem;
+    margin-bottom: 0.85rem;
   }
 
   .goal-section {
@@ -273,35 +274,35 @@
 
   .action-cards {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 1.25rem;
     margin: 0;
   }
 
   .action-card {
-    padding: 1.2rem;
+    padding: 1.5rem;
     flex-direction: row;
     text-align: left;
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
   .card-icon {
-    font-size: 2.5rem;
+    font-size: 2.75rem;
     margin-bottom: 0;
     flex-shrink: 0;
   }
 
   .action-card h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.25rem;
+    font-size: 1.15rem;
+    margin-bottom: 0.3rem;
   }
 
   .action-card p {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 }
 
-/* Mobile */
-@media (max-width: 768px) {
+/* Portrait: Vertical layout for all portrait devices */
+@media (orientation: portrait) {
   .back-home-btn {
     position: fixed;
     bottom: 1rem;
@@ -335,7 +336,8 @@
   }
 }
 
-@media (max-width: 540px) {
+/* Portrait Small: Ultra-compact for small portrait devices */
+@media (orientation: portrait) and (max-width: 540px) {
   .back-home-btn {
     bottom: 0.75rem;
     left: 0.75rem;

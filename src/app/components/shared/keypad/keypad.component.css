@@ -48,8 +48,21 @@
   cursor: not-allowed;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
+/* Landscape: Optimized keypad for all landscape devices */
+@media (orientation: landscape) and (min-width: 600px) {
+  .keypad {
+    max-width: 380px;
+    gap: 0.45rem;
+  }
+
+  .keypad button {
+    font-size: 1.45rem;
+    padding: 1rem 0;
+  }
+}
+
+/* Portrait: Standard mobile sizing for portrait devices */
+@media (orientation: portrait) and (min-width: 540px) {
   .keypad {
     max-width: 360px;
     gap: 0.4rem;
@@ -61,7 +74,8 @@
   }
 }
 
-@media (max-width: 540px) {
+/* Portrait Small: Compact keypad for small portrait devices */
+@media (orientation: portrait) and (max-width: 540px) {
   .keypad {
     max-width: 300px;
     gap: 0.35rem;
