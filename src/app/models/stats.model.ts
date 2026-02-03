@@ -28,6 +28,7 @@ export interface ExerciseTypeStats {
 export interface LifetimeStats {
   user_id?: string;
   stats_by_type: Record<string, number>; // exerciseType -> correct count
+  best_streaks_by_type?: Record<string, number>; // exerciseType -> best streak
   updated_at?: string;
 }
 

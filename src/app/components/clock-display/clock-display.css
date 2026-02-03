@@ -50,11 +50,23 @@
 /* Landscape: Optimized clock size for all landscape devices */
 @media (orientation: landscape) and (min-width: 700px) {
   .clock-svg {
-    max-width: 280px;
+    max-width: 600px;
   }
 
   .hour-number {
-    font-size: 13.5px;
+    font-size: 24px;
+  }
+
+  .hour-hand {
+    stroke-width: 8;
+  }
+
+  .minute-hand {
+    stroke-width: 6;
+  }
+
+  .center-dot {
+    r: 8;
   }
 }
 

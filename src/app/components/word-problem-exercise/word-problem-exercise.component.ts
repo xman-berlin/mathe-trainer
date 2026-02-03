@@ -23,10 +23,12 @@ export class WordProblemExerciseComponent implements OnInit {
 
   // Streak tracking
   streak = signal(0);
-  bestStreak = signal(0);
   showMilestone = signal(false);
   milestoneValue = signal(0);
   private streakMilestones = [5, 10, 20, 30, 40, 50, 75, 100];
+
+  // Best streak loaded from StatsService
+  bestStreak = computed(() => this.stats.getBestStreak('word-problems'));
 
   // Confetti
   confettiPieces = Array.from({ length: 20 }, (_, i) => i);
@@ -50,6 +52,13 @@ export class WordProblemExerciseComponent implements OnInit {
     if (savedRange === 'bis20' || savedRange === 'bis100') {
       this.numberRange.set(savedRange);
     }
+
+    // Clean up old localStorage item (migration)
+    localStorage.removeItem('wordProblemCurrentStreak');
+
+    // Current streak always starts at 0 when entering the exercise
+    // Only the best streak is loaded from StatsService (persistent)
+    console.log('[WordProblem] Starting fresh session, current streak: 0, best streak:', this.bestStreak());
   }
 
   storyText = computed(() => this.currentProblem()?.storyText ?? '');
@@ -112,6 +121,7 @@ export class WordProblemExerciseComponent implements OnInit {
     this.generateProblem();
   }
 
+
   generateProblem() {
     const types = Array.from(this.selectedTypes());
     const type = types[Math.floor(Math.random() * types.length)];
@@ -138,11 +148,10 @@ export class WordProblemExerciseComponent implements OnInit {
       this.feedback.set('correct');
       const newStreak = this.streak() + 1;
       this.streak.set(newStreak);
+      console.log('[WordProblem] New streak:', newStreak, 'Best:', this.bestStreak());
 
-      // Update best streak
-      if (newStreak > this.bestStreak()) {
-        this.bestStreak.set(newStreak);
-      }
+      // Update best streak in StatsService (will sync to server immediately)
+      this.stats.updateBestStreak('word-problems', newStreak);
 
       // Check for milestone
       if (this.streakMilestones.includes(newStreak)) {

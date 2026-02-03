@@ -105,13 +105,38 @@ export class KeypadComponent implements AfterViewInit {
       const next = (current + digit).replace(/^0+(\d)/, '$1');
       this.valueChange.emit(next);
     } else {
-      // Time mode: max 5 characters (HH:MM), auto-format with colon
-      if (current.length === 2 && !current.includes(':')) {
-        const next = current + ':' + digit;
-        this.valueChange.emit(next);
-      } else if (current.length < 5) {
-        const next = current + digit;
-        this.valueChange.emit(next);
+      // Time mode: max 5 characters (HH:MM), validate time format (00:00 - 23:59)
+      const digitNum = parseInt(digit, 10);
+
+      if (current.length === 0) {
+        // First digit of hours: 0-2 allowed
+        if (digitNum <= 2) {
+          this.valueChange.emit(digit);
+        }
+      } else if (current.length === 1) {
+        // Second digit of hours: depends on first digit
+        const firstHour = parseInt(current[0], 10);
+        if (firstHour === 2 && digitNum <= 3) {
+          // If first hour is 2, second can only be 0-3 (20-23)
+          this.valueChange.emit(current + digit);
+        } else if (firstHour < 2) {
+          // If first hour is 0 or 1, second can be 0-9
+          this.valueChange.emit(current + digit);
+        }
+      } else if (current.length === 2 && !current.includes(':')) {
+        // Auto-add colon after hours, then add first minute digit
+        if (digitNum <= 5) {
+          // First digit of minutes: 0-5 allowed
+          this.valueChange.emit(current + ':' + digit);
+        }
+      } else if (current.length === 3 && current.includes(':')) {
+        // First digit of minutes: 0-5 allowed
+        if (digitNum <= 5) {
+          this.valueChange.emit(current + digit);
+        }
+      } else if (current.length === 4) {
+        // Second digit of minutes: always 0-9 allowed
+        this.valueChange.emit(current + digit);
       }
     }
   }

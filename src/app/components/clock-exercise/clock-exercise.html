@@ -58,16 +58,16 @@
 
         @if (currentProblem()) {
         <!-- Clock with Time of Day Indicators -->
-        <div class="clock-with-indicators">
-          <div class="time-indicator left" [class.active]="currentProblem()!.timeOfDay === 'morning'">
-            ☀️
+        <div class="clock-section">
+          <div class="time-indicator top" [class.active]="currentProblem()!.timeOfDay === 'morning'">
+            ☀️ Vormittag
           </div>
           <app-clock-display
             [hours]="currentProblem()!.hours"
             [minutes]="currentProblem()!.minutes"
           />
-          <div class="time-indicator right" [class.active]="currentProblem()!.timeOfDay === 'afternoon'">
-            🌙
+          <div class="time-indicator bottom" [class.active]="currentProblem()!.timeOfDay === 'afternoon'">
+            🌙 Nachmittag
           </div>
         </div>
 
@@ -82,7 +82,8 @@
           <input
             type="text"
             class="time-input"
-            [(ngModel)]="userAnswer"
+            [ngModel]="userAnswer()"
+            (ngModelChange)="userAnswer.set($event)"
             placeholder="HH:MM"
             maxlength="5"
             [disabled]="showFeedback()"

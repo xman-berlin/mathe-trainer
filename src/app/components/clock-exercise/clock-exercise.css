@@ -187,16 +187,16 @@
 /* Landscape: Horizontal 2-column grid for all landscape devices */
 @media (orientation: landscape) and (min-width: 700px) {
   .clock-exercise-container {
-    max-width: 1000px;
+    max-width: 1200px;
   }
 
   .exercise-content {
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto auto auto auto auto auto;
-    gap: 1rem 1.75rem;
+    gap: 1rem 2rem;
     align-items: start;
-    margin-top: 1.75rem;
+    margin-top: 1.5rem;
   }
 
   /* Type selector at top right */
@@ -222,20 +222,41 @@
     font-size: 1rem;
   }
 
-  /* Clock spans rows 2-4, column 1 (works for both Practice and Time Trial) */
-  .clock-with-indicators {
+  /* Clock section - Column 1, Rows 1-6 (horizontally and vertically centered) */
+  .clock-section {
     grid-column: 1;
-    grid-row: 2 / 5;
+    grid-row: 1 / 7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    width: 100%;
   }
 
-  /* Clock sizing - optimized for landscape */
-  .clock-with-indicators {
-    gap: 1.3rem;
-    max-width: 300px;
-  }
-
+  /* Time Indicators - centered with labels */
   .time-indicator {
-    font-size: 3rem;
+    font-size: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    color: var(--gray-400);
+    transition: all 0.3s ease;
+  }
+
+  .time-indicator.active {
+    color: var(--bright-blue);
+    transform: scale(1.15);
+  }
+
+  .time-indicator.top {
+    order: -1;
+  }
+
+  .time-indicator.bottom {
+    order: 1;
   }
 
   /* Question in column 2, row 2 */
@@ -273,29 +294,40 @@
     justify-self: center;
   }
 
-  /* Feedback in column 2, row 5 */
-  .feedback-area {
+  /* Streak Display - Row 5, Column 2 (between Keypad and Stats) */
+  .streak-display {
     grid-column: 2;
     grid-row: 5;
     justify-self: center;
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(247, 197, 49, 0.1) 100%);
+    border-radius: 12px;
+    border: 2px solid rgba(255, 107, 53, 0.2);
   }
 
-  /* Streak below clock (column 1, row 5) */
-  .streak-display {
-    grid-column: 1;
-    grid-row: 5;
+  .streak-display.has-streak {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7c531 100%);
+    border-color: #ff6b35;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  }
+
+  /* Result Summary - Row 6, Column 2 (centered under Streak) */
+  .result-summary {
+    grid-column: 2;
+    grid-row: 6;
     justify-self: center;
   }
 
-  /* Milestone popup (for confetti) */
-  .milestone-popup {
-    grid-column: 1 / 3;
+  /* Feedback in column 2, row 7 */
+  .feedback-area {
+    grid-column: 2;
+    grid-row: 7;
+    justify-self: center;
   }
 
-  /* Result summary spans both columns in row 6 */
-  .result-summary {
+  /* Milestone popup (for confetti) - spans both columns */
+  .milestone-popup {
     grid-column: 1 / 3;
-    grid-row: 6;
   }
 
   /* Type selector - more compact */

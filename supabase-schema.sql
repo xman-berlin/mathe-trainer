@@ -60,6 +60,7 @@ CREATE INDEX idx_daily_stats_date ON daily_stats(date DESC);
 CREATE TABLE lifetime_stats (
   user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   stats_by_type JSONB DEFAULT '{}'::jsonb,  -- Record<exerciseType, correct_count>
+  best_streaks_by_type JSONB DEFAULT '{}'::jsonb,  -- Record<exerciseType, best_streak>
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 

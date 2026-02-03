@@ -19,6 +19,7 @@ interface DailyStats {
 
 interface LifetimeStats {
   byType: Record<string, number>; // Cumulative correct answers per type
+  best_streaks_by_type?: Record<string, number>; // Best streaks per type
 }
 
 @Injectable({ providedIn: 'root' })
@@ -39,6 +40,7 @@ export class StatsService {
   private dailyGoal = signal(20); // Default goal for math
   private clockDailyGoal = signal(20); // Default goal for clock
   private lifetimeByType = signal<Record<string, number>>({});
+  private bestStreaksByTypeSignal = signal<Record<string, number>>({});
 
   // Math exercise types
   private readonly mathTypes = ['addition', 'subtraction', 'multiplication', 'division', 'word-problems'];
@@ -71,6 +73,7 @@ export class StatsService {
     Math.min(100, Math.round((this.clockCorrectCount() / this.clockDailyGoal()) * 100))
   );
   readonly isClockGoalReached = computed(() => this.clockCorrectCount() >= this.clockDailyGoal());
+  readonly bestStreaksByType = this.bestStreaksByTypeSignal.asReadonly();
 
   constructor() {
     this.load();
@@ -212,24 +215,62 @@ export class StatsService {
     try {
       const raw = localStorage.getItem(this.lifetimeStorageKey);
       if (!raw) {
+        console.log('[StatsService] No lifetime stats in localStorage, creating empty');
         this.persistLifetime();
         return;
       }
       const parsed: LifetimeStats = JSON.parse(raw);
       this.lifetimeByType.set(parsed.byType || {});
-    } catch {
+      this.bestStreaksByTypeSignal.set(parsed.best_streaks_by_type || {});
+      console.log('[StatsService] Loaded lifetime stats from localStorage:', {
+        byType: parsed.byType,
+        bestStreaks: parsed.best_streaks_by_type
+      });
+    } catch (error) {
+      console.error('[StatsService] Failed to load lifetime stats from localStorage:', error);
       this.lifetimeByType.set({});
+      this.bestStreaksByTypeSignal.set({});
     }
   }
 
   private persistLifetime(): void {
     const payload: LifetimeStats = {
-      byType: this.lifetimeByType()
+      byType: this.lifetimeByType(),
+      best_streaks_by_type: this.bestStreaksByTypeSignal()
     };
     try {
       localStorage.setItem(this.lifetimeStorageKey, JSON.stringify(payload));
     } catch {
       // ignore storage errors
+    }
+  }
+
+  getBestStreak(exerciseType: string): number {
+    const value = this.bestStreaksByTypeSignal()[exerciseType] ?? 0;
+    console.log(`[StatsService] getBestStreak(${exerciseType}) = ${value}`, this.bestStreaksByTypeSignal());
+    return value;
+  }
+
+  updateBestStreak(exerciseType: string, streak: number): void {
+    const current = this.bestStreaksByTypeSignal();
+    const currentBest = current[exerciseType] ?? 0;
+
+    console.log(`[StatsService] updateBestStreak(${exerciseType}, ${streak}), current best: ${currentBest}`);
+
+    if (streak > currentBest) {
+      const newStreaks = {
+        ...current,
+        [exerciseType]: streak
+      };
+      console.log('[StatsService] New best! Updating signal:', newStreaks);
+      this.bestStreaksByTypeSignal.set(newStreaks);
+      this.persistLifetime();
+      console.log('[StatsService] Persisted to localStorage');
+
+      // Sync to server in background
+      this.syncToServer();
+    } else {
+      console.log('[StatsService] Not a new best, skipping update');
     }
   }
 
@@ -269,6 +310,7 @@ export class StatsService {
     this.dailyGoal.set(20);
     this.clockDailyGoal.set(20);
     this.lifetimeByType.set({});
+    this.bestStreaksByTypeSignal.set({});
     this.hasAnsweredToday.set(false);
 
     // Clear localStorage
@@ -348,11 +390,34 @@ export class StatsService {
       // Load lifetime stats
       const serverLifetime = await this.supabase.getLifetimeStats(userId);
       this.lifetimeByType.set(serverLifetime.stats_by_type || {});
+
+      console.log('[StatsService] Server lifetime data:', serverLifetime);
+      console.log('[StatsService] Current local best streaks before server merge:', this.bestStreaksByTypeSignal());
+
+      // Merge server and local best streaks (take maximum of each)
+      if (serverLifetime.best_streaks_by_type) {
+        const localStreaks = this.bestStreaksByTypeSignal();
+        const serverStreaks = serverLifetime.best_streaks_by_type;
+        const mergedStreaks: Record<string, number> = { ...localStreaks };
+
+        // For each exercise type, take the maximum
+        for (const [type, serverValue] of Object.entries(serverStreaks)) {
+          const localValue = localStreaks[type] ?? 0;
+          mergedStreaks[type] = Math.max(localValue, serverValue as number);
+        }
+
+        console.log('[StatsService] Merged best streaks:', mergedStreaks);
+        this.bestStreaksByTypeSignal.set(mergedStreaks);
+      } else {
+        console.log('[StatsService] Server has no best_streaks_by_type field, keeping local data');
+      }
+
       console.log('Lifetime stats loaded:', serverLifetime.stats_by_type);
 
       // Persist to localStorage (cache)
       this.persist();
       this.persistLifetime();
+      console.log('[StatsService] Persisted merged data to localStorage');
     } catch (error) {
       console.warn('Failed to load from server, using local cache:', error);
     }
@@ -385,10 +450,13 @@ export class StatsService {
       // Upsert lifetime stats
       const lifetimeStats = {
         stats_by_type: this.lifetimeByType(),
+        best_streaks_by_type: this.bestStreaksByTypeSignal(),
       };
       await this.supabase.upsertLifetimeStats(userId, lifetimeStats);
+      console.log('Stats synced to server successfully (including best streaks)');
     } catch (error) {
       console.warn('Failed to sync to server:', error);
+      console.warn('If you see column "best_streaks_by_type" does not exist, run the migration script: migration-add-best-streaks.sql');
       // Don't throw - sync is non-critical
     }
   }

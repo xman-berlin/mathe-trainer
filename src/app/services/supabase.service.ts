@@ -193,7 +193,7 @@ export class SupabaseService {
       if (error) {
         if (error.code === 'PGRST116') {
           // Not found - return empty stats
-          return { stats_by_type: {} };
+          return { stats_by_type: {}, best_streaks_by_type: {} };
         }
         throw error;
       }
@@ -201,7 +201,7 @@ export class SupabaseService {
       return data as LifetimeStats;
     } catch (error) {
       console.error('Error fetching lifetime stats:', error);
-      return { stats_by_type: {} };
+      return { stats_by_type: {}, best_streaks_by_type: {} };
     }
   }
 
@@ -214,6 +214,7 @@ export class SupabaseService {
         {
           user_id: userId,
           stats_by_type: stats.stats_by_type,
+          best_streaks_by_type: stats.best_streaks_by_type || {},
         },
         { onConflict: 'user_id' }
       );
