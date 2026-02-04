@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { map } from 'rxjs/operators';
 import { StatsService } from '../../services/stats.service';
 import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component';
 
@@ -11,11 +13,17 @@ import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component
   templateUrl: './category-overview.html',
   styleUrl: './category-overview.css'
 })
-export class CategoryOverviewComponent implements OnInit {
+export class CategoryOverviewComponent {
   protected stats = inject(StatsService);
   private route = inject(ActivatedRoute);
 
-  category = signal<'math' | 'clock'>('math');
+  // Read category from route data as signal
+  category = toSignal(
+    this.route.data.pipe(
+      map(data => (data['category'] === 'clock' ? 'clock' : 'math') as 'math' | 'clock')
+    ),
+    { initialValue: 'math' as 'math' | 'clock' }
+  );
 
   // Math types
   private mathTypes = ['addition', 'subtraction', 'multiplication', 'division'];
@@ -45,18 +53,19 @@ export class CategoryOverviewComponent implements OnInit {
 
   readonly categoryTotalCount = computed(() => this.categoryCorrectCount() + this.categoryIncorrectCount());
 
+  readonly categoryGoalProgressPercent = computed(() => {
+    const goal = this.category() === 'math' ? this.stats.currentGoal() : this.stats.currentClockGoal();
+    return Math.min(100, Math.round((this.categoryCorrectCount() / goal) * 100));
+  });
+
+  readonly categoryIsGoalReached = computed(() => {
+    const goal = this.category() === 'math' ? this.stats.currentGoal() : this.stats.currentClockGoal();
+    return this.categoryCorrectCount() >= goal;
+  });
+
   // Goal editor state
   showGoalEditor = signal(false);
   editGoalValue = signal(20);
-
-  ngOnInit(): void {
-    // Read category from route data
-    this.route.data.subscribe(data => {
-      if (data['category'] === 'math' || data['category'] === 'clock') {
-        this.category.set(data['category']);
-      }
-    });
-  }
 
   getCategoryTitle(): string {
     return this.category() === 'math' ? '📐 Mathe' : '🕐 Uhrzeit';

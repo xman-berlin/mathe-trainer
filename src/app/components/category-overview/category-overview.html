@@ -20,13 +20,13 @@
       @if (category() === 'math') {
         <div class="goal-section">
           <div class="goal-header">
-            <div class="goal-label">Tagesziel: {{ stats.correctCount() }} / {{ stats.currentGoal() }}</div>
+            <div class="goal-label">Tagesziel: {{ categoryCorrectCount() }} / {{ stats.currentGoal() }}</div>
             <button class="goal-edit-btn-inline" (click)="editGoal()" aria-label="Ziel bearbeiten">⚙️</button>
           </div>
           <div class="progress-bar-container">
-            <div class="progress-bar-fill" [style.width.%]="stats.goalProgressPercent()"></div>
+            <div class="progress-bar-fill" [style.width.%]="categoryGoalProgressPercent()"></div>
           </div>
-          @if (stats.isGoalReached()) {
+          @if (categoryIsGoalReached()) {
             <div class="goal-reached-badge">🎯 Ziel erreicht!</div>
           }
         </div>
@@ -35,13 +35,13 @@
       @if (category() === 'clock') {
         <div class="goal-section">
           <div class="goal-header">
-            <div class="goal-label">Tagesziel: {{ stats.clockCorrectCount() }} / {{ stats.currentClockGoal() }}</div>
+            <div class="goal-label">Tagesziel: {{ categoryCorrectCount() }} / {{ stats.currentClockGoal() }}</div>
             <button class="goal-edit-btn-inline" (click)="editGoal()" aria-label="Ziel bearbeiten">⚙️</button>
           </div>
           <div class="progress-bar-container">
-            <div class="progress-bar-fill" [style.width.%]="stats.clockGoalProgressPercent()"></div>
+            <div class="progress-bar-fill" [style.width.%]="categoryGoalProgressPercent()"></div>
           </div>
-          @if (stats.isClockGoalReached()) {
+          @if (categoryIsGoalReached()) {
             <div class="goal-reached-badge">🎯 Ziel erreicht!</div>
           }
         </div>

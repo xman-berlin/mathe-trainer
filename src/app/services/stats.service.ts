@@ -10,8 +10,8 @@ interface ExerciseTypeStats {
 
 interface DailyStats {
   date: string;
-  correct: number;
-  incorrect: number;
+  correct?: number; // Deprecated, kept for backward compatibility
+  incorrect?: number; // Deprecated, kept for backward compatibility
   byType: Record<string, ExerciseTypeStats>;
   dailyGoal?: number; // Optional for backward compatibility
   clockDailyGoal?: number; // Optional for backward compatibility
@@ -33,8 +33,6 @@ export class StatsService {
   private streakService = inject(DailyStreakService);
   private hasAnsweredToday = signal(false);
 
-  private correct = signal(0);
-  private incorrect = signal(0);
   private date = signal(this.today());
   private byType = signal<Record<string, ExerciseTypeStats>>({});
   private dailyGoal = signal(20); // Default goal for math
@@ -47,16 +45,24 @@ export class StatsService {
   // Clock exercise types
   private readonly clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin'];
 
-  readonly correctCount = this.correct.asReadonly();
-  readonly incorrectCount = this.incorrect.asReadonly();
-  readonly totalCount = computed(() => this.correct() + this.incorrect());
   readonly statsByType = this.byType.asReadonly();
   readonly currentGoal = this.dailyGoal.asReadonly();
-  readonly goalProgressPercent = computed(() =>
-    Math.min(100, Math.round((this.correct() / this.dailyGoal()) * 100))
-  );
-  readonly isGoalReached = computed(() => this.correct() >= this.dailyGoal());
   readonly lifetimeStatsByType = this.lifetimeByType.asReadonly();
+
+  // Math-specific stats
+  readonly mathCorrectCount = computed(() => {
+    const types = this.byType();
+    let total = 0;
+    for (const type of this.mathTypes) {
+      total += types[type]?.correct ?? 0;
+    }
+    return total;
+  });
+
+  readonly goalProgressPercent = computed(() =>
+    Math.min(100, Math.round((this.mathCorrectCount() / this.dailyGoal()) * 100))
+  );
+  readonly isGoalReached = computed(() => this.mathCorrectCount() >= this.dailyGoal());
 
   // Clock-specific stats
   readonly clockCorrectCount = computed(() => {
@@ -85,12 +91,6 @@ export class StatsService {
 
   recordResult(isCorrect: boolean, exerciseType = 'addition') {
     this.ensureToday();
-
-    if (isCorrect) {
-      this.correct.update(v => v + 1);
-    } else {
-      this.incorrect.update(v => v + 1);
-    }
 
     // Update by type (immutable update to avoid mutating signal value)
     const current = this.byType();
@@ -142,8 +142,6 @@ export class StatsService {
   resetToday() {
     const today = this.today();
     this.date.set(today);
-    this.correct.set(0);
-    this.incorrect.set(0);
     this.byType.set({});
     this.persist();
   }
@@ -177,8 +175,6 @@ export class StatsService {
       this.date.set(parsed.date);
       // Only load if it has the new byType structure
       if (parsed.byType && Object.keys(parsed.byType).length > 0) {
-        this.correct.set(parsed.correct || 0);
-        this.incorrect.set(parsed.incorrect || 0);
         this.byType.set(parsed.byType);
         if (parsed.dailyGoal) {
           this.dailyGoal.set(parsed.dailyGoal);
@@ -198,8 +194,6 @@ export class StatsService {
   private persist() {
     const payload: DailyStats = {
       date: this.date(),
-      correct: this.correct(),
-      incorrect: this.incorrect(),
       byType: this.byType(),
       dailyGoal: this.dailyGoal(),
       clockDailyGoal: this.clockDailyGoal()
@@ -303,8 +297,6 @@ export class StatsService {
    */
   clearUserData(): void {
     console.log('[StatsService] Clearing user data');
-    this.correct.set(0);
-    this.incorrect.set(0);
     this.date.set(this.today());
     this.byType.set({});
     this.dailyGoal.set(20);
@@ -367,8 +359,6 @@ export class StatsService {
       // Convert server format to local format
       const dailyStats: DailyStats = {
         date: serverDaily.date,
-        correct: serverDaily.correct,
-        incorrect: serverDaily.incorrect,
         byType: this.convertStatsToLocal(serverDaily.stats_by_type),
         dailyGoal: serverDaily.math_daily_goal,
         clockDailyGoal: serverDaily.clock_daily_goal,
@@ -376,14 +366,12 @@ export class StatsService {
 
       // Update local state from server (server is source of truth)
       this.date.set(dailyStats.date);
-      this.correct.set(dailyStats.correct);
-      this.incorrect.set(dailyStats.incorrect);
       this.byType.set(dailyStats.byType);
       if (dailyStats.dailyGoal) this.dailyGoal.set(dailyStats.dailyGoal);
       if (dailyStats.clockDailyGoal) this.clockDailyGoal.set(dailyStats.clockDailyGoal);
 
-      // Check if user has answered today
-      const hasAnswered = dailyStats.correct > 0 || dailyStats.incorrect > 0;
+      // Check if user has answered today (by checking if any type has stats)
+      const hasAnswered = Object.keys(dailyStats.byType).length > 0;
       this.hasAnsweredToday.set(hasAnswered);
       console.log('Has answered today:', hasAnswered);
 
@@ -437,8 +425,6 @@ export class StatsService {
       // Convert local format to server format
       const dailyStats = {
         date: this.date(),
-        correct: this.correct(),
-        incorrect: this.incorrect(),
         stats_by_type: this.convertStatsToServer(this.byType()),
         math_daily_goal: this.dailyGoal(),
         clock_daily_goal: this.clockDailyGoal(),

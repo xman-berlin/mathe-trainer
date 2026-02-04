@@ -159,8 +159,6 @@ export class SupabaseService {
         {
           user_id: userId,
           date: stats.date,
-          correct: stats.correct,
-          incorrect: stats.incorrect,
           stats_by_type: stats.stats_by_type,
           math_daily_goal: stats.math_daily_goal,
           clock_daily_goal: stats.clock_daily_goal,
@@ -460,8 +458,6 @@ export class SupabaseService {
   private createEmptyDailyStats(date: string): DailyStats {
     return {
       date,
-      correct: 0,
-      incorrect: 0,
       stats_by_type: {},
       math_daily_goal: 20,
       clock_daily_goal: 20,

@@ -5,8 +5,8 @@ export interface DailyStats {
   id?: string;
   user_id?: string;
   date: string; // ISO date string (YYYY-MM-DD)
-  correct: number;
-  incorrect: number;
+  correct?: number; // Deprecated, kept for backward compatibility
+  incorrect?: number; // Deprecated, kept for backward compatibility
   stats_by_type: Record<string, ExerciseTypeStats>; // exerciseType -> stats
   math_daily_goal: number;
   clock_daily_goal: number;
