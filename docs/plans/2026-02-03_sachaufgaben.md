@@ -3,6 +3,31 @@
 ## Überblick
 Neue Unterkategorie "Sachaufgaben" im Mathe-Bereich mit dynamisch generierten Textaufgaben für die 2. Klasse Grundschule.
 
+## Taskliste
+
+### Phase 1: Modelle & Service
+- [x] word-problem.model.ts erstellen
+- [x] WordProblemService mit 8 Story-Templates implementieren
+- [x] Zahlen-Generierungslogik (Zehnerübergang/-unterschreitung)
+
+### Phase 2: Component
+- [x] WordProblemExerciseComponent erstellen
+- [x] Template mit Story-Anzeige, Eingabe, Keypad
+- [x] Responsive CSS (inkl. Tablet Landscape)
+
+### Phase 3: Navigation & Routing
+- [x] Route `/mathe/sachaufgaben` hinzufügen
+- [x] Action Card in category-overview
+
+### Phase 4: Stats & Achievements
+- [x] 'word-problems' zu StatsService mathTypes hinzufügen
+- [x] Medaillen in AchievementsComponent
+
+### Phase 5: Testing & Polish
+- [x] Alle 4 Rechenarten testen
+- [x] Responsive Design verifizieren
+- [x] Build erfolgreich
+
 ## Anforderungen
 - **4 Rechenarten**: Addition, Subtraktion, Multiplikation, Division (mit Zehnerübergang/-unterschreitung)
 - **2 Zahlenbereiche**: "Bis 20" und "Bis 100" (umschaltbar)

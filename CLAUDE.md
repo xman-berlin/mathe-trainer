@@ -112,4 +112,55 @@ When optimizing components for tablet landscape:
 - **Mobile-first**: Responsive breakpoints at 1024px, 768px, 540px
 - **Standalone components**: All components use `standalone: true`
 - **Commit and push**: Commit and push changes only on my command
--
+
+## Dateikonventionen
+
+- **SQL Scripts**: Alle SQL-Dateien (Migrationen, Queries) werden in `src/sql/` gespeichert
+  - Benennung: `YYYY-MM-DD_beschreibung.sql` (z.B. `2026-02-05_add-badges-table.sql`)
+- **Planungsdokumente**: Implementierungspläne in `docs/plans/` speichern
+  - Benennung: `YYYY-MM-DD_feature-name.md` (z.B. `2026-02-04_gamification-system.md`)
+  - Jeder Plan muss eine Taskliste mit Checkboxen enthalten (`- [ ]` / `- [x]`)
+  - Bei Abarbeitung werden Tasks im Plan als erledigt markiert
+- **Testdaten**: Mock-Daten und Fixtures in `src/test-data/`
+
+## Sprachkonventionen
+
+- **Code**: Englisch (Variablen, Funktionen, Kommentare)
+- **UI-Texte**: Deutsch (Labels, Buttons, Fehlermeldungen)
+- **Commit-Messages**: Englisch
+- **Dokumentation**: Deutsch oder Englisch je nach Zielgruppe
+
+## Supabase
+
+- **Projekt URL**: In `environment.ts` (nicht committen!)
+- **Anon Key**: Öffentlich, in `environment.ts`
+- **Service Role Key**: NIE im Frontend verwenden
+- **RLS aktiviert**: Alle Tabellen haben Row Level Security
+- **Migrationen**: In `src/sql/` mit Datum-Prefix
+
+## Umgebungsvariablen
+
+- `.env` und `environment.ts` NIE committen (in `.gitignore`)
+- Secrets in GitHub Secrets für CI/CD
+- Lokale Entwicklung: `environment.development.ts` als Vorlage nutzen
+- Produktions-URLs werden beim Build über GitHub Actions gesetzt
+
+## Testing
+
+- Unit Tests für alle Services (`*.service.spec.ts`)
+- Component Tests für komplexe UI-Logik
+- Vor Commit: `npm run lint && npm run build` muss erfolgreich sein
+- CI prüft automatisch Lint und Build
+
+## Git Workflow
+
+- **Branch-Namen**: `feature/beschreibung`, `fix/beschreibung`
+- **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`)
+- **Vor Push**: `npm run lint && npm run build`
+- **Commits nur auf Anfrage**: Nicht automatisch committen
+
+## Known Issues
+
+- Budget-Warnungen beim Build sind akzeptabel (Bundle > 500KB)
+- File Watching: `npm run start:poll` bei Problemen verwenden
+- Zoneless Angular: `ChangeDetectorRef` nicht verwenden, stattdessen Signals
