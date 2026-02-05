@@ -2,6 +2,7 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
+import { CoinsService } from '../../services/coins.service';
 import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component';
 import { UserProfileComponent } from '../user-profile/user-profile.component';
 import { StreakDisplayComponent } from '../streak-display/streak-display.component';
@@ -15,6 +16,7 @@ import { StreakDisplayComponent } from '../streak-display/streak-display.compone
 })
 export class CategoryHomeComponent {
   protected stats = inject(StatsService);
+  protected coins = inject(CoinsService);
 
   showGoalEditor = signal(false);
   showClockGoalEditor = signal(false);

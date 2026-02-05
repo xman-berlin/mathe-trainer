@@ -20,68 +20,48 @@
           <div class="card-icon">📐</div>
           <h3>Mathe</h3>
           <p>Addition, Subtraktion, Multiplikation & Division</p>
+          <div class="card-stats">
+            <div class="stats-badges">
+              <span class="stat-correct">✓ {{ mathCorrectCount() }}</span>
+              <span class="stat-incorrect">✗ {{ mathIncorrectCount() }}</span>
+            </div>
+            <div class="stats-goal">Ziel: {{ mathCorrectCount() }}/{{ stats.currentGoal() }}</div>
+            <div class="stats-progress-bar">
+              <div class="stats-progress-fill" [style.width.%]="mathGoalProgressPercent()"></div>
+            </div>
+          </div>
         </a>
 
         <a routerLink="/uhrzeit" class="category-card uhrzeit-card">
           <div class="card-icon">🕐</div>
           <h3>Uhrzeit lernen</h3>
           <p>Lerne die Uhr zu lesen</p>
+          <div class="card-stats">
+            <div class="stats-badges">
+              <span class="stat-correct">✓ {{ clockCorrectCount() }}</span>
+              <span class="stat-incorrect">✗ {{ clockIncorrectCount() }}</span>
+            </div>
+            <div class="stats-goal">Ziel: {{ clockCorrectCount() }}/{{ stats.currentClockGoal() }}</div>
+            <div class="stats-progress-bar">
+              <div class="stats-progress-fill" [style.width.%]="clockGoalProgressPercent()"></div>
+            </div>
+          </div>
+        </a>
+
+        <a routerLink="/erfolge" class="category-card erfolge-card">
+          <div class="card-icon">🏆</div>
+          <h3>Erfolge</h3>
+          <p>Badges, Medaillen & Rekorde</p>
+          <div class="card-stats card-coins-display">
+            <span class="coins-label">Coins:</span>
+            <span class="coin-icon">💰</span>
+            <span class="coin-amount">{{ coins.balance() }}</span>
+          </div>
         </a>
       </div>
     </div>
 
-    <!-- Kompakte Statistik -->
-    <div class="stats-section">
-      <h2>📊 Heutige Statistik</h2>
-
-      <div class="stats-compact">
-        <!-- Mathe -->
-        <div class="stat-item">
-          <div class="stat-header">
-            <span class="stat-category">📐 Mathe</span>
-            <app-stats-badge
-              [correctCount]="mathCorrectCount"
-              [incorrectCount]="mathIncorrectCount"
-              layout="compact"
-            />
-          </div>
-          <div class="stat-goal">
-            <span class="goal-text">Ziel: {{ mathCorrectCount() }}/{{ stats.currentGoal() }}</span>
-            <button class="goal-edit-btn-inline" (click)="editGoal()" aria-label="Ziel bearbeiten">⚙️</button>
-          </div>
-          <div class="progress-bar-container-mini">
-            <div class="progress-bar-fill" [style.width.%]="mathGoalProgressPercent()"></div>
-          </div>
-          @if (isMathGoalReached()) {
-            <div class="goal-reached-mini">🎯 Ziel erreicht!</div>
-          }
-        </div>
-
-        <!-- Uhrzeit -->
-        <div class="stat-item">
-          <div class="stat-header">
-            <span class="stat-category">🕐 Uhrzeit</span>
-            <app-stats-badge
-              [correctCount]="clockCorrectCount"
-              [incorrectCount]="clockIncorrectCount"
-              layout="compact"
-            />
-          </div>
-          <div class="stat-goal">
-            <span class="goal-text">Ziel: {{ clockCorrectCount() }}/{{ stats.currentClockGoal() }}</span>
-            <button class="goal-edit-btn-inline" (click)="editClockGoal()" aria-label="Ziel bearbeiten">⚙️</button>
-          </div>
-          <div class="progress-bar-container-mini">
-            <div class="progress-bar-fill" [style.width.%]="clockGoalProgressPercent()"></div>
-          </div>
-          @if (isClockGoalReached()) {
-            <div class="goal-reached-mini">🎯 Ziel erreicht!</div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- Daily Streak Display - unter den Stats -->
+    <!-- Daily Streak Display -->
     <app-streak-display />
   </section>
 
