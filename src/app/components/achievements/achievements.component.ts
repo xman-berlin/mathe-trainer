@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit, Input } from '@angular/core';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService, PersonalBest } from '../../services/timed-challenge.service';
 import { StatsService } from '../../services/stats.service';
@@ -12,7 +12,7 @@ type MedalLevel = 'none' | 'bronze' | 'silver' | 'gold';
 @Component({
   standalone: true,
   selector: 'app-achievements',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './achievements.component.html',
   styleUrls: ['./achievements.component.css']
 })
