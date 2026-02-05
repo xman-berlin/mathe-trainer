@@ -1,0 +1,207 @@
+<div class="badge-display">
+  <!-- Header Stats -->
+  <div class="badge-stats">
+    <div class="stat-card">
+      <div class="stat-icon">🏅</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ earnedBadges() }} / {{ totalBadges() }}</div>
+        <div class="stat-label">Badges verdient</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🪙</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ totalCoinsFromBadges() }}</div>
+        <div class="stat-label">Coins aus Badges</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading">
+    <div class="spinner"></div>
+    <p>Lade Badges...</p>
+  </div>
+
+  <!-- Badge Categories -->
+  <div *ngIf="!isLoading()" class="badge-categories">
+    <!-- Performance Badges -->
+    <div class="badge-category" *ngIf="performanceBadges().length > 0">
+      <h3 class="category-header">
+        <span class="category-icon">{{ getCategoryIcon('performance') }}</span>
+        {{ getCategoryTitle('performance') }}
+      </h3>
+      <div class="badge-grid">
+        <div
+          *ngFor="let badgeProgress of performanceBadges()"
+          class="badge-card"
+          [class.earned]="badgeProgress.earned"
+          [class.locked]="!badgeProgress.earned"
+        >
+          <div class="badge-icon">{{ badgeProgress.badge.icon }}</div>
+          <div class="badge-name">{{ badgeProgress.badge.name }}</div>
+          <div class="badge-description">{{ badgeProgress.badge.description }}</div>
+
+          <!-- Progress Bar (for locked badges) -->
+          <div *ngIf="!badgeProgress.earned" class="badge-progress">
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="badgeProgress.percentage"
+              ></div>
+            </div>
+            <div class="progress-text">
+              {{ badgeProgress.current }} / {{ badgeProgress.required }}
+            </div>
+          </div>
+
+          <!-- Earned Info -->
+          <div *ngIf="badgeProgress.earned" class="badge-earned">
+            <div class="earned-badge">✓ Verdient</div>
+            <div class="earned-date" *ngIf="badgeProgress.earnedAt">
+              {{ formatDate(badgeProgress.earnedAt) }}
+            </div>
+          </div>
+
+          <!-- Coin Reward -->
+          <div class="badge-reward">
+            <span class="coin-icon">🪙</span>
+            {{ badgeProgress.badge.coinReward }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Consistency Badges -->
+    <div class="badge-category" *ngIf="consistencyBadges().length > 0">
+      <h3 class="category-header">
+        <span class="category-icon">{{ getCategoryIcon('consistency') }}</span>
+        {{ getCategoryTitle('consistency') }}
+      </h3>
+      <div class="badge-grid">
+        <div
+          *ngFor="let badgeProgress of consistencyBadges()"
+          class="badge-card"
+          [class.earned]="badgeProgress.earned"
+          [class.locked]="!badgeProgress.earned"
+        >
+          <div class="badge-icon">{{ badgeProgress.badge.icon }}</div>
+          <div class="badge-name">{{ badgeProgress.badge.name }}</div>
+          <div class="badge-description">{{ badgeProgress.badge.description }}</div>
+
+          <div *ngIf="!badgeProgress.earned" class="badge-progress">
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="badgeProgress.percentage"
+              ></div>
+            </div>
+            <div class="progress-text">
+              {{ badgeProgress.current }} / {{ badgeProgress.required }}
+            </div>
+          </div>
+
+          <div *ngIf="badgeProgress.earned" class="badge-earned">
+            <div class="earned-badge">✓ Verdient</div>
+            <div class="earned-date" *ngIf="badgeProgress.earnedAt">
+              {{ formatDate(badgeProgress.earnedAt) }}
+            </div>
+          </div>
+
+          <div class="badge-reward">
+            <span class="coin-icon">🪙</span>
+            {{ badgeProgress.badge.coinReward }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Milestone Badges -->
+    <div class="badge-category" *ngIf="milestoneBadges().length > 0">
+      <h3 class="category-header">
+        <span class="category-icon">{{ getCategoryIcon('milestone') }}</span>
+        {{ getCategoryTitle('milestone') }}
+      </h3>
+      <div class="badge-grid">
+        <div
+          *ngFor="let badgeProgress of milestoneBadges()"
+          class="badge-card"
+          [class.earned]="badgeProgress.earned"
+          [class.locked]="!badgeProgress.earned"
+        >
+          <div class="badge-icon">{{ badgeProgress.badge.icon }}</div>
+          <div class="badge-name">{{ badgeProgress.badge.name }}</div>
+          <div class="badge-description">{{ badgeProgress.badge.description }}</div>
+
+          <div *ngIf="!badgeProgress.earned" class="badge-progress">
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="badgeProgress.percentage"
+              ></div>
+            </div>
+            <div class="progress-text">
+              {{ badgeProgress.current }} / {{ badgeProgress.required }}
+            </div>
+          </div>
+
+          <div *ngIf="badgeProgress.earned" class="badge-earned">
+            <div class="earned-badge">✓ Verdient</div>
+            <div class="earned-date" *ngIf="badgeProgress.earnedAt">
+              {{ formatDate(badgeProgress.earnedAt) }}
+            </div>
+          </div>
+
+          <div class="badge-reward">
+            <span class="coin-icon">🪙</span>
+            {{ badgeProgress.badge.coinReward }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Challenge Badges (if any) -->
+    <div class="badge-category" *ngIf="challengeBadges().length > 0">
+      <h3 class="category-header">
+        <span class="category-icon">{{ getCategoryIcon('challenge') }}</span>
+        {{ getCategoryTitle('challenge') }}
+      </h3>
+      <div class="badge-grid">
+        <div
+          *ngFor="let badgeProgress of challengeBadges()"
+          class="badge-card"
+          [class.earned]="badgeProgress.earned"
+          [class.locked]="!badgeProgress.earned"
+        >
+          <div class="badge-icon">{{ badgeProgress.badge.icon }}</div>
+          <div class="badge-name">{{ badgeProgress.badge.name }}</div>
+          <div class="badge-description">{{ badgeProgress.badge.description }}</div>
+
+          <div *ngIf="!badgeProgress.earned" class="badge-progress">
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="badgeProgress.percentage"
+              ></div>
+            </div>
+            <div class="progress-text">
+              {{ badgeProgress.current }} / {{ badgeProgress.required }}
+            </div>
+          </div>
+
+          <div *ngIf="badgeProgress.earned" class="badge-earned">
+            <div class="earned-badge">✓ Verdient</div>
+            <div class="earned-date" *ngIf="badgeProgress.earnedAt">
+              {{ formatDate(badgeProgress.earnedAt) }}
+            </div>
+          </div>
+
+          <div class="badge-reward">
+            <span class="coin-icon">🪙</span>
+            {{ badgeProgress.badge.coinReward }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

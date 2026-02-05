@@ -69,7 +69,7 @@
         </a>
       }
 
-      <a [routerLink]="getBasePath() + '/erfolge'" class="action-card achievements-card">
+      <a [routerLink]="'/erfolge'" [queryParams]="{tab: category()}" class="action-card achievements-card">
         <div class="card-icon">🏆</div>
         <h3>Erfolge</h3>
         <p>Deine Abzeichen & Rekorde</p>

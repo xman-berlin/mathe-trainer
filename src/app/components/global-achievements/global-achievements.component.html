@@ -1,0 +1,82 @@
+<div class="global-achievements">
+  <!-- Header with Coin Balance -->
+  <div class="achievements-header">
+    <div class="header-content">
+      <h1 class="page-title">Erfolge</h1>
+      <div class="coin-display">
+        <span class="coin-icon">🪙</span>
+        <span class="coin-amount">{{ coinBalance() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    <button
+      class="tab-button"
+      [class.active]="activeTab() === 'math'"
+      (click)="switchTab('math')"
+    >
+      <span class="tab-icon">{{ getTabIcon('math') }}</span>
+      <span class="tab-label">{{ getTabLabel('math') }}</span>
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab() === 'clock'"
+      (click)="switchTab('clock')"
+    >
+      <span class="tab-icon">{{ getTabIcon('clock') }}</span>
+      <span class="tab-label">{{ getTabLabel('clock') }}</span>
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab() === 'badges'"
+      (click)="switchTab('badges')"
+    >
+      <span class="tab-icon">{{ getTabIcon('badges') }}</span>
+      <span class="tab-label">{{ getTabLabel('badges') }}</span>
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab() === 'games'"
+      (click)="switchTab('games')"
+    >
+      <span class="tab-icon">{{ getTabIcon('games') }}</span>
+      <span class="tab-label">{{ getTabLabel('games') }}</span>
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Math Achievements -->
+    <div *ngIf="activeTab() === 'math'" class="tab-panel">
+      <app-achievements [category]="'math'" [style.display]="'block'"></app-achievements>
+    </div>
+
+    <!-- Clock Achievements -->
+    <div *ngIf="activeTab() === 'clock'" class="tab-panel">
+      <app-achievements [category]="'clock'" [style.display]="'block'"></app-achievements>
+    </div>
+
+    <!-- Badges -->
+    <div *ngIf="activeTab() === 'badges'" class="tab-panel">
+      <app-badge-display></app-badge-display>
+    </div>
+
+    <!-- Games (Placeholder for Phase 4) -->
+    <div *ngIf="activeTab() === 'games'" class="tab-panel">
+      <div class="games-placeholder">
+        <div class="placeholder-icon">🎮</div>
+        <h2>Spiele</h2>
+        <p>Bald verfügbar! Spiele wie Flappy Fox kommen in Phase 4.</p>
+        <div class="coming-soon-badge">Bald verfügbar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <a routerLink="/" class="back-button">
+    <span class="back-icon">←</span>
+    <span class="back-text">Zurück</span>
+  </a>
+</div>

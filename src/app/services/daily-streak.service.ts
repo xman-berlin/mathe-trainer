@@ -1,7 +1,9 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
+import { CoinsService } from './coins.service';
 import type { DailyStreak } from '../models/daily-streak.model';
 import { STREAK_MILESTONES, STREAK_GRACE_PERIOD_DAYS } from '../models/daily-streak.model';
+import { STREAK_COIN_REWARDS } from '../models/coin.model';
 
 /**
  * Service for managing daily practice streaks
@@ -23,6 +25,7 @@ export class DailyStreakService {
   readonly GRACE_PERIOD_DAYS = STREAK_GRACE_PERIOD_DAYS;
 
   private supabase = inject(SupabaseService);
+  private coinsService = inject(CoinsService);
 
   /**
    * Load streak data for a user
@@ -140,9 +143,10 @@ export class DailyStreakService {
         updated_at: new Date().toISOString(),
       });
 
-      // Show milestone celebration if achieved
+      // Show milestone celebration and award coins if achieved
       if (milestoneAchieved) {
         this.celebrateMilestone(milestoneAchieved);
+        await this.awardMilestoneCoins(userId, milestoneAchieved);
       }
     } catch (error) {
       console.error('Error recording practice:', error);
@@ -287,5 +291,25 @@ export class DailyStreakService {
     console.log(`🎉 Milestone achieved: ${milestone} day streak!`);
     // TODO: Show celebration animation/modal
     // This will be implemented when we add the UI components
+  }
+
+  /**
+   * Award coins for streak milestone
+   */
+  private async awardMilestoneCoins(userId: string, milestone: number): Promise<void> {
+    const coinReward = STREAK_COIN_REWARDS[milestone];
+    if (coinReward) {
+      try {
+        await this.coinsService.awardCoins(
+          userId,
+          coinReward,
+          'streak_milestone',
+          String(milestone)
+        );
+        console.log(`Awarded ${coinReward} coins for ${milestone}-day streak milestone`);
+      } catch (error) {
+        console.error('Failed to award milestone coins:', error);
+      }
+    }
   }
 }

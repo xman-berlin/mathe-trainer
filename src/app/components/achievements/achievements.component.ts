@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, Input } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService, PersonalBest } from '../../services/timed-challenge.service';
@@ -22,7 +22,8 @@ export class AchievementsComponent implements OnInit {
   stats = inject(StatsService);
   private route = inject(ActivatedRoute);
 
-  readonly category = signal<'math' | 'clock'>('math');
+  @Input() category: 'math' | 'clock' = 'math';
+  readonly categorySignal = signal<'math' | 'clock'>('math');
   reihen = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   exerciseTypes: { key: ExerciseType; label: string; icon: string }[] = [
@@ -41,10 +42,10 @@ export class AchievementsComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    const category = this.route.snapshot.data['category'] as 'math' | 'clock' | undefined;
-    if (category) {
-      this.category.set(category);
-    }
+    // Priority: @Input > Route data
+    const routeCategory = this.route.snapshot.data['category'] as 'math' | 'clock' | undefined;
+    const finalCategory = this.category || routeCategory || 'math';
+    this.categorySignal.set(finalCategory);
   }
 
   getMastery(reihe: number) {
@@ -108,10 +109,10 @@ export class AchievementsComponent implements OnInit {
   }
 
   getBackLink(): string {
-    return this.category() === 'clock' ? '/uhrzeit' : '/mathe';
+    return this.categorySignal() === 'clock' ? '/uhrzeit' : '/mathe';
   }
 
   getTitle(): string {
-    return this.category() === 'clock' ? '🏆 Uhrzeit-Meister' : '🏆 Malfolgen-Meister';
+    return this.categorySignal() === 'clock' ? '🏆 Uhrzeit-Erfolge' : '🏆 Mathe-Erfolge';
   }
 }

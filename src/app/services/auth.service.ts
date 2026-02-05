@@ -86,6 +86,14 @@ export class AuthService {
       const streakService = this.injector.get(DailyStreakService);
       streakService.clearUserData();
 
+      const { CoinsService } = await import('./coins.service');
+      const coinsService = this.injector.get(CoinsService);
+      coinsService.reset();
+
+      const { BadgeService } = await import('./badge.service');
+      const badgeService = this.injector.get(BadgeService);
+      badgeService.reset();
+
       console.log('[AuthService] All user data cleared');
     } catch (error) {
       console.warn('Error clearing user data:', error);
@@ -162,7 +170,7 @@ export class AuthService {
   }
 
   /**
-   * Load user-specific data (streak, stats, achievements, time trials) after login
+   * Load user-specific data (streak, stats, achievements, time trials, coins, badges) after login
    */
   private async loadUserData(userId: string): Promise<void> {
     try {
@@ -188,6 +196,16 @@ export class AuthService {
       const { TimedChallengeService } = await import('./timed-challenge.service');
       const timedChallengeService = this.injector.get(TimedChallengeService);
       await timedChallengeService.loadFromServer(userId);
+
+      // Load coins
+      const { CoinsService } = await import('./coins.service');
+      const coinsService = this.injector.get(CoinsService);
+      await coinsService.loadBalance(userId);
+
+      // Load badges
+      const { BadgeService } = await import('./badge.service');
+      const badgeService = this.injector.get(BadgeService);
+      await badgeService.loadEarnedBadges(userId);
 
       console.log('[AuthService] All user data loaded successfully');
     } catch (error) {

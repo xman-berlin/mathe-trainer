@@ -2,6 +2,8 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth.service';
 import { DailyStreakService } from './daily-streak.service';
+import { CoinsService } from './coins.service';
+import { BadgeService } from './badge.service';
 
 interface ExerciseTypeStats {
   correct: number;
@@ -31,7 +33,14 @@ export class StatsService {
   private supabase = inject(SupabaseService);
   private auth = inject(AuthService);
   private streakService = inject(DailyStreakService);
+  private coinsService = inject(CoinsService);
+  private badgeService = inject(BadgeService);
   private hasAnsweredToday = signal(false);
+
+  // Track answers for badge checking (debounce every 5 answers)
+  private answerCounter = 0;
+  private mathGoalBonusAwarded = signal(false);
+  private clockGoalBonusAwarded = signal(false);
 
   private date = signal(this.today());
   private byType = signal<Record<string, ExerciseTypeStats>>({});
@@ -116,6 +125,18 @@ export class StatsService {
       // The StreakService will handle "already practiced today" logic
       console.log('Correct answer! Checking streak...');
       this.updateStreak();
+
+      // Award coin for correct answer
+      this.awardCoinForCorrectAnswer(exerciseType);
+
+      // Check and award daily goal bonus
+      this.checkDailyGoalBonus(exerciseType);
+
+      // Increment answer counter and check badges periodically
+      this.answerCounter++;
+      if (this.answerCounter % 5 === 0) {
+        this.checkBadges();
+      }
     }
 
     this.persist();
@@ -143,6 +164,8 @@ export class StatsService {
     const today = this.today();
     this.date.set(today);
     this.byType.set({});
+    this.mathGoalBonusAwarded.set(false);
+    this.clockGoalBonusAwarded.set(false);
     this.persist();
   }
 
@@ -482,5 +505,114 @@ export class StatsService {
     localStats: Record<string, ExerciseTypeStats>
   ): Record<string, { correct: number; incorrect: number }> {
     return localStats;
+  }
+
+  // ============================================================================
+  // GAMIFICATION METHODS (Coins & Badges)
+  // ============================================================================
+
+  /**
+   * Award 1 coin for correct answer
+   */
+  private async awardCoinForCorrectAnswer(exerciseType: string): Promise<void> {
+    if (!this.auth || !this.auth.isAuthenticated()) {
+      return;
+    }
+
+    try {
+      const userId = this.auth.currentUser()!.id;
+      await this.coinsService.awardCoins(userId, 1, 'correct_answer', exerciseType);
+    } catch (error) {
+      console.error('Failed to award coin for correct answer:', error);
+    }
+  }
+
+  /**
+   * Check and award daily goal bonus (10 coins, once per day per category)
+   */
+  private async checkDailyGoalBonus(exerciseType: string): Promise<void> {
+    if (!this.auth || !this.auth.isAuthenticated()) {
+      return;
+    }
+
+    const isMathType = this.mathTypes.includes(exerciseType);
+    const isClockType = this.clockTypes.includes(exerciseType);
+
+    // Check math goal bonus
+    if (isMathType && this.isGoalReached() && !this.mathGoalBonusAwarded()) {
+      try {
+        const userId = this.auth.currentUser()!.id;
+        await this.coinsService.awardCoins(userId, 10, 'daily_goal', 'math');
+        this.mathGoalBonusAwarded.set(true);
+        console.log('Math daily goal bonus awarded: +10 coins');
+      } catch (error) {
+        console.error('Failed to award math goal bonus:', error);
+      }
+    }
+
+    // Check clock goal bonus
+    if (isClockType && this.isClockGoalReached() && !this.clockGoalBonusAwarded()) {
+      try {
+        const userId = this.auth.currentUser()!.id;
+        await this.coinsService.awardCoins(userId, 10, 'daily_goal', 'clock');
+        this.clockGoalBonusAwarded.set(true);
+        console.log('Clock daily goal bonus awarded: +10 coins');
+      } catch (error) {
+        console.error('Failed to award clock goal bonus:', error);
+      }
+    }
+  }
+
+  /**
+   * Check badges (debounced, called every 5 answers)
+   */
+  private async checkBadges(): Promise<void> {
+    if (!this.auth || !this.auth.isAuthenticated()) {
+      return;
+    }
+
+    try {
+      const userId = this.auth.currentUser()!.id;
+
+      // Gather badge check data
+      const checkData = await this.gatherBadgeCheckData(userId);
+
+      // Check and award new badges
+      const newBadges = await this.badgeService.checkAndAwardBadges(userId, checkData);
+
+      if (newBadges.length > 0) {
+        console.log(`Awarded ${newBadges.length} new badges:`, newBadges.map(b => b.name));
+        // TODO: Show badge notification to user (Phase 5)
+      }
+    } catch (error) {
+      console.error('Failed to check badges:', error);
+    }
+  }
+
+  /**
+   * Gather all data needed for badge checking
+   */
+  private async gatherBadgeCheckData(userId: string) {
+    // Get mastery data
+    const masteryRecords = await this.supabase.getMastery(userId);
+    const masteredReihen = masteryRecords
+      .filter(m => m.mastered)
+      .map(m => m.reihe);
+
+    // Get time trial bests
+    const timeTrialBests = await this.supabase.getPersonalBests(userId);
+
+    // Get streak data
+    const streakData = await this.supabase.getDailyStreak(userId);
+
+    return {
+      lifetimeStats: this.lifetimeByType(),
+      dailyStats: this.byType(),
+      currentStreak: streakData.current_streak,
+      longestStreak: streakData.longest_streak,
+      bestStreaksByType: this.bestStreaksByTypeSignal(),
+      timeTrialBests,
+      masteredReihen,
+    };
   }
 }

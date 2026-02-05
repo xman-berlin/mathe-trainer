@@ -1,0 +1,266 @@
+.global-achievements {
+  min-height: 100vh;
+  background: var(--gray-50);
+  padding: 2rem;
+  padding-bottom: 6rem;
+}
+
+/* Header */
+.achievements-header {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.coin-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #f59e0b;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.coin-icon {
+  font-size: 1.5rem;
+}
+
+.coin-amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  display: flex;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tab-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  background: var(--gray-100);
+  color: var(--gray-900);
+}
+
+.tab-button.active {
+  background: var(--bright-blue) !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tab-button.active .tab-icon,
+.tab-button.active .tab-label {
+  color: white !important;
+}
+
+.tab-icon {
+  font-size: 1.25rem;
+}
+
+.tab-label {
+  display: none;
+}
+
+/* Tab Content */
+.tab-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tab-panel {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Games Placeholder */
+.games-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.placeholder-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+}
+
+.games-placeholder h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0 0 0.75rem 0;
+}
+
+.games-placeholder p {
+  font-size: 1rem;
+  color: var(--gray-600);
+  margin: 0 0 1.5rem 0;
+}
+
+.coming-soon-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: var(--gray-200);
+  color: var(--gray-700);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Back Button */
+.back-button {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: white;
+  color: var(--gray-700);
+  text-decoration: none;
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-weight: 600;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.back-button:hover {
+  background: var(--gray-900);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.back-icon {
+  font-size: 1.25rem;
+}
+
+.back-text {
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (min-width: 640px) {
+  .tab-label {
+    display: inline;
+  }
+
+  .tab-button {
+    padding: 0.875rem 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .global-achievements {
+    padding: 1rem;
+    padding-bottom: 5rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .coin-display {
+    padding: 0.5rem 1rem;
+  }
+
+  .coin-icon {
+    font-size: 1.25rem;
+  }
+
+  .coin-amount {
+    font-size: 1rem;
+  }
+
+  .tab-navigation {
+    gap: 0.25rem;
+    padding: 0.375rem;
+  }
+
+  .tab-button {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .tab-icon {
+    font-size: 1.5rem;
+  }
+
+  .back-button {
+    bottom: 1rem;
+    left: 1rem;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .back-text {
+    display: none;
+  }
+}
+
+/* Desktop - Floating Back Button */
+@media (min-width: 1024px) {
+  .back-button {
+    position: fixed;
+    bottom: auto;
+    top: 2rem;
+    left: 2rem;
+  }
+}

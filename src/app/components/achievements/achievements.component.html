@@ -1,9 +1,9 @@
 <section class="content-area achievements-container">
-  <a [routerLink]="getBackLink()" class="back-home-btn">← Zurück</a>
+  <!-- Back button removed - now handled by parent GlobalAchievementsComponent -->
 
   <h1 class="achievements-title">{{ getTitle() }}</h1>
 
-  @if (category() === 'math') {
+  @if (categorySignal() === 'math') {
     <div class="badges-grid">
       @for (reihe of reihen; track reihe) {
         <div
@@ -31,7 +31,7 @@
   }
 
   <h2 class="section-title">
-    @if (category() === 'math') {
+    @if (categorySignal() === 'math') {
       🏅 Medaillen pro Rechenart
     } @else {
       🏅 Medaillen pro Uhrzeit-Typ
@@ -39,7 +39,7 @@
   </h2>
 
   <div class="medals-grid">
-    @if (category() === 'math') {
+    @if (categorySignal() === 'math') {
       @for (type of exerciseTypes; track type.key) {
         <div class="medal-card" [class.has-medal]="getMedalLevel(type.key) !== 'none'">
           <div class="medal-icon-large">{{ getMedalEmoji(type.key) }}</div>
@@ -79,7 +79,7 @@
   <h2 class="section-title">⏱️ Zeitrennen-Rekorde</h2>
 
   <div class="timetrial-grid">
-    @if (category() === 'math') {
+    @if (categorySignal() === 'math') {
       @for (type of exerciseTypes; track type.key) {
         @if (type.key !== 'word-problems') {
           <div class="timetrial-card" [class.has-record]="hasTimeTrialBest(type.key)">

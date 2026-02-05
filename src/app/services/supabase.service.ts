@@ -12,6 +12,9 @@ import type {
   MultiplicationMastery,
 } from '../models/stats.model';
 import type { DailyStreak, UpdateStreakData } from '../models/daily-streak.model';
+import type { UserBadge } from '../models/badge.model';
+import type { CoinBalance, CoinTransaction } from '../models/coin.model';
+import type { GameScore } from '../models/game.model';
 
 /**
  * Service for interacting with Supabase backend
@@ -477,5 +480,245 @@ export class SupabaseService {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
+  }
+
+  // ============================================================================
+  // BADGE METHODS
+  // ============================================================================
+
+  /**
+   * Get all earned badges for a user
+   */
+  async getUserBadges(userId: string): Promise<UserBadge[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('user_badges')
+        .select('*')
+        .eq('user_id', userId)
+        .order('earned_at', { ascending: false });
+
+      if (error) throw error;
+
+      return (data as UserBadge[]) || [];
+    } catch (error) {
+      console.error('Error fetching user badges:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Award a badge to a user
+   */
+  async awardBadge(userId: string, badgeId: string): Promise<void> {
+    try {
+      const { error } = await this.supabase.from('user_badges').insert({
+        user_id: userId,
+        badge_id: badgeId,
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error awarding badge:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check if user has earned a specific badge
+   */
+  async hasBadge(userId: string, badgeId: string): Promise<boolean> {
+    try {
+      const { data, error } = await this.supabase
+        .from('user_badges')
+        .select('badge_id')
+        .eq('user_id', userId)
+        .eq('badge_id', badgeId)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          return false;
+        }
+        throw error;
+      }
+
+      return !!data;
+    } catch (error) {
+      console.error('Error checking badge:', error);
+      return false;
+    }
+  }
+
+  // ============================================================================
+  // COIN METHODS
+  // ============================================================================
+
+  /**
+   * Get coin balance for a user
+   */
+  async getCoinBalance(userId: string): Promise<CoinBalance> {
+    try {
+      const { data, error } = await this.supabase
+        .from('coin_balances')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Not found - return empty balance
+          return {
+            balance: 0,
+            total_earned: 0,
+            total_spent: 0,
+          };
+        }
+        throw error;
+      }
+
+      return data as CoinBalance;
+    } catch (error) {
+      console.error('Error fetching coin balance:', error);
+      return {
+        balance: 0,
+        total_earned: 0,
+        total_spent: 0,
+      };
+    }
+  }
+
+  /**
+   * Upsert coin balance
+   */
+  async upsertCoinBalance(userId: string, balance: CoinBalance): Promise<void> {
+    try {
+      const { error } = await this.supabase.from('coin_balances').upsert(
+        {
+          user_id: userId,
+          balance: balance.balance,
+          total_earned: balance.total_earned,
+          total_spent: balance.total_spent,
+        },
+        { onConflict: 'user_id' }
+      );
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error upserting coin balance:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Record a coin transaction
+   */
+  async recordCoinTransaction(transaction: CoinTransaction): Promise<void> {
+    try {
+      const { error } = await this.supabase.from('coin_transactions').insert({
+        user_id: transaction.user_id,
+        amount: transaction.amount,
+        reason: transaction.reason,
+        related_id: transaction.related_id,
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error recording coin transaction:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get coin transaction history for a user
+   */
+  async getCoinTransactions(userId: string, limit = 50): Promise<CoinTransaction[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('coin_transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+
+      return (data as CoinTransaction[]) || [];
+    } catch (error) {
+      console.error('Error fetching coin transactions:', error);
+      return [];
+    }
+  }
+
+  // ============================================================================
+  // GAME SCORE METHODS
+  // ============================================================================
+
+  /**
+   * Get all game scores for a user
+   */
+  async getGameScores(userId: string): Promise<GameScore[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('game_scores')
+        .select('*')
+        .eq('user_id', userId)
+        .order('high_score', { ascending: false });
+
+      if (error) throw error;
+
+      return (data as GameScore[]) || [];
+    } catch (error) {
+      console.error('Error fetching game scores:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get high score for a specific game
+   */
+  async getGameHighScore(userId: string, gameId: string): Promise<number> {
+    try {
+      const { data, error } = await this.supabase
+        .from('game_scores')
+        .select('high_score')
+        .eq('user_id', userId)
+        .eq('game_id', gameId)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          return 0;
+        }
+        throw error;
+      }
+
+      return data.high_score;
+    } catch (error) {
+      console.error('Error fetching game high score:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Upsert game score
+   */
+  async upsertGameScore(userId: string, score: GameScore): Promise<void> {
+    try {
+      const { error } = await this.supabase.from('game_scores').upsert(
+        {
+          user_id: userId,
+          game_id: score.game_id,
+          high_score: score.high_score,
+          times_played: score.times_played,
+          last_played_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,game_id' }
+      );
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error upserting game score:', error);
+      throw error;
+    }
   }
 }
