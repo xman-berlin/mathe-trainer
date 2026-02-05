@@ -49,29 +49,37 @@
   <!-- Tab Content -->
   <div class="tab-content">
     <!-- Math Achievements -->
-    <div *ngIf="activeTab() === 'math'" class="tab-panel">
-      <app-achievements [category]="'math'" [style.display]="'block'"></app-achievements>
-    </div>
+    @if (activeTab() === 'math') {
+      <div class="tab-panel">
+        <app-achievements [category]="'math'" [style.display]="'block'"></app-achievements>
+      </div>
+    }
 
     <!-- Clock Achievements -->
-    <div *ngIf="activeTab() === 'clock'" class="tab-panel">
-      <app-achievements [category]="'clock'" [style.display]="'block'"></app-achievements>
-    </div>
+    @if (activeTab() === 'clock') {
+      <div class="tab-panel">
+        <app-achievements [category]="'clock'" [style.display]="'block'"></app-achievements>
+      </div>
+    }
 
     <!-- Badges -->
-    <div *ngIf="activeTab() === 'badges'" class="tab-panel">
-      <app-badge-display></app-badge-display>
-    </div>
+    @if (activeTab() === 'badges') {
+      <div class="tab-panel">
+        <app-badge-display></app-badge-display>
+      </div>
+    }
 
     <!-- Games (Placeholder for Phase 4) -->
-    <div *ngIf="activeTab() === 'games'" class="tab-panel">
-      <div class="games-placeholder">
-        <div class="placeholder-icon">🎮</div>
-        <h2>Spiele</h2>
-        <p>Bald verfügbar! Spiele wie Flappy Fox kommen in Phase 4.</p>
-        <div class="coming-soon-badge">Bald verfügbar</div>
+    @if (activeTab() === 'games') {
+      <div class="tab-panel">
+        <div class="games-placeholder">
+          <div class="placeholder-icon">🎮</div>
+          <h2>Spiele</h2>
+          <p>Bald verfügbar! Spiele wie Flappy Fox kommen in Phase 4.</p>
+          <div class="coming-soon-badge">Bald verfügbar</div>
+        </div>
       </div>
-    </div>
+    }
   </div>
 
   <!-- Back Button -->

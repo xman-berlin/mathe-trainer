@@ -209,7 +209,7 @@ export class CoinsService {
     this.saveQueueToLocalStorage();
   }
 
-  private async processTransactionQueue(userId: string): Promise<void> {
+  private async processTransactionQueue(_userId: string): Promise<void> {
     this.loadQueueFromLocalStorage();
     const queue = this.transactionQueue();
 

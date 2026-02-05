@@ -38,7 +38,7 @@ export class BadgeService {
       category: 'performance',
       requiredProgress: 10,
       coinReward: 50,
-      checkFunction: (data: BadgeCheckData) => {
+      checkFunction: (_data: BadgeCheckData) => {
         // This needs to be tracked separately during exercise
         // For now, we'll implement this later with proper timing tracking
         return false;
@@ -127,7 +127,7 @@ export class BadgeService {
       category: 'consistency',
       requiredProgress: 2,
       coinReward: 50,
-      checkFunction: (data: BadgeCheckData) => {
+      checkFunction: (_data: BadgeCheckData) => {
         // This needs day-of-week tracking
         // Implemented later with proper date tracking
         return false;

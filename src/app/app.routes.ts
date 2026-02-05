@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { ExerciseComponent } from './components/exercise/exercise.component';
 import { CategoryHomeComponent } from './components/category-home/category-home';
 import { CategoryOverviewComponent } from './components/category-overview/category-overview';
-import { AchievementsComponent } from './components/achievements/achievements.component';
 import { GlobalAchievementsComponent } from './components/global-achievements/global-achievements.component';
 import { ClockExerciseComponent } from './components/clock-exercise/clock-exercise';
 import { WordProblemExerciseComponent } from './components/word-problem-exercise/word-problem-exercise.component';
