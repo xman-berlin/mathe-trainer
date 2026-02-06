@@ -1,0 +1,75 @@
+<div class="balloon-pop-container">
+  <header class="game-header">
+    <button class="back-button" (click)="goBack()">← Zurück</button>
+    <div class="coin-display">
+      <span class="coin-icon">🪙</span>
+      <span class="coin-amount">{{ coinBalance() }}</span>
+    </div>
+  </header>
+
+  <div class="game-area">
+    <canvas
+      #gameCanvas
+      class="game-canvas"
+      (click)="onCanvasClick($event)"
+      (touchstart)="onCanvasTouch($event)"
+    ></canvas>
+
+    <!-- Ready State Overlay -->
+    @if (gameState() === 'READY') {
+      <div class="overlay ready-overlay">
+        @if (canAfford()) {
+          <button class="start-button" (click)="startGame()">
+            <span class="button-icon">▶️</span>
+            <span class="button-text">Spielen</span>
+            <span class="button-cost">{{ config.COST_TO_PLAY }} 🪙</span>
+          </button>
+        } @else {
+          <div class="not-enough-coins">
+            <p class="warning-text">Nicht genug Coins!</p>
+            <p class="required-text">Benötigt: {{ config.COST_TO_PLAY }} 🪙</p>
+            <p class="current-text">Du hast: {{ coinBalance() }} 🪙</p>
+            <button class="back-to-practice" routerLink="/">
+              Weiter üben
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Game Over Overlay -->
+    @if (gameState() === 'GAME_OVER') {
+      <div class="overlay game-over-overlay">
+        <div class="game-over-content">
+          @if (canAfford()) {
+            <button class="restart-button" (click)="restartGame()">
+              <span class="button-icon">🔄</span>
+              <span class="button-text">Nochmal</span>
+              <span class="button-cost">{{ config.COST_TO_PLAY }} 🪙</span>
+            </button>
+          } @else {
+            <p class="not-enough-text">Nicht genug Coins für nochmal</p>
+          }
+          <button class="back-button-large" (click)="goBack()">
+            ← Zurück zu Erfolge
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="game-info">
+    <div class="info-item">
+      <span class="info-label">Highscore</span>
+      <span class="info-value">{{ highScore() }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Gespielt</span>
+      <span class="info-value">{{ gameService.getTimesPlayed(config.GAME_ID) }}x</span>
+    </div>
+  </div>
+
+  <div class="controls-hint">
+    <p><strong>Steuerung:</strong> Tippe auf den Ballon mit der richtigen Antwort</p>
+  </div>
+</div>

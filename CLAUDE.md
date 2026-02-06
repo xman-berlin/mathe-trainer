@@ -121,6 +121,7 @@ When optimizing components for tablet landscape:
   - Benennung: `YYYY-MM-DD_feature-name.md` (z.B. `2026-02-04_gamification-system.md`)
   - Jeder Plan muss eine Taskliste mit Checkboxen enthalten (`- [ ]` / `- [x]`)
   - Bei Abarbeitung werden Tasks im Plan als erledigt markiert
+  - **WICHTIG**: Wenn ein bestehender Plan erweitert wird (z.B. neue Phase hinzugefügt), muss die Plan-Datei im Projekt entsprechend aktualisiert werden
 - **Testdaten**: Mock-Daten und Fixtures in `src/test-data/`
 
 ## Sprachkonventionen
@@ -172,3 +173,4 @@ Bevor ein Commit oder Push durchgeführt wird, MUSS folgendes passieren:
 - Budget-Warnungen beim Build sind akzeptabel (Bundle > 500KB)
 - File Watching: `npm run start:poll` bei Problemen verwenden
 - Zoneless Angular: `ChangeDetectorRef` nicht verwenden, stattdessen Signals
+

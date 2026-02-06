@@ -6,6 +6,9 @@ import { GlobalAchievementsComponent } from './components/global-achievements/gl
 import { ClockExerciseComponent } from './components/clock-exercise/clock-exercise';
 import { WordProblemExerciseComponent } from './components/word-problem-exercise/word-problem-exercise.component';
 import { FlappyFoxComponent } from './components/flappy-fox/flappy-fox';
+import { DinoRunComponent } from './components/dino-run/dino-run';
+import { BreakoutComponent } from './components/breakout/breakout';
+import { BalloonPopComponent } from './components/balloon-pop/balloon-pop';
 import { LoginComponent } from './components/login/login.component';
 import { authGuard } from './guards/auth.guard';
 
@@ -34,6 +37,9 @@ export const routes: Routes = [
 
   // Game routes
   { path: 'spielen/flappy-fox', component: FlappyFoxComponent, canActivate: [authGuard] },
+  { path: 'spielen/dino-run', component: DinoRunComponent, canActivate: [authGuard] },
+  { path: 'spielen/breakout', component: BreakoutComponent, canActivate: [authGuard] },
+  { path: 'spielen/balloon-pop', component: BalloonPopComponent, canActivate: [authGuard] },
 
   // Redirects for backward compatibility
   { path: 'uebung', redirectTo: 'mathe/uebung', pathMatch: 'full' },

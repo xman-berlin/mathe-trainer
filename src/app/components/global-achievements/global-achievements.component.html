@@ -73,38 +73,29 @@
     @if (activeTab() === 'games') {
       <div class="tab-panel">
         <div class="games-section">
-          <h2 class="section-title">Verfügbare Spiele</h2>
           <div class="games-grid">
             @for (game of games; track game.id) {
-              <div class="game-card">
-                <div class="game-icon">{{ game.icon }}</div>
-                <div class="game-info">
-                  <h3 class="game-name">{{ game.name }}</h3>
-                  <p class="game-description">{{ game.description }}</p>
-                  <div class="game-stats">
-                    <span class="stat">
-                      <span class="stat-label">Highscore:</span>
-                      <span class="stat-value">{{ gameService.getHighScore(game.id) }}</span>
-                    </span>
-                    <span class="stat">
-                      <span class="stat-label">Gespielt:</span>
-                      <span class="stat-value">{{ gameService.getTimesPlayed(game.id) }}x</span>
-                    </span>
-                  </div>
+              <a
+                [routerLink]="game.route"
+                class="game-card"
+                [class.disabled]="!canAffordGame(game.id)"
+              >
+                <div class="game-header">
+                  <span class="game-icon">{{ game.icon }}</span>
+                  <span class="game-name">{{ game.name }}</span>
                 </div>
-                <a
-                  [routerLink]="game.route"
-                  class="play-button"
-                  [class.disabled]="!canAffordGame(game.id)"
-                >
+                <div class="game-stats">
+                  <span class="stat">🏆 {{ gameService.getHighScore(game.id) }}</span>
+                  <span class="stat">🎮 {{ gameService.getTimesPlayed(game.id) }}x</span>
+                </div>
+                <div class="game-cost">
                   @if (canAffordGame(game.id)) {
-                    <span>Spielen</span>
-                    <span class="cost">{{ game.costToPlay }} 🪙</span>
+                    <span class="cost-value">{{ game.costToPlay }} 🪙</span>
                   } @else {
-                    <span>Nicht genug Coins</span>
+                    <span class="cost-insufficient">Zu wenig 🪙</span>
                   }
-                </a>
-              </div>
+                </div>
+              </a>
             }
           </div>
         </div>

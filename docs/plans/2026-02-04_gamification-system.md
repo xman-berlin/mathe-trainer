@@ -37,6 +37,15 @@ Implementierung eines umfassenden Gamification-Systems für Schlaufuchs:
 - [x] Coin-Kosten (100) und High Score Persistierung
 - [x] Games-Tab in GlobalAchievements befüllen
 
+### Phase 5: Drei weitere Mini-Spiele
+- [x] game.model.ts erweitern (DINO_RUN_CONFIG, BREAKOUT_CONFIG, BALLOON_POP_CONFIG)
+- [x] game.service.ts erweitern (AVAILABLE_GAMES um 3 Spiele erweitern)
+- [x] Dino Run implementieren (Endless Runner mit Hindernissen)
+- [x] Breakout implementieren (Ball gegen Blöcke)
+- [x] Balloon Pop implementieren (Mathe-Quiz mit Ballons)
+- [x] app.routes.ts erweitern (3 neue Routen)
+- [x] Lint und Build Verification
+
 ## Architektur-Entscheidungen
 
 ### 1. Badge-Datenmodell
@@ -552,3 +561,7 @@ async checkAndAwardBadges(userId: string, data: BadgeCheckData): Promise<Badge[]
 3. **Badge Notifications**: Toast, Modal oder Badge-Icon im Header? → **Empfehlung: Toast**
 4. **Game Difficulty**: Pipe-Speed über Zeit erhöhen in Flappy Fox? → **Ja, nach 10/20/30 Punkten**
 5. **Retroactive Coins**: Wie viele Coins bekommen bestehende User initial? → **Nur durch retroaktive Badges**
+
+## TODO / Zukünftiges Refactoring
+
+- [ ] **ExerciseComponent auf ProblemGeneratorService umstellen**: Die Aufgabengenerierung in `exercise.component.ts` sollte den neuen `ProblemGeneratorService` nutzen (wie bereits in `BalloonPopComponent` implementiert)

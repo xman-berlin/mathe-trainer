@@ -2,7 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { CoinsService } from './coins.service';
 import type { GameConfig, GameScore } from '../models/game.model';
-import { FLAPPY_FOX_CONFIG } from '../models/game.model';
+import { FLAPPY_FOX_CONFIG, DINO_RUN_CONFIG, BREAKOUT_CONFIG, BALLOON_POP_CONFIG } from '../models/game.model';
 
 /**
  * Available games configuration
@@ -15,6 +15,30 @@ export const AVAILABLE_GAMES: GameConfig[] = [
     icon: '🦊',
     costToPlay: FLAPPY_FOX_CONFIG.COST_TO_PLAY,
     route: '/spielen/flappy-fox',
+  },
+  {
+    id: DINO_RUN_CONFIG.GAME_ID,
+    name: 'Dino Run',
+    description: 'Springe über Hindernisse und laufe so weit wie möglich!',
+    icon: '🦖',
+    costToPlay: DINO_RUN_CONFIG.COST_TO_PLAY,
+    route: '/spielen/dino-run',
+  },
+  {
+    id: BREAKOUT_CONFIG.GAME_ID,
+    name: 'Breakout',
+    description: 'Zerstöre alle Blöcke mit dem Ball!',
+    icon: '🧱',
+    costToPlay: BREAKOUT_CONFIG.COST_TO_PLAY,
+    route: '/spielen/breakout',
+  },
+  {
+    id: BALLOON_POP_CONFIG.GAME_ID,
+    name: 'Balloon Pop',
+    description: 'Platze den Ballon mit der richtigen Antwort!',
+    icon: '🎈',
+    costToPlay: BALLOON_POP_CONFIG.COST_TO_PLAY,
+    route: '/spielen/balloon-pop',
   },
 ];
 

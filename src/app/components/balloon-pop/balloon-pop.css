@@ -1,0 +1,351 @@
+.balloon-pop-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  height: 100dvh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  padding: 1rem;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Header - fixed height */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  flex-shrink: 0;
+  padding-bottom: 0.5rem;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.coin-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 215, 0, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.coin-icon {
+  font-size: 1.2rem;
+}
+
+.coin-amount {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Game Area - takes remaining space */
+.game-area {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
+  padding: 0.5rem 0;
+}
+
+.game-canvas {
+  display: block;
+  background: #87ceeb;
+  touch-action: none;
+  cursor: pointer;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Overlays */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  border-radius: 12px;
+}
+
+.overlay > * {
+  pointer-events: auto;
+}
+
+.ready-overlay {
+  background: transparent;
+}
+
+.game-over-overlay {
+  background: transparent;
+}
+
+.game-over-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 60px;
+}
+
+/* Buttons */
+.start-button,
+.restart-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.start-button:hover,
+.restart-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.5);
+}
+
+.button-icon {
+  font-size: 1.5rem;
+}
+
+.button-text {
+  font-weight: bold;
+}
+
+.button-cost {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.back-button-large {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-button-large:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Not enough coins */
+.not-enough-coins {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.warning-text {
+  color: #ff6b6b;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.required-text,
+.current-text {
+  color: white;
+  margin: 0;
+}
+
+.not-enough-text {
+  color: #ff6b6b;
+  margin: 0;
+}
+
+.back-to-practice {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.back-to-practice:hover {
+  transform: translateY(-2px);
+}
+
+/* Game Info - fixed height */
+.game-info {
+  display: flex;
+  gap: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.info-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+}
+
+.info-value {
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Controls Hint - fixed height */
+.controls-hint {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  text-align: center;
+  padding-top: 0.5rem;
+  flex-shrink: 0;
+}
+
+.controls-hint p {
+  margin: 0;
+}
+
+/* ============================================
+   LANDSCAPE MODE
+   ============================================ */
+@media (orientation: landscape) {
+  .balloon-pop-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .game-header {
+    position: absolute;
+    top: 0.5rem;
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+    padding: 0;
+  }
+
+  .game-area {
+    flex: none;
+    width: auto;
+    height: calc(100dvh - 2rem);
+    max-width: calc(100vw - 180px);
+    padding: 0;
+  }
+
+  .game-info {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    height: auto;
+  }
+
+  .controls-hint {
+    display: none;
+  }
+}
+
+/* ============================================
+   SMALL SCREENS
+   ============================================ */
+@media (max-height: 700px) {
+  .balloon-pop-container {
+    padding: 0.5rem;
+  }
+
+  .game-header {
+    padding-bottom: 0.25rem;
+  }
+
+  .game-info {
+    padding: 0.5rem 1rem;
+    gap: 1.5rem;
+  }
+
+  .controls-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .balloon-pop-container {
+    padding: 0.5rem;
+  }
+
+  .game-header {
+    padding-bottom: 0.25rem;
+  }
+
+  .back-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .coin-display {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .game-info {
+    padding: 0.5rem 1rem;
+    gap: 1rem;
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+  }
+
+  .info-value {
+    font-size: 1rem;
+  }
+}
