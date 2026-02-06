@@ -5,6 +5,7 @@ import { CategoryOverviewComponent } from './components/category-overview/catego
 import { GlobalAchievementsComponent } from './components/global-achievements/global-achievements.component';
 import { ClockExerciseComponent } from './components/clock-exercise/clock-exercise';
 import { WordProblemExerciseComponent } from './components/word-problem-exercise/word-problem-exercise.component';
+import { FlappyFoxComponent } from './components/flappy-fox/flappy-fox';
 import { LoginComponent } from './components/login/login.component';
 import { authGuard } from './guards/auth.guard';
 
@@ -30,6 +31,9 @@ export const routes: Routes = [
   { path: 'uhrzeit/uebung', component: ClockExerciseComponent, data: { mode: 'practice' }, canActivate: [authGuard] },
   { path: 'uhrzeit/zeitrennen', component: ClockExerciseComponent, data: { mode: 'timeTrial' }, canActivate: [authGuard] },
   { path: 'uhrzeit/erfolge', redirectTo: '/erfolge?tab=clock', pathMatch: 'full' },
+
+  // Game routes
+  { path: 'spielen/flappy-fox', component: FlappyFoxComponent, canActivate: [authGuard] },
 
   // Redirects for backward compatibility
   { path: 'uebung', redirectTo: 'mathe/uebung', pathMatch: 'full' },

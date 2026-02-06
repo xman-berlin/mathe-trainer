@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CoinsService } from '../../services/coins.service';
+import { GameService, AVAILABLE_GAMES } from '../../services/game.service';
 import { AchievementsComponent } from '../achievements/achievements.component';
 import { BadgeDisplayComponent } from '../badge-display/badge-display.component';
 
@@ -18,12 +19,20 @@ export class GlobalAchievementsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private coinsService = inject(CoinsService);
+  readonly gameService = inject(GameService);
 
   // Signals
   activeTab = signal<TabType>('math');
 
   // Coin balance for header
   coinBalance = this.coinsService.balance;
+
+  // Games data
+  readonly games = AVAILABLE_GAMES;
+
+  canAffordGame(gameId: string): boolean {
+    return this.gameService.canAffordGame(gameId);
+  }
 
   ngOnInit() {
     // Read tab from query params

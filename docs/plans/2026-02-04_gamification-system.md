@@ -31,11 +31,11 @@ Implementierung eines umfassenden Gamification-Systems für Schlaufuchs:
 - [x] Stats in Category-Cards integrieren
 
 ### Phase 4: Flappy Fox Spiel
-- [ ] GameService implementieren
-- [ ] FlappyFoxComponent erstellen (Canvas-basiert)
-- [ ] Touch + Keyboard Controls
-- [ ] Coin-Kosten (100) und High Score Persistierung
-- [ ] Games-Tab in GlobalAchievements befüllen
+- [x] GameService implementieren
+- [x] FlappyFoxComponent erstellen (Canvas-basiert)
+- [x] Touch + Keyboard Controls
+- [x] Coin-Kosten (100) und High Score Persistierung
+- [x] Games-Tab in GlobalAchievements befüllen
 
 ## Architektur-Entscheidungen
 

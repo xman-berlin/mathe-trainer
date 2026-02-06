@@ -156,8 +156,16 @@ When optimizing components for tablet landscape:
 
 - **Branch-Namen**: `feature/beschreibung`, `fix/beschreibung`
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`)
-- **Vor Push**: `npm run lint && npm run build`
 - **Commits nur auf Anfrage**: Nicht automatisch committen
+
+### Vor Commit und Push (WICHTIG)
+
+Bevor ein Commit oder Push durchgeführt wird, MUSS folgendes passieren:
+
+1. `npm run lint` ausführen → Linter-Fehler beheben falls vorhanden
+2. `npm run build` ausführen → Build-Fehler beheben falls vorhanden
+3. Alle Fehler und Warnungen (außer Budget-Warnungen) müssen behoben sein
+4. Erst wenn beides fehlerfrei durchläuft: Commit und Push durchführen
 
 ## Known Issues
 
