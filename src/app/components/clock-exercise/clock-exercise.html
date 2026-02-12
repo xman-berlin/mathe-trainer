@@ -59,16 +59,16 @@
         @if (currentProblem()) {
         <!-- Clock with Time of Day Indicators -->
         <div class="clock-section">
-          <div class="time-indicator top" [class.active]="currentProblem()!.timeOfDay === 'morning'">
-            ☀️ Vormittag
-          </div>
+        <div class="time-indicator top" [class.active]="currentProblem()!.timeOfDay === 'morning'">
+          ☀️
+        </div>
           <app-clock-display
             [hours]="currentProblem()!.hours"
             [minutes]="currentProblem()!.minutes"
           />
-          <div class="time-indicator bottom" [class.active]="currentProblem()!.timeOfDay === 'afternoon'">
-            🌙 Nachmittag
-          </div>
+        <div class="time-indicator bottom" [class.active]="currentProblem()!.timeOfDay === 'afternoon'">
+          🌙
+        </div>
         </div>
 
         <!-- Question -->

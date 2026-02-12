@@ -106,7 +106,7 @@
   font-size: 3rem;
   opacity: 0.15;
   user-select: none;
-  width: 3rem;
+  width: 2.5rem;
   text-align: center;
 }
 
@@ -232,6 +232,8 @@
     justify-content: center;
     gap: 1.5rem;
     width: 100%;
+    align-self: center;
+    padding: 0;
   }
 
   /* Time Indicators - centered with labels */
@@ -244,6 +246,24 @@
     font-weight: 600;
     color: var(--gray-400);
     transition: all 0.3s ease;
+  }
+
+  .time-indicator.active {
+    color: var(--bright-blue);
+    transform: scale(1.15);
+  }
+
+  .time-indicator.top {
+    order: -1;
+  }
+
+  .time-indicator.bottom {
+    order: 1;
+  }
+
+  /* Make clock use full width in landscape */
+  ::ng-deep .clock-section app-clock-display .clock-svg {
+    max-width: 1000px !important;
   }
 
   .time-indicator.active {
@@ -294,15 +314,16 @@
     justify-self: center;
   }
 
-  /* Streak Display - Row 5, Column 2 (between Keypad and Stats) */
+  /* Streak Display - Row 6, Column 2 (below Stats) */
   .streak-display {
+    order: 7;
+  }
+
+  /* Result Summary - Row 5, Column 2 (above Streak) */
+  .result-summary {
     grid-column: 2;
     grid-row: 5;
     justify-self: center;
-    padding: 0.8rem 1.5rem;
-    background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(247, 197, 49, 0.1) 100%);
-    border-radius: 12px;
-    border: 2px solid rgba(255, 107, 53, 0.2);
   }
 
   .streak-display.has-streak {
@@ -419,8 +440,144 @@
     font-size: 1.1rem;
   }
 
-  .clock-with-indicators {
-    gap: 1rem;
+  .question {
+    display: none;
+  }
+
+  app-keypad {
+    order: 5;
+  }
+
+  .result-summary {
+    order: 6;
+  }
+
+  .streak-display {
+    order: 7;
+  }
+
+  .feedback-area {
+    order: 8;
+  }
+
+  .hint {
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  .time-input {
+    font-size: 1.6rem;
+    padding: 0.7rem;
+  }
+
+  .keypad {
+    max-width: 100%;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .keypad button {
+    padding: 0.75rem 0;
+    font-size: 1.3rem;
+  }
+
+  .streak-display {
+    padding: 0.3rem 0.6rem;
+  }
+
+  .streak-icon {
+    font-size: 0.9rem;
+  }
+
+  .streak-count {
+    font-size: 0.85rem;
+  }
+
+  .best-streak {
+    font-size: 0.65rem;
+  }
+
+  .milestone-popup {
+    font-size: 1.2rem;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .feedback-area {
+    min-height: 1.5rem;
+  }
+
+  .feedback {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .result-summary {
+    margin-top: 0.25rem;
+  }
+
+  .badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .summary-label {
+    font-size: 0.85rem;
+  }
+}
+
+  .back-btn:hover {
+    transform: scale(1.05);
+  }
+
+  .exercise-content {
+    margin-top: 1rem;
+    gap: 0.5rem;
+  }
+
+  .type-selector {
+    gap: 0.4rem;
+  }
+
+  .type-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .type-label {
+    display: none;
+  }
+
+  .type-icon {
+    font-size: 1.1rem;
+  }
+
+  .clock-section {
+    display: grid;
+    grid-template-rows: auto auto;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem;
+  }
+
+  .time-indicator.top {
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .time-indicator.bottom {
+    grid-row: 1;
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .clock-section app-clock-display {
+    grid-row: 2;
+    grid-column: 1 / 3;
+    justify-self: center;
+  }
+
+  .clock-with-indicators app-clock-display {
+    max-width: 200px;
   }
 
   .time-indicator {
@@ -543,6 +700,8 @@
 
   .time-indicator {
     font-size: 1.8rem;
+    width: 1.8rem;
+    height: 1.8rem;
   }
 
   .question {
@@ -593,10 +752,13 @@
     font-size: 0.6rem;
   }
 
-  .result-summary {
-    margin-top: 0.25rem;
-    gap: 0.5rem;
-  }
+.result-summary {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 
   .badge {
     padding: 0.25rem 0.4rem;
@@ -614,18 +776,12 @@
 }
 
 /* Streak Display */
-.streak-display {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  background: var(--gray-100);
-  color: var(--gray-400);
-  font-weight: 700;
-  transition: all 0.3s ease;
-}
+  .streak-display {
+    grid-column: 2;
+    grid-row: 5;
+    justify-self: center;
+    padding: 0.3rem 0.6rem;
+  }
 
 .streak-display.has-streak {
   background: linear-gradient(135deg, #ff6b35 0%, #f7c531 100%);
@@ -717,21 +873,17 @@
 }
 
 /* Result summary badges */
-.result-summary {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+  .result-summary {
+    order: 6;
+  }
 
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.35rem 0.65rem;
+  padding: 0.25rem 0.4rem;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
@@ -1016,4 +1168,8 @@
   .result-value {
     font-size: 1.1rem;
   }
+}
+
+::ng-deep .clock-section app-clock-display .clock-svg {
+  max-width: 160px !important;
 }

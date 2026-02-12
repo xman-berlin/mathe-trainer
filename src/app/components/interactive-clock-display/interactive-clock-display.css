@@ -10,27 +10,26 @@
 .clock-svg {
   width: 100%;
   height: auto;
-  max-width: 300px;
+  max-width: 400px;
   cursor: default;
-  touch-action: none; /* Prevent scrolling on touch devices */
+  touch-action: none;
 }
 
 /* Clock face styling */
 .clock-face {
   fill: white;
-  stroke: var(--gray-400);
-  stroke-width: 2;
+  stroke: var(--gray-900);
+  stroke-width: 3;
 }
 
 .hour-marker {
-  fill: var(--gray-700);
+  fill: var(--gray-400);
 }
 
 .hour-number {
   fill: var(--gray-900);
   font-size: 14px;
-  font-weight: 600;
-  font-family: 'Courier New', monospace;
+  font-weight: 700;
   pointer-events: none;
 }
 
@@ -75,38 +74,64 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (orientation: landscape) and (min-width: 700px) {
   .interactive-clock-container {
-    max-width: 250px;
+    max-width: 400px;
+  }
+
+  .hour-number {
+    font-size: 24px;
+  }
+
+  .hour-hand, .minute-hand {
+    stroke-width: 6;
+  }
+
+  .center-dot {
+    r: 8;
+  }
+}
+
+@media (orientation: portrait) {
+  .interactive-clock-container {
+    max-width: 90vw;
+  }
+
+  .clock-svg {
+    max-width: 90vw;
   }
 
   .hour-number {
     font-size: 12px;
   }
-
-  .drag-instruction {
-    font-size: 11px;
-  }
 }
 
-@media (max-width: 480px) {
+@media (orientation: portrait) and (max-width: 540px) {
   .interactive-clock-container {
-    max-width: 200px;
+    max-width: 80vw;
+  }
+
+  .clock-svg {
+    max-width: 80vw;
   }
 
   .hour-number {
-    font-size: 10px;
+    font-size: 14px;
   }
 
-  .minute-hand, .hour-hand {
-    stroke-width: 2;
+  .hour-marker {
+    r: 1;
   }
 
-  .minute-hand:hover, .hour-hand:hover {
+  .hour-hand {
+    stroke-width: 4;
+  }
+
+  .minute-hand {
     stroke-width: 3;
   }
 
-  .minute-hand.dragging, .hour-hand.dragging {
-    stroke-width: 3;
+  .center-dot {
+    r: 3;
   }
 }

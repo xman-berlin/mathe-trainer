@@ -7,7 +7,7 @@
 
 .clock-svg {
   width: 100%;
-  max-width: 300px;
+  max-width: 400px;
   height: auto;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
 }
@@ -73,7 +73,7 @@
 /* Portrait: Compact clock for all portrait devices */
 @media (orientation: portrait) {
   .clock-svg {
-    max-width: 220px;
+    max-width: 90vw;
   }
 
   .hour-number {
@@ -88,15 +88,15 @@
   }
 
   .clock-svg {
-    max-width: 110px;
+    max-width: 80vw;
   }
 
   .hour-number {
-    font-size: 8px;
+    font-size: 14px;
   }
 
   .hour-marker {
-    r: 2;
+    r: 1;
   }
 
   .hour-hand {

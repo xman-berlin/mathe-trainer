@@ -144,7 +144,7 @@ export class InteractiveClockDisplayComponent implements AfterViewInit {
    */
   getHourPosition(hour: number): { x: number; y: number } {
     const angle = (hour * 30 - 90) * (Math.PI / 180); // Convert to radians, -90 to start at 12
-    const radius = this.radius + 10; // Distance from center
+    const radius = 80; // Distance from center
     return {
       x: this.centerX + radius * Math.cos(angle),
       y: this.centerY + radius * Math.sin(angle)
