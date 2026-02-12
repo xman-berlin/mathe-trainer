@@ -172,9 +172,12 @@ export class SetClockExerciseComponent implements OnInit, OnDestroy {
 - `'clock-setClock-german-fiveMin'`
 
 #### **Achievement System Extensions**
-- **German Expression Master:** Complete 50 German time expression exercises
-- **Clock Setter:** Set clock hands correctly 100 times
-- **Time Expert:** Master all time interval types in both display modes
+- **Set-Clock Beginner:** Complete 50 set-clock exercises (lifetime)
+- **Set-Clock Expert:** Complete 200 set-clock exercises (lifetime) 
+- **Set-Clock Master:** Complete 500 set-clock exercises (lifetime)
+- **Precision Streak:** Achieve 10 correct answers in a row in set-clock mode
+- **Master Precision:** Achieve 20 correct answers in a row in set-clock mode
+- **Updated Clock Beginner/Master:** Include set-clock exercises in overall clock category achievements
 
 ### 🔄 **Navigation & Routing**
 

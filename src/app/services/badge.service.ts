@@ -310,7 +310,7 @@ export class BadgeService {
       requiredProgress: 50,
       coinReward: 75,
       checkFunction: (data: BadgeCheckData) => {
-        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter'];
+        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
         const total = clockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
         return total >= 50;
       },
@@ -324,9 +324,80 @@ export class BadgeService {
       requiredProgress: 200,
       coinReward: 200,
       checkFunction: (data: BadgeCheckData) => {
-        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter'];
+        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
         const total = clockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
         return total >= 200;
+      },
+    },
+
+    {
+      id: 'set-clock-beginner',
+      name: 'Set-Clock Beginner',
+      description: 'Löse 50 Zeiger setzen-Aufgaben (lifetime)',
+      icon: '🕰️',
+      category: 'milestone',
+      requiredProgress: 50,
+      coinReward: 75,
+      checkFunction: (data: BadgeCheckData) => {
+        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const total = setClockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
+        return total >= 50;
+      },
+    },
+    {
+      id: 'set-clock-expert',
+      name: 'Set-Clock Expert',
+      description: 'Löse 200 Zeiger setzen-Aufgaben (lifetime)',
+      icon: '🕰️⚡',
+      category: 'milestone',
+      requiredProgress: 200,
+      coinReward: 150,
+      checkFunction: (data: BadgeCheckData) => {
+        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const total = setClockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
+        return total >= 200;
+      },
+    },
+    {
+      id: 'set-clock-master',
+      name: 'Set-Clock Master',
+      description: 'Löse 500 Zeiger setzen-Aufgaben (lifetime)',
+      icon: '🕰️🏆',
+      category: 'milestone',
+      requiredProgress: 500,
+      coinReward: 300,
+      checkFunction: (data: BadgeCheckData) => {
+        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const total = setClockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
+        return total >= 500;
+      },
+    },
+    {
+      id: 'precision-streak',
+      name: 'Precision Streak',
+      description: 'Erreiche 10 korrekte Antworten in Folge beim Zeiger setzen',
+      icon: '🎯',
+      category: 'performance',
+      requiredProgress: 10,
+      coinReward: 50,
+      checkFunction: (data: BadgeCheckData) => {
+        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const maxStreak = Math.max(...setClockTypes.map(type => data.bestStreaksByType[type] || 0));
+        return maxStreak >= 10;
+      },
+    },
+    {
+      id: 'master-precision',
+      name: 'Master Precision',
+      description: 'Erreiche 20 korrekte Antworten in Folge beim Zeiger setzen',
+      icon: '🎯⚡',
+      category: 'performance',
+      requiredProgress: 20,
+      coinReward: 100,
+      checkFunction: (data: BadgeCheckData) => {
+        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const maxStreak = Math.max(...setClockTypes.map(type => data.bestStreaksByType[type] || 0));
+        return maxStreak >= 20;
       },
     },
 
@@ -418,9 +489,15 @@ export class BadgeService {
     } else if (badgeId.startsWith('multiplication-')) {
       current = data.masteredReihen.length;
     } else if (badgeId.startsWith('clock-')) {
-      const clockTypes = ['clock-full', 'clock-half', 'clock-quarter'];
+      const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
       current = clockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
-    } else if (badgeId === 'perfect-day') {
+    } else if (badgeId.startsWith('set-clock-')) {
+      const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+      current = setClockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
+    } else if (badgeId === 'precision-streak' || badgeId === 'master-precision') {
+      const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+      const maxStreak = Math.max(...setClockTypes.map(type => data.bestStreaksByType[type] || 0));
+      current = Math.min(maxStreak, badge.requiredProgress);
       let totalCorrect = 0;
       for (const stats of Object.values(data.dailyStats)) {
         totalCorrect += stats.correct;
