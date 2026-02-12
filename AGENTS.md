@@ -287,6 +287,8 @@ src/app/
 - [ESLint Rules](https://eslint.org/docs/rules/)
 
 ## 🚨 Critical Reminders
+- **Git Operations**: Commit and push ONLY on explicit user command - NEVER initiate automatically
+- **UI Language**: ALL user-facing text must be in German - never use English in the interface
 - **Zoneless Angular**: Do not use `ChangeDetectorRef`
 - **Signals over RxJS**: Use signals for UI state
 - **Standalone components**: All components use `standalone: true`

@@ -32,7 +32,7 @@ export class BadgeService {
     // ========================================================================
     {
       id: 'speed-demon',
-      name: 'Speed Demon',
+      name: 'Geschwindigkeits-Teufel',
       description: 'Löse 10 Aufgaben in unter 20 Sekunden gesamt',
       icon: '⚡',
       category: 'performance',
@@ -46,7 +46,7 @@ export class BadgeService {
     },
     {
       id: 'perfect-day',
-      name: 'Perfect Day',
+      name: 'Perfekter Tag',
       description: '100% Genauigkeit mit mindestens 20 Aufgaben an einem Tag',
       icon: '💯',
       category: 'performance',
@@ -66,7 +66,7 @@ export class BadgeService {
     },
     {
       id: 'accuracy-expert',
-      name: 'Accuracy Expert',
+      name: 'Genauigkeits-Experte',
       description: 'Halte 95%+ Genauigkeit über 100 Aufgaben (lifetime)',
       icon: '🎯',
       category: 'performance',
@@ -85,7 +85,7 @@ export class BadgeService {
     // ========================================================================
     {
       id: 'streak-7',
-      name: '7-Day Streak',
+      name: '7-Tage-Serie',
       description: 'Übe 7 Tage am Stück',
       icon: '🔥',
       category: 'consistency',
@@ -97,7 +97,7 @@ export class BadgeService {
     },
     {
       id: 'streak-30',
-      name: '30-Day Streak',
+      name: '30-Tage-Serie',
       description: 'Übe 30 Tage am Stück',
       icon: '🌟',
       category: 'consistency',
@@ -109,7 +109,7 @@ export class BadgeService {
     },
     {
       id: 'streak-100',
-      name: '100-Day Streak',
+      name: '100-Tage-Serie',
       description: 'Übe 100 Tage am Stück',
       icon: '💎',
       category: 'consistency',
@@ -121,7 +121,7 @@ export class BadgeService {
     },
     {
       id: 'weekend-warrior',
-      name: 'Weekend Warrior',
+      name: 'Wochenend-Krieger',
       description: 'Übe an einem Samstag UND Sonntag',
       icon: '🏖️',
       category: 'consistency',
@@ -139,7 +139,7 @@ export class BadgeService {
     // ========================================================================
     {
       id: 'first-steps',
-      name: 'First Steps',
+      name: 'Erste Schritte',
       description: 'Löse deine ersten 10 Aufgaben',
       icon: '👣',
       category: 'milestone',
@@ -152,7 +152,7 @@ export class BadgeService {
     },
     {
       id: 'century',
-      name: 'Century',
+      name: 'Jahrhundert',
       description: 'Löse 100 Aufgaben (lifetime)',
       icon: '💯',
       category: 'milestone',
@@ -165,7 +165,7 @@ export class BadgeService {
     },
     {
       id: 'half-thousand',
-      name: 'Half Thousand',
+      name: 'Halbes Tausend',
       description: 'Löse 500 Aufgaben (lifetime)',
       icon: '🎖️',
       category: 'milestone',
@@ -178,7 +178,7 @@ export class BadgeService {
     },
     {
       id: 'thousand-solved',
-      name: '1000 Problems Solved',
+      name: '1000 Aufgaben gelöst',
       description: 'Löse 1000 Aufgaben (lifetime)',
       icon: '🎓',
       category: 'milestone',
@@ -191,7 +191,7 @@ export class BadgeService {
     },
     {
       id: 'bronze-collector',
-      name: 'Bronze Collector',
+      name: 'Bronze-Sammler',
       description: 'Erreiche Bronze in allen 5 Aufgabenarten',
       icon: '🥉',
       category: 'milestone',
@@ -205,7 +205,7 @@ export class BadgeService {
     },
     {
       id: 'silver-collector',
-      name: 'Silver Collector',
+      name: 'Silber-Sammler',
       description: 'Erreiche Silber in allen 5 Aufgabenarten',
       icon: '🥈',
       category: 'milestone',
@@ -218,7 +218,7 @@ export class BadgeService {
     },
     {
       id: 'gold-collector',
-      name: 'Gold Collector',
+      name: 'Gold-Sammler',
       description: 'Erreiche Gold in allen 5 Aufgabenarten',
       icon: '🥇',
       category: 'milestone',
@@ -231,7 +231,7 @@ export class BadgeService {
     },
     {
       id: 'time-trial-rookie',
-      name: 'Time Trial Rookie',
+      name: 'Zeitrennen-Anfänger',
       description: 'Erreiche 30+ richtig in einem Time Trial',
       icon: '⏱️',
       category: 'milestone',
@@ -243,7 +243,7 @@ export class BadgeService {
     },
     {
       id: 'time-trial-champion',
-      name: 'Time Trial Champion',
+      name: 'Zeitrennen-Champion',
       description: 'Erreiche 45+ richtig in einem Time Trial',
       icon: '🏆',
       category: 'milestone',
@@ -255,7 +255,7 @@ export class BadgeService {
     },
     {
       id: 'time-trial-legend',
-      name: 'Time Trial Legend',
+      name: 'Zeitrennen-Legende',
       description: 'Erreiche 60+ richtig in einem Time Trial',
       icon: '⚡',
       category: 'milestone',
@@ -267,7 +267,7 @@ export class BadgeService {
     },
     {
       id: 'multiplication-novice',
-      name: 'Multiplication Novice',
+      name: 'Multiplikation-Anfänger',
       description: 'Meistere 3 Einmaleins-Reihen',
       icon: '✖️',
       category: 'milestone',
@@ -279,7 +279,7 @@ export class BadgeService {
     },
     {
       id: 'multiplication-expert',
-      name: 'Multiplication Expert',
+      name: 'Multiplikation-Experte',
       description: 'Meistere 7 Einmaleins-Reihen',
       icon: '✖️✖️',
       category: 'milestone',
@@ -291,7 +291,7 @@ export class BadgeService {
     },
     {
       id: 'multiplication-master',
-      name: 'Multiplication Master',
+      name: 'Multiplikation-Meister',
       description: 'Meistere alle 10 Einmaleins-Reihen',
       icon: '✖️🏆',
       category: 'milestone',
@@ -303,7 +303,7 @@ export class BadgeService {
     },
     {
       id: 'clock-beginner',
-      name: 'Clock Beginner',
+      name: 'Uhrzeit-Anfänger',
       description: 'Löse 50 Uhrzeit-Aufgaben (lifetime)',
       icon: '🕐',
       category: 'milestone',
@@ -317,7 +317,7 @@ export class BadgeService {
     },
     {
       id: 'clock-master',
-      name: 'Clock Master',
+      name: 'Uhrzeit-Meister',
       description: 'Löse 200 Uhrzeit-Aufgaben (lifetime)',
       icon: '🕐🏆',
       category: 'milestone',
@@ -332,7 +332,7 @@ export class BadgeService {
 
     {
       id: 'set-clock-beginner',
-      name: 'Set-Clock Beginner',
+      name: 'Zeiger setzen Anfänger',
       description: 'Löse 50 Zeiger setzen-Aufgaben (lifetime)',
       icon: '🕰️',
       category: 'milestone',
@@ -346,7 +346,7 @@ export class BadgeService {
     },
     {
       id: 'set-clock-expert',
-      name: 'Set-Clock Expert',
+      name: 'Zeiger setzen Experte',
       description: 'Löse 200 Zeiger setzen-Aufgaben (lifetime)',
       icon: '🕰️⚡',
       category: 'milestone',
@@ -360,7 +360,7 @@ export class BadgeService {
     },
     {
       id: 'set-clock-master',
-      name: 'Set-Clock Master',
+      name: 'Zeiger setzen Meister',
       description: 'Löse 500 Zeiger setzen-Aufgaben (lifetime)',
       icon: '🕰️🏆',
       category: 'milestone',
@@ -374,7 +374,7 @@ export class BadgeService {
     },
     {
       id: 'precision-streak',
-      name: 'Precision Streak',
+      name: 'Präzisionsserie',
       description: 'Erreiche 10 korrekte Antworten in Folge beim Zeiger setzen',
       icon: '🎯',
       category: 'performance',
@@ -388,7 +388,7 @@ export class BadgeService {
     },
     {
       id: 'master-precision',
-      name: 'Master Precision',
+      name: 'Meisterhafte Präzision',
       description: 'Erreiche 20 korrekte Antworten in Folge beim Zeiger setzen',
       icon: '🎯⚡',
       category: 'performance',
