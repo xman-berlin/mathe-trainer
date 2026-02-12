@@ -216,6 +216,16 @@
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, white 100%);
 }
 
+.set-clock-card {
+  border-color: #f97316;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.03) 0%, white 100%);
+}
+
+.set-clock-card:hover {
+  border-color: #f97316;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, white 100%);
+}
+
 .card-icon {
   font-size: 3rem;
   margin-bottom: 1rem;

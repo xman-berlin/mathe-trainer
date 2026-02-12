@@ -1,0 +1,104 @@
+<div class="set-clock-exercise-root">
+  <div class="set-clock-exercise-container">
+    <a routerLink="/uhrzeit" class="back-btn">← Zurück zur Uhrzeit</a>
+
+    <div class="exercise-content">
+      <!-- Display Mode Toggle (Row 1, Column 2) -->
+      <div class="display-mode-selector">
+        <button
+          class="mode-btn"
+          [class.active]="displayMode() === 'digital'"
+          (click)="toggleDisplayMode()">
+          <span class="mode-icon">🕐</span>
+          <span class="mode-label">24h-Format</span>
+        </button>
+        <button
+          class="mode-btn"
+          [class.active]="displayMode() === 'german'"
+          (click)="toggleDisplayMode()">
+          <span class="mode-icon">🗣️</span>
+          <span class="mode-label">Deutsche Ausdrücke</span>
+        </button>
+      </div>
+
+      <!-- Type Selector (Row 2, Column 2) -->
+      <div class="type-selector">
+        @for (type of exerciseTypes; track type) {
+          <button
+            class="type-btn"
+            [class.active]="isTypeSelected(type)"
+            (click)="toggleType(type)">
+            <span class="type-icon">{{ getTypeIcon(type) }}</span>
+            <span class="type-label">{{ getTypeLabel(type) }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Target Time Display (Row 1, Column 1 - ABOVE clock) -->
+      <div class="target-time-display" [class.german]="displayMode() === 'german'">
+        {{ targetTimeDisplay() }}
+      </div>
+
+      <!-- Interactive Clock (Column 1, Rows 2-6) -->
+      <div class="interactive-clock-section">
+        <app-interactive-clock-display
+          [targetHours]="targetHours()"
+          [targetMinutes]="targetMinutes()"
+          (userHourAngle)="onUserHourAngleChange($event)"
+          (userMinuteAngle)="onUserMinuteAngleChange($event)">
+        </app-interactive-clock-display>
+      </div>
+
+      <!-- Submit Button (Row 3, Column 2) -->
+      <div class="submit-section">
+        <button
+          class="submit-btn"
+          (click)="submitAnswer()"
+          [disabled]="showFeedback()">
+          ✓ Überprüfen
+        </button>
+      </div>
+
+      <!-- Feedback Area (Row 4, Column 2) -->
+      <div class="feedback-area">
+        @if (showFeedback() && isCorrect()) {
+          <div class="feedback correct">✓ Richtig!</div>
+        }
+        @if (showFeedback() && !isCorrect()) {
+          <div class="feedback incorrect">
+            ✗ Nicht ganz richtig. Versuche es nochmal!
+          </div>
+        }
+      </div>
+
+      <!-- Streak Display -->
+      <div class="streak-display" [class.has-streak]="streak() > 0">
+        <span class="streak-icon">🔥</span>
+        <span class="streak-count">{{ streak() }}</span>
+        @if (bestStreak() > 0 && bestStreak() > streak()) {
+          <span class="best-streak">Rekord: {{ bestStreak() }}</span>
+        }
+      </div>
+
+      <!-- Milestone Popup -->
+      @if (showMilestone()) {
+        <div class="confetti-container">
+          @for (i of confettiPieces; track i) {
+            <div class="confetti" [style.--delay]="i * 0.1 + 's'" [style.--x]="confettiX[i]"></div>
+          }
+        </div>
+        <div class="milestone-popup">
+          🎉 {{ milestoneValue() }}er Serie! 🎉
+        </div>
+      }
+
+      <!-- Statistics (Rows 5-6, Column 2) -->
+      <div class="result-summary">
+        <span class="badge badge-correct">✓ {{ typeCorrectCount() }}</span>
+        <span class="badge badge-incorrect">✗ {{ typeIncorrectCount() }}</span>
+        <span class="badge badge-total">Σ {{ typeTotalCount() }}</span>
+        <span class="summary-label">Heute</span>
+      </div>
+    </div>
+  </div>
+</div>

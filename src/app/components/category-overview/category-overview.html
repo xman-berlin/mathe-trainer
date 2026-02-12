@@ -61,6 +61,14 @@
         <p>60 Sekunden Challenge</p>
       </a>
 
+      @if (category() === 'clock') {
+        <a [routerLink]="getBasePath() + '/zeiger-setzen'" class="action-card set-clock-card">
+          <div class="card-icon">🕰️</div>
+          <h3>Zeiger setzen</h3>
+          <p>Setze die Uhrzeiger auf die richtige Zeit</p>
+        </a>
+      }
+
       @if (category() === 'math') {
         <a routerLink="/mathe/sachaufgaben" class="action-card word-problem-card">
           <div class="card-icon">📝</div>

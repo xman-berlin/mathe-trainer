@@ -22,7 +22,7 @@ export class CategoryHomeComponent {
   editGoalValue = signal(20);
 
   exerciseTypes = ['addition', 'subtraction', 'multiplication', 'division'];
-  clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin'];
+  clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
 
   // Computed stats for MATH exercises only
   readonly mathCorrectCount = computed(() => {

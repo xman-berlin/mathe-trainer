@@ -52,7 +52,7 @@ export class StatsService {
   // Math exercise types
   private readonly mathTypes = ['addition', 'subtraction', 'multiplication', 'division', 'word-problems'];
   // Clock exercise types
-  private readonly clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin'];
+  private readonly clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
 
   readonly statsByType = this.byType.asReadonly();
   readonly currentGoal = this.dailyGoal.asReadonly();

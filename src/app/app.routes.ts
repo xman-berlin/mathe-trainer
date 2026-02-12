@@ -4,6 +4,7 @@ import { CategoryHomeComponent } from './components/category-home/category-home'
 import { CategoryOverviewComponent } from './components/category-overview/category-overview';
 import { GlobalAchievementsComponent } from './components/global-achievements/global-achievements.component';
 import { ClockExerciseComponent } from './components/clock-exercise/clock-exercise';
+import { SetClockExerciseComponent } from './components/set-clock-exercise/set-clock-exercise';
 import { WordProblemExerciseComponent } from './components/word-problem-exercise/word-problem-exercise.component';
 import { FlappyFoxComponent } from './components/flappy-fox/flappy-fox';
 import { DinoRunComponent } from './components/dino-run/dino-run';
@@ -33,6 +34,7 @@ export const routes: Routes = [
   { path: 'uhrzeit', component: CategoryOverviewComponent, data: { category: 'clock' }, canActivate: [authGuard] },
   { path: 'uhrzeit/uebung', component: ClockExerciseComponent, data: { mode: 'practice' }, canActivate: [authGuard] },
   { path: 'uhrzeit/zeitrennen', component: ClockExerciseComponent, data: { mode: 'timeTrial' }, canActivate: [authGuard] },
+  { path: 'uhrzeit/zeiger-setzen', component: SetClockExerciseComponent, canActivate: [authGuard] },
   { path: 'uhrzeit/erfolge', redirectTo: '/erfolge?tab=clock', pathMatch: 'full' },
 
   // Game routes
