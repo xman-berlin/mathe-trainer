@@ -1,82 +1,82 @@
-# Gamification System: Badge-System, Coins & Flappy Fox
+# Gamification System: Badge System, Coins & Flappy Fox
 
-## Überblick
+## Overview
 
-Implementierung eines umfassenden Gamification-Systems für Schlaufuchs:
-- **Badge-System**: 20+ Badges in 4 Kategorien (Performance, Konsistenz, Meilensteine, Challenges)
-- **Globale Erfolgsseite**: Einheitliche `/erfolge` Route mit Tabs (Mathe, Uhrzeit, Badges, Spiele)
-- **Coins-System**: Virtuelle Währung mit localStorage + Supabase Sync
-- **Flappy Fox Spiel**: Canvas-basiertes Belohnungsspiel für 100 Coins
+Implementation of a comprehensive gamification system for Schlaufuchs:
+- **Badge System**: 20+ badges in 4 categories (Performance, Consistency, Milestones, Challenges)
+- **Global Achievements Page**: Unified `/erfolge` route with tabs (Math, Clock, Badges, Games)
+- **Coins System**: Virtual currency with localStorage + Supabase sync
+- **Flappy Fox Game**: Canvas-based reward game for 100 coins
 
-## Taskliste
+## Task List
 
 ### Phase 1: Foundation
-- [x] Supabase Migration erstellen (user_badges, coin_balances, coin_transactions, game_scores)
-- [x] TypeScript Models erstellen (badge.model.ts, coin.model.ts, game.model.ts)
-- [x] SupabaseService erweitern
+- [x] Create Supabase migration (user_badges, coin_balances, coin_transactions, game_scores)
+- [x] Create TypeScript models (badge.model.ts, coin.model.ts, game.model.ts)
+- [x] Extend SupabaseService
 
 ### Phase 2: Badge & Coins System
-- [x] CoinsService implementieren (localStorage + Supabase Sync, offline Queue)
-- [x] BadgeService implementieren (22 Badge-Definitionen, 4 Kategorien)
-- [x] Coin-Integration in StatsService (1 Coin pro richtige Antwort, 10 für Tagesziel)
-- [x] Coin-Integration in DailyStreakService (Streak-Meilensteine)
-- [x] AuthService erweitern (Coins/Badges bei Login laden)
-- [x] BadgeDisplayComponent erstellen
+- [x] Implement CoinsService (localStorage + Supabase sync, offline queue)
+- [x] Implement BadgeService (22 badge definitions, 4 categories)
+- [x] Coin integration in StatsService (1 coin per correct answer, 10 for daily goal)
+- [x] Coin integration in DailyStreakService (streak milestones)
+- [x] Extend AuthService (load coins/badges on login)
+- [x] Create BadgeDisplayComponent
 
 ### Phase 3: Global Achievements
-- [x] GlobalAchievementsComponent mit Tabs erstellen
-- [x] Routing aktualisieren (/erfolge als Hauptroute)
-- [x] AchievementsComponent als @Input refactoren
-- [x] Homepage Erfolge-Card mit Coins-Anzeige
-- [x] Stats in Category-Cards integrieren
+- [x] Create GlobalAchievementsComponent with tabs
+- [x] Update routing (/erfolge as main route)
+- [x] Refactor AchievementsComponent as @Input
+- [x] Homepage achievements card with coins display
+- [x] Integrate stats in category cards
 
-### Phase 4: Flappy Fox Spiel
-- [x] GameService implementieren
-- [x] FlappyFoxComponent erstellen (Canvas-basiert)
-- [x] Touch + Keyboard Controls
-- [x] Coin-Kosten (100) und High Score Persistierung
-- [x] Games-Tab in GlobalAchievements befüllen
+### Phase 4: Flappy Fox Game
+- [x] Implement GameService
+- [x] Create FlappyFoxComponent (canvas-based)
+- [x] Touch + keyboard controls
+- [x] Coin cost (100) and high score persistence
+- [x] Populate games tab in GlobalAchievements
 
-### Phase 5: Drei weitere Mini-Spiele
-- [x] game.model.ts erweitern (DINO_RUN_CONFIG, BREAKOUT_CONFIG, BALLOON_POP_CONFIG)
-- [x] game.service.ts erweitern (AVAILABLE_GAMES um 3 Spiele erweitern)
-- [x] Dino Run implementieren (Endless Runner mit Hindernissen)
-- [x] Breakout implementieren (Ball gegen Blöcke)
-- [x] Balloon Pop implementieren (Mathe-Quiz mit Ballons)
-- [x] app.routes.ts erweitern (3 neue Routen)
-- [x] Lint und Build Verification
+### Phase 5: Three Additional Mini-Games
+- [x] Extend game.model.ts (DINO_RUN_CONFIG, BREAKOUT_CONFIG, BALLOON_POP_CONFIG)
+- [x] Extend game.service.ts (add 3 games to AVAILABLE_GAMES)
+- [x] Implement Dino Run (endless runner with obstacles)
+- [x] Implement Breakout (ball against blocks)
+- [x] Implement Balloon Pop (math quiz with balloons)
+- [x] Extend app.routes.ts (3 new routes)
+- [x] Lint and build verification
 
-## Architektur-Entscheidungen
+## Architecture Decisions
 
-### 1. Badge-Datenmodell
-- Badge-Definitionen als TypeScript-Konstanten
-- Fortschritt wird aus bestehenden Stats berechnet (keine redundante Speicherung)
-- Nur verdiente Badges werden in neuer `user_badges` Tabelle gespeichert
+### 1. Badge Data Model
+- Badge definitions as TypeScript constants
+- Progress calculated from existing stats (no redundant storage)
+- Only earned badges stored in new `user_badges` table
 
-### 2. Coins-Architektur
-- Zentraler **CoinsService** (nicht in StatsService integriert)
-- Transaction History für Debugging
-- Offline-Support mit Transaction Queue
+### 2. Coins Architecture
+- Central **CoinsService** (not integrated into StatsService)
+- Transaction history for debugging
+- Offline support with transaction queue
 
-### 3. Erfolgsseite
-- **Single Global Page** bei `/erfolge` mit Tabs
-- Tabs: Mathe | Uhrzeit | Badges | Spiele
-- Keine Code-Duplikation
-- Coin-Balance im Header sichtbar
+### 3. Achievements Page
+- **Single global page** at `/erfolge` with tabs
+- Tabs: Math | Clock | Badges | Games
+- No code duplication
+- Coin balance visible in header
 
-### 4. Flappy Fox Implementierung
-- Canvas-basiert mit separater Route `/spielen/flappy-fox`
-- Klassisches Flappy Bird Gameplay
-- Touch + Keyboard Controls (Space zum Flattern)
-- 100 Coins Kosten pro Spiel
-- High Score Persistierung pro User
+### 4. Flappy Fox Implementation
+- Canvas-based with separate route `/spielen/flappy-fox`
+- Classic Flappy Bird gameplay
+- Touch + keyboard controls (Space to flap)
+- 100 coins cost per game
+- High score persistence per user
 
-## Datenmodelle
+## Data Models
 
-### Neue Supabase Tabellen
+### New Supabase Tables
 
 ```sql
--- Speichert verdiente Badges pro User
+-- Stores earned badges per user
 CREATE TABLE user_badges (
   user_id UUID REFERENCES users(id),
   badge_id TEXT,
@@ -84,7 +84,7 @@ CREATE TABLE user_badges (
   PRIMARY KEY(user_id, badge_id)
 );
 
--- Speichert Coin-Guthaben pro User
+-- Stores coin balance per user
 CREATE TABLE coin_balances (
   user_id UUID PRIMARY KEY REFERENCES users(id),
   balance INTEGER DEFAULT 0 CHECK (balance >= 0),
@@ -93,17 +93,17 @@ CREATE TABLE coin_balances (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Transaction Log für Auditing
+-- Transaction log for auditing
 CREATE TABLE coin_transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id),
-  amount INTEGER, -- Positiv = verdient, Negativ = ausgegeben
+  amount INTEGER, -- Positive = earned, Negative = spent
   reason TEXT, -- 'correct_answer', 'badge_earned', 'game_cost', etc.
   related_id TEXT, -- badge_id, exercise_type, game_id
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Spiel-Scores pro User pro Spiel
+-- Game scores per user per game
 CREATE TABLE game_scores (
   user_id UUID REFERENCES users(id),
   game_id TEXT,
@@ -175,14 +175,14 @@ export interface GameScore {
 }
 ```
 
-## Neue Services
+## New Services
 
 ### BadgeService (`src/app/services/badge.service.ts`)
-**Verantwortlichkeiten**:
-- Definiert alle Badge-Konfigurationen
-- Prüft Badge-Berechtigung
-- Vergibt Badges und löst Coin-Belohnungen aus
-- Synct zu Supabase
+**Responsibilities**:
+- Defines all badge configurations
+- Checks badge eligibility
+- Awards badges and triggers coin rewards
+- Syncs to Supabase
 
 **Key Methods**:
 ```typescript
@@ -193,12 +193,12 @@ isBadgeEarned(badgeId: string): boolean
 ```
 
 ### CoinsService (`src/app/services/coins.service.ts`)
-**Verantwortlichkeiten**:
-- Verwaltet Coin-Balance Signal
-- Erfasst Transaktionen
-- Vergibt/gibt Coins aus mit Validierung
-- Synct zu Supabase
-- Queue für Offline-Transaktionen
+**Responsibilities**:
+- Manages coin balance signal
+- Records transactions
+- Awards/spends coins with validation
+- Syncs to Supabase
+- Queue for offline transactions
 
 **Key Methods**:
 ```typescript
@@ -209,10 +209,10 @@ canAfford(amount: number): boolean
 ```
 
 ### GameService (`src/app/services/game.service.ts`)
-**Verantwortlichkeiten**:
-- Verwaltet verfügbare Spiele
-- Handhabt Spiel-Sessions (Coin-Abzug)
-- Speichert und lädt High Scores
+**Responsibilities**:
+- Manages available games
+- Handles game sessions (coin deduction)
+- Saves and loads high scores
 
 **Key Methods**:
 ```typescript
@@ -222,118 +222,118 @@ saveScore(userId: string, gameId: string, score: number): Promise<boolean>
 getHighScore(gameId: string): number
 ```
 
-## Neue Komponenten
+## New Components
 
 ### 1. GlobalAchievementsComponent (`src/app/components/global-achievements/`)
-- Vereinheitlichte Erfolgsseite
-- Tab-Navigation (Mathe, Uhrzeit, Badges, Spiele)
-- Coin-Balance im Header
+- Unified achievements page
+- Tab navigation (Math, Clock, Badges, Games)
+- Coin balance in header
 - Route: `/erfolge`
 
 ### 2. BadgeDisplayComponent (`src/app/components/badge-display/`)
-- Grid-Layout aller Badges
-- Gruppiert nach Kategorie
-- Zeigt Fortschrittsbalken für gesperrte Badges
-- Zeigt Verdien-Datum für freigeschaltete Badges
-- Zeigt Coin-Belohnung pro Badge
+- Grid layout of all badges
+- Grouped by category
+- Shows progress bar for locked badges
+- Shows earned date for unlocked badges
+- Shows coin reward per badge
 
 ### 3. GameCenterComponent (`src/app/components/game-center/`)
-- Listet verfügbare Spiele
-- Zeigt High Scores
-- "Spielen"-Button mit Coin-Kosten
-- Button deaktiviert bei zu wenig Coins
+- Lists available games
+- Shows high scores
+- "Play" button with coin cost
+- Button disabled when insufficient coins
 
 ### 4. FlappyFoxComponent (`src/app/components/flappy-fox/`)
-- Canvas-basiertes Spiel
-- Klassische Flappy Bird Mechanik adaptiert für Fuchs-Charakter
-- Touch + Keyboard Controls (Space zum Flattern)
-- Score-Anzeige und High Score Tracking
-- Game Over Screen mit Neustart-Option (kostet Coins)
+- Canvas-based game
+- Classic Flappy Bird mechanics adapted for fox character
+- Touch + keyboard controls (Space to flap)
+- Score display and high score tracking
+- Game over screen with restart option (costs coins)
 - Route: `/spielen/flappy-fox`
 
 ### 5. ExerciseAchievementsComponent (`src/app/components/exercise-achievements/`)
-- Extrahiert aus aktueller Achievements-Komponente
-- Zeigt Medaillen, Streaks, Time Trials für eine Kategorie
-- Wiederverwendbar für Mathe/Uhrzeit-Tabs
+- Extracted from current achievements component
+- Shows medals, streaks, time trials for one category
+- Reusable for Math/Clock tabs
 
-## Badge-Definitionen (Beispiele)
+## Badge Definitions (Examples)
 
 ### Performance Badges
-- **Speed Demon** ⚡: Löse 10 Aufgaben in unter 20s gesamt (50 Coins)
-- **Perfect Day** 💯: 100% Genauigkeit mit 20+ Aufgaben an einem Tag (100 Coins)
-- **Accuracy Expert** 🎯: Halte 95%+ Genauigkeit über 100 Aufgaben (75 Coins)
+- **Speed Demon** ⚡: Solve 10 problems in under 20s total (50 Coins)
+- **Perfect Day** 💯: 100% accuracy with 20+ problems in one day (100 Coins)
+- **Accuracy Expert** 🎯: Maintain 95%+ accuracy over 100 problems (75 Coins)
 
-### Konsistenz Badges
-- **7-Day Streak** 🔥: Übe 7 Tage am Stück (75 Coins)
-- **30-Day Streak** 🌟: Übe 30 Tage am Stück (300 Coins)
-- **100-Day Streak** 💎: Übe 100 Tage am Stück (1000 Coins)
-- **Practice Every Day This Week** 📅: 7 aufeinanderfolgende Tage (50 Coins)
+### Consistency Badges
+- **7-Day Streak** 🔥: Practice 7 days in a row (75 Coins)
+- **30-Day Streak** 🌟: Practice 30 days in a row (300 Coins)
+- **100-Day Streak** 💎: Practice 100 days in a row (1000 Coins)
+- **Practice Every Day This Week** 📅: 7 consecutive days (50 Coins)
 
-### Meilenstein Badges
-- **Bronze Collector** 🥉: Erreiche Bronze in allen 5 Aufgabenarten (200 Coins)
-- **Silver Collector** 🥈: Erreiche Silber in allen 5 Aufgabenarten (500 Coins)
-- **Gold Collector** 🥇: Erreiche Gold in allen 5 Aufgabenarten (1500 Coins)
-- **1000 Problems Solved** 🎓: Gesamt richtige Antworten über alle Typen (500 Coins)
-- **Time Trial Champion** ⏱️: Erreiche 45+ richtig in einem Time Trial (150 Coins)
-- **Multiplication Master** ✖️: Meistere alle 10 Einmaleins-Reihen (400 Coins)
+### Milestone Badges
+- **Bronze Collector** 🥉: Achieve bronze in all 5 exercise types (200 Coins)
+- **Silver Collector** 🥈: Achieve silver in all 5 exercise types (500 Coins)
+- **Gold Collector** 🥇: Achieve gold in all 5 exercise types (1500 Coins)
+- **1000 Problems Solved** 🎓: Total correct answers across all types (500 Coins)
+- **Time Trial Champion** ⏱️: Achieve 45+ correct in one time trial (150 Coins)
+- **Multiplication Master** ✖️: Master all 10 multiplication tables (400 Coins)
 
 ### Challenge Badges
-- Reserviert für zukünftiges Daily Challenges Feature
+- Reserved for future daily challenges feature
 
-## Coin-Verdien-Regeln
+## Coin Earning Rules
 
-| Event | Verdiente Coins |
-|-------|-----------------|
-| Richtige Antwort | 1 |
-| Mathe-Tagesziel (20) | 10 Bonus |
-| Uhrzeit-Tagesziel (20) | 10 Bonus |
-| 7-Tage-Streak | 50 |
-| 14-Tage-Streak | 100 |
-| 30-Tage-Streak | 250 |
-| 50-Tage-Streak | 500 |
-| 100-Tage-Streak | 1000 |
-| Badge verdient | Variabel (50-1500 pro Badge) |
+| Event | Coins Earned |
+|-------|--------------|
+| Correct answer | 1 |
+| Math daily goal (20) | 10 Bonus |
+| Clock daily goal (20) | 10 Bonus |
+| 7-day streak | 50 |
+| 14-day streak | 100 |
+| 30-day streak | 250 |
+| 50-day streak | 500 |
+| 100-day streak | 1000 |
+| Badge earned | Variable (50-1500 per badge) |
 
-**Durchschnittliche Einnahmen**: ~30-50 Coins pro Übungs-Session (20 richtig + Ziele + gelegentliche Badges)
+**Average earnings**: ~30-50 coins per practice session (20 correct + goals + occasional badges)
 
-**Spielkosten**: 100 Coins = 2-3 gute Übungs-Sessions
+**Game cost**: 100 coins = 2-3 good practice sessions
 
-## Routen
+## Routes
 
-### Neue Routen
+### New Routes
 ```typescript
-// Globale Erfolge (ersetzt /mathe/erfolge und /uhrzeit/erfolge)
+// Global achievements (replaces /mathe/erfolge and /uhrzeit/erfolge)
 { path: 'erfolge', component: GlobalAchievementsComponent, canActivate: [authGuard] }
 
-// Flappy Fox Spiel
+// Flappy Fox game
 { path: 'spielen/flappy-fox', component: FlappyFoxComponent, canActivate: [authGuard, gameGuard] }
 
-// Redirects für Rückwärtskompatibilität
+// Redirects for backwards compatibility
 { path: 'mathe/erfolge', redirectTo: '/erfolge?tab=math' }
 { path: 'uhrzeit/erfolge', redirectTo: '/erfolge?tab=clock' }
 ```
 
-### Neuer Guard
+### New Guard
 ```typescript
-// gameGuard prüft ob User genug Coins hat vor Spiel-Eintritt
+// gameGuard checks if user has enough coins before game entry
 export const gameGuard: CanActivateFn = (route, state) => {
   const coinsService = inject(CoinsService);
-  return coinsService.canAfford(100); // Flappy Fox Kosten
+  return coinsService.canAfford(100); // Flappy Fox cost
 };
 ```
 
-## Coin-Flow Integration
+## Coin Flow Integration
 
-### 1. Richtige Antwort (in StatsService)
+### 1. Correct Answer (in StatsService)
 ```typescript
 recordResult(isCorrect: boolean, exerciseType: string) {
-  // ... bestehende Logik
+  // ... existing logic
 
   if (isCorrect) {
     await this.coinsService.awardCoins(userId, 1, 'correct_answer', exerciseType);
   }
 
-  // Prüfe Tagesziel-Bonus
+  // Check daily goal bonus
   if (this.isGoalReached() && !this.dailyBonusAwarded) {
     await this.coinsService.awardCoins(userId, 10, 'daily_goal');
     this.dailyBonusAwarded = true;
@@ -341,10 +341,10 @@ recordResult(isCorrect: boolean, exerciseType: string) {
 }
 ```
 
-### 2. Streak Meilenstein (in DailyStreakService)
+### 2. Streak Milestone (in DailyStreakService)
 ```typescript
 async recordPractice(userId: string) {
-  // ... bestehende Streak-Logik
+  // ... existing streak logic
 
   if (milestoneAchieved) {
     const coinReward = STREAK_COIN_REWARDS[milestoneAchieved];
@@ -353,10 +353,10 @@ async recordPractice(userId: string) {
 }
 ```
 
-### 3. Badge verdient (in BadgeService)
+### 3. Badge Earned (in BadgeService)
 ```typescript
 async checkAndAwardBadges(userId: string, data: BadgeCheckData): Promise<Badge[]> {
-  const newBadges = /* Prüf-Logik */;
+  const newBadges = /* Check logic */;
 
   for (const badge of newBadges) {
     await this.supabase.insertBadge(userId, badge.id);
@@ -367,201 +367,201 @@ async checkAndAwardBadges(userId: string, data: BadgeCheckData): Promise<Badge[]
 }
 ```
 
-## Implementierungs-Phasen (5 Wochen)
+## Implementation Phases (5 Weeks)
 
-### Phase 1: Foundation (Woche 1)
-1. Erstelle Supabase Migration SQL-Datei
-2. Teste Migration lokal
-3. Erstelle TypeScript Models (badge, coin, game)
-4. Füge Supabase Service Methoden für neue Tabellen hinzu
-5. Implementiere CoinsService mit localStorage + Supabase Sync
+### Phase 1: Foundation (Week 1)
+1. Create Supabase migration SQL file
+2. Test migration locally
+3. Create TypeScript models (badge, coin, game)
+4. Add Supabase service methods for new tables
+5. Implement CoinsService with localStorage + Supabase sync
 
-**Deliverables**: Datenbank bereit, CoinsService funktional
+**Deliverables**: Database ready, CoinsService functional
 
-### Phase 2: Badges (Woche 2)
-1. Definiere alle Badge-Konfigurationen (20+ Badges)
-2. Implementiere BadgeService
-3. Erstelle BadgeDisplayComponent UI
-4. Integriere Badge-Checks mit StatsService
-5. Füge Badge-Benachrichtigungen hinzu
+### Phase 2: Badges (Week 2)
+1. Define all badge configurations (20+ badges)
+2. Implement BadgeService
+3. Create BadgeDisplayComponent UI
+4. Integrate badge checks with StatsService
+5. Add badge notifications
 
-**Deliverables**: Badge-System funktioniert, sichtbar auf neuer Erfolgsseite
+**Deliverables**: Badge system works, visible on new achievements page
 
-### Phase 3: Erfolgsseiten-Refactoring (Woche 3)
-1. Erstelle GlobalAchievementsComponent mit Tabs
-2. Extrahiere ExerciseAchievementsComponent aus aktueller Komponente
-3. Füge Coin-Balance-Anzeige im Header hinzu
-4. Update Routen und Redirects
-5. Update Navigation-Links in gesamter App
+### Phase 3: Achievements Page Refactoring (Week 3)
+1. Create GlobalAchievementsComponent with tabs
+2. Extract ExerciseAchievementsComponent from current component
+3. Add coin balance display in header
+4. Update routes and redirects
+5. Update navigation links throughout app
 
-**Deliverables**: Neue `/erfolge` Route funktioniert, alte Routen redirecten
+**Deliverables**: New `/erfolge` route works, old routes redirect
 
-### Phase 4: Spiel-System (Woche 4)
-1. Implementiere GameService
-2. Erstelle GameCenterComponent
-3. Implementiere FlappyFoxComponent mit Canvas
-4. Füge Spiel-Physik und Kollisionserkennung hinzu
-5. Füge High Score Persistierung hinzu
-6. Füge gameGuard für Coin-Prüfung hinzu
+### Phase 4: Game System (Week 4)
+1. Implement GameService
+2. Create GameCenterComponent
+3. Implement FlappyFoxComponent with canvas
+4. Add game physics and collision detection
+5. Add high score persistence
+6. Add gameGuard for coin check
 
-**Deliverables**: Spielbares Flappy Fox Spiel zugänglich von Erfolgsseite
+**Deliverables**: Playable Flappy Fox game accessible from achievements page
 
-### Phase 5: Polish & Launch (Woche 5)
-1. Füge Offline Coin Transaction Queue hinzu
-2. Führe retroaktive Badge-Prüfung für bestehende User durch
-3. Füge Animationen hinzu (Badge Freischaltungen, Coin-Verdienst)
-4. Responsive Design für alle Screens
-5. Tablet Landscape Optimierungen
-6. Testing (Unit, Integration, E2E)
+### Phase 5: Polish & Launch (Week 5)
+1. Add offline coin transaction queue
+2. Perform retroactive badge check for existing users
+3. Add animations (badge unlocks, coin earnings)
+4. Responsive design for all screens
+5. Tablet landscape optimizations
+6. Testing (unit, integration, E2E)
 
-**Deliverables**: Produktionsreifes Gamification-System
+**Deliverables**: Production-ready gamification system
 
-## Kritische Dateien
+## Critical Files
 
-### Backend/Datenbank
-1. `supabase-schema.sql` - Neue Tabellen hinzufügen
-2. `src/app/services/supabase.service.ts` - Methoden für neue Tabellen
+### Backend/Database
+1. `supabase-schema.sql` - Add new tables
+2. `src/app/services/supabase.service.ts` - Methods for new tables
 
 ### Models
-3. `src/app/models/badge.model.ts` - NEU erstellen
-4. `src/app/models/coin.model.ts` - NEU erstellen
-5. `src/app/models/game.model.ts` - NEU erstellen
+3. `src/app/models/badge.model.ts` - NEW create
+4. `src/app/models/coin.model.ts` - NEW create
+5. `src/app/models/game.model.ts` - NEW create
 
 ### Services
-6. `src/app/services/badge.service.ts` - NEU erstellen
-7. `src/app/services/coins.service.ts` - NEU erstellen
-8. `src/app/services/game.service.ts` - NEU erstellen
-9. `src/app/services/stats.service.ts` - Coin-Integration
-10. `src/app/services/daily-streak.service.ts` - Coin-Integration
+6. `src/app/services/badge.service.ts` - NEW create
+7. `src/app/services/coins.service.ts` - NEW create
+8. `src/app/services/game.service.ts` - NEW create
+9. `src/app/services/stats.service.ts` - Coin integration
+10. `src/app/services/daily-streak.service.ts` - Coin integration
 
-### Komponenten
-11. `src/app/components/global-achievements/` - NEU erstellen
-12. `src/app/components/badge-display/` - NEU erstellen
-13. `src/app/components/game-center/` - NEU erstellen
-14. `src/app/components/flappy-fox/` - NEU erstellen
-15. `src/app/components/exercise-achievements/` - Extrahiert aus achievements
+### Components
+11. `src/app/components/global-achievements/` - NEW create
+12. `src/app/components/badge-display/` - NEW create
+13. `src/app/components/game-center/` - NEW create
+14. `src/app/components/flappy-fox/` - NEW create
+15. `src/app/components/exercise-achievements/` - Extracted from achievements
 
 ### Routing
-16. `src/app/app.routes.ts` - Neue Routen, Redirects
-17. `src/app/guards/game.guard.ts` - NEU erstellen
+16. `src/app/app.routes.ts` - New routes, redirects
+17. `src/app/guards/game.guard.ts` - NEW create
 
 ### Header/Navigation
-18. `src/app/components/user-profile/user-profile.component.ts` - Coin-Balance anzeigen
-19. `src/app/app.ts` - Navigation zu `/erfolge` aktualisieren
+18. `src/app/components/user-profile/user-profile.component.ts` - Display coin balance
+19. `src/app/app.ts` - Update navigation to `/erfolge`
 
 ## Flappy Fox Game Details
 
 ### Gameplay
-- Fuchs startet in der Mitte des Bildschirms
-- Space/Touch zum Flattern (Aufwärtsbewegung)
-- Gravity zieht Fuchs nach unten
-- Pipes erscheinen von rechts, bewegen sich nach links
-- Kollision mit Pipe oder Boden = Game Over
-- +1 Punkt pro durchflogener Pipe
-- Schwierigkeit steigt: Pipes kommen schneller nach 10, 20, 30 Punkten
+- Fox starts in the middle of the screen
+- Space/Touch to flap (upward movement)
+- Gravity pulls fox downward
+- Pipes appear from right, move to left
+- Collision with pipe or ground = Game Over
+- +1 point per pipe passed
+- Difficulty increases: Pipes come faster after 10, 20, 30 points
 
-### Technische Implementierung
-- **Canvas API** (nicht SVG oder Library)
-- **requestAnimationFrame** für 60 FPS
-- **Object Pooling** für Pipes (Wiederverwendung)
-- **Collision Detection**: Bounding Box Check
+### Technical Implementation
+- **Canvas API** (not SVG or library)
+- **requestAnimationFrame** for 60 FPS
+- **Object Pooling** for pipes (reuse)
+- **Collision Detection**: Bounding box check
 - **State Machine**: READY → PLAYING → GAME_OVER
 
 ### Visuals
-- Fuchs: Emoji 🦊 oder einfaches SVG
-- Pipes: Grüne Rechtecke (wie Original)
-- Hintergrund: Einfarbig oder Gradient
-- Score: Großer weißer Text oben-mitte
-- High Score: Kleiner Text oben-rechts
+- Fox: Emoji 🦊 or simple SVG
+- Pipes: Green rectangles (like original)
+- Background: Solid color or gradient
+- Score: Large white text top-center
+- High Score: Small text top-right
 
 ### Controls
-- **Desktop**: Space-Taste zum Flattern
-- **Mobile**: Tap/Touch auf Canvas
-- **Pause**: Escape-Taste (optional)
+- **Desktop**: Space key to flap
+- **Mobile**: Tap/Touch on canvas
+- **Pause**: Escape key (optional)
 
 ### Scoring
-- High Score per User gespeichert
-- Anzeige auf Game Over Screen
-- "New High Score!" Celebration wenn übertroffen
+- High score saved per user
+- Display on game over screen
+- "New High Score!" celebration when beaten
 
 ## Verification / Testing
 
 ### Manual Testing Checklist
 
 **Badge System**:
-- [ ] Löse 10 Aufgaben in unter 20s → "Speed Demon" Badge erscheint
-- [ ] Erreiche 100% mit 20 Aufgaben → "Perfect Day" Badge
-- [ ] 7 Tage in Folge üben → "7-Day Streak" Badge
-- [ ] Erreiche Bronze in allen 5 Typen → "Bronze Collector" Badge
-- [ ] Badge-Fortschritt wird korrekt angezeigt (z.B. 7/10 für Speed Demon)
-- [ ] Verdiente Badges zeigen Datum
-- [ ] Badges sind nach Kategorie gruppiert
+- [ ] Solve 10 problems in under 20s → "Speed Demon" badge appears
+- [ ] Achieve 100% with 20 problems → "Perfect Day" badge
+- [ ] Practice 7 days in a row → "7-Day Streak" badge
+- [ ] Achieve bronze in all 5 types → "Bronze Collector" badge
+- [ ] Badge progress displayed correctly (e.g., 7/10 for Speed Demon)
+- [ ] Earned badges show date
+- [ ] Badges grouped by category
 
 **Coins System**:
-- [ ] Richtige Antwort → +1 Coin
-- [ ] Tagesziel erreicht → +10 Coins Bonus (nur einmal pro Tag)
-- [ ] Badge verdient → Coins gemäß Badge-Reward
-- [ ] Streak-Meilenstein → Entsprechende Coins
-- [ ] Coin-Balance im Header sichtbar
-- [ ] Offline-Transaktionen werden bei Reconnect synct
+- [ ] Correct answer → +1 coin
+- [ ] Daily goal reached → +10 coins bonus (once per day)
+- [ ] Badge earned → Coins according to badge reward
+- [ ] Streak milestone → Corresponding coins
+- [ ] Coin balance visible in header
+- [ ] Offline transactions synced on reconnect
 
-**Erfolgsseite**:
-- [ ] `/erfolge` zeigt Tabs: Mathe, Uhrzeit, Badges, Spiele
-- [ ] Mathe-Tab zeigt Mathe-Medaillen, Streaks, Time Trials
-- [ ] Uhrzeit-Tab zeigt Uhrzeit-Medaillen, Streaks, Time Trials
-- [ ] Badges-Tab zeigt alle 20+ Badges
-- [ ] Spiele-Tab zeigt Flappy Fox mit High Score
-- [ ] `/mathe/erfolge` redirectet zu `/erfolge?tab=math`
-- [ ] `/uhrzeit/erfolge` redirectet zu `/erfolge?tab=clock`
+**Achievements Page**:
+- [ ] `/erfolge` shows tabs: Math, Clock, Badges, Games
+- [ ] Math tab shows math medals, streaks, time trials
+- [ ] Clock tab shows clock medals, streaks, time trials
+- [ ] Badges tab shows all 20+ badges
+- [ ] Games tab shows Flappy Fox with high score
+- [ ] `/mathe/erfolge` redirects to `/erfolge?tab=math`
+- [ ] `/uhrzeit/erfolge` redirects to `/erfolge?tab=clock`
 
 **Flappy Fox**:
-- [ ] Spiel kostet 100 Coins
-- [ ] Button deaktiviert wenn < 100 Coins
-- [ ] Space-Taste lässt Fuchs flattern
-- [ ] Touch/Tap funktioniert auf Mobile
-- [ ] Kollision mit Pipe → Game Over
-- [ ] Score wird korrekt gezählt
-- [ ] High Score wird gespeichert und angezeigt
-- [ ] "New High Score!" erscheint bei Rekord
-- [ ] Neustart kostet erneut 100 Coins
+- [ ] Game costs 100 coins
+- [ ] Button disabled when < 100 coins
+- [ ] Space key makes fox flap
+- [ ] Touch/Tap works on mobile
+- [ ] Collision with pipe → Game Over
+- [ ] Score counted correctly
+- [ ] High score saved and displayed
+- [ ] "New High Score!" appears when beaten
+- [ ] Restart costs 100 coins again
 
 **Supabase Sync**:
-- [ ] Badges synct zu `user_badges` Tabelle
-- [ ] Coin-Balance synct zu `coin_balances`
-- [ ] Transaktionen in `coin_transactions` sichtbar
-- [ ] Game Score synct zu `game_scores`
-- [ ] User-Wechsel lädt korrekte Daten
+- [ ] Badges synced to `user_badges` table
+- [ ] Coin balance synced to `coin_balances`
+- [ ] Transactions visible in `coin_transactions`
+- [ ] Game score synced to `game_scores`
+- [ ] User switch loads correct data
 
 **Retroactive Badges**:
-- [ ] Bestehende User bekommen automatisch verdiente Badges
-- [ ] Retroaktive Coins werden gutgeschrieben
-- [ ] Keine Duplikat-Badges
+- [ ] Existing users automatically get earned badges
+- [ ] Retroactive coins credited
+- [ ] No duplicate badges
 
 ## Performance Optimizations
 
 ### Badge Checking
-- **Debounce**: Prüfe Badges alle 5 Antworten, nicht bei jeder Antwort
-- **Cache**: Speichere Fortschritt in Memory Signals
-- **Lazy Load**: Lade nur beim Achievements-Page Mount
+- **Debounce**: Check badges every 5 answers, not every answer
+- **Cache**: Store progress in memory signals
+- **Lazy Load**: Load only on achievements page mount
 
 ### Game Performance
-- **Canvas**: requestAnimationFrame für smooth 60 FPS
-- **Object Pooling**: Wiederverwendung von Pipe-Objekten
-- **Minimal Rendering**: Nur sichtbare Game-Objekte rendern
+- **Canvas**: requestAnimationFrame for smooth 60 FPS
+- **Object Pooling**: Reuse pipe objects
+- **Minimal Rendering**: Render only visible game objects
 
 ### Offline Support
-- **Queue Transactions**: Speichere Coin-Transaktionen in Array wenn offline
-- **Sync on Reconnect**: Flush Queue bei Verbindungs-Wiederherstellung
-- **Optimistic Updates**: Update UI sofort, Sync im Hintergrund
+- **Queue Transactions**: Store coin transactions in array when offline
+- **Sync on Reconnect**: Flush queue on connection restoration
+- **Optimistic Updates**: Update UI immediately, sync in background
 
-## Offen / Zu Klären
+## Open / To Clarify
 
-1. **Badge Icons**: Emojis oder custom SVG? → **Empfehlung: Emojis** (keine Assets nötig)
-2. **Coin Animation**: Sollen Coins zum Header-Balance "fliegen" wenn verdient? → **Optional für Phase 5**
-3. **Badge Notifications**: Toast, Modal oder Badge-Icon im Header? → **Empfehlung: Toast**
-4. **Game Difficulty**: Pipe-Speed über Zeit erhöhen in Flappy Fox? → **Ja, nach 10/20/30 Punkten**
-5. **Retroactive Coins**: Wie viele Coins bekommen bestehende User initial? → **Nur durch retroaktive Badges**
+1. **Badge Icons**: Emojis or custom SVG? → **Recommendation: Emojis** (no assets needed)
+2. **Coin Animation**: Should coins "fly" to header balance when earned? → **Optional for Phase 5**
+3. **Badge Notifications**: Toast, modal or badge icon in header? → **Recommendation: Toast**
+4. **Game Difficulty**: Increase pipe speed over time in Flappy Fox? → **Yes, after 10/20/30 points**
+5. **Retroactive Coins**: How many coins do existing users get initially? → **Only through retroactive badges**
 
-## TODO / Zukünftiges Refactoring
+## TODO / Future Refactoring
 
-- [ ] **ExerciseComponent auf ProblemGeneratorService umstellen**: Die Aufgabengenerierung in `exercise.component.ts` sollte den neuen `ProblemGeneratorService` nutzen (wie bereits in `BalloonPopComponent` implementiert)
+- [ ] **Switch ExerciseComponent to ProblemGeneratorService**: Problem generation in `exercise.component.ts` should use the new `ProblemGeneratorService` (as already implemented in `BalloonPopComponent`)

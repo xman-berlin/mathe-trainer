@@ -1,53 +1,53 @@
-# Implementierungsplan: Sachaufgaben (Word Problems)
+# Implementation Plan: Word Problems
 
-## Überblick
-Neue Unterkategorie "Sachaufgaben" im Mathe-Bereich mit dynamisch generierten Textaufgaben für die 2. Klasse Grundschule.
+## Overview
+New subcategory "Word Problems" in the math section with dynamically generated text problems for 2nd grade elementary school.
 
-## Taskliste
+## Task List
 
-### Phase 1: Modelle & Service
-- [x] word-problem.model.ts erstellen
-- [x] WordProblemService mit 8 Story-Templates implementieren
-- [x] Zahlen-Generierungslogik (Zehnerübergang/-unterschreitung)
+### Phase 1: Models & Service
+- [x] Create word-problem.model.ts
+- [x] Implement WordProblemService with 8 story templates
+- [x] Number generation logic (carrying/borrowing over tens)
 
 ### Phase 2: Component
-- [x] WordProblemExerciseComponent erstellen
-- [x] Template mit Story-Anzeige, Eingabe, Keypad
-- [x] Responsive CSS (inkl. Tablet Landscape)
+- [x] Create WordProblemExerciseComponent
+- [x] Template with story display, input, keypad
+- [x] Responsive CSS (incl. tablet landscape)
 
 ### Phase 3: Navigation & Routing
-- [x] Route `/mathe/sachaufgaben` hinzufügen
-- [x] Action Card in category-overview
+- [x] Add route `/mathe/sachaufgaben`
+- [x] Action card in category-overview
 
 ### Phase 4: Stats & Achievements
-- [x] 'word-problems' zu StatsService mathTypes hinzufügen
-- [x] Medaillen in AchievementsComponent
+- [x] Add 'word-problems' to StatsService mathTypes
+- [x] Medals in AchievementsComponent
 
 ### Phase 5: Testing & Polish
-- [x] Alle 4 Rechenarten testen
-- [x] Responsive Design verifizieren
-- [x] Build erfolgreich
+- [x] Test all 4 operation types
+- [x] Verify responsive design
+- [x] Build successful
 
-## Anforderungen
-- **4 Rechenarten**: Addition, Subtraktion, Multiplikation, Division (mit Zehnerübergang/-unterschreitung)
-- **2 Zahlenbereiche**: "Bis 20" und "Bis 100" (umschaltbar)
-- **5-10 Story-Templates**: Verschiedene Kontexte (Äpfel, Murmeln, Bücher, etc.)
-- **KEIN Zeitrennen-Modus** (nur Übungsmodus)
-- **KEINE Zifferauswahl** für Multiplikation/Division
-- **Eigene Medaille**: Basierend auf Anzahl gelöster Sachaufgaben
+## Requirements
+- **4 Operation Types**: Addition, Subtraction, Multiplication, Division (with carrying/borrowing over tens)
+- **2 Number Ranges**: "Up to 20" and "Up to 100" (switchable)
+- **5-10 Story Templates**: Various contexts (apples, marbles, books, etc.)
+- **NO Time Trial Mode** (practice mode only)
+- **NO Digit Selection** for multiplication/division
+- **Own Medal**: Based on number of word problems solved
 
-## Architektur-Entscheidung
+## Architecture Decision
 
 **Separate Standalone Component** (`WordProblemExerciseComponent`)
 
-**Begründung**:
-- Unterschiedliche UI-Anforderungen (mehrzeilige Story-Anzeige vs. einfache Operanden)
-- Folgt bestehendem Muster (ClockExerciseComponent ist auch separat)
-- Code-Wiederverwendung: KeypadComponent, StatsService, Streak-Logik
+**Rationale**:
+- Different UI requirements (multi-line story display vs. simple operands)
+- Follows existing pattern (ClockExerciseComponent is also separate)
+- Code reuse: KeypadComponent, StatsService, streak logic
 
-## Dateistruktur
+## File Structure
 
-### Neu zu erstellende Dateien
+### Files to Create
 
 ```
 src/app/
@@ -62,17 +62,17 @@ src/app/
     └── word-problem.model.ts
 ```
 
-### Zu modifizierende Dateien
+### Files to Modify
 
-1. `src/app/app.routes.ts` - Route hinzufügen
-2. `src/app/services/stats.service.ts` - 'word-problems' zu mathTypes hinzufügen (Zeile 44)
-3. `src/app/components/category-overview/category-overview.html` - Action Card für Sachaufgaben (zwischen Zeitrennen und Erfolge)
-4. `src/app/components/achievements/achievements.component.ts` - Word-problems zu exerciseTypes
-5. `src/app/components/achievements/achievements.component.html` - Medaillen-Anzeige
+1. `src/app/app.routes.ts` - Add route
+2. `src/app/services/stats.service.ts` - Add 'word-problems' to mathTypes (line 44)
+3. `src/app/components/category-overview/category-overview.html` - Action card for word problems (between time trial and achievements)
+4. `src/app/components/achievements/achievements.component.ts` - Word-problems to exerciseTypes
+5. `src/app/components/achievements/achievements.component.html` - Medal display
 
-## Story-Template Design
+## Story Template Design
 
-### Datenmodell (`word-problem.model.ts`)
+### Data Model (`word-problem.model.ts`)
 
 ```typescript
 export type WordProblemType = 'addition' | 'subtraction' | 'multiplication' | 'division';
@@ -101,69 +101,69 @@ export interface WordProblem {
 }
 ```
 
-### Story-Templates (8 Stück)
+### Story Templates (8 Total)
 
-**Beispiele mit Platzhaltern `{a}` und `{b}`**:
+**Examples with placeholders `{a}` and `{b}`**:
 
-1. **Äpfel** 🍎
-   - Addition: "Lisa hat {a} Äpfel. Sie bekommt {b} Äpfel geschenkt. Wie viele hat sie jetzt?"
-   - Subtraktion: "Tim hat {a} Äpfel. Er isst {b} Äpfel. Wie viele hat er noch?"
-   - Multiplikation: "Es gibt {a} Körbe mit je {b} Äpfeln. Wie viele Äpfel insgesamt?"
-   - Division: "{a} Äpfel werden auf {b} Kinder verteilt. Wie viele bekommt jedes Kind?"
+1. **Apples** 🍎
+   - Addition: "Lisa has {a} apples. She gets {b} apples as a gift. How many does she have now?"
+   - Subtraction: "Tim has {a} apples. He eats {b} apples. How many does he have left?"
+   - Multiplication: "There are {a} baskets with {b} apples each. How many apples in total?"
+   - Division: "{a} apples are distributed among {b} children. How many does each child get?"
 
-2. **Murmeln** ⚫
-3. **Bücher** 📚
-4. **Sticker** ⭐
-5. **Kekse** 🍪
-6. **Spielzeugautos** 🚗
-7. **Blumen** 🌸
-8. **Bonbons** 🍬
+2. **Marbles** ⚫
+3. **Books** 📚
+4. **Stickers** ⭐
+5. **Cookies** 🍪
+6. **Toy Cars** 🚗
+7. **Flowers** 🌸
+8. **Candies** 🍬
 
-## Zahlen-Generierungslogik
+## Number Generation Logic
 
 ### Addition
-**Bis 20**: Zehnerübergang bei 10
-- Beispiel: 7 + 5 = 12
-- Logik: `b ∈ [1,10]`, `ones ∈ [11-b, 9]`, `a = ones`
-- Ergebnis: 11-19
+**Up to 20**: Carrying over tens at 10
+- Example: 7 + 5 = 12
+- Logic: `b ∈ [1,10]`, `ones ∈ [11-b, 9]`, `a = ones`
+- Result: 11-19
 
-**Bis 100**: Zehnerübergang an beliebiger Zehnergrenze
-- Beispiel: 47 + 8 = 55
-- Logik: Wie oben, plus `tens ∈ [1, floor((100-b)/10)]`, `a = tens*10 + ones`
+**Up to 100**: Carrying over tens at any ten boundary
+- Example: 47 + 8 = 55
+- Logic: As above, plus `tens ∈ [1, floor((100-b)/10)]`, `a = tens*10 + ones`
 
-### Subtraktion
-**Bis 20**: Zehnerunterschreitung bei 10
-- Beispiel: 13 - 5 = 8
-- Logik: `b ∈ [1,10]`, `ones ∈ [0, b-1]`, `a = 10 + ones`
-- Ergebnis: 10-19
+### Subtraction
+**Up to 20**: Borrowing below 10
+- Example: 13 - 5 = 8
+- Logic: `b ∈ [1,10]`, `ones ∈ [0, b-1]`, `a = 10 + ones`
+- Result: 10-19
 
-**Bis 100**: Zehnerunterschreitung
-- Beispiel: 52 - 7 = 45
-- Logik: Wie oben, plus `tens ∈ [1,9]`, `a = tens*10 + ones`
+**Up to 100**: Borrowing from tens
+- Example: 52 - 7 = 45
+- Logic: As above, plus `tens ∈ [1,9]`, `a = tens*10 + ones`
 
-### Multiplikation
-**Bis 20**: Kleine Faktoren, Ergebnis ≤ 20
-- Beispiel: 4 × 5 = 20
-- Logik: `a ∈ [2,5]`, `b ∈ [2, floor(20/a)]`
+### Multiplication
+**Up to 20**: Small factors, result ≤ 20
+- Example: 4 × 5 = 20
+- Logic: `a ∈ [2,5]`, `b ∈ [2, floor(20/a)]`
 
-**Bis 100**: Ergebnis ≤ 100
-- Beispiel: 7 × 12 = 84
-- Logik: `a ∈ [2,10]`, `b ∈ [2, floor(100/a)]`
+**Up to 100**: Result ≤ 100
+- Example: 7 × 12 = 84
+- Logic: `a ∈ [2,10]`, `b ∈ [2, floor(100/a)]`
 
 ### Division
-**Bis 20**: Glatte Division, Ergebnis ≤ 20
-- Beispiel: 20 ÷ 4 = 5
-- Logik: `b ∈ [2,5]`, `quotient ∈ [2, floor(20/b)]`, `a = b × quotient`
+**Up to 20**: Even division, result ≤ 20
+- Example: 20 ÷ 4 = 5
+- Logic: `b ∈ [2,5]`, `quotient ∈ [2, floor(20/b)]`, `a = b × quotient`
 
-**Bis 100**: Glatte Division, Ergebnis ≤ 100
-- Logik: `b ∈ [2,10]`, `quotient ∈ [2, floor(100/b)]`, `a = b × quotient`
+**Up to 100**: Even division, result ≤ 100
+- Logic: `b ∈ [2,10]`, `quotient ∈ [2, floor(100/b)]`, `a = b × quotient`
 
-## UI-Komponenten
+## UI Components
 
 ### Navigation
 Route: `/mathe/sachaufgaben`
 
-Action Card in `/mathe` (zwischen Zeitrennen und Erfolge):
+Action Card in `/mathe` (between time trial and achievements):
 ```html
 <a routerLink="/mathe/sachaufgaben" class="action-card word-problem-card">
   <div class="card-icon">📝</div>
@@ -172,42 +172,42 @@ Action Card in `/mathe` (zwischen Zeitrennen und Erfolge):
 </a>
 ```
 
-### Component-Layout
+### Component Layout
 
-**Elemente**:
-1. **Zurück-Button** (links oben) → `/mathe`
-2. **Rechenart-Auswahl** (4 Buttons: +, −, ×, ÷)
-3. **Zahlenbereich-Toggle** (Bis 20 / Bis 100)
-4. **Story-Anzeige** (Icon + mehrzeiliger Text)
-5. **Eingabefeld** + Numpad (KeypadComponent, mode='numeric')
-6. **Feedback-Bereich** (richtig/falsch mit korrekter Antwort)
-7. **Streak-Anzeige** (aktuell + best)
-8. **Tagesstatistik-Badge** (unten)
-9. **Meilenstein-Popup** (bei 5, 10, 20, 30, 40, 50, 75, 100 Streak)
+**Elements**:
+1. **Back Button** (top left) → `/mathe`
+2. **Operation Type Selection** (4 buttons: +, −, ×, ÷)
+3. **Number Range Toggle** (Up to 20 / Up to 100)
+4. **Story Display** (Icon + multi-line text)
+5. **Input Field** + Numpad (KeypadComponent, mode='numeric')
+6. **Feedback Area** (correct/incorrect with correct answer)
+7. **Streak Display** (current + best)
+8. **Daily Stats Badge** (bottom)
+9. **Milestone Popup** (at 5, 10, 20, 30, 40, 50, 75, 100 streak)
 
-**WICHTIG**: KEIN Zeitrennen-Modus, KEIN Zahlenauswahl-Widget
+**IMPORTANT**: NO time trial mode, NO digit selection widget
 
-## Implementierungsschritte
+## Implementation Steps
 
-### Phase 1: Modelle & Service
+### Phase 1: Models & Service
 
-**1.1 Models erstellen** (`word-problem.model.ts`)
+**1.1 Create Models** (`word-problem.model.ts`)
 - Interfaces: `StoryTemplate`, `WordProblem`, `WordProblemType`, `NumberRange`
 
-**1.2 WordProblemService erstellen** (`word-problem.service.ts`)
-- 8 Story-Templates als Konstante
+**1.2 Create WordProblemService** (`word-problem.service.ts`)
+- 8 story templates as constants
 - `generateProblem(type: WordProblemType, range: NumberRange): WordProblem`
-  - Zufällige Template-Auswahl
-  - Zahlen-Generierung nach obiger Logik
-  - Platzhalter-Ersetzung (`{a}`, `{b}`)
-  - Anti-Wiederholung (letzte 10 Aufgaben speichern)
+  - Random template selection
+  - Number generation according to logic above
+  - Placeholder replacement (`{a}`, `{b}`)
+  - Anti-repetition (store last 10 problems)
 - `calculateAnswer(type, a, b): number`
 
 ### Phase 2: Component
 
-**2.1 Component-Datei** (`word-problem-exercise.component.ts`)
+**2.1 Component File** (`word-problem-exercise.component.ts`)
 
-**Signals** (von ExerciseComponent übernehmen):
+**Signals** (adopt from ExerciseComponent):
 ```typescript
 currentProblem = signal<WordProblem | null>(null);
 userAnswer = signal('');
@@ -230,24 +230,24 @@ correctAnswer = computed(() => this.currentProblem()?.correctAnswer ?? 0);
 keypadDisabled = computed(() => this.feedback() !== 'idle');
 ```
 
-**Methoden** (Pattern von ExerciseComponent):
+**Methods** (pattern from ExerciseComponent):
 - `constructor()`: Inject WordProblemService, StatsService, AchievementsService
-- `ngOnInit()`: Zahlenbereich aus localStorage laden
-- `generateProblem()`: Service aufrufen, Problem in Signal speichern, userAnswer reset
+- `ngOnInit()`: Load number range from localStorage
+- `generateProblem()`: Call service, store problem in signal, reset userAnswer
 - `submitAnswer()`:
-  - Validierung
-  - Korrektheit prüfen
-  - Streak aktualisieren
-  - Stats aufzeichnen: `this.stats.recordResult(isCorrect, 'word-problems')`
-  - Feedback anzeigen (600ms richtig, 1200ms falsch)
-  - Auto-Advance
-- `toggleType(type: WordProblemType)`: Typ an/aus, Problem neu generieren
-- `setNumberRange(range: NumberRange)`: Range setzen, localStorage speichern, neu generieren
-- Meilenstein-Logik (von ExerciseComponent kopieren)
+  - Validation
+  - Check correctness
+  - Update streak
+  - Record stats: `this.stats.recordResult(isCorrect, 'word-problems')`
+  - Show feedback (600ms correct, 1200ms incorrect)
+  - Auto-advance
+- `toggleType(type: WordProblemType)`: Toggle type on/off, regenerate problem
+- `setNumberRange(range: NumberRange)`: Set range, save to localStorage, regenerate
+- Milestone logic (copy from ExerciseComponent)
 
 **2.2 Template** (`word-problem-exercise.component.html`)
 
-**Struktur** (angelehnt an exercise.component.html):
+**Structure** (based on exercise.component.html):
 ```html
 <div class="word-problem-container">
   <a routerLink="/mathe" class="back-btn">← Zurück</a>
@@ -336,12 +336,12 @@ keypadDisabled = computed(() => this.feedback() !== 'idle');
 
 **2.3 Styles** (`word-problem-exercise.component.css`)
 
-**Basis-CSS** von exercise.component.css kopieren, Anpassungen:
-- `.story-display`: Zentriert, größere Schrift (1.25rem), max 600px Breite
-- `.story-icon`: Große Emoji-Anzeige (3rem font-size)
-- `.story-text`: Mehrzeilig, line-height 1.6
-- `.range-selector`: Button-Gruppe mit Active-State
-- `.word-problem-card`: Violett/Lila Theme (#8B5CF6)
+**Base CSS** copy from exercise.component.css, adjustments:
+- `.story-display`: Centered, larger font (1.25rem), max 600px width
+- `.story-icon`: Large emoji display (3rem font-size)
+- `.story-text`: Multi-line, line-height 1.6
+- `.range-selector`: Button group with active state
+- `.word-problem-card`: Purple theme (#8B5CF6)
 
 **Tablet Landscape** (768-1024px + orientation: landscape):
 ```css
@@ -370,9 +370,9 @@ keypadDisabled = computed(() => this.feedback() !== 'idle');
 
 ### Phase 3: Navigation & Routing
 
-**3.1 Route hinzufügen** (`app.routes.ts`)
+**3.1 Add Route** (`app.routes.ts`)
 
-Nach Zeile 21 einfügen:
+Insert after line 21:
 ```typescript
 {
   path: 'mathe/sachaufgaben',
@@ -382,14 +382,14 @@ Nach Zeile 21 einfügen:
 },
 ```
 
-Import hinzufügen (Zeile 7):
+Add import (line 7):
 ```typescript
 import { WordProblemExerciseComponent } from './components/word-problem-exercise/word-problem-exercise.component';
 ```
 
 **3.2 Action Card** (`category-overview.html`)
 
-Nach Zeile 62 (zwischen "Zeitrennen" und "Erfolge") einfügen:
+Insert after line 62 (between "Time Trial" and "Achievements"):
 ```html
 @if (category() === 'math') {
   <a routerLink="/mathe/sachaufgaben" class="action-card word-problem-card">
@@ -400,9 +400,9 @@ Nach Zeile 62 (zwischen "Zeitrennen" und "Erfolge") einfügen:
 }
 ```
 
-**3.3 Card-Styling** (`category-overview.css`)
+**3.3 Card Styling** (`category-overview.css`)
 
-Am Ende der Datei hinzufügen:
+Add at end of file:
 ```css
 .word-problem-card {
   background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
@@ -417,27 +417,27 @@ Am Ende der Datei hinzufügen:
 
 **4.1 StatsService** (`stats.service.ts`)
 
-Zeile 44 ändern:
+Change line 44:
 ```typescript
 private readonly mathTypes = [
   'addition',
   'subtraction',
   'multiplication',
   'division',
-  'word-problems'  // NEU
+  'word-problems'  // NEW
 ];
 ```
 
 **4.2 Achievements Component** (`achievements.component.ts`)
 
-`exerciseTypes` Array erweitern (ca. Zeile 30):
+Extend `exerciseTypes` array (around line 30):
 ```typescript
 { key: 'word-problems', label: 'Sachaufgaben', icon: '📝' }
 ```
 
 **4.3 Achievements Template** (`achievements.component.html`)
 
-Medaillen-Section für word-problems hinzufügen (nach bestehenden Sections):
+Add medal section for word-problems (after existing sections):
 ```html
 @if (lifetimeStats['word-problems'] !== undefined) {
   <div class="exercise-section">
@@ -465,63 +465,63 @@ Medaillen-Section für word-problems hinzufügen (nach bestehenden Sections):
 
 ### Phase 5: Testing & Polish
 
-**5.1 Funktionalität testen**
-- Alle 4 Rechenarten mit beiden Zahlenbereichen
-- Zehnerübergang/-unterschreitung verifizieren
-- Streak-Funktionalität (Meilensteine bei 5, 10, 20, ...)
-- Stats-Persistierung (localStorage + Server)
-- Medaillen-Progression (100/500/1000)
+**5.1 Test Functionality**
+- All 4 operation types with both number ranges
+- Verify carrying/borrowing over tens
+- Streak functionality (milestones at 5, 10, 20, ...)
+- Stats persistence (localStorage + server)
+- Medal progression (100/500/1000)
 
-**5.2 Responsive Design testen**
+**5.2 Test Responsive Design**
 - Mobile (< 768px)
 - Tablet Portrait (768-1024px)
-- Tablet Landscape (768-1024px landscape) - Grid-Layout
+- Tablet Landscape (768-1024px landscape) - Grid layout
 - Desktop (> 1024px)
 
-**5.3 Textprüfung**
-- Alle 8 Templates auf korrekte deutsche Grammatik
-- Icon-Darstellung auf verschiedenen Geräten
+**5.3 Text Review**
+- All 8 templates for correct German grammar
+- Icon display on various devices
 
-## Kritische Dateien (Referenz)
+## Critical Files (Reference)
 
-**Zu lesen als Muster**:
-- `/Users/xman/projects/test/mathe-trainer/src/app/components/exercise/exercise.component.ts:0-100` - Signal-Struktur, Streak-Logik
-- `/Users/xman/projects/test/mathe-trainer/src/app/services/clock.ts` - Service-Pattern für Problem-Generierung
-- `/Users/xman/projects/test/mathe-trainer/src/app/components/clock-exercise/clock-exercise.css` - Tablet Landscape Grid-Layout
+**To Read as Patterns**:
+- `/Users/xman/projects/test/mathe-trainer/src/app/components/exercise/exercise.component.ts:0-100` - Signal structure, streak logic
+- `/Users/xman/projects/test/mathe-trainer/src/app/services/clock.ts` - Service pattern for problem generation
+- `/Users/xman/projects/test/mathe-trainer/src/app/components/clock-exercise/clock-exercise.css` - Tablet landscape grid layout
 
-**Zu modifizieren**:
-- `/Users/xman/projects/test/mathe-trainer/src/app/app.routes.ts:21` - Route einfügen
-- `/Users/xman/projects/test/mathe-trainer/src/app/services/stats.service.ts:44` - Array erweitern
-- `/Users/xman/projects/test/mathe-trainer/src/app/components/category-overview/category-overview.html:62` - Card hinzufügen
-- `/Users/xman/projects/test/mathe-trainer/src/app/components/achievements/achievements.component.ts` - exerciseTypes erweitern
+**To Modify**:
+- `/Users/xman/projects/test/mathe-trainer/src/app/app.routes.ts:21` - Insert route
+- `/Users/xman/projects/test/mathe-trainer/src/app/services/stats.service.ts:44` - Extend array
+- `/Users/xman/projects/test/mathe-trainer/src/app/components/category-overview/category-overview.html:62` - Add card
+- `/Users/xman/projects/test/mathe-trainer/src/app/components/achievements/achievements.component.ts` - Extend exerciseTypes
 - `/Users/xman/projects/test/mathe-trainer/src/app/components/achievements/achievements.component.html` - Medal section
 
-## Verifizierung
+## Verification
 
-Nach Implementierung:
+After implementation:
 
-1. **Manueller Test**:
-   - App starten: `npm run start:poll`
-   - Navigieren zu `/mathe` → Sachaufgaben-Card sichtbar zwischen Zeitrennen und Erfolge?
-   - Aufgabe lösen → Stats in `/mathe/erfolge` korrekt?
+1. **Manual Test**:
+   - Start app: `npm run start:poll`
+   - Navigate to `/mathe` → Word problems card visible between time trial and achievements?
+   - Solve problem → Stats in `/mathe/erfolge` correct?
 
-2. **Build-Test**:
-   - `npm run build` → erfolgreich?
-   - `npm run lint` → keine Fehler?
+2. **Build Test**:
+   - `npm run build` → successful?
+   - `npm run lint` → no errors?
 
-3. **Funktionstest**:
-   - Zahlenbereich wechseln → neue Aufgaben im korrekten Bereich?
-   - 5 richtig → Meilenstein-Popup erscheint?
-   - Browser-Refresh → Zahlenbereich-Präferenz gespeichert?
-   - User wechseln → Stats korrekt pro User?
+3. **Functional Test**:
+   - Switch number range → new problems in correct range?
+   - 5 correct → Milestone popup appears?
+   - Browser refresh → Number range preference saved?
+   - Switch user → Stats correct per user?
 
 4. **Responsive Test**:
-   - DevTools: iPad Air Landscape → Grid-Layout aktiv?
-   - Mobile (iPhone SE) → Story-Text lesbar?
+   - DevTools: iPad Air Landscape → Grid layout active?
+   - Mobile (iPhone SE) → Story text readable?
 
-## Zusammenfassung
+## Summary
 
-**Neue Dateien**: 4 (Component + Service + Model)
-**Geänderte Dateien**: 5 (Routes, Stats, Category Overview, Achievements)
-**Geschätzte LOC**: ~800 Zeilen (Component: 400, Service: 200, Templates: 200)
-**Testing**: 4 Phasen (Funktional, Responsive, Texte, Build)
+**New Files**: 4 (Component + Service + Model)
+**Modified Files**: 5 (Routes, Stats, Category Overview, Achievements)
+**Estimated LOC**: ~800 lines (Component: 400, Service: 200, Templates: 200)
+**Testing**: 4 phases (Functional, Responsive, Text, Build)

@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { StatsService } from '../../services/stats.service';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService } from '../../services/timed-challenge.service';
+import { ProblemGeneratorService, OperationType } from '../../services/problem-generator.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
 
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
@@ -56,6 +57,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   private stats = inject(StatsService);
   private achievements = inject(AchievementsService);
   private timedChallengeService = inject(TimedChallengeService);
+  private problemGenerator = inject(ProblemGeneratorService);
   private route = inject(ActivatedRoute);
 
   constructor() {
@@ -195,65 +197,29 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   generateProblem() {
-    const types = Array.from(this.selectedTypes());
+    const types = Array.from(this.selectedTypes()) as OperationType[];
     const prevType = this.currentType();
     const prevA = this.operandA();
     const prevB = this.operandB();
 
-    let type: ExerciseType;
-    let a: number;
-    let b: number;
+    let problem;
 
+    // Generate until we get a different problem (anti-repetition)
     do {
-      type = types[Math.floor(Math.random() * types.length)];
+      // In time trial mode, always use all numbers; otherwise use selected numbers
+      const allowedNumbers = this.mode() === 'timeTrial' ? undefined :
+        (this.selectedNumbers().size > 0 ? this.selectedNumbers() : undefined);
 
-      if (type === 'addition') {
-        // b is 1-10, tens crossing: (a % 10) + b > 10
-        b = this.randomInt(1, 10);
-        const minOnes = 11 - b;
-        const maxOnes = 9;
-        const ones = this.randomInt(minOnes, maxOnes);
-        const maxTens = Math.floor((100 - b) / 10);
-        const tens = this.randomInt(0, maxTens);
-        a = tens * 10 + ones;
-      } else if (type === 'subtraction') {
-        // b is 1-10, tens crossing: (a % 10) < b, need to borrow
-        b = this.randomInt(1, 10);
-        const ones = this.randomInt(0, b - 1);
-        const minTens = 1;
-        const maxTens = 10;
-        const tens = this.randomInt(minTens, maxTens);
-        a = tens * 10 + ones;
-      } else if (type === 'multiplication') {
-        // Small multiplication table: 1-10 x 1-10
-        // In time trial mode, always use all numbers
-        const selected = this.mode() === 'timeTrial' ? new Set<number>() : this.selectedNumbers();
-        if (selected.size > 0) {
-          const numbers = Array.from(selected);
-          a = this.randomInt(1, 10);
-          b = numbers[Math.floor(Math.random() * numbers.length)];
-        } else {
-          a = this.randomInt(1, 10);
-          b = this.randomInt(1, 10);
-        }
-      } else {
-        // Division: b divides a evenly, both factors 1-10
-        // In time trial mode, always use all numbers
-        const selected = this.mode() === 'timeTrial' ? new Set<number>() : this.selectedNumbers();
-        if (selected.size > 0) {
-          const numbers = Array.from(selected);
-          b = numbers[Math.floor(Math.random() * numbers.length)];
-        } else {
-          b = this.randomInt(1, 10);
-        }
-        const quotient = this.randomInt(1, 10);
-        a = b * quotient;
-      }
-    } while (type === prevType && a === prevA && b === prevB);
+      problem = this.problemGenerator.generateProblem(types, allowedNumbers);
+    } while (
+      problem.operation === prevType &&
+      problem.operandA === prevA &&
+      problem.operandB === prevB
+    );
 
-    this.currentType.set(type);
-    this.operandA.set(a);
-    this.operandB.set(b);
+    this.currentType.set(problem.operation as ExerciseType);
+    this.operandA.set(problem.operandA);
+    this.operandB.set(problem.operandB);
 
     this.userAnswer.set('');
     this.feedback.set('idle');
@@ -262,10 +228,6 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     if (this.isInitialized) {
       setTimeout(() => this.focusInput(), 150);
     }
-  }
-
-  randomInt(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   submitAnswer() {
