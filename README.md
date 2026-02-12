@@ -1,36 +1,49 @@
 # Schlaufuchs 🦊
 
-Eine interaktive Lern-App für Mathematik und Uhrzeiten lernen, entwickelt mit Angular und TypeScript.
+An interactive learning app for mathematics and time-telling, built with Angular and TypeScript.
 
-## 📖 Über das Projekt
+**🌐 Live Demo:** [https://xman-berlin.github.io/mathe-trainer/](https://xman-berlin.github.io/mathe-trainer/)
 
-Schlaufuchs ist eine webbasierte Anwendung, die Grundschülern hilft, ihre mathematischen Fähigkeiten zu verbessern und das Ablesen der Uhr zu lernen. Das Projekt wurde mit [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4 erstellt und nutzt moderne Web-Technologien.
+## 📖 About the Project
+
+Schlaufuchs is a web-based application that helps elementary school students improve their mathematical skills and learn to read the clock. The project was created with [Angular CLI](https://github.com/angular/angular-cli) version 20.3.4 and uses modern web technologies.
+
+### ✨ Features
+
+- **Math Exercises**: Addition, Subtraction, Multiplication, Division, Word Problems
+- **Time Learning**: Analog and digital clock exercises
+- **Gamification**: Badge system with 22+ badges, coin collection, streak tracking
+- **Mini-Games**: Flappy Fox, Dino Run, Breakout, Balloon Pop
+- **Achievements**: Medal system, personal best times, streak milestones
+- **Responsive Design**: Optimized for desktop, tablet, and mobile
+- **Offline Support**: localStorage for statistics and progress
+- **Supabase Integration**: Cloud sync for user data, badges, and scores
 
 ## 🚀 Quick Start
 
-### Voraussetzungen
+### Prerequisites
 
-- Node.js (Version 18.x oder 20.x)
-- npm (kommt mit Node.js)
+- Node.js (Version 18.x or 20.x)
+- npm (comes with Node.js)
 - Angular CLI: `npm install -g @angular/cli`
 
 ### Installation
 
 ```bash
-# Repository klonen
+# Clone repository
 git clone https://github.com/xman-berlin/mathe-trainer.git
 cd schlaufuchs
 
-# Dependencies installieren
+# Install dependencies
 npm install
 
-# Development Server starten
+# Start development server
 ng serve
 ```
 
-Die Anwendung ist dann unter `http://localhost:4200/` erreichbar.
+The application will be available at `http://localhost:4200/`.
 
-## 💻 Entwicklung
+## 💻 Development
 
 ### Development Server
 
@@ -38,122 +51,122 @@ Die Anwendung ist dann unter `http://localhost:4200/` erreichbar.
 ng serve
 ```
 
-Der Server startet auf `http://localhost:4200/` und lädt automatisch neu bei Dateiänderungen.
+The server starts at `http://localhost:4200/` and automatically reloads when files change.
 
 ### Code Scaffolding
 
-Neue Komponente erstellen:
+Create a new component:
 ```bash
 ng generate component components/component-name
 ```
 
-Neue Service erstellen:
+Create a new service:
 ```bash
 ng generate service services/service-name
 ```
 
-Alle verfügbaren Schematics anzeigen:
+Show all available schematics:
 ```bash
 ng generate --help
 ```
 
 ### Build
 
-Production Build erstellen:
+Create production build:
 ```bash
 ng build
 ```
 
-Die Build-Artefakte werden im `dist/` Verzeichnis gespeichert.
+Build artifacts will be stored in the `dist/` directory.
 
 ### Tests
 
-Unit Tests ausführen:
+Run unit tests:
 ```bash
 ng test
 ```
 
-Tests mit Code Coverage:
+Tests with code coverage:
 ```bash
 ng test --code-coverage
 ```
 
 ### Linting
 
-Code-Qualität prüfen:
+Check code quality:
 ```bash
 ng lint
 ```
 
-## 📁 Projekt-Struktur
+## 📁 Project Structure
 
 ```
 schlaufuchs/
 ├── src/
 │   ├── app/
-│   │   ├── components/     # UI-Komponenten
-│   │   ├── services/       # Business-Logik und Datendienste
-│   │   ├── utils/          # Hilfsfunktionen
-│   │   ├── app.ts          # Hauptkomponente
-│   │   ├── app.config.ts   # App-Konfiguration
-│   │   └── app.routes.ts   # Routing-Konfiguration
+│   │   ├── components/     # UI components
+│   │   ├── services/       # Business logic and data services
+│   │   ├── utils/          # Helper functions
+│   │   ├── app.ts          # Main component
+│   │   ├── app.config.ts   # App configuration
+│   │   └── app.routes.ts   # Routing configuration
 │   ├── index.html
 │   ├── main.ts
 │   └── styles.css
-├── public/                 # Statische Assets
+├── public/                 # Static assets
 ├── .github/
 │   └── workflows/          # CI/CD Workflows
-└── angular.json            # Angular-Konfiguration
+└── angular.json            # Angular configuration
 ```
 
 ## 🚀 GitHub Actions & CI/CD
 
-Dieses Projekt nutzt GitHub Actions für Continuous Integration und Deployment:
+This project uses GitHub Actions for Continuous Integration and Deployment:
 
 ### CI Workflow
-- **Trigger**: Bei jedem Push oder Pull Request auf `main` oder `develop`
-- **Node.js Versionen**: 18.x und 20.x
-- **Schritte**:
-  - Installation der Dependencies (`npm ci`)
+- **Trigger**: On every push or pull request to `main` or `develop`
+- **Node.js Versions**: 18.x and 20.x
+- **Steps**:
+  - Install dependencies (`npm ci`)
   - Linting (`npm run lint`)
   - Build (`npm run build`)
-  - Unit Tests (`npm test -- --watch=false --browsers=ChromeHeadless`)
-  - Code Coverage Upload zu Codecov (optional)
+  - Unit tests (`npm test -- --watch=false --browsers=ChromeHeadless`)
+  - Code coverage upload to Codecov (optional)
 
 ### Deployment Workflow
-- **Trigger**: Bei jedem Push auf `main` (oder manuell)
-- **Ziel**: GitHub Pages
+- **Trigger**: On every push to `main` (or manually)
+- **Target**: GitHub Pages
 - **Features**:
-  - Automatischer Build mit korrektem `base-href`
+  - Automatic build with correct `base-href`
   - Deployment via `peaceiris/actions-gh-pages`
-  - Die App ist verfügbar unter: `https://xman-berlin.github.io/mathe-trainer/`
+  - Production URL: [https://xman-berlin.github.io/mathe-trainer/](https://xman-berlin.github.io/mathe-trainer/)
 
 ### Dependabot
-- **Aktualisierung**: Wöchentlich montags um 09:00 Uhr
-- **Gruppierung**: Angular-Packages und Development-Dependencies werden gruppiert
-- **Labels**: Automatisches Hinzufügen von `dependencies` Label
+- **Updates**: Weekly on Mondays at 09:00
+- **Grouping**: Angular packages and development dependencies are grouped
+- **Labels**: Automatic addition of `dependencies` label
 
-## 🛠️ Technologie-Stack
+## 🛠️ Technology Stack
 
 - **Framework**: Angular 20.3.4 (zoneless)
-- **Sprache**: TypeScript
+- **Language**: TypeScript
 - **Styling**: CSS
 - **Testing**: Karma + Jasmine
-- **Build-Tool**: Angular CLI
+- **Build Tool**: Angular CLI
 - **CI/CD**: GitHub Actions
 - **Hosting**: GitHub Pages
 
-## 📚 Ressourcen
+## 📚 Resources
 
-- [Angular Dokumentation](https://angular.dev/)
-- [TypeScript Dokumentation](https://www.typescriptlang.org/)
+- [Angular Documentation](https://angular.dev/)
+- [TypeScript Documentation](https://www.typescriptlang.org/)
 - [Angular CLI Command Reference](https://angular.dev/tools/cli)
 - [GitHub Actions Workflows](.github/workflows/)
 
-## 🤝 Beitragen
+## 🤝 Contributing
 
-Contributions sind willkommen! Bitte erstelle einen Pull Request oder öffne ein Issue für Verbesserungsvorschläge.
+Contributions are welcome! Please create a pull request or open an issue for suggestions.
 
-## 📝 Lizenz
+## 📝 License
 
-Dieses Projekt ist für Bildungszwecke erstellt.
+This project is created for educational purposes.

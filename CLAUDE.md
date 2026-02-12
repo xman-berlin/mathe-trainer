@@ -113,64 +113,64 @@ When optimizing components for tablet landscape:
 - **Standalone components**: All components use `standalone: true`
 - **Commit and push**: Commit and push changes only on my command
 
-## Dateikonventionen
+## File Conventions
 
-- **SQL Scripts**: Alle SQL-Dateien (Migrationen, Queries) werden in `src/sql/` gespeichert
-  - Benennung: `YYYY-MM-DD_beschreibung.sql` (z.B. `2026-02-05_add-badges-table.sql`)
-- **Planungsdokumente**: Implementierungspläne in `docs/plans/` speichern
-  - Benennung: `YYYY-MM-DD_feature-name.md` (z.B. `2026-02-04_gamification-system.md`)
-  - Jeder Plan muss eine Taskliste mit Checkboxen enthalten (`- [ ]` / `- [x]`)
-  - Bei Abarbeitung werden Tasks im Plan als erledigt markiert
-  - **WICHTIG**: Wenn ein bestehender Plan erweitert wird (z.B. neue Phase hinzugefügt), muss die Plan-Datei im Projekt entsprechend aktualisiert werden
-- **Testdaten**: Mock-Daten und Fixtures in `src/test-data/`
+- **SQL Scripts**: All SQL files (migrations, queries) are stored in `src/sql/`
+  - Naming: `YYYY-MM-DD_description.sql` (e.g., `2026-02-05_add-badges-table.sql`)
+- **Planning Documents**: Implementation plans stored in `docs/plans/`
+  - Naming: `YYYY-MM-DD_feature-name.md` (e.g., `2026-02-04_gamification-system.md`)
+  - Each plan must contain a task list with checkboxes (`- [ ]` / `- [x]`)
+  - Tasks are marked as completed when done
+  - **IMPORTANT**: When an existing plan is extended (e.g., new phase added), the plan file in the project must be updated accordingly
+- **Test Data**: Mock data and fixtures in `src/test-data/`
 
-## Sprachkonventionen
+## Language Conventions
 
-- **Code**: Englisch (Variablen, Funktionen, Kommentare)
-- **UI-Texte**: Deutsch (Labels, Buttons, Fehlermeldungen)
-- **Commit-Messages**: Englisch
-- **Dokumentation**: Deutsch oder Englisch je nach Zielgruppe
+- **Code**: English (variables, functions, comments)
+- **UI Text**: German (labels, buttons, error messages)
+- **Commit Messages**: English
+- **Documentation**: English (as per global CLAUDE.md rule)
 
 ## Supabase
 
-- **Projekt URL**: In `environment.ts` (nicht committen!)
-- **Anon Key**: Öffentlich, in `environment.ts`
-- **Service Role Key**: NIE im Frontend verwenden
-- **RLS aktiviert**: Alle Tabellen haben Row Level Security
-- **Migrationen**: In `src/sql/` mit Datum-Prefix
+- **Project URL**: In `environment.ts` (do not commit!)
+- **Anon Key**: Public, in `environment.ts`
+- **Service Role Key**: NEVER use in frontend
+- **RLS Enabled**: All tables have Row Level Security
+- **Migrations**: In `src/sql/` with date prefix
 
-## Umgebungsvariablen
+## Environment Variables
 
-- `.env` und `environment.ts` NIE committen (in `.gitignore`)
-- Secrets in GitHub Secrets für CI/CD
-- Lokale Entwicklung: `environment.development.ts` als Vorlage nutzen
-- Produktions-URLs werden beim Build über GitHub Actions gesetzt
+- `.env` and `environment.ts` NEVER commit (in `.gitignore`)
+- Secrets in GitHub Secrets for CI/CD
+- Local development: Use `environment.development.ts` as template
+- Production URLs are set during build via GitHub Actions
 
 ## Testing
 
-- Unit Tests für alle Services (`*.service.spec.ts`)
-- Component Tests für komplexe UI-Logik
-- Vor Commit: `npm run lint && npm run build` muss erfolgreich sein
-- CI prüft automatisch Lint und Build
+- Unit tests for all services (`*.service.spec.ts`)
+- Component tests for complex UI logic
+- Before commit: `npm run lint && npm run build` must succeed
+- CI automatically checks lint and build
 
 ## Git Workflow
 
-- **Branch-Namen**: `feature/beschreibung`, `fix/beschreibung`
+- **Branch Names**: `feature/description`, `fix/description`
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`)
-- **Commits nur auf Anfrage**: Nicht automatisch committen
+- **Commits Only on Request**: Do not commit automatically
 
-### Vor Commit und Push (WICHTIG)
+### Before Commit and Push (IMPORTANT)
 
-Bevor ein Commit oder Push durchgeführt wird, MUSS folgendes passieren:
+Before a commit or push is performed, the following MUST happen:
 
-1. `npm run lint` ausführen → Linter-Fehler beheben falls vorhanden
-2. `npm run build` ausführen → Build-Fehler beheben falls vorhanden
-3. Alle Fehler und Warnungen (außer Budget-Warnungen) müssen behoben sein
-4. Erst wenn beides fehlerfrei durchläuft: Commit und Push durchführen
+1. Run `npm run lint` → Fix linter errors if present
+2. Run `npm run build` → Fix build errors if present
+3. All errors and warnings (except budget warnings) must be resolved
+4. Only when both pass without errors: Perform commit and push
 
 ## Known Issues
 
-- Budget-Warnungen beim Build sind akzeptabel (Bundle > 500KB)
-- File Watching: `npm run start:poll` bei Problemen verwenden
-- Zoneless Angular: `ChangeDetectorRef` nicht verwenden, stattdessen Signals
+- Budget warnings during build are acceptable (Bundle > 500KB)
+- File Watching: Use `npm run start:poll` if issues occur
+- Zoneless Angular: Do not use `ChangeDetectorRef`, use Signals instead
 
