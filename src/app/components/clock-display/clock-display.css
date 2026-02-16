@@ -73,11 +73,38 @@
 /* Portrait: Compact clock for all portrait devices */
 @media (orientation: portrait) {
   .clock-svg {
-    max-width: 90vw;
+    max-width: min(90vw, 700px);
   }
 
   .hour-number {
     font-size: 12px;
+  }
+}
+
+/* Portrait Tablet (iPad): Same size as interactive clock */
+@media (orientation: portrait) and (min-width: 768px) {
+  .clock-container {
+    padding: 0.5rem;
+  }
+
+  .clock-svg {
+    max-width: 600px;
+  }
+
+  .hour-number {
+    font-size: 20px;
+  }
+
+  .hour-hand {
+    stroke-width: 8;
+  }
+
+  .minute-hand {
+    stroke-width: 6;
+  }
+
+  .center-dot {
+    r: 6;
   }
 }
 

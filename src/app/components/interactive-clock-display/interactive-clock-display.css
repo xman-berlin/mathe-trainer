@@ -42,26 +42,59 @@
   stroke: var(--gray-900);
   stroke-width: 3;
   stroke-linecap: round;
-  cursor: grab;
-  transition: stroke 0.2s ease;
-}
-
-.minute-hand:hover, .hour-hand:hover {
-  stroke-width: 4;
-}
-
-.minute-hand.dragging, .hour-hand.dragging {
-  cursor: grabbing;
-  stroke: var(--bright-blue);
-  stroke-width: 4;
+  pointer-events: none; /* Events handled by touch target */
+  transition: stroke 0.2s ease, stroke-width 0.2s ease;
 }
 
 .minute-hand.dragging {
   stroke: #10b981; /* Green for minute hand */
+  stroke-width: 4;
 }
 
 .hour-hand.dragging {
   stroke: var(--bright-blue); /* Blue for hour hand */
+  stroke-width: 4;
+}
+
+/* Touch targets - invisible but wide for easier grabbing */
+.minute-hand-touch-target, .hour-hand-touch-target {
+  stroke: transparent;
+  stroke-width: 20; /* Wide touch area */
+  stroke-linecap: round;
+  cursor: grab;
+  fill: none;
+}
+
+.minute-hand-touch-target:hover ~ .minute-hand,
+.hour-hand-touch-target:hover ~ .hour-hand {
+  stroke-width: 4;
+}
+
+/* Touch handles at the end of hands */
+.minute-hand-handle, .hour-hand-handle {
+  fill: var(--gray-900);
+  cursor: grab;
+  transition: all 0.2s ease;
+  opacity: 0.3;
+}
+
+.minute-hand-handle:hover, .hour-hand-handle:hover {
+  opacity: 0.6;
+  r: 10;
+}
+
+.minute-hand-handle.dragging {
+  fill: #10b981; /* Green for minute hand */
+  opacity: 0.8;
+  r: 12;
+  cursor: grabbing;
+}
+
+.hour-hand-handle.dragging {
+  fill: var(--bright-blue); /* Blue for hour hand */
+  opacity: 0.8;
+  r: 12;
+  cursor: grabbing;
 }
 
 /* Drag instruction */
@@ -84,11 +117,48 @@
   }
 
   .hour-hand, .minute-hand {
-    stroke-width: 6;
+    stroke-width: 5;
   }
 
   .center-dot {
     r: 8;
+  }
+
+  .minute-hand-handle, .hour-hand-handle {
+    r: 10;
+    opacity: 0.4;
+  }
+
+  .minute-hand-handle:hover, .hour-hand-handle:hover {
+    r: 12;
+    opacity: 0.6;
+  }
+
+  .minute-hand-handle.dragging, .hour-hand-handle.dragging {
+    r: 14;
+    opacity: 0.9;
+  }
+}
+
+/* Tablet touch optimizations */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .minute-hand-touch-target, .hour-hand-touch-target {
+    stroke-width: 25; /* Wide touch area for tablets */
+  }
+
+  .minute-hand-handle, .hour-hand-handle {
+    r: 11;
+    opacity: 0.45;
+  }
+
+  .minute-hand-handle:hover, .hour-hand-handle:hover {
+    r: 13;
+    opacity: 0.65;
+  }
+
+  .minute-hand-handle.dragging, .hour-hand-handle.dragging {
+    r: 15;
+    opacity: 0.9;
   }
 }
 
@@ -103,6 +173,54 @@
 
   .hour-number {
     font-size: 12px;
+  }
+
+  /* Better touch targets on portrait tablets */
+  .minute-hand-touch-target, .hour-hand-touch-target {
+    stroke-width: 25;
+  }
+
+  .minute-hand-handle, .hour-hand-handle {
+    r: 10;
+    opacity: 0.4;
+  }
+}
+
+/* Portrait Tablet (iPad) - same size as clock-display */
+@media (orientation: portrait) and (min-width: 768px) {
+  .interactive-clock-container {
+    max-width: 600px;
+  }
+
+  .clock-svg {
+    max-width: 600px;
+  }
+
+  .hour-number {
+    font-size: 20px;
+  }
+
+  .hour-hand, .minute-hand {
+    stroke-width: 5;
+  }
+
+  .center-dot {
+    r: 6;
+  }
+
+  .minute-hand-handle, .hour-hand-handle {
+    r: 10;
+    opacity: 0.4;
+  }
+
+  .minute-hand-handle:hover, .hour-hand-handle:hover {
+    r: 12;
+    opacity: 0.6;
+  }
+
+  .minute-hand-handle.dragging, .hour-hand-handle.dragging {
+    r: 14;
+    opacity: 0.9;
   }
 }
 
@@ -133,5 +251,25 @@
 
   .center-dot {
     r: 3;
+  }
+
+  /* Larger touch targets and handles on small touch devices */
+  .minute-hand-touch-target, .hour-hand-touch-target {
+    stroke-width: 30; /* Even wider on small screens */
+  }
+
+  .minute-hand-handle, .hour-hand-handle {
+    r: 12; /* Larger handles */
+    opacity: 0.5;
+  }
+
+  .minute-hand-handle:hover, .hour-hand-handle:hover {
+    r: 14;
+    opacity: 0.7;
+  }
+
+  .minute-hand-handle.dragging, .hour-hand-handle.dragging {
+    r: 16;
+    opacity: 0.9;
   }
 }

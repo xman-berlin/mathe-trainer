@@ -60,14 +60,14 @@
         <!-- Clock with Time of Day Indicators -->
         <div class="clock-section">
         <div class="time-indicator top" [class.active]="currentProblem()!.timeOfDay === 'morning'">
-          ☀️
+          ☀️ <span class="indicator-label">Vormittag</span>
         </div>
           <app-clock-display
             [hours]="currentProblem()!.hours"
             [minutes]="currentProblem()!.minutes"
           />
         <div class="time-indicator bottom" [class.active]="currentProblem()!.timeOfDay === 'afternoon'">
-          🌙
+          🌙 <span class="indicator-label">Nachmittag</span>
         </div>
         </div>
 

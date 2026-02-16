@@ -14,6 +14,7 @@ export interface SetClockProblem {
   type: ClockExerciseType;
   hours: number;
   minutes: number;
+  timeOfDay: 'morning' | 'afternoon'; // For time indicator display
 }
 
 @Component({
@@ -225,9 +226,12 @@ export class SetClockExerciseComponent implements OnInit {
     const correctHourAngle = this.calculateHourAngle(hours, minutes);
     const correctMinuteAngle = this.calculateMinuteAngle(minutes);
 
+    // Randomly choose morning or afternoon
+    const timeOfDay = Math.random() < 0.5 ? 'morning' : 'afternoon';
+
     // Generate display text
     const targetTime = this.displayMode() === 'digital'
-      ? this.formatTime24h(hours, minutes)
+      ? this.formatTime24h(hours, minutes, timeOfDay)
       : this.generateGermanExpression(hours, minutes);
 
     const problem: SetClockProblem = {
@@ -236,7 +240,8 @@ export class SetClockExerciseComponent implements OnInit {
       correctMinuteAngle,
       type,
       hours,
-      minutes
+      minutes,
+      timeOfDay
     };
 
     this.currentProblem.set(problem);
@@ -259,15 +264,22 @@ export class SetClockExerciseComponent implements OnInit {
     return minutes * 6;
   }
 
-  private formatTime24h(hours: number, minutes: number): string {
+  private formatTime24h(hours: number, minutes: number, timeOfDay: 'morning' | 'afternoon'): string {
     let hours24 = hours;
     if (hours === 0) hours24 = 12; // 0 on analog clock = 12
 
-    // Convert to 24-hour format
-    if (hours24 !== 12) {
-      hours24 += 12; // Assume afternoon for now
+    // Convert to 24-hour format based on time of day
+    if (timeOfDay === 'afternoon') {
+      if (hours24 !== 12) {
+        hours24 += 12; // PM: add 12 hours
+      }
+      // 12 PM stays as 12
     } else {
-      hours24 = 0; // 12 AM = 00:xx
+      // Morning: AM times
+      if (hours24 === 12) {
+        hours24 = 0; // 12 AM = 00:xx
+      }
+      // Other hours stay as they are (1-11)
     }
 
     return `${String(hours24).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;

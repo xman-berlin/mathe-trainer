@@ -60,8 +60,13 @@ export class InteractiveClockDisplayComponent implements AfterViewInit {
     const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
     const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
 
-    const x = clientX - rect.left - this.centerX;
-    const y = clientY - rect.top - this.centerY;
+    // Convert screen coordinates to SVG coordinates
+    // viewBox is 200x200, but rendered size may differ
+    const scaleX = 200 / rect.width;
+    const scaleY = 200 / rect.height;
+
+    const x = (clientX - rect.left) * scaleX - this.centerX;
+    const y = (clientY - rect.top) * scaleY - this.centerY;
 
     const angle = this.calculateAngleFromPosition(x, y);
 
@@ -117,8 +122,11 @@ export class InteractiveClockDisplayComponent implements AfterViewInit {
   }
 
   calculateAngleFromPosition(x: number, y: number): number {
-    // Calculate angle from center (0° = 12 o'clock, clockwise)
-    const angle = Math.atan2(y, x) * (180 / Math.PI);
+    // Math.atan2 gives angle relative to positive X-axis (3 o'clock = 0°)
+    // We want 12 o'clock = 0°, so add 90° (since SVG y-axis points down)
+    const angle = Math.atan2(y, x) * (180 / Math.PI) + 90;
+
+    // Normalize to 0-360 range
     const normalizedAngle = (angle + 360) % 360;
 
     // Snap to 5-degree increments for precision

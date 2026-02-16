@@ -3,7 +3,30 @@
     <a routerLink="/uhrzeit" class="back-btn">Zurück</a>
 
     <div class="exercise-content">
-      <!-- Display Mode Toggle (Row 1, Column 2) -->
+      <!-- Type Selector -->
+      <div class="type-selector">
+        @for (type of exerciseTypes; track type) {
+          <button
+            class="type-btn"
+            [class.active]="isTypeSelected(type)"
+            (click)="toggleType(type)">
+            <span class="type-icon">{{ getTypeIcon(type) }}</span>
+            <span class="type-label">{{ getTypeLabel(type) }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Interactive Clock -->
+      <div class="clock-section">
+        <app-interactive-clock-display
+          [targetHours]="targetHours()"
+          [targetMinutes]="targetMinutes()"
+          (userHourAngle)="onUserHourAngleChange($event)"
+          (userMinuteAngle)="onUserMinuteAngleChange($event)">
+        </app-interactive-clock-display>
+      </div>
+
+      <!-- Display Mode Toggle -->
       <div class="display-mode-selector">
         <button
           class="mode-btn"
@@ -21,35 +44,18 @@
         </button>
       </div>
 
-      <!-- Type Selector (Row 2, Column 2) -->
-      <div class="type-selector">
-        @for (type of exerciseTypes; track type) {
-          <button
-            class="type-btn"
-            [class.active]="isTypeSelected(type)"
-            (click)="toggleType(type)">
-            <span class="type-icon">{{ getTypeIcon(type) }}</span>
-            <span class="type-label">{{ getTypeLabel(type) }}</span>
-          </button>
-        }
+      <!-- Target Time Display -->
+      <div class="target-time-section">
+        <input
+          type="text"
+          class="target-time-input"
+          [value]="targetTimeDisplay()"
+          [class.german]="displayMode() === 'german'"
+          readonly
+        />
       </div>
 
-      <!-- Target Time Display (Row 1, Column 1 - ABOVE clock) -->
-      <div class="target-time-display" [class.german]="displayMode() === 'german'">
-        {{ targetTimeDisplay() }}
-      </div>
-
-      <!-- Interactive Clock (Column 1, Rows 2-6) -->
-      <div class="interactive-clock-section">
-        <app-interactive-clock-display
-          [targetHours]="targetHours()"
-          [targetMinutes]="targetMinutes()"
-          (userHourAngle)="onUserHourAngleChange($event)"
-          (userMinuteAngle)="onUserMinuteAngleChange($event)">
-        </app-interactive-clock-display>
-      </div>
-
-      <!-- Submit Button (Row 3, Column 2) -->
+      <!-- Submit Button -->
       <div class="submit-section">
         <button
           class="submit-btn"

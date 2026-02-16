@@ -34,33 +34,75 @@
     <!-- Center dot -->
     <circle cx="100" cy="100" r="5" class="center-dot" />
 
-    <!-- Minute hand -->
-    <line
-      x1="100"
-      y1="100"
-      x2="100"
-      y2="30"
-      class="minute-hand"
-      [class.dragging]="isDraggingMinute()"
+    <!-- Minute hand with touch target and handle -->
+    <g
       [style.transform]="'rotate(' + minuteAngle() + 'deg)'"
-      [style.transform-origin]="'100px 100px'"
-      (mousedown)="startDrag('minute', $event)"
-      (touchstart)="startDrag('minute', $event)"
-    />
+      [style.transform-origin]="'100px 100px'">
+      <!-- Invisible wide touch target for easier grabbing -->
+      <line
+        x1="100"
+        y1="100"
+        x2="100"
+        y2="30"
+        class="minute-hand-touch-target"
+        (mousedown)="startDrag('minute', $event)"
+        (touchstart)="startDrag('minute', $event)"
+      />
+      <!-- Visible hand -->
+      <line
+        x1="100"
+        y1="100"
+        x2="100"
+        y2="30"
+        class="minute-hand"
+        [class.dragging]="isDraggingMinute()"
+      />
+      <!-- Touch handle at the end -->
+      <circle
+        cx="100"
+        cy="30"
+        r="8"
+        class="minute-hand-handle"
+        [class.dragging]="isDraggingMinute()"
+        (mousedown)="startDrag('minute', $event)"
+        (touchstart)="startDrag('minute', $event)"
+      />
+    </g>
 
-    <!-- Hour hand -->
-    <line
-      x1="100"
-      y1="100"
-      x2="100"
-      y2="50"
-      class="hour-hand"
-      [class.dragging]="isDraggingHour()"
+    <!-- Hour hand with touch target and handle -->
+    <g
       [style.transform]="'rotate(' + hourAngle() + 'deg)'"
-      [style.transform-origin]="'100px 100px'"
-      (mousedown)="startDrag('hour', $event)"
-      (touchstart)="startDrag('hour', $event)"
-    />
+      [style.transform-origin]="'100px 100px'">
+      <!-- Invisible wide touch target for easier grabbing -->
+      <line
+        x1="100"
+        y1="100"
+        x2="100"
+        y2="50"
+        class="hour-hand-touch-target"
+        (mousedown)="startDrag('hour', $event)"
+        (touchstart)="startDrag('hour', $event)"
+      />
+      <!-- Visible hand -->
+      <line
+        x1="100"
+        y1="100"
+        x2="100"
+        y2="50"
+        class="hour-hand"
+        [class.dragging]="isDraggingHour()"
+      />
+      <!-- Touch handle at the end -->
+      <circle
+        cx="100"
+        cy="50"
+        r="8"
+        class="hour-hand-handle"
+        [class.dragging]="isDraggingHour()"
+        (mousedown)="startDrag('hour', $event)"
+        (touchstart)="startDrag('hour', $event)"
+      />
+    </g>
 
     <!-- Drag instruction overlay (shown when not dragging) -->
     @if (!isDraggingHour() && !isDraggingMinute()) {

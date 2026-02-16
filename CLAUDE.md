@@ -104,6 +104,39 @@ When optimizing components for tablet landscape:
 5. Reduce font sizes by 10-15%
 6. Test on iPad Air (820×1080) and iPad Pro 11" (1024×768) landscape
 
+### Clock Exercise Layouts
+
+#### clock-exercise (Uhrzeit ablesen)
+**Landscape Mode (>700px):**
+- **2-column Grid**: Clock left (column 1, rows 1-6), controls right (column 2)
+- **Left column**: Time indicators (☀️/🌙) above and below clock, clock uses full width
+- **Right column**: Type selector → Question → Input → Keypad → Feedback → Stats → Streak
+
+**Portrait Mode:**
+- Vertical stacking: Type selector → Clock with indicators → Input → Keypad → Stats → Streak → Feedback
+
+#### set-clock-exercise (Zeiger setzen)
+**Landscape Mode (>700px):**
+- **2-column Grid**: Clock left (column 1, rows 1-6), controls right (column 2)
+- **Left column**: Interactive clock uses full width (no time indicators needed)
+- **Right column**: Type selector (icon only: 60/30/15/05) → Display mode toggle → Target time → Submit button → Feedback → Streak → Stats
+
+**Portrait Mode (IMPORTANT - Element Order):**
+1. Type selector (60/30/15/05)
+2. Display mode selector (Analog/Text toggle)
+3. Target time display
+4. Clock (interactive)
+5. Submit button (Überprüfen)
+6. Stats summary
+7. Streak display
+8. Feedback area
+
+**Common Patterns:**
+- Landscape: Clock always in left column, full width, controls in right column
+- Type selector buttons: Icon only (numbers) in landscape, no text labels
+- All elements in right column scaled larger to match prominent clock display
+- Portrait: Vertical stacking with specific order for set-clock-exercise
+
 ## Development Notes
 
 - **Signals over RxJS**: Use `signal()` for state, `computed()` for derived values
