@@ -13,7 +13,7 @@ type TabType = 'math' | 'clock' | 'badges' | 'games';
   standalone: true,
   imports: [CommonModule, RouterLink, AchievementsComponent, BadgeDisplayComponent],
   templateUrl: './global-achievements.component.html',
-  styleUrl: './global-achievements.component.css',
+  styleUrl: './global-achievements.component.scss',
 })
 export class GlobalAchievementsComponent implements OnInit {
   private route = inject(ActivatedRoute);

@@ -12,7 +12,7 @@ import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component
   selector: 'app-word-problem-exercise',
   imports: [RouterLink, KeypadComponent, StatsBadgeComponent],
   templateUrl: './word-problem-exercise.component.html',
-  styleUrls: ['./word-problem-exercise.component.css'],
+  styleUrls: ['./word-problem-exercise.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WordProblemExerciseComponent implements OnInit {
@@ -58,7 +58,6 @@ export class WordProblemExerciseComponent implements OnInit {
 
     // Current streak always starts at 0 when entering the exercise
     // Only the best streak is loaded from StatsService (persistent)
-    console.log('[WordProblem] Starting fresh session, current streak: 0, best streak:', this.bestStreak());
   }
 
   storyText = computed(() => this.currentProblem()?.storyText ?? '');
@@ -148,7 +147,6 @@ export class WordProblemExerciseComponent implements OnInit {
       this.feedback.set('correct');
       const newStreak = this.streak() + 1;
       this.streak.set(newStreak);
-      console.log('[WordProblem] New streak:', newStreak, 'Best:', this.bestStreak());
 
       // Update best streak in StatsService (will sync to server immediately)
       this.stats.updateBestStreak('word-problems', newStreak);

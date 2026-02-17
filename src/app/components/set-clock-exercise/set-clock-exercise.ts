@@ -3,6 +3,8 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InteractiveClockDisplayComponent } from '../interactive-clock-display/interactive-clock-display';
 import { StatsService } from '../../services/stats.service';
+import { ExerciseStateService } from '../../services/exercise-state.service';
+import { createStatsAggregator } from '../../utils/stats-aggregator';
 
 export type ClockExerciseType = 'full' | 'half' | 'quarter' | 'fiveMin';
 export type TimeDisplayMode = 'digital' | 'german';
@@ -22,10 +24,20 @@ export interface SetClockProblem {
   selector: 'app-set-clock-exercise',
   imports: [RouterLink, FormsModule, InteractiveClockDisplayComponent],
   templateUrl: './set-clock-exercise.html',
-  styleUrls: ['./set-clock-exercise.css']
+  styleUrls: ['./set-clock-exercise.scss'],
+  providers: [ExerciseStateService],
 })
 export class SetClockExerciseComponent implements OnInit {
   private stats = inject(StatsService);
+  private exerciseState = inject(ExerciseStateService);
+
+  // Streak tracking (delegated to ExerciseStateService)
+  readonly streak = this.exerciseState.streak;
+  readonly bestStreak = this.exerciseState.bestStreak;
+  readonly showMilestone = this.exerciseState.showMilestone;
+  readonly milestoneValue = this.exerciseState.milestoneValue;
+  readonly confettiPieces = this.exerciseState.confettiPieces;
+  get confettiX() { return this.exerciseState.confettiX; }
 
   // UI Layout
   displayMode = signal<TimeDisplayMode>('digital');
@@ -43,41 +55,15 @@ export class SetClockExerciseComponent implements OnInit {
   isCorrect = signal(false);
   showFeedback = signal(false);
 
-  // Streak tracking
-  streak = signal(0);
-  bestStreak = signal(0);
-  showMilestone = signal(false);
-  milestoneValue = signal(0);
-  private streakMilestones = [5, 10, 20, 30, 40, 50];
-
-  // Confetti
-  confettiPieces = Array.from({ length: 20 }, (_, i) => i);
-  confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
-
   // Problem history - prevent same problem within 10 exercises
   private problemHistory: { hours: number; minutes: number }[] = [];
   private readonly historySize = 10;
 
   // Computed properties
-  readonly typeCorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const type of this.selectedTypes()) {
-      total += types[`clock-setClock-${type}`]?.correct ?? 0;
-    }
-    return total;
-  });
-
-  readonly typeIncorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const type of this.selectedTypes()) {
-      total += types[`clock-setClock-${type}`]?.incorrect ?? 0;
-    }
-    return total;
-  });
-
-  readonly typeTotalCount = computed(() => this.typeCorrectCount() + this.typeIncorrectCount());
+  private statsAgg = createStatsAggregator(this.stats, this.selectedTypes, 'clock-setClock-');
+  readonly typeCorrectCount = this.statsAgg.correct;
+  readonly typeIncorrectCount = this.statsAgg.incorrect;
+  readonly typeTotalCount = this.statsAgg.total;
 
   readonly targetTimeDisplay = computed(() => {
     const problem = this.currentProblem();
@@ -340,36 +326,11 @@ export class SetClockExerciseComponent implements OnInit {
     this.isCorrect.set(correct);
     this.showFeedback.set(true);
 
-    // Update streak
-    if (correct) {
-      const newStreak = this.streak() + 1;
-      this.streak.set(newStreak);
-
-      // Update best streak
-      if (newStreak > this.bestStreak()) {
-        this.bestStreak.set(newStreak);
-      }
-
-      // Check for milestone
-      if (this.streakMilestones.includes(newStreak)) {
-        this.milestoneValue.set(newStreak);
-        this.confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
-        this.showMilestone.set(true);
-        setTimeout(() => this.showMilestone.set(false), 2000);
-      }
-    } else {
-      this.streak.set(0); // Reset streak on wrong answer
-    }
-
     // Record stats
     const exerciseType = `clock-setClock-${problem.type}`;
     this.stats.recordResult(correct, exerciseType);
 
-    // Auto-advance after delay
-    const delay = correct ? 1500 : 2500;
-    setTimeout(() => {
-      this.generateProblem();
-    }, delay);
+    this.exerciseState.handleResult(correct, () => this.generateProblem(), 1500, 2500);
   }
 
   private normalizeAngle(angle: number): number {

@@ -53,20 +53,17 @@ export class MigrationService {
    */
   async migrateLocalDataToUser(userId: string): Promise<void> {
     try {
-      console.log('Starting data migration for user:', userId);
 
       // Migrate daily stats
       const dailyStats = this.loadLocalDailyStats();
       if (dailyStats) {
         await this.supabase.upsertDailyStats(userId, dailyStats);
-        console.log('Migrated daily stats');
       }
 
       // Migrate lifetime stats
       const lifetimeStats = this.loadLocalLifetimeStats();
       if (lifetimeStats) {
         await this.supabase.upsertLifetimeStats(userId, lifetimeStats);
-        console.log('Migrated lifetime stats');
       }
 
       // Migrate time trial data
@@ -75,13 +72,11 @@ export class MigrationService {
         for (const trial of timeTrials) {
           await this.supabase.upsertPersonalBest(userId, trial);
         }
-        console.log('Migrated time trial data');
       }
 
       // Mark migration as complete
       this.markMigrationComplete();
 
-      console.log('Migration completed successfully');
     } catch (error) {
       console.error('Error during migration:', error);
       throw error;
@@ -102,7 +97,6 @@ export class MigrationService {
     localStorage.removeItem(STATS_KEY);
     localStorage.removeItem(LIFETIME_KEY);
     localStorage.removeItem(TIME_TRIALS_KEY);
-    console.log('Old data cleared');
   }
 
   // ============================================================================
@@ -116,12 +110,10 @@ export class MigrationService {
     try {
       const stored = localStorage.getItem(STATS_KEY);
       if (!stored) {
-        console.log('No daily stats found in localStorage');
         return null;
       }
 
       const data = JSON.parse(stored);
-      console.log('Found daily stats in localStorage:', data);
 
       // Convert old format to new format
       // Note: byType is the old format, stats_by_type is the new format
@@ -134,7 +126,6 @@ export class MigrationService {
         clock_daily_goal: data.clockDailyGoal || 20,
       };
 
-      console.log('Converted stats data:', statsData);
       return statsData;
     } catch (error) {
       console.error('Error loading local daily stats:', error);
@@ -149,19 +140,16 @@ export class MigrationService {
     try {
       const stored = localStorage.getItem(LIFETIME_KEY);
       if (!stored) {
-        console.log('No lifetime stats found in localStorage');
         return null;
       }
 
       const data = JSON.parse(stored);
-      console.log('Found lifetime stats in localStorage:', data);
 
       // Convert old format to new format
       const lifetimeData = {
         stats_by_type: data.byType || data.statsByType || {},
       };
 
-      console.log('Converted lifetime stats:', lifetimeData);
       return lifetimeData;
     } catch (error) {
       console.error('Error loading local lifetime stats:', error);

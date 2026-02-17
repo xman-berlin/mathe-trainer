@@ -38,6 +38,7 @@ module.exports = defineConfig([
           "varsIgnorePattern": "^_"
         }
       ],
+      "no-console": ["error", { "allow": ["warn", "error"] }],
     },
   },
   {

@@ -1,0 +1,328 @@
+// =============================================================================
+// Global Entry Point
+// =============================================================================
+@use 'styles/variables' as *;
+@use 'styles/animations';
+@use 'styles/buttons';
+@use 'styles/badges';
+@use 'styles/modals';
+
+// --- Reset & base ---
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+div, section, main, article, aside, header, footer, nav {
+  box-sizing: border-box;
+}
+
+// Prevent horizontal scroll on major containers
+.home-page,
+.overview-page,
+.exercise-container,
+.achievements-container {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+// --- CSS Custom Properties (Design Tokens) ---
+
+:root {
+  --bright-blue: #{$bright-blue};
+  --electric-violet: #{$electric-violet};
+  --french-violet: #{$french-violet};
+  --vivid-pink: #{$vivid-pink};
+  --hot-red: #{$hot-red};
+  --orange-red: #{$orange-red};
+
+  --gray-900: #{$gray-900};
+  --gray-700: #{$gray-700};
+  --gray-400: #{$gray-400};
+  --gray-100: #{$gray-100};
+
+  --red-to-pink-to-purple-vertical-gradient: linear-gradient(
+    180deg,
+    var(--orange-red) 0%,
+    var(--vivid-pink) 50%,
+    var(--electric-violet) 100%
+  );
+
+  --red-to-pink-to-purple-horizontal-gradient: linear-gradient(
+    90deg,
+    var(--orange-red) 0%,
+    var(--vivid-pink) 50%,
+    var(--electric-violet) 100%
+  );
+
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// --- App shell ---
+
+body,
+html {
+  width: 100%;
+  height: 100%;
+}
+
+main {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+router-outlet { display: contents; }
+
+app-exercise {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+}
+
+// --- Content layout ---
+
+.content-area {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 2rem;
+}
+
+.exercises-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.exercise-card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: var(--bright-blue);
+  }
+}
+
+.exercise-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.exercise-card h3 {
+  font-size: 1.3rem;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.exercise-card p {
+  color: var(--gray-700);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.exercise-card a {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background: color-mix(in srgb, var(--bright-blue) 10%, transparent);
+  color: var(--bright-blue);
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: var(--bright-blue);
+    color: white;
+  }
+}
+
+footer {
+  background: var(--gray-900);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+// --- Hero section ---
+
+.hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 2rem 2rem;
+  background: linear-gradient(135deg, rgba(51, 130, 191, 0.05) 0%, rgba(153, 2, 16, 0.05) 100%);
+}
+
+.hero-content {
+  text-align: center;
+  max-width: 600px;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+  font-family: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  line-height: 1.2;
+}
+
+.hero p {
+  font-size: 1rem;
+  color: var(--gray-700);
+  line-height: 1.6;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+// --- Action cards ---
+
+.action-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.action-card {
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  text-decoration: none;
+  color: var(--gray-900);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.practice-card:hover     { border-color: var(--bright-blue); background: color-mix(in srgb, var(--bright-blue) 5%, white); }
+.timetrial-card:hover    { border-color: #10b981; background: color-mix(in srgb, #10b981 5%, white); }
+.achievements-card:hover { border-color: #fbbf24; background: color-mix(in srgb, #fbbf24 5%, white); }
+
+.card-icon {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.action-card h3 {
+  font-size: 1.3rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.action-card p {
+  font-size: 0.95rem;
+  color: var(--gray-700);
+  margin: 0;
+}
+
+// --- Responsive ---
+
+@media (max-width: 900px) {
+  .content-area { padding: 1.5rem 1rem; }
+  .hero         { padding: 2rem 1.5rem 1.5rem; }
+
+  .exercises-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+  .action-cards   { gap: 1rem; }
+}
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2.5rem; }
+  .hero p  { font-size: 0.95rem; }
+
+  .cta-buttons { flex-direction: column; }
+  .btn         { width: 100%; }
+  .action-cards { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 2rem; }
+  .hero p  { font-size: 0.9rem; }
+  .hero    { padding: 1.5rem 1rem 1rem; }
+
+  .content-area { padding: 0.75rem; }
+
+  footer { padding: 1rem; font-size: 0.8rem; }
+
+  .stats-card {
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+
+    h2 { font-size: 1rem; margin-bottom: 0.5rem; }
+  }
+
+  .stats-badges { gap: 0.4rem; }
+
+  .badge { font-size: 0.8rem; padding: 0.25rem 0.5rem; }
+
+  .stats-by-type { margin-top: 0.75rem; padding-top: 0.75rem; }
+
+  .type-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+  }
+
+  .type-item {
+    flex-direction: column;
+    gap: 0.2rem;
+    align-items: center;
+    padding: 0.4rem;
+    text-align: center;
+  }
+
+  .type-name   { font-size: 0.75rem; width: 100%; }
+  .type-badges { gap: 0.3rem; justify-content: center; }
+  .type-badge  { font-size: 0.7rem; padding: 0.2rem 0.4rem; }
+}

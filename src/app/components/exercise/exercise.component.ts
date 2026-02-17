@@ -5,6 +5,8 @@ import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService } from '../../services/timed-challenge.service';
 import { ProblemGeneratorService, OperationType } from '../../services/problem-generator.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
+import { ExerciseStateService } from '../../services/exercise-state.service';
+import { createStatsAggregator } from '../../utils/stats-aggregator';
 
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
 
@@ -13,8 +15,9 @@ type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
   selector: 'app-exercise',
   imports: [RouterLink, KeypadComponent],
   templateUrl: './exercise.component.html',
-  styleUrls: ['./exercise.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./exercise.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ExerciseStateService],
 })
 export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   operandA = signal(0);
@@ -23,16 +26,19 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   feedback = signal<'idle' | 'correct' | 'incorrect'>('idle');
   showCorrectAnswer = signal(false);
 
-  // Streak tracking
-  streak = signal(0);
-  bestStreak = signal(0);
-  showMilestone = signal(false);
-  milestoneValue = signal(0);
-  private streakMilestones = [5, 10, 20, 30, 40, 50, 75, 100];
+  // Streak & confetti via shared service
+  private exerciseState = inject(ExerciseStateService);
+  readonly streak = this.exerciseState.streak;
+  readonly bestStreak = this.exerciseState.bestStreak;
+  readonly showMilestone = this.exerciseState.showMilestone;
+  readonly milestoneValue = this.exerciseState.milestoneValue;
+  readonly confettiPieces = this.exerciseState.confettiPieces;
+  get confettiX() { return this.exerciseState.confettiX; }
 
-  // Confetti
-  confettiPieces = Array.from({ length: 20 }, (_, i) => i);
-  confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
+  constructor() {
+    this.exerciseState.setMilestones([5, 10, 20, 30, 40, 50, 75, 100]);
+    this.generateProblem();
+  }
 
   selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
   currentType = signal<ExerciseType>('addition');
@@ -59,10 +65,6 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   private timedChallengeService = inject(TimedChallengeService);
   private problemGenerator = inject(ProblemGeneratorService);
   private route = inject(ActivatedRoute);
-
-  constructor() {
-    this.generateProblem();
-  }
 
   ngOnInit(): void {
     // Set mode from route data
@@ -99,25 +101,10 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
 
   keypadDisabled = computed(() => this.feedback() !== 'idle');
 
-  typeCorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const type of this.selectedTypes()) {
-      total += types[type]?.correct ?? 0;
-    }
-    return total;
-  });
-
-  typeIncorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const type of this.selectedTypes()) {
-      total += types[type]?.incorrect ?? 0;
-    }
-    return total;
-  });
-
-  typeTotalCount = computed(() => this.typeCorrectCount() + this.typeIncorrectCount());
+  private statsAgg = createStatsAggregator(this.stats, this.selectedTypes);
+  typeCorrectCount = this.statsAgg.correct;
+  typeIncorrectCount = this.statsAgg.incorrect;
+  typeTotalCount = this.statsAgg.total;
 
   timeTrialAccuracy = computed(() => {
     const total = this.timeTrialTotal();
@@ -259,32 +246,10 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
         }
       }, delay);
     } else {
-      // Practice mode - existing logic
-      if (isCorrect) {
-        this.feedback.set('correct');
-        const newStreak = this.streak() + 1;
-        this.streak.set(newStreak);
-
-        // Update best streak
-        if (newStreak > this.bestStreak()) {
-          this.bestStreak.set(newStreak);
-        }
-
-        // Check for milestone
-        if (this.streakMilestones.includes(newStreak)) {
-          this.milestoneValue.set(newStreak);
-          this.confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
-          this.showMilestone.set(true);
-          setTimeout(() => this.showMilestone.set(false), 2000);
-        }
-
-        setTimeout(() => this.generateProblem(), 600);
-      } else {
-        this.feedback.set('incorrect');
-        this.showCorrectAnswer.set(true);
-        this.streak.set(0); // Reset streak on wrong answer
-        setTimeout(() => this.generateProblem(), 1200);
-      }
+      // Practice mode
+      this.feedback.set(isCorrect ? 'correct' : 'incorrect');
+      if (!isCorrect) this.showCorrectAnswer.set(true);
+      this.exerciseState.handleResult(isCorrect, () => this.generateProblem());
 
       this.stats.recordResult(isCorrect, this.currentType());
 

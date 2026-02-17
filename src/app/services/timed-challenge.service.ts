@@ -84,7 +84,6 @@ export class TimedChallengeService {
    * Clear all user data (called on logout)
    */
   clearUserData(): void {
-    console.log('[TimedChallenge] Clearing user data');
     this.personalBests.set({});
     localStorage.removeItem(this.storageKey);
   }
@@ -94,7 +93,6 @@ export class TimedChallengeService {
    */
   async loadFromServer(userId: string): Promise<void> {
     try {
-      console.log('[TimedChallenge] Loading personal bests from server for user:', userId);
 
       const bestRecords = await this.supabase.getPersonalBests(userId);
 
@@ -109,7 +107,6 @@ export class TimedChallengeService {
         };
       }
 
-      console.log('[TimedChallenge] Loaded personal bests:', bestsMap);
       this.personalBests.set(bestsMap);
       this.persist(); // Cache locally
     } catch (error) {
@@ -126,7 +123,6 @@ export class TimedChallengeService {
    */
   private async loadFromServerIfAuthenticated(): Promise<void> {
     if (!this.auth.isAuthenticated()) {
-      console.log('[TimedChallenge] Not authenticated, skipping server load');
       return;
     }
 
@@ -152,7 +148,6 @@ export class TimedChallengeService {
         accuracy: result.accuracy
       });
 
-      console.log('[TimedChallenge] Synced personal best to server:', result.exerciseTypes);
     } catch (error) {
       console.warn('[TimedChallenge] Failed to sync to server:', error);
     }

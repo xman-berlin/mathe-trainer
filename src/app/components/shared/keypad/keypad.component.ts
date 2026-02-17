@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './keypad.component.html',
-  styleUrls: ['./keypad.component.css'],
+  styleUrls: ['./keypad.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     'tabindex': '0',

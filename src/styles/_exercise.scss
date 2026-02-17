@@ -1,0 +1,142 @@
+// =============================================================================
+// Shared Exercise Container & Feedback Styles
+// =============================================================================
+@use 'mixins' as *;
+
+// --- Base exercise layout ---
+
+.exercise-root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+// --- Main content area ---
+
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 2rem;
+  gap: 2rem;
+  overflow-y: auto;
+}
+
+// --- Math problem display ---
+
+.problem-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 5rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.operand-display {
+  min-width: 6rem;
+  text-align: right;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, rgba(51, 130, 191, 0.08) 0%, rgba(153, 2, 16, 0.08) 100%);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.operator {
+  color: var(--bright-blue);
+  font-size: 4rem;
+  margin: 0 0.5rem;
+}
+
+.equals {
+  color: var(--orange-red);
+  font-size: 4rem;
+  margin: 0 0.5rem;
+}
+
+.question-mark {
+  min-width: 6rem;
+  text-align: center;
+  padding: 1rem 2rem;
+  background: var(--red-to-pink-to-purple-horizontal-gradient);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(240, 6, 11, 0.2);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+// --- Answer input ---
+
+.answer-input {
+  font-size: 2.5rem;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  width: 12rem;
+  text-align: center;
+  border: 3px solid var(--gray-400);
+  border-radius: 12px;
+  outline: none;
+  transition: all 0.3s ease;
+  font-variant-numeric: tabular-nums;
+
+  &:focus {
+    border-color: var(--bright-blue);
+    box-shadow: 0 0 0 6px rgba(51, 130, 191, 0.15);
+    background: color-mix(in srgb, var(--bright-blue) 3%, white);
+  }
+}
+
+// --- Feedback ---
+
+.feedback {
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  animation: slideDown 0.3s ease;
+
+  &.correct {
+    color: #27ae60;
+    background: rgba(39, 174, 96, 0.1);
+  }
+
+  &.incorrect {
+    color: #c0392b;
+    background: rgba(192, 57, 43, 0.1);
+  }
+}
+
+// --- Result summary ---
+
+.result-summary {
+  .result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .result-label {
+    color: #6b7280;
+    font-weight: 500;
+  }
+
+  .result-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--bright-blue);
+    transition: all 0.3s ease;
+
+    &.record-value {
+      color: #f59e0b;
+      font-size: 2rem;
+      animation: valuePopIn 0.5s ease-out 0.2s backwards;
+    }
+  }
+}

@@ -1,3 +1,6 @@
+// @use path relative to src/app/components/*/
+@use '../../../styles/mixins' as *;
+
 .clock-exercise-root {
   width: 100%;
   min-height: 100vh;
@@ -1400,7 +1403,6 @@
   .result-value {
     font-size: 1.1rem;
   }
-}
 }
 
 ::ng-deep .clock-section app-clock-display .clock-svg {

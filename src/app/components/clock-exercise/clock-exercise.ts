@@ -6,13 +6,16 @@ import { ClockDisplayComponent } from '../clock-display/clock-display';
 import { StatsService } from '../../services/stats.service';
 import { TimedChallengeService } from '../../services/timed-challenge.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
+import { ExerciseStateService } from '../../services/exercise-state.service';
+import { createStatsAggregator } from '../../utils/stats-aggregator';
 
 @Component({
   standalone: true,
   selector: 'app-clock-exercise',
   imports: [RouterLink, FormsModule, ClockDisplayComponent, KeypadComponent],
   templateUrl: './clock-exercise.html',
-  styleUrl: './clock-exercise.css'
+  styleUrl: './clock-exercise.scss',
+  providers: [ExerciseStateService],
 })
 export class ClockExerciseComponent implements OnInit, OnDestroy {
   private clockService = inject(ClockService);
@@ -31,12 +34,14 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
   // Mode
   readonly mode = signal<'practice' | 'timeTrial'>('practice');
 
-  // Streak tracking
-  streak = signal(0);
-  bestStreak = signal(0);
-  showMilestone = signal(false);
-  milestoneValue = signal(0);
-  private streakMilestones = [5, 10, 20, 30, 40, 50];
+  // Streak tracking (delegated to ExerciseStateService)
+  private exerciseState = inject(ExerciseStateService);
+  readonly streak = this.exerciseState.streak;
+  readonly bestStreak = this.exerciseState.bestStreak;
+  readonly showMilestone = this.exerciseState.showMilestone;
+  readonly milestoneValue = this.exerciseState.milestoneValue;
+  readonly confettiPieces = this.exerciseState.confettiPieces;
+  get confettiX() { return this.exerciseState.confettiX; }
 
   // Time Trial Mode
   readonly timeTrialActive = signal(false);
@@ -51,10 +56,6 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
   private problemHistory: { hours: number; minutes: number }[] = [];
   private readonly historySize = 10;
 
-  // Confetti
-  confettiPieces = Array.from({ length: 20 }, (_, i) => i);
-  confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
-
   // Available exercise types
   readonly exerciseTypes: ClockExerciseType[] = ['full', 'half', 'quarter', 'fiveMin'];
 
@@ -64,25 +65,10 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
     return problem ? this.clockService.getTimeOfDayLabel(problem.timeOfDay) : '';
   });
 
-  readonly typeCorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const type of this.selectedTypes()) {
-      total += types[`clock-${type}`]?.correct ?? 0;
-    }
-    return total;
-  });
-
-  readonly typeIncorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const type of this.selectedTypes()) {
-      total += types[`clock-${type}`]?.incorrect ?? 0;
-    }
-    return total;
-  });
-
-  readonly typeTotalCount = computed(() => this.typeCorrectCount() + this.typeIncorrectCount());
+  private statsAgg = createStatsAggregator(this.stats, this.selectedTypes, 'clock-');
+  readonly typeCorrectCount = this.statsAgg.correct;
+  readonly typeIncorrectCount = this.statsAgg.incorrect;
+  readonly typeTotalCount = this.statsAgg.total;
 
   readonly timeTrialAccuracy = computed(() => {
     const total = this.timeTrialTotal();
@@ -232,37 +218,12 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
         }
       }, delay);
     } else {
-      // Practice mode - existing logic
-      // Update streak
-      if (correct) {
-        const newStreak = this.streak() + 1;
-        this.streak.set(newStreak);
-
-        // Update best streak
-        if (newStreak > this.bestStreak()) {
-          this.bestStreak.set(newStreak);
-        }
-
-        // Check for milestone
-        if (this.streakMilestones.includes(newStreak)) {
-          this.milestoneValue.set(newStreak);
-          this.confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
-          this.showMilestone.set(true);
-          setTimeout(() => this.showMilestone.set(false), 2000);
-        }
-      } else {
-        this.streak.set(0); // Reset streak on wrong answer
-      }
-
+      // Practice mode
       // Record stats with type prefix "clock-"
       const exerciseType = `clock-${this.currentType()}`;
       this.stats.recordResult(correct, exerciseType);
 
-      // Auto-advance after delay
-      const delay = correct ? 1000 : 2000;
-      setTimeout(() => {
-        this.generateProblem();
-      }, delay);
+      this.exerciseState.handleResult(correct, () => this.generateProblem(), 1000, 2000);
     }
   }
 

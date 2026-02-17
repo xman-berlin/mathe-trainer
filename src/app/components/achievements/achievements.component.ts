@@ -14,7 +14,7 @@ type MedalLevel = 'none' | 'bronze' | 'silver' | 'gold';
   selector: 'app-achievements',
   imports: [CommonModule],
   templateUrl: './achievements.component.html',
-  styleUrls: ['./achievements.component.css']
+  styleUrls: ['./achievements.component.scss']
 })
 export class AchievementsComponent implements OnInit {
   achievements = inject(AchievementsService);

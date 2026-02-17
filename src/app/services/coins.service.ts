@@ -215,7 +215,6 @@ export class CoinsService {
 
     if (queue.length === 0) return;
 
-    console.log(`Processing ${queue.length} queued coin transactions...`);
 
     for (const transaction of queue) {
       try {
@@ -230,7 +229,6 @@ export class CoinsService {
     // Clear queue after successful sync
     this.transactionQueue.set([]);
     this.saveQueueToLocalStorage();
-    console.log('All queued coin transactions processed');
   }
 
   private loadQueueFromLocalStorage(): void {

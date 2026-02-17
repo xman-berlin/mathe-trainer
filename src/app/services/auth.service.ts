@@ -54,7 +54,6 @@ export class AuthService {
    * Logout current user
    */
   async logout(): Promise<void> {
-    console.log('[AuthService] Logging out, clearing all user data');
 
     // Clear data from all services
     await this.clearAllUserData();
@@ -94,7 +93,6 @@ export class AuthService {
       const badgeService = this.injector.get(BadgeService);
       badgeService.reset();
 
-      console.log('[AuthService] All user data cleared');
     } catch (error) {
       console.warn('Error clearing user data:', error);
     }
@@ -174,7 +172,6 @@ export class AuthService {
    */
   private async loadUserData(userId: string): Promise<void> {
     try {
-      console.log('[AuthService] Loading all user data for:', userId);
 
       // Load streak
       const { DailyStreakService } = await import('./daily-streak.service');
@@ -207,7 +204,6 @@ export class AuthService {
       const badgeService = this.injector.get(BadgeService);
       await badgeService.loadEarnedBadges(userId);
 
-      console.log('[AuthService] All user data loaded successfully');
     } catch (error) {
       console.warn('[AuthService] Error loading user data:', error);
     }

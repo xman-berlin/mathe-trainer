@@ -12,7 +12,7 @@ import type { BadgeProgress, BadgeCategory } from '../../models/badge.model';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './badge-display.component.html',
-  styleUrl: './badge-display.component.css',
+  styleUrl: './badge-display.component.scss',
 })
 export class BadgeDisplayComponent implements OnInit {
   private badgeService = inject(BadgeService);

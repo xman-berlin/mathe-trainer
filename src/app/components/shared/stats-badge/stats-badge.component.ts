@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './stats-badge.component.html',
-  styleUrls: ['./stats-badge.component.css'],
+  styleUrls: ['./stats-badge.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatsBadgeComponent {

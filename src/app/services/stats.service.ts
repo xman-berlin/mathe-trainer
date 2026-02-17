@@ -123,7 +123,6 @@ export class StatsService {
 
       // Always check and update streak on correct answers
       // The StreakService will handle "already practiced today" logic
-      console.log('Correct answer! Checking streak...');
       this.updateStreak();
 
       // Award coin for correct answer
@@ -142,7 +141,6 @@ export class StatsService {
     this.persist();
 
     // Sync to server in background (non-blocking)
-    console.log('Syncing stats to server...');
     this.syncToServer();
   }
 
@@ -232,17 +230,12 @@ export class StatsService {
     try {
       const raw = localStorage.getItem(this.lifetimeStorageKey);
       if (!raw) {
-        console.log('[StatsService] No lifetime stats in localStorage, creating empty');
         this.persistLifetime();
         return;
       }
       const parsed: LifetimeStats = JSON.parse(raw);
       this.lifetimeByType.set(parsed.byType || {});
       this.bestStreaksByTypeSignal.set(parsed.best_streaks_by_type || {});
-      console.log('[StatsService] Loaded lifetime stats from localStorage:', {
-        byType: parsed.byType,
-        bestStreaks: parsed.best_streaks_by_type
-      });
     } catch (error) {
       console.error('[StatsService] Failed to load lifetime stats from localStorage:', error);
       this.lifetimeByType.set({});
@@ -264,7 +257,6 @@ export class StatsService {
 
   getBestStreak(exerciseType: string): number {
     const value = this.bestStreaksByTypeSignal()[exerciseType] ?? 0;
-    console.log(`[StatsService] getBestStreak(${exerciseType}) = ${value}`, this.bestStreaksByTypeSignal());
     return value;
   }
 
@@ -272,22 +264,17 @@ export class StatsService {
     const current = this.bestStreaksByTypeSignal();
     const currentBest = current[exerciseType] ?? 0;
 
-    console.log(`[StatsService] updateBestStreak(${exerciseType}, ${streak}), current best: ${currentBest}`);
 
     if (streak > currentBest) {
       const newStreaks = {
         ...current,
         [exerciseType]: streak
       };
-      console.log('[StatsService] New best! Updating signal:', newStreaks);
       this.bestStreaksByTypeSignal.set(newStreaks);
       this.persistLifetime();
-      console.log('[StatsService] Persisted to localStorage');
 
       // Sync to server in background
       this.syncToServer();
-    } else {
-      console.log('[StatsService] Not a new best, skipping update');
     }
   }
 
@@ -319,7 +306,6 @@ export class StatsService {
    * Clear all user data (called on logout)
    */
   clearUserData(): void {
-    console.log('[StatsService] Clearing user data');
     this.date.set(this.today());
     this.byType.set({});
     this.dailyGoal.set(20);
@@ -342,20 +328,16 @@ export class StatsService {
    */
   private async loadFromServerIfAuthenticated(): Promise<void> {
     if (!this.auth || !this.auth.isAuthenticated()) {
-      console.log('Not authenticated, skipping server load');
       return;
     }
 
-    console.log('Loading from server (authenticated)...');
     await this.loadFromServer();
 
     // Also load and check streak
     if (this.streakService && this.auth.currentUser()) {
       const userId = this.auth.currentUser()!.id;
-      console.log('Loading streak for user:', userId);
       await this.streakService.loadStreak(userId);
       await this.streakService.checkAndUpdateStreak(userId);
-      console.log('Streak data loaded and checked');
     } else {
       console.warn('StreakService not available or no current user');
     }
@@ -373,16 +355,14 @@ export class StatsService {
       const userId = this.auth.currentUser()!.id;
       const today = this.today();
 
-      console.log('Loading stats from server for user:', userId, 'date:', today);
 
       // Load daily stats
       const serverDaily = await this.supabase.getDailyStats(userId, today);
-      console.log('Server daily stats:', serverDaily);
 
       // Convert server format to local format
       const dailyStats: DailyStats = {
         date: serverDaily.date,
-        byType: this.convertStatsToLocal(serverDaily.stats_by_type),
+        byType: serverDaily.stats_by_type,
         dailyGoal: serverDaily.math_daily_goal,
         clockDailyGoal: serverDaily.clock_daily_goal,
       };
@@ -396,14 +376,11 @@ export class StatsService {
       // Check if user has answered today (by checking if any type has stats)
       const hasAnswered = Object.keys(dailyStats.byType).length > 0;
       this.hasAnsweredToday.set(hasAnswered);
-      console.log('Has answered today:', hasAnswered);
 
       // Load lifetime stats
       const serverLifetime = await this.supabase.getLifetimeStats(userId);
       this.lifetimeByType.set(serverLifetime.stats_by_type || {});
 
-      console.log('[StatsService] Server lifetime data:', serverLifetime);
-      console.log('[StatsService] Current local best streaks before server merge:', this.bestStreaksByTypeSignal());
 
       // Merge server and local best streaks (take maximum of each)
       if (serverLifetime.best_streaks_by_type) {
@@ -417,18 +394,13 @@ export class StatsService {
           mergedStreaks[type] = Math.max(localValue, serverValue as number);
         }
 
-        console.log('[StatsService] Merged best streaks:', mergedStreaks);
         this.bestStreaksByTypeSignal.set(mergedStreaks);
-      } else {
-        console.log('[StatsService] Server has no best_streaks_by_type field, keeping local data');
       }
 
-      console.log('Lifetime stats loaded:', serverLifetime.stats_by_type);
 
       // Persist to localStorage (cache)
       this.persist();
       this.persistLifetime();
-      console.log('[StatsService] Persisted merged data to localStorage');
     } catch (error) {
       console.warn('Failed to load from server, using local cache:', error);
     }
@@ -448,7 +420,7 @@ export class StatsService {
       // Convert local format to server format
       const dailyStats = {
         date: this.date(),
-        stats_by_type: this.convertStatsToServer(this.byType()),
+        stats_by_type: this.byType(),
         math_daily_goal: this.dailyGoal(),
         clock_daily_goal: this.clockDailyGoal(),
       };
@@ -462,7 +434,6 @@ export class StatsService {
         best_streaks_by_type: this.bestStreaksByTypeSignal(),
       };
       await this.supabase.upsertLifetimeStats(userId, lifetimeStats);
-      console.log('Stats synced to server successfully (including best streaks)');
     } catch (error) {
       console.warn('Failed to sync to server:', error);
       console.warn('If you see column "best_streaks_by_type" does not exist, run the migration script: migration-add-best-streaks.sql');
@@ -481,30 +452,10 @@ export class StatsService {
 
     try {
       const userId = this.auth.currentUser()!.id;
-      console.log('Recording practice for streak, userId:', userId);
       await this.streakService.recordPractice(userId);
-      console.log('Streak updated successfully');
     } catch (error) {
       console.error('Failed to update streak:', error);
     }
-  }
-
-  /**
-   * Convert server stats format to local format
-   */
-  private convertStatsToLocal(
-    serverStats: Record<string, { correct: number; incorrect: number }>
-  ): Record<string, ExerciseTypeStats> {
-    return serverStats;
-  }
-
-  /**
-   * Convert local stats format to server format
-   */
-  private convertStatsToServer(
-    localStats: Record<string, ExerciseTypeStats>
-  ): Record<string, { correct: number; incorrect: number }> {
-    return localStats;
   }
 
   // ============================================================================
@@ -544,7 +495,6 @@ export class StatsService {
         const userId = this.auth.currentUser()!.id;
         await this.coinsService.awardCoins(userId, 10, 'daily_goal', 'math');
         this.mathGoalBonusAwarded.set(true);
-        console.log('Math daily goal bonus awarded: +10 coins');
       } catch (error) {
         console.error('Failed to award math goal bonus:', error);
       }
@@ -556,7 +506,6 @@ export class StatsService {
         const userId = this.auth.currentUser()!.id;
         await this.coinsService.awardCoins(userId, 10, 'daily_goal', 'clock');
         this.clockGoalBonusAwarded.set(true);
-        console.log('Clock daily goal bonus awarded: +10 coins');
       } catch (error) {
         console.error('Failed to award clock goal bonus:', error);
       }
@@ -581,7 +530,6 @@ export class StatsService {
       const newBadges = await this.badgeService.checkAndAwardBadges(userId, checkData);
 
       if (newBadges.length > 0) {
-        console.log(`Awarded ${newBadges.length} new badges:`, newBadges.map(b => b.name));
         // TODO: Show badge notification to user (Phase 5)
       }
     } catch (error) {

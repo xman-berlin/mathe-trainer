@@ -1,20 +1,12 @@
 import {
   Component,
-  signal,
   computed,
-  inject,
-  OnInit,
-  OnDestroy,
-  ElementRef,
-  ViewChild,
+  signal,
   HostListener,
-  AfterViewInit,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { GameService } from '../../services/game.service';
-import { CoinsService } from '../../services/coins.service';
-import { AuthService } from '../../services/auth.service';
-import { BREAKOUT_CONFIG, GameState } from '../../models/game.model';
+import { RouterLink } from '@angular/router';
+import { BREAKOUT_CONFIG } from '../../models/game.model';
+import { BaseGameComponent } from '../games/base-game.component';
 
 interface Block {
   x: number;
@@ -39,31 +31,16 @@ interface Ball {
   selector: 'app-breakout',
   imports: [RouterLink],
   templateUrl: './breakout.html',
-  styleUrl: './breakout.css',
+  styleUrl: './breakout.scss',
 })
-export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild('gameCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+export class BreakoutComponent extends BaseGameComponent {
+  protected override readonly config = BREAKOUT_CONFIG;
+  override readonly canAfford = computed(() =>
+    this.coinsService.canAfford(BREAKOUT_CONFIG.COST_TO_PLAY)
+  );
 
-  readonly gameService = inject(GameService);
-  private coinsService = inject(CoinsService);
-  private authService = inject(AuthService);
-  private router = inject(Router);
-
-  // Game state
-  readonly gameState = signal<GameState>('READY');
-  readonly score = signal(0);
-  readonly highScore = signal(0);
-  readonly isNewHighScore = signal(false);
+  // Game-specific state
   readonly lives = signal<number>(BREAKOUT_CONFIG.INITIAL_LIVES);
-  readonly canAfford = computed(() => this.coinsService.canAfford(BREAKOUT_CONFIG.COST_TO_PLAY));
-  readonly coinBalance = this.coinsService.balance;
-
-  // Config
-  readonly config = BREAKOUT_CONFIG;
-
-  // Canvas context
-  private ctx: CanvasRenderingContext2D | null = null;
-  private animationFrameId: number | null = null;
 
   // Game objects
   private paddleX = 0;
@@ -77,29 +54,6 @@ export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Block colors (top to bottom)
   private readonly BLOCK_COLORS = ['#FF6B6B', '#FFE66D', '#4ECDC4', '#45B7D1', '#96CEB4'];
-
-  ngOnInit(): void {
-    const userId = this.authService.currentUser()?.id;
-    if (userId) {
-      this.highScore.set(this.gameService.getHighScore(BREAKOUT_CONFIG.GAME_ID));
-    }
-  }
-
-  ngAfterViewInit(): void {
-    this.initCanvas();
-    this.drawReadyScreen();
-  }
-
-  ngOnDestroy(): void {
-    this.stopGameLoop();
-  }
-
-  private initCanvas(): void {
-    const canvas = this.canvasRef.nativeElement;
-    canvas.width = BREAKOUT_CONFIG.CANVAS_WIDTH;
-    canvas.height = BREAKOUT_CONFIG.CANVAS_HEIGHT;
-    this.ctx = canvas.getContext('2d');
-  }
 
   // ============================================================================
   // INPUT HANDLERS
@@ -155,7 +109,7 @@ export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
   // GAME CONTROL
   // ============================================================================
 
-  async startGame(): Promise<void> {
+  override async startGame(): Promise<void> {
     this.stopGameLoop();
 
     const userId = this.authService.currentUser()?.id;
@@ -165,9 +119,7 @@ export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     const success = await this.gameService.startGame(userId, BREAKOUT_CONFIG.GAME_ID);
-    if (!success) {
-      return;
-    }
+    if (!success) return;
 
     // Reset game state
     this.paddleX = (BREAKOUT_CONFIG.CANVAS_WIDTH - BREAKOUT_CONFIG.PADDLE_WIDTH) / 2;
@@ -182,94 +134,15 @@ export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
     this.startGameLoop();
   }
 
-  async restartGame(): Promise<void> {
-    await this.startGame();
-  }
-
-  goBack(): void {
-    this.router.navigate(['/erfolge'], { queryParams: { tab: 'games' } });
-  }
-
-  private resetBall(): void {
-    this.ball = {
-      x: BREAKOUT_CONFIG.CANVAS_WIDTH / 2,
-      y: BREAKOUT_CONFIG.PADDLE_Y - 20,
-      dx: (Math.random() > 0.5 ? 1 : -1) * BREAKOUT_CONFIG.BALL_SPEED * 0.7,
-      dy: -BREAKOUT_CONFIG.BALL_SPEED,
-      radius: BREAKOUT_CONFIG.BALL_RADIUS,
-    };
-  }
-
-  private createBlocks(): void {
-    this.blocks = [];
-    const { BLOCK_ROWS, BLOCK_COLS, BLOCK_WIDTH, BLOCK_HEIGHT, BLOCK_PADDING, BLOCK_OFFSET_TOP, BLOCK_OFFSET_LEFT, BLOCK_POINTS } = BREAKOUT_CONFIG;
-
-    for (let row = 0; row < BLOCK_ROWS; row++) {
-      for (let col = 0; col < BLOCK_COLS; col++) {
-        this.blocks.push({
-          x: BLOCK_OFFSET_LEFT + col * (BLOCK_WIDTH + BLOCK_PADDING),
-          y: BLOCK_OFFSET_TOP + row * (BLOCK_HEIGHT + BLOCK_PADDING),
-          width: BLOCK_WIDTH,
-          height: BLOCK_HEIGHT,
-          color: this.BLOCK_COLORS[row],
-          points: BLOCK_POINTS[row],
-          destroyed: false,
-        });
-      }
-    }
-  }
-
-  private async endGame(): Promise<void> {
-    this.gameState.set('GAME_OVER');
-    this.stopGameLoop();
-
-    const userId = this.authService.currentUser()?.id;
-    if (userId) {
-      const isNewHighScore = await this.gameService.saveScore(
-        userId,
-        BREAKOUT_CONFIG.GAME_ID,
-        this.score()
-      );
-      this.isNewHighScore.set(isNewHighScore);
-      if (isNewHighScore) {
-        this.highScore.set(this.score());
-      }
-    }
-
-    this.drawGameOverScreen();
-  }
-
-  private checkWin(): boolean {
-    return this.blocks.every((block) => block.destroyed);
-  }
-
   // ============================================================================
-  // GAME LOOP
+  // GAME LOOP (abstract implementations)
   // ============================================================================
 
-  private startGameLoop(): void {
-    const gameLoop = () => {
-      this.update();
-      this.draw();
-      this.animationFrameId = requestAnimationFrame(gameLoop);
-    };
-    this.animationFrameId = requestAnimationFrame(gameLoop);
-  }
-
-  private stopGameLoop(): void {
-    if (this.animationFrameId !== null) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
-  }
-
-  private update(): void {
+  protected override update(): void {
     if (this.gameState() !== 'PLAYING') return;
 
-    // Update paddle position
     this.updatePaddle();
 
-    // Update ball position
     this.ball.x += this.ball.dx;
     this.ball.y += this.ball.dy;
 
@@ -300,9 +173,8 @@ export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
       this.ball.x >= this.paddleX &&
       this.ball.x <= this.paddleX + BREAKOUT_CONFIG.PADDLE_WIDTH
     ) {
-      // Calculate angle based on where ball hits paddle
       const hitPos = (this.ball.x - this.paddleX) / BREAKOUT_CONFIG.PADDLE_WIDTH;
-      const angle = (hitPos - 0.5) * Math.PI * 0.7; // -63° to 63°
+      const angle = (hitPos - 0.5) * Math.PI * 0.7;
       const speed = Math.sqrt(this.ball.dx * this.ball.dx + this.ball.dy * this.ball.dy);
 
       this.ball.dx = speed * Math.sin(angle);
@@ -319,82 +191,42 @@ export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
         this.score.update((s) => s + block.points);
         this.ball.dy = -this.ball.dy;
 
-        // Check win
         if (this.checkWin()) {
-          // Bonus for completing level
           this.score.update((s) => s + 100);
           this.endGame();
           return;
         }
-        break; // Only one block per frame
+        break;
       }
     }
   }
 
-  private updatePaddle(): void {
-    const speed = BREAKOUT_CONFIG.PADDLE_SPEED;
-
-    if (this.mouseX !== null) {
-      // Mouse/touch control
-      this.paddleX = this.mouseX - BREAKOUT_CONFIG.PADDLE_WIDTH / 2;
-    } else {
-      // Keyboard control
-      if (this.leftPressed) {
-        this.paddleX -= speed;
-      }
-      if (this.rightPressed) {
-        this.paddleX += speed;
-      }
-    }
-
-    // Keep paddle in bounds
-    this.paddleX = Math.max(0, Math.min(BREAKOUT_CONFIG.CANVAS_WIDTH - BREAKOUT_CONFIG.PADDLE_WIDTH, this.paddleX));
-  }
-
-  private checkBlockCollision(block: Block): boolean {
-    return (
-      this.ball.x + this.ball.radius > block.x &&
-      this.ball.x - this.ball.radius < block.x + block.width &&
-      this.ball.y + this.ball.radius > block.y &&
-      this.ball.y - this.ball.radius < block.y + block.height
-    );
-  }
-
-  // ============================================================================
-  // RENDERING
-  // ============================================================================
-
-  private draw(): void {
+  protected override draw(): void {
     if (!this.ctx) return;
 
     const ctx = this.ctx;
     const width = BREAKOUT_CONFIG.CANVAS_WIDTH;
     const height = BREAKOUT_CONFIG.CANVAS_HEIGHT;
 
-    // Background
     ctx.fillStyle = '#1a1a2e';
     ctx.fillRect(0, 0, width, height);
 
-    // Draw blocks
     for (const block of this.blocks) {
       if (!block.destroyed) {
         this.drawBlock(ctx, block);
       }
     }
 
-    // Draw paddle
     ctx.fillStyle = '#4ECDC4';
     ctx.beginPath();
     ctx.roundRect(this.paddleX, BREAKOUT_CONFIG.PADDLE_Y, BREAKOUT_CONFIG.PADDLE_WIDTH, BREAKOUT_CONFIG.PADDLE_HEIGHT, 6);
     ctx.fill();
 
-    // Draw ball
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
     ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
     ctx.fill();
 
-    // Draw score and lives
     ctx.fillStyle = 'white';
     ctx.font = 'bold 20px Arial';
     ctx.textAlign = 'left';
@@ -404,29 +236,16 @@ export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
     ctx.fillText(`${'❤️'.repeat(this.lives())}`, width - 15, 30);
   }
 
-  private drawBlock(ctx: CanvasRenderingContext2D, block: Block): void {
-    ctx.fillStyle = block.color;
-    ctx.beginPath();
-    ctx.roundRect(block.x, block.y, block.width, block.height, 4);
-    ctx.fill();
-
-    // Add subtle highlight
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.fillRect(block.x + 2, block.y + 2, block.width - 4, 3);
-  }
-
-  private drawReadyScreen(): void {
+  protected override drawReadyScreen(): void {
     if (!this.ctx) return;
 
     const ctx = this.ctx;
     const width = BREAKOUT_CONFIG.CANVAS_WIDTH;
     const height = BREAKOUT_CONFIG.CANVAS_HEIGHT;
 
-    // Background
     ctx.fillStyle = '#1a1a2e';
     ctx.fillRect(0, 0, width, height);
 
-    // Draw sample blocks
     const sampleBlocks = [
       { x: width / 2 - 90, y: height / 2 - 60, color: '#FF6B6B' },
       { x: width / 2 - 30, y: height / 2 - 60, color: '#FFE66D' },
@@ -439,35 +258,30 @@ export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
       ctx.fill();
     }
 
-    // Title
     ctx.fillStyle = 'white';
     ctx.font = 'bold 32px Arial';
     ctx.textAlign = 'center';
     ctx.fillText('Breakout', width / 2, 80);
 
-    // Instructions
     ctx.fillStyle = '#aaa';
     ctx.font = '16px Arial';
     ctx.fillText('← → oder Maus zum Steuern', width / 2, height / 2 + 40);
 
-    // High score
     if (this.highScore() > 0) {
       ctx.fillText(`Highscore: ${this.highScore()}`, width / 2, height / 2 + 70);
     }
   }
 
-  private drawGameOverScreen(): void {
+  protected override drawGameOverScreen(): void {
     if (!this.ctx) return;
 
     const ctx = this.ctx;
     const width = BREAKOUT_CONFIG.CANVAS_WIDTH;
     const height = BREAKOUT_CONFIG.CANVAS_HEIGHT;
 
-    // Semi-transparent overlay
     ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
     ctx.fillRect(0, 0, width, height);
 
-    // Game Over or Win text
     ctx.fillStyle = 'white';
     ctx.font = 'bold 36px Arial';
     ctx.textAlign = 'center';
@@ -479,12 +293,10 @@ export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
       ctx.fillText('Game Over', width / 2, height / 2 - 60);
     }
 
-    // Score
     ctx.fillStyle = 'white';
     ctx.font = 'bold 28px Arial';
     ctx.fillText(`Punkte: ${this.score()}`, width / 2, height / 2 - 10);
 
-    // New high score?
     if (this.isNewHighScore()) {
       ctx.fillStyle = '#FFD700';
       ctx.font = 'bold 20px Arial';
@@ -494,5 +306,78 @@ export class BreakoutComponent implements OnInit, OnDestroy, AfterViewInit {
       ctx.font = '18px Arial';
       ctx.fillText(`Highscore: ${this.highScore()}`, width / 2, height / 2 + 30);
     }
+  }
+
+  // ============================================================================
+  // PRIVATE HELPERS
+  // ============================================================================
+
+  private resetBall(): void {
+    this.ball = {
+      x: BREAKOUT_CONFIG.CANVAS_WIDTH / 2,
+      y: BREAKOUT_CONFIG.PADDLE_Y - 20,
+      dx: (Math.random() > 0.5 ? 1 : -1) * BREAKOUT_CONFIG.BALL_SPEED * 0.7,
+      dy: -BREAKOUT_CONFIG.BALL_SPEED,
+      radius: BREAKOUT_CONFIG.BALL_RADIUS,
+    };
+  }
+
+  private createBlocks(): void {
+    this.blocks = [];
+    const { BLOCK_ROWS, BLOCK_COLS, BLOCK_WIDTH, BLOCK_HEIGHT, BLOCK_PADDING, BLOCK_OFFSET_TOP, BLOCK_OFFSET_LEFT, BLOCK_POINTS } = BREAKOUT_CONFIG;
+
+    for (let row = 0; row < BLOCK_ROWS; row++) {
+      for (let col = 0; col < BLOCK_COLS; col++) {
+        this.blocks.push({
+          x: BLOCK_OFFSET_LEFT + col * (BLOCK_WIDTH + BLOCK_PADDING),
+          y: BLOCK_OFFSET_TOP + row * (BLOCK_HEIGHT + BLOCK_PADDING),
+          width: BLOCK_WIDTH,
+          height: BLOCK_HEIGHT,
+          color: this.BLOCK_COLORS[row],
+          points: BLOCK_POINTS[row],
+          destroyed: false,
+        });
+      }
+    }
+  }
+
+  private checkWin(): boolean {
+    return this.blocks.every((block) => block.destroyed);
+  }
+
+  private updatePaddle(): void {
+    const speed = BREAKOUT_CONFIG.PADDLE_SPEED;
+
+    if (this.mouseX !== null) {
+      this.paddleX = this.mouseX - BREAKOUT_CONFIG.PADDLE_WIDTH / 2;
+    } else {
+      if (this.leftPressed) {
+        this.paddleX -= speed;
+      }
+      if (this.rightPressed) {
+        this.paddleX += speed;
+      }
+    }
+
+    this.paddleX = Math.max(0, Math.min(BREAKOUT_CONFIG.CANVAS_WIDTH - BREAKOUT_CONFIG.PADDLE_WIDTH, this.paddleX));
+  }
+
+  private checkBlockCollision(block: Block): boolean {
+    return (
+      this.ball.x + this.ball.radius > block.x &&
+      this.ball.x - this.ball.radius < block.x + block.width &&
+      this.ball.y + this.ball.radius > block.y &&
+      this.ball.y - this.ball.radius < block.y + block.height
+    );
+  }
+
+  private drawBlock(ctx: CanvasRenderingContext2D, block: Block): void {
+    ctx.fillStyle = block.color;
+    ctx.beginPath();
+    ctx.roundRect(block.x, block.y, block.width, block.height, 4);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.fillRect(block.x + 2, block.y + 2, block.width - 4, 3);
   }
 }

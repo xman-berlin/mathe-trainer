@@ -1,0 +1,64 @@
+// =============================================================================
+// Responsive Mixins & Layout Helpers
+// =============================================================================
+@use 'variables' as *;
+
+// --- Responsive breakpoints ---
+
+@mixin landscape {
+  @media (orientation: landscape) and (min-width: #{$bp-landscape-min}) {
+    @content;
+  }
+}
+
+@mixin portrait-tablet {
+  @media (orientation: portrait) and (min-width: #{$bp-md}) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: #{$bp-md}) {
+    @content;
+  }
+}
+
+@mixin small-mobile {
+  @media (max-width: #{$bp-sm}) {
+    @content;
+  }
+}
+
+@mixin compact-landscape {
+  @media (orientation: landscape) and (max-height: #{$bp-landscape-compact-height}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$bp-md}) and (max-width: #{$bp-lg}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$bp-lg}) {
+    @content;
+  }
+}
+
+// --- Layout helpers ---
+
+/// 2-column landscape layout for exercise components.
+/// Static elements (clock, chart) go in left column;
+/// interactive elements (input, keypad) go in right column.
+/// @param $left-col  Width of left column (default: 1fr)
+/// @param $right-col Width of right column (default: 1fr)
+@mixin exercise-landscape-layout($left-col: '1fr', $right-col: '1fr') {
+  @include landscape {
+    display: grid;
+    grid-template-columns: #{$left-col} #{$right-col};
+    gap: 1rem 2rem;
+    align-items: start;
+  }
+}

@@ -11,7 +11,7 @@ import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component
   selector: 'app-category-overview',
   imports: [RouterLink, FormsModule, StatsBadgeComponent],
   templateUrl: './category-overview.html',
-  styleUrl: './category-overview.css'
+  styleUrl: './category-overview.scss'
 })
 export class CategoryOverviewComponent {
   protected stats = inject(StatsService);

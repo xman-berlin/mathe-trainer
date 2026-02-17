@@ -14,7 +14,7 @@ import type { AvatarStyle } from '../../models/user.model';
   selector: 'app-user-profile',
   imports: [],
   templateUrl: './user-profile.component.html',
-  styleUrl: './user-profile.component.css',
+  styleUrl: './user-profile.component.scss',
 })
 export class UserProfileComponent {
   protected auth = inject(AuthService);

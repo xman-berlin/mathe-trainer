@@ -1,0 +1,143 @@
+// =============================================================================
+// Shared Button Styles
+// =============================================================================
+
+// --- Back / Home Button ---
+
+.back-btn,
+.back-home-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 2px solid var(--gray-400);
+  border-radius: 8px;
+  color: var(--gray-900);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background: var(--gray-100);
+    border-color: var(--bright-blue);
+    color: var(--bright-blue);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// --- Type Selector ---
+
+.type-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.type-btn {
+  padding: 0.6rem 1.2rem;
+  background: white;
+  border: 2px solid var(--gray-400);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  &:hover {
+    border-color: #a78bfa;
+    background: rgba(167, 139, 250, 0.05);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+    color: white;
+    border-color: #8b5cf6;
+  }
+}
+
+.type-icon {
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+.type-label {
+  line-height: 1;
+}
+
+// --- Generic Buttons ---
+
+.primary-btn {
+  background: var(--bright-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:hover { transform: translateY(-1px); }
+}
+
+.secondary-btn {
+  background: #e5e7eb;
+  color: var(--gray-900);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:hover { transform: translateY(-1px); }
+}
+
+// --- Generic CTA Buttons ---
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.btn-primary {
+  background: var(--red-to-pink-to-purple-horizontal-gradient);
+  color: white;
+  box-shadow: 0 4px 12px rgba(240, 6, 11, 0.2);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(240, 6, 11, 0.3);
+  }
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--bright-blue);
+  border: 2px solid var(--bright-blue);
+
+  &:hover {
+    background: var(--bright-blue);
+    color: white;
+  }
+}

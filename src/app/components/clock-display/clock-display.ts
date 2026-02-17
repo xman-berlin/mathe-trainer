@@ -4,7 +4,7 @@ import { Component, input, computed } from '@angular/core';
   standalone: true,
   selector: 'app-clock-display',
   templateUrl: './clock-display.html',
-  styleUrl: './clock-display.css'
+  styleUrl: './clock-display.scss'
 })
 export class ClockDisplayComponent {
   // Inputs

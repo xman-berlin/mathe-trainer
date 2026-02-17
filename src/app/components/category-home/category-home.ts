@@ -11,7 +11,7 @@ import { StreakDisplayComponent } from '../streak-display/streak-display.compone
   selector: 'app-category-home',
   imports: [RouterLink, FormsModule, UserProfileComponent, StreakDisplayComponent],
   templateUrl: './category-home.html',
-  styleUrl: './category-home.css'
+  styleUrl: './category-home.scss'
 })
 export class CategoryHomeComponent {
   protected stats = inject(StatsService);

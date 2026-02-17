@@ -31,20 +31,6 @@ export class BadgeService {
     // PERFORMANCE BADGES
     // ========================================================================
     {
-      id: 'speed-demon',
-      name: 'Geschwindigkeits-Teufel',
-      description: 'Löse 10 Aufgaben in unter 20 Sekunden gesamt',
-      icon: '⚡',
-      category: 'performance',
-      requiredProgress: 10,
-      coinReward: 50,
-      checkFunction: (_data: BadgeCheckData) => {
-        // This needs to be tracked separately during exercise
-        // For now, we'll implement this later with proper timing tracking
-        return false;
-      },
-    },
-    {
       id: 'perfect-day',
       name: 'Perfekter Tag',
       description: '100% Genauigkeit mit mindestens 20 Aufgaben an einem Tag',
@@ -117,20 +103,6 @@ export class BadgeService {
       coinReward: 1000,
       checkFunction: (data: BadgeCheckData) => {
         return data.currentStreak >= 100;
-      },
-    },
-    {
-      id: 'weekend-warrior',
-      name: 'Wochenend-Krieger',
-      description: 'Übe an einem Samstag UND Sonntag',
-      icon: '🏖️',
-      category: 'consistency',
-      requiredProgress: 2,
-      coinReward: 50,
-      checkFunction: (_data: BadgeCheckData) => {
-        // This needs day-of-week tracking
-        // Implemented later with proper date tracking
-        return false;
       },
     },
 

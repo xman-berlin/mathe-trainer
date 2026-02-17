@@ -12,7 +12,7 @@ import type { User, AvatarStyle } from '../../models/user.model';
   selector: 'app-login',
   imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css',
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent implements OnInit {
   private auth = inject(AuthService);
@@ -156,13 +156,11 @@ export class LoginComponent implements OnInit {
         avatar_style: this.selectedStyle(),
       });
 
-      console.log('User created:', user.id);
 
       // Check if migration is needed
       const shouldMigrate = this.migration.hasOldDataAvailable() && !this.migration.hasMigratedData();
 
       if (shouldMigrate) {
-        console.log('Starting migration for new user...');
         await this.migrateExistingData(user.id);
         this.showMigrationDialog.set(false);
       }
@@ -225,7 +223,6 @@ export class LoginComponent implements OnInit {
     try {
       await this.migration.migrateLocalDataToUser(userId);
       this.migration.clearOldData();
-      console.log('Migration completed successfully for user:', userId);
     } catch (error) {
       console.error('Migration error:', error);
       this.errorMessage.set('Fehler beim Übertragen der Daten. Bitte versuche es erneut.');

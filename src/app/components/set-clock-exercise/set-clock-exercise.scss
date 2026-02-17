@@ -1,3 +1,6 @@
+// @use path relative to src/app/components/*/
+@use '../../../styles/mixins' as *;
+
 .set-clock-exercise-root {
   width: 100%;
   min-height: 100vh;

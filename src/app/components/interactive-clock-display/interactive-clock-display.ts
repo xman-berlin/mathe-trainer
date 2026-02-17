@@ -4,7 +4,7 @@ import { Component, input, output, signal, ElementRef, ViewChild, AfterViewInit 
   selector: 'app-interactive-clock-display',
   standalone: true,
   templateUrl: './interactive-clock-display.html',
-  styleUrls: ['./interactive-clock-display.css']
+  styleUrls: ['./interactive-clock-display.scss']
 })
 export class InteractiveClockDisplayComponent implements AfterViewInit {
   // Target time (what student should match)

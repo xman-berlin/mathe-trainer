@@ -112,7 +112,6 @@ export class AchievementsService {
    * Clear all user data (called on logout)
    */
   clearUserData(): void {
-    console.log('[Achievements] Clearing user data');
     this.multiplicationMastery.set({});
     localStorage.removeItem(this.storageKey);
   }
@@ -122,7 +121,6 @@ export class AchievementsService {
    */
   async loadFromServer(userId: string): Promise<void> {
     try {
-      console.log('[Achievements] Loading mastery from server for user:', userId);
 
       const masteryRecords = await this.supabase.getMastery(userId);
 
@@ -136,7 +134,6 @@ export class AchievementsService {
         };
       }
 
-      console.log('[Achievements] Loaded mastery data:', masteryMap);
       this.multiplicationMastery.set(masteryMap);
       this.persist(); // Cache locally
     } catch (error) {
@@ -153,7 +150,6 @@ export class AchievementsService {
    */
   private async loadFromServerIfAuthenticated(): Promise<void> {
     if (!this.auth.isAuthenticated()) {
-      console.log('[Achievements] Not authenticated, skipping server load');
       return;
     }
 
@@ -181,7 +177,6 @@ export class AchievementsService {
         mastered_at: masteryData.masteredAt || null
       });
 
-      console.log('[Achievements] Synced mastery for reihe', reihe, 'to server');
     } catch (error) {
       console.warn('[Achievements] Failed to sync to server:', error);
     }

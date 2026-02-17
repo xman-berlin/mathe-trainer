@@ -11,7 +11,7 @@ import { DailyStreakService } from '../../services/daily-streak.service';
   selector: 'app-streak-display',
   imports: [CommonModule],
   templateUrl: './streak-display.component.html',
-  styleUrl: './streak-display.component.css',
+  styleUrl: './streak-display.component.scss',
 })
 export class StreakDisplayComponent {
   protected streakService = inject(DailyStreakService);

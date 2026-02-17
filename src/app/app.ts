@@ -6,7 +6,7 @@ import { StatsService } from './services/stats.service';
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.scss'
 })
 export class App {
   readonly title = signal('Schlaufuchs 🦊');
