@@ -147,6 +147,9 @@ export class InteractiveClockDisplayComponent implements AfterViewInit {
   // Hour markers (1-12)
   readonly hourMarkers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
+  // Minute tick marks (0-59)
+  readonly minuteTickMarks = Array.from({ length: 60 }, (_, i) => i);
+
   /**
    * Get position for hour number on clock face
    */
@@ -157,5 +160,28 @@ export class InteractiveClockDisplayComponent implements AfterViewInit {
       x: this.centerX + radius * Math.cos(angle),
       y: this.centerY + radius * Math.sin(angle)
     };
+  }
+
+  /**
+   * Get start and end positions for a minute tick line on the clock rim.
+   * Hour positions (every 5 minutes) get a longer tick; others get a shorter tick.
+   */
+  getMinuteTick(minute: number): { x1: number; y1: number; x2: number; y2: number } {
+    const isHourPosition = minute % 5 === 0;
+    const outerRadius = 93;
+    const innerRadius = isHourPosition ? 85 : 89;
+    const angle = (minute * 6 - 90) * (Math.PI / 180); // 6° per minute, -90 to start at 12
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return {
+      x1: this.centerX + outerRadius * cos,
+      y1: this.centerY + outerRadius * sin,
+      x2: this.centerX + innerRadius * cos,
+      y2: this.centerY + innerRadius * sin,
+    };
+  }
+
+  isHourTick(minute: number): boolean {
+    return minute % 5 === 0;
   }
 }

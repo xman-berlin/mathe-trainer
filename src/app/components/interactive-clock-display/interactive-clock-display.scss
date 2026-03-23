@@ -22,8 +22,17 @@
   stroke-width: 3;
 }
 
-.hour-marker {
-  fill: var(--gray-400);
+/* Minute tick marks */
+.minute-tick {
+  stroke: var(--gray-400);
+  stroke-width: 1;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.minute-tick--hour {
+  stroke: var(--gray-600);
+  stroke-width: 1.5;
 }
 
 .hour-number {
