@@ -48,9 +48,14 @@
               <button
                 class="type-btn"
                 [class.active]="isTypeSelected(type)"
+                [class.locked]="isTypeLocked(type)"
+                [title]="isTypeLocked(type) ? 'Du hast Bronze erreicht \u2013 diese Aufgabenart ist immer dabei!' : ''"
                 (click)="toggleType(type)">
                 <span class="type-icon">{{ getTypeIcon(type) }}</span>
                 <span class="type-label">{{ getTypeLabel(type) }}</span>
+                @if (isTypeLocked(type)) {
+                  <span class="lock-icon">🔒</span>
+                }
               </button>
             }
           </div>

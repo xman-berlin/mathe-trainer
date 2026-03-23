@@ -161,8 +161,8 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
       // Practice mode: multi-select allowed
       const current = new Set(this.selectedTypes());
       if (current.has(type)) {
-        // Don't allow deselecting if it's the only one selected
-        if (current.size > 1) {
+        // Don't allow deselecting if it's the only one selected or if locked
+        if (current.size > 1 && !this.isTypeLocked(type)) {
           current.delete(type);
         }
       } else {
@@ -175,6 +175,10 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
 
   isTypeSelected(type: ClockExerciseType): boolean {
     return this.selectedTypes().has(type);
+  }
+
+  isTypeLocked(type: ClockExerciseType): boolean {
+    return this.stats.getMedalLevel(`clock-${type}`) !== 'none';
   }
 
   getTypeLabel(type: ClockExerciseType): string {

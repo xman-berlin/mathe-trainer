@@ -88,8 +88,8 @@ export class SetClockExerciseComponent implements OnInit {
   toggleType(type: ClockExerciseType): void {
     const current = new Set(this.selectedTypes());
     if (current.has(type)) {
-      // Don't allow deselecting if it's the only one selected
-      if (current.size > 1) {
+      // Don't allow deselecting if it's the only one selected or if locked
+      if (current.size > 1 && !this.isTypeLocked(type)) {
         current.delete(type);
       }
     } else {
@@ -101,6 +101,10 @@ export class SetClockExerciseComponent implements OnInit {
 
   isTypeSelected(type: ClockExerciseType): boolean {
     return this.selectedTypes().has(type);
+  }
+
+  isTypeLocked(type: ClockExerciseType): boolean {
+    return this.stats.getMedalLevel(`clock-setClock-${type}`) !== 'none';
   }
 
   getTypeLabel(type: ClockExerciseType): string {

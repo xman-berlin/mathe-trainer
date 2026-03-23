@@ -169,6 +169,22 @@
   border-color: #8b5cf6;
 }
 
+.type-btn.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.type-btn.locked:hover {
+  opacity: 0.6;
+  border-color: var(--gray-400);
+  background: white;
+}
+
+.lock-icon {
+  font-size: 0.85em;
+  margin-left: 0.2rem;
+}
+
 .type-icon {
   font-size: 1rem;
   line-height: 1;

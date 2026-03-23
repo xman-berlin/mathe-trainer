@@ -120,6 +120,10 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     return this.selectedTypes().has(type);
   }
 
+  isTypeLocked(type: ExerciseType): boolean {
+    return this.stats.getMedalLevel(type) !== 'none';
+  }
+
   toggleNumber(value: number) {
     const current = this.selectedNumbers();
     const newSet = new Set(current);
@@ -163,7 +167,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     } else {
       // Practice mode: multi-select
       if (newSet.has(type)) {
-        if (newSet.size > 1) {
+        if (newSet.size > 1 && !this.isTypeLocked(type)) {
           newSet.delete(type);
           this.selectedTypes.set(newSet);
           // Generate new problem if current type was deselected
