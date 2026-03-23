@@ -120,8 +120,16 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     return this.selectedTypes().has(type);
   }
 
+  readonly lockedTypes = computed(() => {
+    const lifetime = this.stats.lifetimeStatsByType();
+    return new Set<ExerciseType>(
+      (['addition', 'subtraction', 'multiplication', 'division'] as ExerciseType[])
+        .filter(t => (lifetime[t] ?? 0) < 100)
+    );
+  });
+
   isTypeLocked(type: ExerciseType): boolean {
-    return this.stats.getMedalLevel(type) !== 'none';
+    return this.lockedTypes().has(type);
   }
 
   toggleNumber(value: number) {

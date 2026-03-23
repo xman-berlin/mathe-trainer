@@ -30,12 +30,12 @@
           type="button"
           class="type-toggle"
           [class.active]="isTypeSelected('addition')"
-          [class.locked]="mode() === 'practice' && isTypeLocked('addition')"
-          [title]="mode() === 'practice' && isTypeLocked('addition') ? 'Du hast Bronze erreicht \u2013 diese Rechenart ist immer dabei!' : ''"
+          [class.locked]="mode() === 'practice' && lockedTypes().has('addition')"
+          [title]="mode() === 'practice' && lockedTypes().has('addition') ? 'Erreiche Bronze, um diese Rechenart abzuw\u00e4hlen!' : ''"
           (click)="toggleType('addition')">
           <span class="type-icon">+</span>
           <span class="type-label">Addition</span>
-          @if (mode() === 'practice' && isTypeLocked('addition')) {
+          @if (mode() === 'practice' && lockedTypes().has('addition')) {
             <span class="lock-icon">🔒</span>
           }
         </button>
@@ -43,12 +43,12 @@
           type="button"
           class="type-toggle"
           [class.active]="isTypeSelected('subtraction')"
-          [class.locked]="mode() === 'practice' && isTypeLocked('subtraction')"
-          [title]="mode() === 'practice' && isTypeLocked('subtraction') ? 'Du hast Bronze erreicht \u2013 diese Rechenart ist immer dabei!' : ''"
+          [class.locked]="mode() === 'practice' && lockedTypes().has('subtraction')"
+          [title]="mode() === 'practice' && lockedTypes().has('subtraction') ? 'Erreiche Bronze, um diese Rechenart abzuw\u00e4hlen!' : ''"
           (click)="toggleType('subtraction')">
           <span class="type-icon">−</span>
           <span class="type-label">Subtraktion</span>
-          @if (mode() === 'practice' && isTypeLocked('subtraction')) {
+          @if (mode() === 'practice' && lockedTypes().has('subtraction')) {
             <span class="lock-icon">🔒</span>
           }
         </button>
@@ -56,12 +56,12 @@
           type="button"
           class="type-toggle"
           [class.active]="isTypeSelected('multiplication')"
-          [class.locked]="mode() === 'practice' && isTypeLocked('multiplication')"
-          [title]="mode() === 'practice' && isTypeLocked('multiplication') ? 'Du hast Bronze erreicht \u2013 diese Rechenart ist immer dabei!' : ''"
+          [class.locked]="mode() === 'practice' && lockedTypes().has('multiplication')"
+          [title]="mode() === 'practice' && lockedTypes().has('multiplication') ? 'Erreiche Bronze, um diese Rechenart abzuw\u00e4hlen!' : ''"
           (click)="toggleType('multiplication')">
           <span class="type-icon">×</span>
           <span class="type-label">Multiplikation</span>
-          @if (mode() === 'practice' && isTypeLocked('multiplication')) {
+          @if (mode() === 'practice' && lockedTypes().has('multiplication')) {
             <span class="lock-icon">🔒</span>
           }
         </button>
@@ -69,12 +69,12 @@
           type="button"
           class="type-toggle"
           [class.active]="isTypeSelected('division')"
-          [class.locked]="mode() === 'practice' && isTypeLocked('division')"
-          [title]="mode() === 'practice' && isTypeLocked('division') ? 'Du hast Bronze erreicht \u2013 diese Rechenart ist immer dabei!' : ''"
+          [class.locked]="mode() === 'practice' && lockedTypes().has('division')"
+          [title]="mode() === 'practice' && lockedTypes().has('division') ? 'Erreiche Bronze, um diese Rechenart abzuw\u00e4hlen!' : ''"
           (click)="toggleType('division')">
           <span class="type-icon">÷</span>
           <span class="type-label">Division</span>
-          @if (mode() === 'practice' && isTypeLocked('division')) {
+          @if (mode() === 'practice' && lockedTypes().has('division')) {
             <span class="lock-icon">🔒</span>
           }
         </button>

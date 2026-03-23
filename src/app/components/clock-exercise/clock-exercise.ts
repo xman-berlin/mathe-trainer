@@ -177,8 +177,16 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
     return this.selectedTypes().has(type);
   }
 
+  readonly lockedTypes = computed(() => {
+    const lifetime = this.stats.lifetimeStatsByType();
+    return new Set<ClockExerciseType>(
+      (['full', 'half', 'quarter', 'fiveMin'] as ClockExerciseType[])
+        .filter(t => (lifetime[`clock-${t}`] ?? 0) < 100)
+    );
+  });
+
   isTypeLocked(type: ClockExerciseType): boolean {
-    return this.stats.getMedalLevel(`clock-${type}`) !== 'none';
+    return this.lockedTypes().has(type);
   }
 
   getTypeLabel(type: ClockExerciseType): string {
