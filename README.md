@@ -11,7 +11,7 @@ Schlaufuchs is a web-based application that helps elementary school students imp
 ### ✨ Features
 
 - **Math Exercises**: Addition, Subtraction, Multiplication, Division, Word Problems
-- **Time Learning**: Analog and digital clock exercises
+- **Time Learning**: Analog and digital clock exercises with detailed minute tick marks on the interactive clock face
 - **Gamification**: Badge system with 22+ badges, coin collection, streak tracking
 - **Mini-Games**: Flappy Fox, Dino Run, Breakout, Balloon Pop
 - **Achievements**: Medal system, personal best times, streak milestones

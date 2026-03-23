@@ -19,3 +19,13 @@ position the minute hand.
 - [x] Render tick marks in `interactive-clock-display.html` before hour numbers (replaced old dot markers)
 - [x] Style ticks in `interactive-clock-display.scss` — thin grey for minute ticks, slightly thicker/darker for hour positions
 - [x] Run `npm run build` — no errors
+
+## Review
+
+**Completed:** 2026-03-23
+
+**What was implemented:**
+Added 60 SVG tick marks to the interactive clock face in the "Zeiger setzen" exercise. Hour positions (every 5 ticks) render as slightly thicker and darker lines; the 55 intermediate minute positions render as thin light-grey lines. The old dot markers at hour positions were replaced entirely.
+
+**Deviations from plan:**
+Minor — TypeScript changes were needed (contrary to the original "No TypeScript changes needed" note) to generate the tick mark data array and helper methods. Otherwise implemented exactly as planned.
