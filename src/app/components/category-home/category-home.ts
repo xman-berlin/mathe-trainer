@@ -19,6 +19,7 @@ export class CategoryHomeComponent {
 
   showGoalEditor = signal(false);
   showClockGoalEditor = signal(false);
+  showDeutschGoalEditor = signal(false);
   editGoalValue = signal(20);
 
   exerciseTypes = ['addition', 'subtraction', 'multiplication', 'division'];
@@ -78,6 +79,12 @@ export class CategoryHomeComponent {
   );
   readonly isClockGoalReached = computed(() => this.clockCorrectCount() >= this.stats.currentClockGoal());
 
+  // Deutsch incorrect count
+  readonly deutschIncorrectCount = computed(() => {
+    const types = this.stats.statsByType();
+    return types['deutsch-rechtschreibung']?.incorrect ?? 0;
+  });
+
   getTypeStats(type: string) {
     const types = this.stats.statsByType();
     return types[type] || { correct: 0, incorrect: 0 };
@@ -119,5 +126,19 @@ export class CategoryHomeComponent {
 
   cancelClockGoalEdit(): void {
     this.showClockGoalEditor.set(false);
+  }
+
+  editDeutschGoal(): void {
+    this.editGoalValue.set(this.stats.currentDeutschGoal());
+    this.showDeutschGoalEditor.set(true);
+  }
+
+  saveDeutschGoal(): void {
+    this.stats.setDeutschDailyGoal(this.editGoalValue());
+    this.showDeutschGoalEditor.set(false);
+  }
+
+  cancelDeutschGoalEdit(): void {
+    this.showDeutschGoalEditor.set(false);
   }
 }

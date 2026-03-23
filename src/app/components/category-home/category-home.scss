@@ -176,6 +176,8 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   min-height: 42px;
   box-sizing: border-box;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .stats-badges {
@@ -207,7 +209,7 @@
 
 .stats-progress-bar {
   flex: 1;
-  min-width: 40px;
+  min-width: 0;
   height: 6px;
   background: rgba(0, 0, 0, 0.1);
   border-radius: 3px;

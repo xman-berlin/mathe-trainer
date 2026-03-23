@@ -1,0 +1,423 @@
+.overview-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.back-home-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 2px solid var(--gray-400);
+  border-radius: 8px;
+  color: var(--gray-900);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.back-home-btn:hover {
+  background: var(--gray-100);
+  border-color: var(--bright-blue);
+  color: var(--bright-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 1.5rem 2rem 1.5rem;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(33, 150, 243, 0.05) 100%);
+}
+
+.hero-content {
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.hero p {
+  font-size: 1rem;
+  color: var(--gray-700);
+  line-height: 1.6;
+}
+
+.content-area {
+  flex: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.stats-card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  width: calc(100% - 2rem);
+  max-width: 520px;
+  text-align: center;
+  margin: 0 auto 2rem auto;
+  box-sizing: border-box;
+}
+
+.stats-card h2 {
+  margin-bottom: 1rem;
+  color: var(--gray-900);
+}
+
+.goal-section {
+  margin-top: 1.5rem;
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.goal-label {
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.goal-edit-btn-inline {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  transition: transform 0.2s;
+}
+
+.goal-edit-btn-inline:hover {
+  transform: scale(1.1);
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 24px;
+  background: #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #ddd;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--bright-blue);
+  transition: width 0.3s ease;
+  border-radius: 10px;
+}
+
+.goal-reached-badge {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  color: white;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.action-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.action-card {
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.practice-card {
+  border-color: var(--bright-blue);
+  background: linear-gradient(135deg, rgba(51, 130, 191, 0.03) 0%, white 100%);
+}
+
+.practice-card:hover {
+  background: linear-gradient(135deg, rgba(51, 130, 191, 0.08) 0%, white 100%);
+}
+
+.manage-card {
+  border-color: #8B5CF6;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.03) 0%, white 100%);
+}
+
+.manage-card:hover {
+  border-color: #8B5CF6;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, white 100%);
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.action-card h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.action-card p {
+  font-size: 0.95rem;
+  color: var(--gray-700);
+  line-height: 1.5;
+}
+
+/* Landscape: 2-column grid */
+@media (orientation: landscape) and (min-width: 700px) {
+  .hero {
+    padding: 3rem 1.5rem 1.75rem 1.5rem;
+  }
+
+  .hero h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .hero p {
+    font-size: 0.95rem;
+  }
+
+  .content-area {
+    padding: 1.25rem 1.75rem;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 2rem;
+    align-items: start;
+    max-width: 1200px;
+  }
+
+  .stats-card {
+    margin: 0;
+    padding: 1.4rem;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .stats-card h2 {
+    font-size: 1.15rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .goal-section {
+    margin-top: 1rem;
+  }
+
+  .goal-label {
+    font-size: 0.9rem;
+  }
+
+  .progress-bar-container {
+    height: 20px;
+  }
+
+  .action-cards {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin: 0;
+  }
+
+  .action-card {
+    padding: 1.5rem;
+    flex-direction: row;
+    text-align: left;
+    gap: 1.5rem;
+  }
+
+  .card-icon {
+    font-size: 2.75rem;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .action-card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .action-card p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Portrait */
+@media (orientation: portrait) {
+  .back-home-btn {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    top: auto;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .back-home-btn:hover {
+    transform: scale(1.05);
+  }
+
+  .hero {
+    padding: 2rem 1rem 1rem 1rem;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .content-area {
+    padding: 1rem;
+  }
+
+  .action-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Portrait Small */
+@media (orientation: portrait) and (max-width: 540px) {
+  .back-home-btn {
+    bottom: 0.75rem;
+    left: 0.75rem;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .hero {
+    padding: 1.5rem 0.5rem 0.75rem 0.5rem;
+  }
+
+  .hero h1 {
+    font-size: 1.7rem;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+  }
+
+  .content-area {
+    padding: 0.5rem;
+  }
+
+  .stats-card {
+    padding: 1rem;
+    width: calc(100% - 1rem);
+  }
+
+  .action-card {
+    padding: 1.2rem;
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+  }
+
+  .action-card h3 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Goal Editor Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.goal-editor-modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.goal-editor-modal h3 {
+  margin-top: 0;
+  color: var(--gray-900);
+}
+
+.goal-editor-modal input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1.2rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  margin: 1rem 0;
+  box-sizing: border-box;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: var(--bright-blue);
+  color: white;
+}
+
+.secondary-btn {
+  background: #e5e7eb;
+  color: var(--gray-900);
+}

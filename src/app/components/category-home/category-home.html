@@ -48,6 +48,22 @@
           </div>
         </a>
 
+        <a routerLink="/deutsch" class="category-card vokabeln-card">
+          <div class="card-icon">📖</div>
+          <h3>Deutsch</h3>
+          <p>Wörter hören und richtig schreiben</p>
+          <div class="card-stats">
+            <div class="stats-badges">
+              <span class="stat-correct">✓ {{ stats.deutschCorrectCount() }}</span>
+              <span class="stat-incorrect">✗ {{ deutschIncorrectCount() }}</span>
+            </div>
+            <div class="stats-goal">Ziel: {{ stats.deutschCorrectCount() }}/{{ stats.currentDeutschGoal() }}</div>
+            <div class="stats-progress-bar">
+              <div class="stats-progress-fill" [style.width.%]="stats.deutschGoalProgressPercent()"></div>
+            </div>
+          </div>
+        </a>
+
         <a routerLink="/erfolge" class="category-card erfolge-card">
           <div class="card-icon">🏆</div>
           <h3>Erfolge</h3>
@@ -93,6 +109,20 @@
       <div class="modal-actions">
         <button class="primary-btn" (click)="saveClockGoal()">Speichern</button>
         <button class="secondary-btn" (click)="cancelClockGoalEdit()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showDeutschGoalEditor()) {
+  <div class="modal-overlay" (click)="cancelDeutschGoalEdit()" (keydown.escape)="cancelDeutschGoalEdit()" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="goal-editor-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="document">
+      <h3>Deutsch Tagesziel festlegen</h3>
+      <p>Wie viele Wörter möchtest du heute richtig schreiben?</p>
+      <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
+      <div class="modal-actions">
+        <button class="primary-btn" (click)="saveDeutschGoal()">Speichern</button>
+        <button class="secondary-btn" (click)="cancelDeutschGoalEdit()">Abbrechen</button>
       </div>
     </div>
   </div>

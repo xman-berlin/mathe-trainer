@@ -1,0 +1,133 @@
+<div class="vocab-management-page">
+  <header class="mgmt-header">
+    <a routerLink="/deutsch" class="back-link">← Deutsch</a>
+    <h1>Wortlisten verwalten</h1>
+  </header>
+
+  <div class="mgmt-body">
+
+    <!-- ============ LEFT PANEL: Lists ============ -->
+    <aside class="left-panel">
+
+      <section class="panel-section">
+        <h2>Listen</h2>
+        <ul class="item-list">
+          @for (list of lists(); track list.id) {
+            <li
+              class="item-row"
+              [class.selected]="list.id === selectedListId()"
+              tabindex="0"
+              role="button"
+              (click)="selectList(list)"
+              (keydown.enter)="selectList(list)"
+              (keydown.space)="selectList(list)"
+            >
+              @if (renamingListId() === list.id) {
+                <input
+                  type="text"
+                  class="text-input inline-input"
+                  [ngModel]="renameListValue()"
+                  (ngModelChange)="renameListValue.set($event)"
+                  (click)="$event.stopPropagation()"
+                />
+                <button class="success-btn small-btn" (click)="$event.stopPropagation(); saveRenameList()">✓</button>
+                <button class="secondary-btn small-btn" (click)="$event.stopPropagation(); cancelRenameList()">✕</button>
+              } @else {
+                <span class="item-name">{{ list.name }}</span>
+                <button class="secondary-btn small-btn" (click)="$event.stopPropagation(); startRenameList(list)">✎</button>
+                <button class="danger-btn small-btn" (click)="$event.stopPropagation(); deleteList(list)">✕</button>
+              }
+            </li>
+          }
+          @if (lists().length === 0) {
+            <li class="empty-hint">Noch keine Listen</li>
+          }
+        </ul>
+
+        <div class="add-form">
+          <input
+            type="text"
+            placeholder="Listenname (optional)"
+            [ngModel]="newListName()"
+            (ngModelChange)="newListName.set($event)"
+            class="text-input"
+          />
+          <button class="primary-btn" (click)="createList()">+ Liste hinzufügen</button>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ============ RIGHT PANEL: Words + Assignments ============ -->
+    <main class="right-panel">
+      @if (!selectedListId()) {
+        <div class="select-hint">
+          <p>← Wähle eine Liste aus</p>
+        </div>
+      } @else {
+        <!-- Words -->
+        <section class="panel-section">
+          <h2>Wörter — {{ selectedList()?.name }}</h2>
+
+          <div class="add-form horizontal-form">
+            <input
+              type="text"
+              placeholder="Neues Wort"
+              [ngModel]="newWord()"
+              (ngModelChange)="newWord.set($event)"
+              class="text-input"
+              (keydown.enter)="addWord()"
+            />
+            <button class="primary-btn" (click)="addWord()">+ Hinzufügen</button>
+          </div>
+
+          <ul class="word-list">
+            @for (word of words(); track word.id) {
+              <li class="word-row">
+                @if (editingWordId() === word.id) {
+                  <input
+                    type="text"
+                    class="text-input inline-input"
+                    [ngModel]="editingWordValue()"
+                    (ngModelChange)="editingWordValue.set($event)"
+                    (keydown.enter)="saveEditWord()"
+                  />
+                  <button class="success-btn small-btn" (click)="saveEditWord()">✓</button>
+                  <button class="secondary-btn small-btn" (click)="cancelEditWord()">✕</button>
+                } @else {
+                  <span class="word-text">{{ word.word }}</span>
+                  <button class="secondary-btn small-btn" (click)="startEditWord(word)">✎</button>
+                  <button class="danger-btn small-btn" (click)="deleteWord(word)">✕</button>
+                }
+              </li>
+            }
+            @if (words().length === 0) {
+              <li class="empty-hint">Noch keine Wörter in dieser Liste</li>
+            }
+          </ul>
+        </section>
+
+        <!-- User assignments -->
+        <section class="panel-section">
+          <h2>Zugewiesen an</h2>
+          <ul class="user-list">
+            @for (user of allUsers(); track user.id) {
+              <li class="user-row">
+                <label class="user-label">
+                  <input
+                    type="checkbox"
+                    [checked]="isAssigned(user.id)"
+                    (change)="toggleAssignment(user.id)"
+                  />
+                  {{ user.username }}
+                </label>
+              </li>
+            }
+            @if (allUsers().length === 0) {
+              <li class="empty-hint">Keine Benutzer gefunden</li>
+            }
+          </ul>
+        </section>
+      }
+    </main>
+  </div>
+</div>

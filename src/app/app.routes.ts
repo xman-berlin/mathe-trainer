@@ -11,6 +11,9 @@ import { DinoRunComponent } from './components/dino-run/dino-run';
 import { BreakoutComponent } from './components/breakout/breakout';
 import { BalloonPopComponent } from './components/balloon-pop/balloon-pop';
 import { LoginComponent } from './components/login/login.component';
+import { DeutschCategoryOverviewComponent } from './components/vocab-category-overview/vocab-category-overview';
+import { DeutschRechtschreibungComponent } from './components/vocab-exercise/vocab-exercise';
+import { VocabManagementComponent } from './components/vocab-management/vocab-management';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -42,6 +45,15 @@ export const routes: Routes = [
   { path: 'spielen/dino-run', component: DinoRunComponent, canActivate: [authGuard] },
   { path: 'spielen/breakout', component: BreakoutComponent, canActivate: [authGuard] },
   { path: 'spielen/balloon-pop', component: BalloonPopComponent, canActivate: [authGuard] },
+
+  // Deutsch routes
+  { path: 'deutsch', component: DeutschCategoryOverviewComponent, canActivate: [authGuard] },
+  { path: 'deutsch/rechtschreibung', component: DeutschRechtschreibungComponent, canActivate: [authGuard] },
+  { path: 'deutsch/verwalten', component: VocabManagementComponent, canActivate: [authGuard] },
+  // Backward compatibility redirects
+  { path: 'vokabeln', redirectTo: '/deutsch', pathMatch: 'full' },
+  { path: 'vokabeln/uebung', redirectTo: '/deutsch/rechtschreibung', pathMatch: 'full' },
+  { path: 'vokabeln/verwalten', redirectTo: '/deutsch/verwalten', pathMatch: 'full' },
 
   // Redirects for backward compatibility
   { path: 'uebung', redirectTo: 'mathe/uebung', pathMatch: 'full' },

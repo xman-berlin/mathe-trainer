@@ -1,0 +1,81 @@
+<div class="vocab-exercise-page">
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <p>Lade Wörter…</p>
+    </div>
+  } @else if (sessionEmpty()) {
+    <div class="empty-state">
+      <div class="empty-icon">📚</div>
+      <h2>Keine Wörter verfügbar</h2>
+      <p>Es wurden dir noch keine Wortlisten zugewiesen.</p>
+      <a routerLink="/deutsch" class="back-btn">Zurück zur Übersicht</a>
+    </div>
+  } @else {
+    <a routerLink="/deutsch" class="back-home-btn">← Zurück</a>
+
+    <!-- Exercise card -->
+    <main class="exercise-main">
+      <h1 class="language-title">📖 Rechtschreibung</h1>
+
+      <div class="word-prompt">
+        <p class="prompt-label">Schreibe das Wort:</p>
+        <button class="play-btn" (click)="playWord()">🔊 Anhören</button>
+      </div>
+
+      <!-- Feedback overlay on current answer -->
+      <div
+        class="answer-area"
+        [class.correct]="feedback() === 'correct'"
+        [class.incorrect]="feedback() === 'incorrect'"
+      >
+        @if (feedback() === 'correct') {
+          <div class="feedback-message correct-msg">✓ Richtig!</div>
+        }
+        @if (feedback() === 'incorrect') {
+          <div class="feedback-message incorrect-msg">
+            ✗ Falsch — richtig: <strong>{{ correctAnswer() }}</strong>
+          </div>
+        }
+      </div>
+
+      <!-- QWERTZ Keypad -->
+      <app-letter-keypad
+        [value]="userAnswer"
+        [disabled]="keypadDisabled"
+        (valueChange)="userAnswer.set($event)"
+        (keypadSubmit)="submitAnswer()"
+        (replayAudio)="playWord()"
+      />
+
+      <!-- Streak display -->
+      <div class="streak-display" [class.has-streak]="streak() > 0">
+        <span class="streak-icon">&#x1F525;</span>
+        <span class="streak-count">{{ streak() }}</span>
+        @if (bestStreak() > 0 && bestStreak() > streak()) {
+          <span class="best-streak">Rekord: {{ bestStreak() }}</span>
+        }
+      </div>
+
+      <!-- Milestone popup + confetti -->
+      @if (showMilestone()) {
+        <div class="confetti-container">
+          @for (i of confettiPieces; track i) {
+            <div class="confetti" [style.--delay]="i * 0.1 + 's'" [style.--x]="confettiX[i]"></div>
+          }
+        </div>
+        <div class="milestone-popup">
+          &#x1F389; {{ milestoneValue() }}er Serie! &#x1F389;
+        </div>
+      }
+
+      <!-- Result summary -->
+      <div class="result-summary">
+        <span class="badge badge-correct">&#x2713; {{ typeCorrectCount() }}</span>
+        <span class="badge badge-incorrect">&#x2717; {{ typeIncorrectCount() }}</span>
+        <span class="badge badge-total">&#x3a3; {{ typeTotalCount() }}</span>
+        <span class="summary-label">Heute</span>
+      </div>
+    </main>
+  }
+</div>

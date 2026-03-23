@@ -10,6 +10,7 @@ export interface DailyStats {
   stats_by_type: Record<string, ExerciseTypeStats>; // exerciseType -> stats
   math_daily_goal: number;
   clock_daily_goal: number;
+  vocab_daily_goal?: number;
   created_at?: string;
   updated_at?: string;
 }

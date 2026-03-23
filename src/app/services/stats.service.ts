@@ -17,6 +17,7 @@ interface DailyStats {
   byType: Record<string, ExerciseTypeStats>;
   dailyGoal?: number; // Optional for backward compatibility
   clockDailyGoal?: number; // Optional for backward compatibility
+  vocabDailyGoal?: number;
 }
 
 interface LifetimeStats {
@@ -41,11 +42,13 @@ export class StatsService {
   private answerCounter = 0;
   private mathGoalBonusAwarded = signal(false);
   private clockGoalBonusAwarded = signal(false);
+  private deutschGoalBonusAwarded = signal(false);
 
   private date = signal(this.today());
   private byType = signal<Record<string, ExerciseTypeStats>>({});
   private dailyGoal = signal(20); // Default goal for math
   private clockDailyGoal = signal(20); // Default goal for clock
+  private vocabDailyGoal = signal(10); // Default goal for Deutsch category (stored as vocab_daily_goal in DB)
   private lifetimeByType = signal<Record<string, number>>({});
   private bestStreaksByTypeSignal = signal<Record<string, number>>({});
 
@@ -53,6 +56,7 @@ export class StatsService {
   private readonly mathTypes = ['addition', 'subtraction', 'multiplication', 'division', 'word-problems'];
   // Clock exercise types
   private readonly clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+  // Vocab exercise types start with 'vocab-'
 
   readonly statsByType = this.byType.asReadonly();
   readonly currentGoal = this.dailyGoal.asReadonly();
@@ -89,6 +93,24 @@ export class StatsService {
   );
   readonly isClockGoalReached = computed(() => this.clockCorrectCount() >= this.clockDailyGoal());
   readonly bestStreaksByType = this.bestStreaksByTypeSignal.asReadonly();
+
+  // Deutsch-specific stats (exercise type: 'deutsch-rechtschreibung', future: 'deutsch-artikel')
+  readonly deutschCorrectCount = computed(() => {
+    const types = this.byType();
+    let total = 0;
+    for (const [type, stats] of Object.entries(types)) {
+      if (type.startsWith('deutsch-')) {
+        total += stats.correct ?? 0;
+      }
+    }
+    return total;
+  });
+
+  readonly currentDeutschGoal = this.vocabDailyGoal.asReadonly();
+  readonly deutschGoalProgressPercent = computed(() =>
+    Math.min(100, Math.round((this.deutschCorrectCount() / this.vocabDailyGoal()) * 100))
+  );
+  readonly isDeutschGoalReached = computed(() => this.deutschCorrectCount() >= this.vocabDailyGoal());
 
   constructor() {
     this.load();
@@ -158,12 +180,20 @@ export class StatsService {
     this.persist();
   }
 
+  setDeutschDailyGoal(count: number): void {
+    if (count < 1) count = 1;
+    if (count > 100) count = 100;
+    this.vocabDailyGoal.set(count);
+    this.persist();
+  }
+
   resetToday() {
     const today = this.today();
     this.date.set(today);
     this.byType.set({});
     this.mathGoalBonusAwarded.set(false);
     this.clockGoalBonusAwarded.set(false);
+    this.deutschGoalBonusAwarded.set(false);
     this.persist();
   }
 
@@ -203,6 +233,9 @@ export class StatsService {
         if (parsed.clockDailyGoal) {
           this.clockDailyGoal.set(parsed.clockDailyGoal);
         }
+        if (parsed.vocabDailyGoal) {
+          this.vocabDailyGoal.set(parsed.vocabDailyGoal);
+        }
       } else {
         // Old format detected, reset to start fresh with new structure
         this.resetToday();
@@ -217,7 +250,8 @@ export class StatsService {
       date: this.date(),
       byType: this.byType(),
       dailyGoal: this.dailyGoal(),
-      clockDailyGoal: this.clockDailyGoal()
+      clockDailyGoal: this.clockDailyGoal(),
+      vocabDailyGoal: this.vocabDailyGoal(),
     };
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(payload));
@@ -310,6 +344,7 @@ export class StatsService {
     this.byType.set({});
     this.dailyGoal.set(20);
     this.clockDailyGoal.set(20);
+    this.vocabDailyGoal.set(10);
     this.lifetimeByType.set({});
     this.bestStreaksByTypeSignal.set({});
     this.hasAnsweredToday.set(false);
@@ -365,6 +400,7 @@ export class StatsService {
         byType: serverDaily.stats_by_type,
         dailyGoal: serverDaily.math_daily_goal,
         clockDailyGoal: serverDaily.clock_daily_goal,
+        vocabDailyGoal: serverDaily.vocab_daily_goal,
       };
 
       // Update local state from server (server is source of truth)
@@ -372,6 +408,7 @@ export class StatsService {
       this.byType.set(dailyStats.byType);
       if (dailyStats.dailyGoal) this.dailyGoal.set(dailyStats.dailyGoal);
       if (dailyStats.clockDailyGoal) this.clockDailyGoal.set(dailyStats.clockDailyGoal);
+      if (dailyStats.vocabDailyGoal) this.vocabDailyGoal.set(dailyStats.vocabDailyGoal);
 
       // Check if user has answered today (by checking if any type has stats)
       const hasAnswered = Object.keys(dailyStats.byType).length > 0;
@@ -423,6 +460,7 @@ export class StatsService {
         stats_by_type: this.byType(),
         math_daily_goal: this.dailyGoal(),
         clock_daily_goal: this.clockDailyGoal(),
+        vocab_daily_goal: this.vocabDailyGoal(),
       };
 
       // Upsert daily stats
@@ -488,6 +526,7 @@ export class StatsService {
 
     const isMathType = this.mathTypes.includes(exerciseType);
     const isClockType = this.clockTypes.includes(exerciseType);
+    const isDeutschType = exerciseType.startsWith('deutsch-');
 
     // Check math goal bonus
     if (isMathType && this.isGoalReached() && !this.mathGoalBonusAwarded()) {
@@ -508,6 +547,17 @@ export class StatsService {
         this.clockGoalBonusAwarded.set(true);
       } catch (error) {
         console.error('Failed to award clock goal bonus:', error);
+      }
+    }
+
+    // Check Deutsch goal bonus
+    if (isDeutschType && this.isDeutschGoalReached() && !this.deutschGoalBonusAwarded()) {
+      try {
+        const userId = this.auth.currentUser()!.id;
+        await this.coinsService.awardCoins(userId, 10, 'daily_goal', 'deutsch');
+        this.deutschGoalBonusAwarded.set(true);
+      } catch (error) {
+        console.error('Failed to award Deutsch goal bonus:', error);
       }
     }
   }

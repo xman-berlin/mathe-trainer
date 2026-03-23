@@ -15,6 +15,12 @@ import type { DailyStreak, UpdateStreakData } from '../models/daily-streak.model
 import type { UserBadge } from '../models/badge.model';
 import type { CoinBalance, CoinTransaction } from '../models/coin.model';
 import type { GameScore } from '../models/game.model';
+import type {
+  VocabList,
+  VocabWord,
+  VocabAssignment,
+  VocabWordProgress,
+} from '../models/vocab.model';
 
 /**
  * Service for interacting with Supabase backend
@@ -165,6 +171,7 @@ export class SupabaseService {
           stats_by_type: stats.stats_by_type,
           math_daily_goal: stats.math_daily_goal,
           clock_daily_goal: stats.clock_daily_goal,
+          ...(stats.vocab_daily_goal !== undefined ? { vocab_daily_goal: stats.vocab_daily_goal } : {}),
         },
         { onConflict: 'user_id,date' }
       );
@@ -720,5 +727,154 @@ export class SupabaseService {
       console.error('Error upserting game score:', error);
       throw error;
     }
+  }
+
+  // ============================================================================
+  // VOCAB LIST METHODS
+  // ============================================================================
+
+  async getVocabLists(): Promise<VocabList[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('vocab_lists')
+        .select('*')
+        .order('created_at');
+      if (error) throw error;
+      return (data as VocabList[]) || [];
+    } catch (error) {
+      console.error('Error fetching vocab lists:', error);
+      return [];
+    }
+  }
+
+  async createVocabList(name: string): Promise<VocabList> {
+    const { data, error } = await this.supabase
+      .from('vocab_lists')
+      .insert({ name })
+      .select()
+      .single();
+    if (error) throw error;
+    return data as VocabList;
+  }
+
+  async updateVocabList(listId: string, name: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('vocab_lists')
+      .update({ name })
+      .eq('id', listId);
+    if (error) throw error;
+  }
+
+  async deleteVocabList(listId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('vocab_lists')
+      .delete()
+      .eq('id', listId);
+    if (error) throw error;
+  }
+
+  // ============================================================================
+  // VOCAB WORD METHODS
+  // ============================================================================
+
+  async getVocabListWords(listId: string): Promise<VocabWord[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('vocab_list_words')
+        .select('*')
+        .eq('list_id', listId)
+        .order('word');
+      if (error) throw error;
+      return (data as VocabWord[]) || [];
+    } catch (error) {
+      console.error('Error fetching vocab words:', error);
+      return [];
+    }
+  }
+
+  async addVocabWord(listId: string, word: string): Promise<VocabWord> {
+    const { data, error } = await this.supabase
+      .from('vocab_list_words')
+      .insert({ list_id: listId, word })
+      .select()
+      .single();
+    if (error) throw error;
+    return data as VocabWord;
+  }
+
+  async updateVocabWord(wordId: string, word: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('vocab_list_words')
+      .update({ word })
+      .eq('id', wordId);
+    if (error) throw error;
+  }
+
+  async deleteVocabWord(wordId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('vocab_list_words')
+      .delete()
+      .eq('id', wordId);
+    if (error) throw error;
+  }
+
+  // ============================================================================
+  // VOCAB ASSIGNMENT METHODS
+  // ============================================================================
+
+  async getVocabAssignmentsForUser(userId: string): Promise<VocabAssignment[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('vocab_user_assignments')
+        .select('*, list:vocab_lists(*)')
+        .eq('user_id', userId)
+        .order('assigned_at', { ascending: false });
+      if (error) throw error;
+      return (data as VocabAssignment[]) || [];
+    } catch (error) {
+      console.error('Error fetching vocab assignments:', error);
+      return [];
+    }
+  }
+
+  async assignListToUser(userId: string, listId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('vocab_user_assignments')
+      .upsert({ user_id: userId, list_id: listId }, { onConflict: 'user_id,list_id' });
+    if (error) throw error;
+  }
+
+  async unassignListFromUser(userId: string, listId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('vocab_user_assignments')
+      .delete()
+      .eq('user_id', userId)
+      .eq('list_id', listId);
+    if (error) throw error;
+  }
+
+  // ============================================================================
+  // VOCAB WORD PROGRESS METHODS
+  // ============================================================================
+
+  async getWordProgressForUser(userId: string): Promise<VocabWordProgress[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('vocab_word_progress')
+        .select('*')
+        .eq('user_id', userId);
+      if (error) throw error;
+      return (data as VocabWordProgress[]) || [];
+    } catch (error) {
+      console.error('Error fetching word progress:', error);
+      return [];
+    }
+  }
+
+  async upsertWordProgress(userId: string, wordId: string, weight: number): Promise<void> {
+    const { error } = await this.supabase
+      .from('vocab_word_progress')
+      .upsert({ user_id: userId, word_id: wordId, weight }, { onConflict: 'user_id,word_id' });
+    if (error) throw error;
   }
 }

@@ -93,6 +93,10 @@ export class AuthService {
       const badgeService = this.injector.get(BadgeService);
       badgeService.reset();
 
+      const { DeutschService } = await import('./vocab.service');
+      const vocabService = this.injector.get(DeutschService);
+      vocabService.clearUserData();
+
     } catch (error) {
       console.warn('Error clearing user data:', error);
     }
@@ -203,6 +207,11 @@ export class AuthService {
       const { BadgeService } = await import('./badge.service');
       const badgeService = this.injector.get(BadgeService);
       await badgeService.loadEarnedBadges(userId);
+
+      // Load Deutsch category data
+      const { DeutschService } = await import('./vocab.service');
+      const vocabService = this.injector.get(DeutschService);
+      await vocabService.loadUserData(userId);
 
     } catch (error) {
       console.warn('[AuthService] Error loading user data:', error);

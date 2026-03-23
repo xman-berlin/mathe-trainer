@@ -1,0 +1,266 @@
+.vocab-management-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-color, #fafafa);
+}
+
+.mgmt-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+
+  h1 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+.back-link {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.9rem;
+
+  &:hover { color: #333; }
+}
+
+.mgmt-body {
+  flex: 1;
+  display: flex;
+  gap: 0;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+// ---- Panels ----
+.left-panel {
+  width: 300px;
+  min-width: 240px;
+  border-right: 1px solid #e0e0e0;
+  background: #fff;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+}
+
+.right-panel {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.select-hint {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-size: 1rem;
+}
+
+// ---- Section ----
+.panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  h2 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #888;
+    margin: 0 0 0.25rem;
+    letter-spacing: 0.05em;
+  }
+}
+
+// ---- Lists ----
+.item-list,
+.word-list,
+.user-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.item-row,
+.word-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #f5f5f5;
+  border: 1px solid transparent;
+  transition: background 0.1s;
+
+  &:hover { background: #eeeeee; }
+
+  &.selected {
+    background: #e3f2fd;
+    border-color: #90caf9;
+  }
+}
+
+.word-row { cursor: default; }
+
+.item-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-sub {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.word-text {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.empty-hint {
+  color: #bbb;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.5rem;
+  font-style: italic;
+}
+
+// ---- User list ----
+.user-row {
+  padding: 0.3rem 0;
+}
+
+.user-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+
+  input[type='checkbox'] {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+  }
+}
+
+// ---- Forms ----
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.horizontal-form {
+  flex-direction: row;
+  align-items: center;
+}
+
+.text-input {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  outline: none;
+  flex: 1;
+
+  &:focus { border-color: #42a5f5; }
+}
+
+.inline-input {
+  flex: 1;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.9rem;
+}
+
+.form-error {
+  color: #c62828;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+// ---- Buttons ----
+.primary-btn {
+  padding: 0.4rem 0.85rem;
+  border: none;
+  border-radius: 6px;
+  background: #1976d2;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { background: #1565c0; }
+}
+
+.secondary-btn {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #f5f5f5;
+  color: #333;
+  font-size: 0.82rem;
+  cursor: pointer;
+
+  &:hover { background: #e0e0e0; }
+}
+
+.success-btn {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #a5d6a7;
+  border-radius: 5px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 0.82rem;
+  cursor: pointer;
+
+  &:hover { background: #c8e6c9; }
+}
+
+.danger-btn {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #ef9a9a;
+  border-radius: 5px;
+  background: #ffebee;
+  color: #c62828;
+  font-size: 0.82rem;
+  cursor: pointer;
+
+  &:hover { background: #ffcdd2; }
+}
+
+.small-btn {
+  min-width: 1.6rem;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
