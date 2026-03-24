@@ -438,6 +438,9 @@ export class StatsService {
       // Persist to localStorage (cache)
       this.persist();
       this.persistLifetime();
+
+      // Check badges on load to catch any that should have been awarded
+      this.checkBadges();
     } catch (error) {
       console.warn('Failed to load from server, using local cache:', error);
     }

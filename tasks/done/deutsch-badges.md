@@ -36,10 +36,35 @@ Add a set of badges specific to the Deutsch / Rechtschreibung exercise, consiste
 
 ## Implementation Plan
 
-- [ ] Add 9 badge definitions to `BadgeService` (`BADGE_DEFINITIONS` array) in `src/app/services/badge.service.ts`
-- [ ] Verify `BadgeCheckData` already carries the needed fields (`lifetimeStats`, `dailyStats`, `bestStreaksByType`) for the key `'deutsch-rechtschreibung'` — no model changes needed
-- [ ] Run lint + build + tests
-- [ ] Smoke-test: earn `deutsch-beginner` by checking badge check logic manually
+- [x] Add 9 badge definitions to `BadgeService` (`BADGE_DEFINITIONS` array) in `src/app/services/badge.service.ts`
+- [x] Verify `BadgeCheckData` already carries the needed fields (`lifetimeStats`, `dailyStats`, `bestStreaksByType`) for the key `'deutsch-rechtschreibung'` — no model changes needed
+- [x] Run lint + build + tests
+- [x] Smoke-test: earn `deutsch-beginner` by checking badge check logic manually
+- [x] Unit tests: 23 tests in `badge.service.spec.ts` covering all 9 badges with boundary conditions
+
+---
+
+## Review
+
+**Changes:**
+
+1. `src/app/services/badge.service.ts`
+   - Added 9 badge definitions to `BADGE_DEFINITIONS` array
+   - Added progress calculation logic for `deutsch-*` badges in `getBadgeProgress()`
+   - No model changes needed — `BadgeCheckData` already supports the required fields
+
+2. `src/app/services/badge.service.spec.ts` (new)
+   - 23 unit tests covering all 9 badges with boundary conditions (below/at/above threshold, missing data)
+
+3. `src/app/services/stats.service.ts`
+   - Bug fix: added `checkBadges()` call after loading lifetime stats from server, so badges missed due to session-only `answerCounter` are caught on app load
+
+**Verification:**
+- `npm run lint` — all files pass
+- `npm run build` — success (budget warnings are pre-existing)
+- `npm run test -- --watch=false --browsers=ChromeHeadless` — 25/25 tests pass (2 existing + 23 new)
+
+**Completed:** 2026-03-24
 
 ---
 

@@ -374,6 +374,120 @@ export class BadgeService {
     },
 
     // ========================================================================
+    // DEUTSCH BADGES
+    // ========================================================================
+    {
+      id: 'deutsch-beginner',
+      name: 'Rechtschreib-Anfänger',
+      description: 'Löse 10 richtige Rechtschreib-Aufgaben (lifetime)',
+      icon: '📝',
+      category: 'milestone',
+      requiredProgress: 10,
+      coinReward: 25,
+      checkFunction: (data: BadgeCheckData) => {
+        return (data.lifetimeStats['deutsch-rechtschreibung'] || 0) >= 10;
+      },
+    },
+    {
+      id: 'deutsch-apprentice',
+      name: 'Rechtschreib-Lehrling',
+      description: 'Löse 50 richtige Rechtschreib-Aufgaben (lifetime)',
+      icon: '✏️',
+      category: 'milestone',
+      requiredProgress: 50,
+      coinReward: 50,
+      checkFunction: (data: BadgeCheckData) => {
+        return (data.lifetimeStats['deutsch-rechtschreibung'] || 0) >= 50;
+      },
+    },
+    {
+      id: 'deutsch-scholar',
+      name: 'Wortkenner',
+      description: 'Löse 200 richtige Rechtschreib-Aufgaben (lifetime)',
+      icon: '📚',
+      category: 'milestone',
+      requiredProgress: 200,
+      coinReward: 100,
+      checkFunction: (data: BadgeCheckData) => {
+        return (data.lifetimeStats['deutsch-rechtschreibung'] || 0) >= 200;
+      },
+    },
+    {
+      id: 'deutsch-master',
+      name: 'Rechtschreib-Meister',
+      description: 'Löse 500 richtige Rechtschreib-Aufgaben (lifetime)',
+      icon: '🎓',
+      category: 'milestone',
+      requiredProgress: 500,
+      coinReward: 250,
+      checkFunction: (data: BadgeCheckData) => {
+        return (data.lifetimeStats['deutsch-rechtschreibung'] || 0) >= 500;
+      },
+    },
+    {
+      id: 'deutsch-champion',
+      name: 'Rechtschreib-Champion',
+      description: 'Löse 1000 richtige Rechtschreib-Aufgaben (lifetime)',
+      icon: '🏆',
+      category: 'milestone',
+      requiredProgress: 1000,
+      coinReward: 500,
+      checkFunction: (data: BadgeCheckData) => {
+        return (data.lifetimeStats['deutsch-rechtschreibung'] || 0) >= 1000;
+      },
+    },
+    {
+      id: 'deutsch-daily-10',
+      name: 'Fleißige Feder',
+      description: 'Löse 10 richtige Rechtschreib-Aufgaben an einem Tag',
+      icon: '🪶',
+      category: 'performance',
+      requiredProgress: 10,
+      coinReward: 30,
+      checkFunction: (data: BadgeCheckData) => {
+        const daily = data.dailyStats['deutsch-rechtschreibung'];
+        return daily ? daily.correct >= 10 : false;
+      },
+    },
+    {
+      id: 'deutsch-perfect-day',
+      name: 'Fehlerfreier Tag',
+      description: '100% Genauigkeit mit mindestens 20 Rechtschreib-Aufgaben an einem Tag',
+      icon: '⭐',
+      category: 'performance',
+      requiredProgress: 20,
+      coinReward: 100,
+      checkFunction: (data: BadgeCheckData) => {
+        const daily = data.dailyStats['deutsch-rechtschreibung'];
+        return daily ? daily.correct >= 20 && daily.incorrect === 0 : false;
+      },
+    },
+    {
+      id: 'deutsch-streak-10',
+      name: 'Wort-Serie',
+      description: 'Erreiche 10 richtige Rechtschreib-Antworten in Folge',
+      icon: '🔥',
+      category: 'performance',
+      requiredProgress: 10,
+      coinReward: 50,
+      checkFunction: (data: BadgeCheckData) => {
+        return (data.bestStreaksByType['deutsch-rechtschreibung'] || 0) >= 10;
+      },
+    },
+    {
+      id: 'deutsch-streak-25',
+      name: 'Wort-Strom',
+      description: 'Erreiche 25 richtige Rechtschreib-Antworten in Folge',
+      icon: '⚡',
+      category: 'performance',
+      requiredProgress: 25,
+      coinReward: 150,
+      checkFunction: (data: BadgeCheckData) => {
+        return (data.bestStreaksByType['deutsch-rechtschreibung'] || 0) >= 25;
+      },
+    },
+
+    // ========================================================================
     // CHALLENGE BADGES (Reserved for future Daily Challenges feature)
     // ========================================================================
   ];
@@ -475,6 +589,15 @@ export class BadgeService {
         totalCorrect += stats.correct;
       }
       current = totalCorrect;
+    } else if (badgeId.startsWith('deutsch-')) {
+      if (badgeId === 'deutsch-daily-10' || badgeId === 'deutsch-perfect-day') {
+        const daily = data.dailyStats['deutsch-rechtschreibung'];
+        current = daily ? daily.correct : 0;
+      } else if (badgeId === 'deutsch-streak-10' || badgeId === 'deutsch-streak-25') {
+        current = Math.min(data.bestStreaksByType['deutsch-rechtschreibung'] || 0, badge.requiredProgress);
+      } else {
+        current = data.lifetimeStats['deutsch-rechtschreibung'] || 0;
+      }
     }
 
     return { current, required: badge.requiredProgress };
