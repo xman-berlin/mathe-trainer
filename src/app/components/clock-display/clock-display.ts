@@ -1,10 +1,11 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   standalone: true,
   selector: 'app-clock-display',
   templateUrl: './clock-display.html',
-  styleUrl: './clock-display.scss'
+  styleUrl: './clock-display.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClockDisplayComponent {
   // Inputs

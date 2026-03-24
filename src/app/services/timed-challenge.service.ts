@@ -109,8 +109,8 @@ export class TimedChallengeService {
 
       this.personalBests.set(bestsMap);
       this.persist(); // Cache locally
-    } catch (error) {
-      console.warn('[TimedChallenge] Failed to load from server, using local cache:', error);
+    } catch {
+      // Server load failed, using local cache
     }
   }
 
@@ -148,8 +148,8 @@ export class TimedChallengeService {
         accuracy: result.accuracy
       });
 
-    } catch (error) {
-      console.warn('[TimedChallenge] Failed to sync to server:', error);
+    } catch {
+      // Sync failed, will retry on next save
     }
   }
 }

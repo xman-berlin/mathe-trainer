@@ -1,7 +1,6 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { AvatarService } from '../../services/avatar.service';
 import { MigrationService } from '../../services/migration.service';
@@ -10,9 +9,10 @@ import type { User, AvatarStyle } from '../../models/user.model';
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent implements OnInit {
   private auth = inject(AuthService);

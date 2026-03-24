@@ -1,10 +1,9 @@
 import { Component, Input, Signal, signal, computed, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-stats-badge',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './stats-badge.component.html',
   styleUrls: ['./stats-badge.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

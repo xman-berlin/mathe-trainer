@@ -3,6 +3,7 @@ import {
   computed,
   signal,
   HostListener,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BREAKOUT_CONFIG } from '../../models/game.model';
@@ -32,6 +33,7 @@ interface Ball {
   imports: [RouterLink],
   templateUrl: './breakout.html',
   styleUrl: './breakout.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BreakoutComponent extends BaseGameComponent {
   protected override readonly config = BREAKOUT_CONFIG;

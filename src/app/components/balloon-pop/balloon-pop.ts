@@ -3,6 +3,7 @@ import {
   computed,
   signal,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProblemGeneratorService } from '../../services/problem-generator.service';
@@ -30,6 +31,7 @@ interface Question {
   imports: [RouterLink],
   templateUrl: './balloon-pop.html',
   styleUrl: './balloon-pop.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BalloonPopComponent extends BaseGameComponent {
   protected override readonly config = BALLOON_POP_CONFIG;

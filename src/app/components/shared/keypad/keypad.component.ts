@@ -1,10 +1,9 @@
 import { Component, Input, Output, EventEmitter, signal, Signal, ChangeDetectionStrategy, HostListener, inject, ElementRef, AfterViewInit, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-keypad',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './keypad.component.html',
   styleUrls: ['./keypad.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,10 +1,11 @@
-import { Component, input, output, signal, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, input, output, signal, ElementRef, ViewChild, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-interactive-clock-display',
   standalone: true,
   templateUrl: './interactive-clock-display.html',
-  styleUrls: ['./interactive-clock-display.scss']
+  styleUrls: ['./interactive-clock-display.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InteractiveClockDisplayComponent implements AfterViewInit {
   // Target time (what student should match)

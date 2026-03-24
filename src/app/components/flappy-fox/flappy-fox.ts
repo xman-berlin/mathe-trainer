@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   HostListener,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FLAPPY_FOX_CONFIG, FlappyFoxState } from '../../models/game.model';
@@ -20,6 +21,7 @@ interface Pipe {
   imports: [RouterLink],
   templateUrl: './flappy-fox.html',
   styleUrl: './flappy-fox.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FlappyFoxComponent extends BaseGameComponent<FlappyFoxState> {
   protected override readonly config = FLAPPY_FOX_CONFIG;

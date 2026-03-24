@@ -1,5 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { DailyStreakService } from '../../services/daily-streak.service';
 
 /**
@@ -9,9 +8,10 @@ import { DailyStreakService } from '../../services/daily-streak.service';
 @Component({
   standalone: true,
   selector: 'app-streak-display',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './streak-display.component.html',
   styleUrl: './streak-display.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StreakDisplayComponent {
   protected streakService = inject(DailyStreakService);

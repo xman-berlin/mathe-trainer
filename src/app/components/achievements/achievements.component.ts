@@ -1,9 +1,8 @@
-import { Component, inject, signal, OnInit, Input } from '@angular/core';
+import { Component, inject, signal, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService, PersonalBest } from '../../services/timed-challenge.service';
 import { StatsService } from '../../services/stats.service';
-import { CommonModule } from '@angular/common';
 
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'word-problems';
 type ClockExerciseType = 'clock-full' | 'clock-half' | 'clock-quarter' | 'clock-fiveMin';
@@ -12,9 +11,10 @@ type MedalLevel = 'none' | 'bronze' | 'silver' | 'gold';
 @Component({
   standalone: true,
   selector: 'app-achievements',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './achievements.component.html',
-  styleUrls: ['./achievements.component.scss']
+  styleUrls: ['./achievements.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AchievementsComponent implements OnInit {
   achievements = inject(AchievementsService);

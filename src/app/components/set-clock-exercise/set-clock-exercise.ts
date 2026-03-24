@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InteractiveClockDisplayComponent } from '../interactive-clock-display/interactive-clock-display';
@@ -26,6 +26,7 @@ export interface SetClockProblem {
   templateUrl: './set-clock-exercise.html',
   styleUrls: ['./set-clock-exercise.scss'],
   providers: [ExerciseStateService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SetClockExerciseComponent implements OnInit {
   private stats = inject(StatsService);

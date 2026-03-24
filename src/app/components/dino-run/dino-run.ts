@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   HostListener,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DINO_RUN_CONFIG } from '../../models/game.model';
@@ -22,6 +23,7 @@ interface Obstacle {
   imports: [RouterLink],
   templateUrl: './dino-run.html',
   styleUrl: './dino-run.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DinoRunComponent extends BaseGameComponent {
   protected override readonly config = DINO_RUN_CONFIG;

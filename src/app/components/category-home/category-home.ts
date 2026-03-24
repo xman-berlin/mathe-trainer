@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
@@ -11,7 +11,8 @@ import { StreakDisplayComponent } from '../streak-display/streak-display.compone
   selector: 'app-category-home',
   imports: [RouterLink, FormsModule, UserProfileComponent, StreakDisplayComponent],
   templateUrl: './category-home.html',
-  styleUrl: './category-home.scss'
+  styleUrl: './category-home.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoryHomeComponent {
   protected stats = inject(StatsService);

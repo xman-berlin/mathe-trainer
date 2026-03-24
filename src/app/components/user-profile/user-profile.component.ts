@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AvatarService } from '../../services/avatar.service';
@@ -15,6 +15,7 @@ import type { AvatarStyle } from '../../models/user.model';
   imports: [],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserProfileComponent {
   protected auth = inject(AuthService);

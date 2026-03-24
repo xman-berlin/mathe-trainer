@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +11,8 @@ import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component
   selector: 'app-category-overview',
   imports: [RouterLink, FormsModule, StatsBadgeComponent],
   templateUrl: './category-overview.html',
-  styleUrl: './category-overview.scss'
+  styleUrl: './category-overview.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoryOverviewComponent {
   protected stats = inject(StatsService);

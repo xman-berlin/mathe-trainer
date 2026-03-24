@@ -97,8 +97,8 @@ export class AuthService {
       const vocabService = this.injector.get(DeutschService);
       vocabService.clearUserData();
 
-    } catch (error) {
-      console.warn('Error clearing user data:', error);
+    } catch {
+      // User data cleanup failed non-critically
     }
   }
 
@@ -156,14 +156,12 @@ export class AuthService {
         this.currentUser.set(user);
 
         // Update last active in background
-        this.supabase.updateLastActive(user.id).catch((err) => {
-          console.warn('Failed to update last active:', err);
-        });
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        this.supabase.updateLastActive(user.id).catch(() => {});
 
         // Load user data (streak, stats)
-        this.loadUserData(user.id).catch((err) => {
-          console.warn('Failed to load user data:', err);
-        });
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        this.loadUserData(user.id).catch(() => {});
       }
     } catch (error) {
       console.error('Error loading user from storage:', error);
@@ -213,8 +211,8 @@ export class AuthService {
       const vocabService = this.injector.get(DeutschService);
       await vocabService.loadUserData(userId);
 
-    } catch (error) {
-      console.warn('[AuthService] Error loading user data:', error);
+    } catch {
+      // User data load failed non-critically
     }
   }
 

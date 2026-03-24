@@ -12,7 +12,6 @@ import {
   AfterViewInit,
   effect,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 const QWERTZ_ROWS = [
   ['Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P'],
@@ -24,7 +23,7 @@ const QWERTZ_ROWS = [
 @Component({
   selector: 'app-letter-keypad',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './letter-keypad.component.html',
   styleUrls: ['./letter-keypad.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

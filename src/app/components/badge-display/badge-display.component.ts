@@ -1,5 +1,4 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BadgeService } from '../../services/badge.service';
 import { StatsService } from '../../services/stats.service';
 import { AuthService } from '../../services/auth.service';
@@ -10,9 +9,10 @@ import type { BadgeProgress, BadgeCategory } from '../../models/badge.model';
 @Component({
   selector: 'app-badge-display',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './badge-display.component.html',
   styleUrl: './badge-display.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BadgeDisplayComponent implements OnInit {
   private badgeService = inject(BadgeService);

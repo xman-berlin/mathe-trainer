@@ -373,8 +373,6 @@ export class StatsService {
       const userId = this.auth.currentUser()!.id;
       await this.streakService.loadStreak(userId);
       await this.streakService.checkAndUpdateStreak(userId);
-    } else {
-      console.warn('StreakService not available or no current user');
     }
   }
 
@@ -441,8 +439,8 @@ export class StatsService {
 
       // Check badges on load to catch any that should have been awarded
       this.checkBadges();
-    } catch (error) {
-      console.warn('Failed to load from server, using local cache:', error);
+    } catch {
+      // Server load failed, using local cache
     }
   }
 
@@ -475,9 +473,7 @@ export class StatsService {
         best_streaks_by_type: this.bestStreaksByTypeSignal(),
       };
       await this.supabase.upsertLifetimeStats(userId, lifetimeStats);
-    } catch (error) {
-      console.warn('Failed to sync to server:', error);
-      console.warn('If you see column "best_streaks_by_type" does not exist, run the migration script: migration-add-best-streaks.sql');
+    } catch {
       // Don't throw - sync is non-critical
     }
   }
@@ -487,7 +483,6 @@ export class StatsService {
    */
   private async updateStreak(): Promise<void> {
     if (!this.streakService || !this.auth || !this.auth.isAuthenticated()) {
-      console.warn('Cannot update streak - missing dependencies');
       return;
     }
 

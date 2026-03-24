@@ -136,8 +136,8 @@ export class AchievementsService {
 
       this.multiplicationMastery.set(masteryMap);
       this.persist(); // Cache locally
-    } catch (error) {
-      console.warn('[Achievements] Failed to load from server, using local cache:', error);
+    } catch {
+      // Server load failed, using local cache
     }
   }
 
@@ -177,8 +177,8 @@ export class AchievementsService {
         mastered_at: masteryData.masteredAt || null
       });
 
-    } catch (error) {
-      console.warn('[Achievements] Failed to sync to server:', error);
+    } catch {
+      // Sync failed, will retry on next save
     }
   }
 }

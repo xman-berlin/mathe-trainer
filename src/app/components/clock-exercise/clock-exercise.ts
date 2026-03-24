@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, effect, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, inject, effect, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ClockService, ClockExerciseType, ClockProblem } from '../../services/clock';
@@ -16,6 +16,7 @@ import { createStatsAggregator } from '../../utils/stats-aggregator';
   templateUrl: './clock-exercise.html',
   styleUrl: './clock-exercise.scss',
   providers: [ExerciseStateService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClockExerciseComponent implements OnInit, OnDestroy {
   private clockService = inject(ClockService);

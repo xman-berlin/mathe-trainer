@@ -1,5 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CoinsService } from '../../services/coins.service';
 import { GameService, AVAILABLE_GAMES } from '../../services/game.service';
@@ -11,9 +11,10 @@ type TabType = 'math' | 'clock' | 'badges' | 'games';
 @Component({
   selector: 'app-global-achievements',
   standalone: true,
-  imports: [CommonModule, RouterLink, AchievementsComponent, BadgeDisplayComponent],
+  imports: [RouterLink, AchievementsComponent, BadgeDisplayComponent],
   templateUrl: './global-achievements.component.html',
   styleUrl: './global-achievements.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GlobalAchievementsComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -36,7 +37,7 @@ export class GlobalAchievementsComponent implements OnInit {
 
   ngOnInit() {
     // Read tab from query params
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(params => {
       const tab = params['tab'] as TabType;
       if (tab && this.isValidTab(tab)) {
         this.activeTab.set(tab);
