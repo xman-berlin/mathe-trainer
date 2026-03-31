@@ -187,6 +187,16 @@
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, white 100%);
 }
 
+.hangman-card {
+  border-color: #ef6c00;
+  background: linear-gradient(135deg, rgba(239, 108, 0, 0.03) 0%, white 100%);
+}
+
+.hangman-card:hover {
+  border-color: #ef6c00;
+  background: linear-gradient(135deg, rgba(239, 108, 0, 0.08) 0%, white 100%);
+}
+
 .card-icon {
   font-size: 3rem;
   margin-bottom: 1rem;

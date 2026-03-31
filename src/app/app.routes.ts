@@ -14,6 +14,7 @@ import { LoginComponent } from './components/login/login.component';
 import { DeutschCategoryOverviewComponent } from './components/vocab-category-overview/vocab-category-overview';
 import { DeutschRechtschreibungComponent } from './components/vocab-exercise/vocab-exercise';
 import { VocabManagementComponent } from './components/vocab-management/vocab-management';
+import { DeutschHangmanComponent } from './components/hangman/hangman';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -49,6 +50,7 @@ export const routes: Routes = [
   // Deutsch routes
   { path: 'deutsch', component: DeutschCategoryOverviewComponent, canActivate: [authGuard] },
   { path: 'deutsch/rechtschreibung', component: DeutschRechtschreibungComponent, canActivate: [authGuard] },
+  { path: 'deutsch/hangman', component: DeutschHangmanComponent, canActivate: [authGuard] },
   { path: 'deutsch/verwalten', component: VocabManagementComponent, canActivate: [authGuard] },
   // Backward compatibility redirects
   { path: 'vokabeln', redirectTo: '/deutsch', pathMatch: 'full' },

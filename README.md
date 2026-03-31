@@ -13,6 +13,7 @@ Schlaufuchs is a web-based application that helps elementary school students imp
 - **Math Exercises**: Addition, Subtraction, Multiplication, Division, Word Problems
 - **Time Learning**: Analog and digital clock exercises with detailed minute tick marks on the interactive clock face
 - **Deutsch / Rechtschreibung**: German spelling exercises — TTS speaks a word, pupils type it on a QWERTZ keyboard; full streak, daily stats, and goal tracking
+- **Deutsch / Wörter Raten**: Word guessing game (hangman-style) — guess letters to reveal words from vocab lists; caterpillar figure shows remaining guesses
 - **Gamification**: Badge system with 34+ badges, coin collection, streak tracking, bronze lock (exercise types become permanent once ≥100 lifetime correct answers reached)
 - **Mini-Games**: Flappy Fox, Dino Run, Breakout, Balloon Pop
 - **Achievements**: Medal system, personal best times, streak milestones

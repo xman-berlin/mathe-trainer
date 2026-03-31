@@ -1,0 +1,29 @@
+<div class="letter-keypad">
+  <div class="keypad-rows">
+    @for (row of rows; track $index) {
+      <div class="keypad-row">
+        @for (letter of row; track letter) {
+          <button
+            type="button"
+            class="key-btn letter-key"
+            [class.used]="usedLetters().has(letter)"
+            [disabled]="disabled()"
+            (click)="selectLetter(letter)"
+          >{{ letter }}</button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (showReplay) {
+    <div class="keypad-actions">
+      <button
+        type="button"
+        class="key-btn action-key replay-key"
+        [disabled]="disabled()"
+        (click)="onReplayAudio()"
+        title="Wort nochmal hören"
+      >🔊</button>
+    </div>
+  }
+</div>

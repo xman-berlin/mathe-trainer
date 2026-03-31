@@ -1,0 +1,108 @@
+<div class="vocab-exercise-page">
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <p>Lade Wörter…</p>
+    </div>
+  } @else if (sessionEmpty()) {
+    <div class="empty-state">
+      <div class="empty-icon">📚</div>
+      <h2>Keine Wörter verfügbar</h2>
+      <p>Es wurden dir noch keine Wortlisten zugewiesen.</p>
+      <a routerLink="/deutsch" class="back-btn">Zurück zur Übersicht</a>
+    </div>
+  } @else {
+    <a routerLink="/deutsch" class="back-home-btn">← Zurück</a>
+
+    <main class="exercise-main">
+      <h1 class="language-title">🎯 Wörter Raten</h1>
+
+      <!-- Caterpillar SVG -->
+      <div class="gallows-container">
+        <svg viewBox="0 0 300 100" class="gallows-svg">
+          <!-- Grass -->
+          <rect x="0" y="75" width="300" height="25" rx="4" fill="#81c784"/>
+          <!-- Body segments (lost from right to left on errors) -->
+          <circle cx="120" cy="45" r="16" [attr.fill]="segmentsLost() >= 6 ? '#e0e0e0' : '#66bb6a'" class="body-part"/>
+          <circle cx="148" cy="45" r="16" [attr.fill]="segmentsLost() >= 5 ? '#e0e0e0' : '#4caf50'" class="body-part"/>
+          <circle cx="176" cy="45" r="16" [attr.fill]="segmentsLost() >= 4 ? '#e0e0e0' : '#66bb6a'" class="body-part"/>
+          <circle cx="204" cy="45" r="16" [attr.fill]="segmentsLost() >= 3 ? '#e0e0e0' : '#4caf50'" class="body-part"/>
+          <circle cx="232" cy="45" r="16" [attr.fill]="segmentsLost() >= 2 ? '#e0e0e0' : '#66bb6a'" class="body-part"/>
+          <circle cx="260" cy="45" r="16" [attr.fill]="segmentsLost() >= 1 ? '#e0e0e0' : '#4caf50'" class="body-part"/>
+          <!-- Head -->
+          <circle cx="85" cy="45" r="20" fill="#2e7d32"/>
+          <!-- Eyes -->
+          <circle cx="78" cy="39" r="4" fill="white"/>
+          <circle cx="92" cy="39" r="4" fill="white"/>
+          <circle cx="79" cy="39" r="2" fill="#333"/>
+          <circle cx="93" cy="39" r="2" fill="#333"/>
+          <!-- Mouth -->
+          <path d="M 78 50 Q 85 56 92 50" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+          <!-- Antennae -->
+          <line x1="78" y1="28" x2="72" y2="14" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="72" cy="12" r="3" fill="#fdd835"/>
+          <line x1="92" y1="28" x2="98" y2="14" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="98" cy="12" r="3" fill="#fdd835"/>
+        </svg>
+      </div>
+
+      <!-- Letter blanks -->
+      <div class="letter-blanks">
+        @for (letter of displayLetters(); track $index) {
+          <div class="letter-blank" [class.revealed]="letter !== '_'">
+            {{ letter }}
+          </div>
+        }
+      </div>
+
+      <!-- Feedback -->
+      <div class="answer-area">
+        @if (feedback() === 'correct') {
+          <div class="feedback-message correct-msg">✓ Richtig!</div>
+        }
+        @if (feedback() === 'incorrect') {
+          <div class="feedback-message incorrect-msg">
+            ✗ Das Wort war: <strong>{{ currentWord()?.word }}</strong>
+          </div>
+        }
+      </div>
+
+      <!-- Letter selector keyboard -->
+      <app-letter-selector
+        [usedLetters]="guessedLetters"
+        [disabled]="keypadDisabled"
+        [showReplay]="false"
+        (letterSelected)="onLetterSelected($event)"
+      />
+
+      <!-- Streak display -->
+      <div class="streak-display" [class.has-streak]="streak() > 0">
+        <span class="streak-icon">&#x1F525;</span>
+        <span class="streak-count">{{ streak() }}</span>
+        @if (bestStreak() > 0 && bestStreak() > streak()) {
+          <span class="best-streak">Rekord: {{ bestStreak() }}</span>
+        }
+      </div>
+
+      <!-- Milestone popup + confetti -->
+      @if (showMilestone()) {
+        <div class="confetti-container">
+          @for (i of confettiPieces; track i) {
+            <div class="confetti" [style.--delay]="i * 0.1 + 's'" [style.--x]="confettiX[i]"></div>
+          }
+        </div>
+        <div class="milestone-popup">
+          &#x1F389; {{ milestoneValue() }}er Serie! &#x1F389;
+        </div>
+      }
+
+      <!-- Result summary -->
+      <div class="result-summary">
+        <span class="badge badge-correct">&#x2713; {{ typeCorrectCount() }}</span>
+        <span class="badge badge-incorrect">&#x2717; {{ typeIncorrectCount() }}</span>
+        <span class="badge badge-total">&#x3a3; {{ typeTotalCount() }}</span>
+        <span class="summary-label">Heute</span>
+      </div>
+    </main>
+  }
+</div>
