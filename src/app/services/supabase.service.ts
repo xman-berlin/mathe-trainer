@@ -471,6 +471,7 @@ export class SupabaseService {
       stats_by_type: {},
       math_daily_goal: 20,
       clock_daily_goal: 20,
+      vocab_daily_goal: 10,
     };
   }
 

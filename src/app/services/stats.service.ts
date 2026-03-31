@@ -171,6 +171,7 @@ export class StatsService {
     if (count > 100) count = 100;
     this.dailyGoal.set(count);
     this.persist();
+    this.syncToServer();
   }
 
   setClockDailyGoal(count: number): void {
@@ -178,6 +179,7 @@ export class StatsService {
     if (count > 100) count = 100;
     this.clockDailyGoal.set(count);
     this.persist();
+    this.syncToServer();
   }
 
   setDeutschDailyGoal(count: number): void {
@@ -185,6 +187,7 @@ export class StatsService {
     if (count > 100) count = 100;
     this.vocabDailyGoal.set(count);
     this.persist();
+    this.syncToServer();
   }
 
   resetToday() {
@@ -194,6 +197,8 @@ export class StatsService {
     this.mathGoalBonusAwarded.set(false);
     this.clockGoalBonusAwarded.set(false);
     this.deutschGoalBonusAwarded.set(false);
+    // Note: goal signals (dailyGoal, clockDailyGoal, vocabDailyGoal) are preserved
+    // across days — they are user preferences, not daily counters.
     this.persist();
   }
 
