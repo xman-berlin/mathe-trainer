@@ -44,35 +44,35 @@ describe('ExerciseStateService', () => {
 
   describe('handleResult — correct answer', () => {
     it('should increment streak on correct answer (synchronous via setTimeout 0)', async () => {
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
       expect(service.streak()).toBe(1);
     });
 
     it('should increment streak multiple times', async () => {
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
       expect(service.streak()).toBe(3);
     });
 
     it('should update bestStreak when streak exceeds it', async () => {
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
       expect(service.bestStreak()).toBe(2);
     });
 
     it('should not lower bestStreak after incorrect resets streak', async () => {
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
-      service.handleResult(false, () => {}, 0, 0);
+      service.handleResult(false, () => { /* noop */ }, 0, 0);
       await new Promise(r => setTimeout(r, 10));
       expect(service.bestStreak()).toBe(2);
       expect(service.streak()).toBe(0);
@@ -91,11 +91,11 @@ describe('ExerciseStateService', () => {
 
   describe('handleResult — incorrect answer', () => {
     it('should reset streak to 0 on incorrect answer', async () => {
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
-      service.handleResult(false, () => {}, 0, 0);
+      service.handleResult(false, () => { /* noop */ }, 0, 0);
       await new Promise(r => setTimeout(r, 10));
       expect(service.streak()).toBe(0);
     });
@@ -114,12 +114,12 @@ describe('ExerciseStateService', () => {
   describe('milestones', () => {
     it('should show milestone popup when streak hits default milestone (5)', async () => {
       for (let i = 0; i < 4; i++) {
-        service.handleResult(true, () => {}, 0);
+        service.handleResult(true, () => { /* noop */ }, 0);
         await new Promise(r => setTimeout(r, 10));
       }
       expect(service.showMilestone()).toBeFalse();
 
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
       expect(service.showMilestone()).toBeTrue();
       expect(service.milestoneValue()).toBe(5);
@@ -127,7 +127,7 @@ describe('ExerciseStateService', () => {
 
     it('should auto-hide milestone popup after 2000ms', async () => {
       for (let i = 0; i < 5; i++) {
-        service.handleResult(true, () => {}, 0);
+        service.handleResult(true, () => { /* noop */ }, 0);
         await new Promise(r => setTimeout(r, 10));
       }
       expect(service.showMilestone()).toBeTrue();
@@ -137,22 +137,22 @@ describe('ExerciseStateService', () => {
 
     it('should use custom milestones', async () => {
       service.setMilestones([3, 7]);
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
       expect(service.showMilestone()).toBeFalse();
 
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
       expect(service.showMilestone()).toBeTrue();
       expect(service.milestoneValue()).toBe(3);
     });
 
     it('should not show milestone on non-milestone streak', async () => {
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
-      service.handleResult(true, () => {}, 0);
+      service.handleResult(true, () => { /* noop */ }, 0);
       await new Promise(r => setTimeout(r, 10));
       expect(service.showMilestone()).toBeFalse();
     });
@@ -163,7 +163,7 @@ describe('ExerciseStateService', () => {
   describe('reset', () => {
     it('should reset all state', async () => {
       for (let i = 0; i < 5; i++) {
-        service.handleResult(true, () => {}, 0);
+        service.handleResult(true, () => { /* noop */ }, 0);
         await new Promise(r => setTimeout(r, 10));
       }
       expect(service.streak()).toBe(5);
