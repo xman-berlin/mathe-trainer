@@ -154,11 +154,11 @@ test('login and navigate to home', async ({ page }) => {
 
 ## Definition of Done
 
-- [ ] Phase 1: ProblemGeneratorService + ExerciseStateService getestet (~25 Tests)
-- [ ] E2E: Playwright installiert, Login Smoke-Test
-- [ ] E2E Mathe: 4 Übungsarten + Zeitrennen + Sachaufgaben (~13 Tests)
-- [ ] E2E Uhrzeit: 4 Übungsarten + Zeitrennen + Zeiger setzen (~12 Tests)
-- [ ] E2E Deutsch: Rechtschreibung + Verwaltung (~5 Tests)
+- [x] Phase 1: ProblemGeneratorService + ExerciseStateService getestet (~25 Tests)
+- [x] E2E: Playwright installiert, Login Smoke-Test
+- [x] E2E Mathe: 4 Übungsarten + Zeitrennen + Sachaufgaben (~13 Tests)
+- [x] E2E Uhrzeit: 4 Übungsarten + Zeitrennen + Zeiger setzen (~12 Tests)
+- [x] E2E Deutsch: Rechtschreibung + Verwaltung (~5 Tests)
 - [ ] Phase 2: DailyStreakService + CoinsService getestet (~22 Tests)
 - [ ] Phase 2: AuthService + StatsService getestet (~20 Tests)
 - [ ] Phase 3: 3 Komponenten getestet (~14 Tests)

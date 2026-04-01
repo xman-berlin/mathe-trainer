@@ -41,6 +41,14 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# Playwright
+/test-results
+/playwright-report
+blob-report
+database.db
+database.db-shm
+database.db-wal
+
 # Backup files
 *.backup.*
 README.backup.md
