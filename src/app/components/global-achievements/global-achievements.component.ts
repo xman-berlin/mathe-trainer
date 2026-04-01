@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CoinsService } from '../../services/coins.service';
@@ -20,6 +20,7 @@ export class GlobalAchievementsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private coinsService = inject(CoinsService);
+  private destroyRef = inject(DestroyRef);
   readonly gameService = inject(GameService);
 
   // Signals
@@ -36,11 +37,13 @@ export class GlobalAchievementsComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Read tab from query params
-    this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(params => {
+    // Read tab from query params - always set activeTab (default to 'math')
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const tab = params['tab'] as TabType;
       if (tab && this.isValidTab(tab)) {
         this.activeTab.set(tab);
+      } else {
+        this.activeTab.set('math');
       }
     });
   }

@@ -1,8 +1,9 @@
 .global-achievements {
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--gray-50);
   padding: 2rem;
-  padding-bottom: 6rem;
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* Header */
@@ -106,7 +107,7 @@
 }
 
 .tab-panel {
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.3s ease both;
 }
 
 @keyframes fadeIn {
@@ -235,7 +236,7 @@
 /* Back Button */
 .back-button {
   position: fixed;
-  bottom: 2rem;
+  bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
   left: 2rem;
   display: flex;
   align-items: center;
@@ -280,7 +281,7 @@
 @media (max-width: 768px) {
   .global-achievements {
     padding: 1rem;
-    padding-bottom: 5rem;
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .page-title {
@@ -313,7 +314,7 @@
   }
 
   .back-button {
-    bottom: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
     left: 1rem;
     padding: 0.75rem 1.25rem;
   }
