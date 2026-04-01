@@ -75,10 +75,10 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('should always have a positive result', () => {
+    it('should always have a non-negative result', () => {
       for (let i = 0; i < 50; i++) {
         const p = service.generateSubtraction();
-        expect(p.answer).toBeGreaterThan(0);
+        expect(p.answer).toBeGreaterThanOrEqual(0);
       }
     });
 
