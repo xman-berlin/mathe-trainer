@@ -33,7 +33,7 @@ jobs:
     - name: Build
       run: npm run build
 
-    - name: Test
+    - name: Unit Tests
       run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
     - name: Upload coverage to Codecov
@@ -43,4 +43,10 @@ jobs:
         files: ./coverage/lcov.info
         fail_ci_if_error: false
         token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+
+    - name: E2E Tests
+      run: npx playwright test
 
