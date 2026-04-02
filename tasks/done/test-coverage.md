@@ -1,13 +1,9 @@
 # Plan: Test Coverage — Unit & E2E
 
-## Status: 🔄 in progress
+## Status: ✅ done
 
-## Current Coverage (2026-03-24)
-- **Statements**: 19.88% (213/1071)
-- **Branches**: 11.48% (41/357)
-- **Functions**: 17.35% (38/219)
-- **Lines**: 20.78% (201/967)
-- **Tests**: 67 total
+## Current Coverage (2026-04-02)
+- **Tests**: 219 total (Unit) + ~30 E2E
 
 ## Context
 
@@ -159,10 +155,26 @@ test('login and navigate to home', async ({ page }) => {
 - [x] E2E Mathe: 4 Übungsarten + Zeitrennen + Sachaufgaben (~13 Tests)
 - [x] E2E Uhrzeit: 4 Übungsarten + Zeitrennen + Zeiger setzen (~12 Tests)
 - [x] E2E Deutsch: Rechtschreibung + Verwaltung (~5 Tests)
-- [ ] Phase 2: DailyStreakService + CoinsService getestet (~22 Tests)
-- [ ] Phase 2: AuthService + StatsService getestet (~20 Tests)
-- [ ] Phase 3: 3 Komponenten getestet (~14 Tests)
-- [ ] `npm run lint` pass
-- [ ] `npm run build` pass
-- [ ] `npm run test -- --watch=false` alle grün
-- [ ] `npx playwright test` alle grün
+- [x] Phase 2: DailyStreakService + CoinsService getestet (~22 Tests)
+- [x] Phase 2: AuthService + StatsService getestet (~20 Tests)
+- [x] Phase 3: 3 Komponenten getestet (~14 Tests)
+- [x] `npm run lint` pass
+- [x] `npm run build` pass
+- [x] `npm run test -- --watch=false` alle grün
+- [x] `npx playwright test` alle grün
+
+## Review
+
+**Completed**: 2026-04-02
+
+**What was implemented:**
+- Phase 1: ProblemGeneratorService (22 tests) + ExerciseStateService (18 tests) unit tests
+- Phase 2: DailyStreakService, CoinsService, AuthService, StatsService — all already had comprehensive tests
+- Phase 3: Created 3 new component spec files — CategoryHomeComponent (7), StreakDisplayComponent (6), UserProfileComponent (4)
+- E2E: Playwright setup + 11 spec files across Login, Mathe (3), Uhrzeit (3), Deutsch (2)
+- Final: 219 unit tests + ~30 E2E tests, all passing
+
+**Deviations:**
+- Phase 2 services already had spec files from a previous session — no additions needed
+- CategoryHome component uses simplified naming (`category-home.ts` not `category-home.component.ts`)
+- StreakDisplayComponent is at `components/streak-display/` not `components/shared/streak-display/`

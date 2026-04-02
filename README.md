@@ -93,6 +93,11 @@ Tests with code coverage:
 ng test --code-coverage
 ```
 
+Run E2E tests (Playwright):
+```bash
+npx playwright test
+```
+
 ### Linting
 
 Check code quality:
@@ -153,7 +158,7 @@ This project uses GitHub Actions for Continuous Integration and Deployment:
 - **Framework**: Angular 20.3.4 (zoneless)
 - **Language**: TypeScript
 - **Styling**: CSS
-- **Testing**: Karma + Jasmine
+- **Testing**: Karma + Jasmine (Unit), Playwright (E2E)
 - **Build Tool**: Angular CLI
 - **CI/CD**: GitHub Actions
 - **Hosting**: GitHub Pages
