@@ -64,23 +64,23 @@ export class CategoryOverviewComponent {
     return this.categoryCorrectCount() >= goal;
   });
 
+  readonly categoryTitle = computed(() =>
+    this.category() === 'math' ? '📐 Mathe' : '🕐 Uhrzeit'
+  );
+
+  readonly categoryDescription = computed(() =>
+    this.category() === 'math'
+      ? 'Trainiere Addition, Subtraktion, Multiplikation und Division!'
+      : 'Lerne die Uhr zu lesen'
+  );
+
+  readonly basePath = computed(() =>
+    this.category() === 'math' ? '/mathe' : '/uhrzeit'
+  );
+
   // Goal editor state
   showGoalEditor = signal(false);
   editGoalValue = signal(20);
-
-  getCategoryTitle(): string {
-    return this.category() === 'math' ? '📐 Mathe' : '🕐 Uhrzeit';
-  }
-
-  getCategoryDescription(): string {
-    return this.category() === 'math'
-      ? 'Trainiere Addition, Subtraktion, Multiplikation und Division!'
-      : 'Lerne die Uhr zu lesen';
-  }
-
-  getBasePath(): string {
-    return this.category() === 'math' ? '/mathe' : '/uhrzeit';
-  }
 
   editGoal(): void {
     if (this.category() === 'math') {

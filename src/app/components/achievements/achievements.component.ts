@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService, PersonalBest } from '../../services/timed-challenge.service';
@@ -24,6 +24,11 @@ export class AchievementsComponent implements OnInit {
 
   @Input() category: 'math' | 'clock' = 'math';
   readonly categorySignal = signal<'math' | 'clock'>('math');
+
+  readonly title = computed(() =>
+    this.categorySignal() === 'clock' ? '🏆 Uhrzeit-Erfolge' : '🏆 Mathe-Erfolge'
+  );
+
   reihen = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   exerciseTypes: { key: ExerciseType; label: string; icon: string }[] = [
@@ -110,9 +115,5 @@ export class AchievementsComponent implements OnInit {
 
   getBackLink(): string {
     return this.categorySignal() === 'clock' ? '/uhrzeit' : '/mathe';
-  }
-
-  getTitle(): string {
-    return this.categorySignal() === 'clock' ? '🏆 Uhrzeit-Erfolge' : '🏆 Mathe-Erfolge';
   }
 }
