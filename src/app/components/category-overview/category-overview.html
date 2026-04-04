@@ -49,20 +49,20 @@
     </div>
 
     <div class="action-cards">
-      <a [routerLink]="basePath + '/uebung'" class="action-card practice-card">
+      <a [routerLink]="basePath() + '/uebung'" class="action-card practice-card">
         <div class="card-icon">📚</div>
         <h3>Übung</h3>
         <p>Trainiere in deinem eigenen Tempo</p>
       </a>
 
-      <a [routerLink]="basePath + '/zeitrennen'" class="action-card timetrial-card">
+      <a [routerLink]="basePath() + '/zeitrennen'" class="action-card timetrial-card">
         <div class="card-icon">⏱️</div>
         <h3>Zeitrennen</h3>
         <p>60 Sekunden Challenge</p>
       </a>
 
       @if (category() === 'clock') {
-        <a [routerLink]="basePath + '/zeiger-setzen'" class="action-card set-clock-card">
+        <a [routerLink]="basePath() + '/zeiger-setzen'" class="action-card set-clock-card">
           <div class="card-icon">🕰️</div>
           <h3>Zeiger setzen</h3>
           <p>Setze die Uhrzeiger auf die richtige Zeit</p>
