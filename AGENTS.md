@@ -246,6 +246,12 @@ src/app/
 - **NEVER commit secrets** or environment files
 - **Always run lint + build + tests** before committing
 
+### E2E Tests — Route Coverage
+- **Rule**: Every new user-facing route added to `app.routes.ts` MUST be covered by a click-through test in `e2e/navigation.spec.ts`
+- **How**: Add a test that navigates from the home page (or category overview) to the new route by clicking links, then asserts the correct URL and a visible element on the destination page
+- **Do NOT** use `page.goto()` for navigation tests — always click through the UI to catch broken `routerLink` bindings, missing routes, or guard issues
+- **When in doubt**: Run `e2e/navigation.spec.ts` after adding any route to verify it passes
+
 ### Supabase Integration
 - **RLS enabled** on all tables
 - **Environment variables** for sensitive data (never commit)
