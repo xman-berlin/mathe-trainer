@@ -83,7 +83,13 @@ export class CategoryHomeComponent {
   // Deutsch incorrect count
   readonly deutschIncorrectCount = computed(() => {
     const types = this.stats.statsByType();
-    return types['deutsch-rechtschreibung']?.incorrect ?? 0;
+    let total = 0;
+    for (const [type, stats] of Object.entries(types)) {
+      if (type.startsWith('deutsch-')) {
+        total += stats.incorrect ?? 0;
+      }
+    }
+    return total;
   });
 
   getTypeStats(type: string) {
