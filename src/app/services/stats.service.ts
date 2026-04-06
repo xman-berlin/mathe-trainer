@@ -72,6 +72,15 @@ export class StatsService {
     return total;
   });
 
+  readonly mathIncorrectCount = computed(() => {
+    const types = this.byType();
+    let total = 0;
+    for (const type of this.mathTypes) {
+      total += types[type]?.incorrect ?? 0;
+    }
+    return total;
+  });
+
   readonly goalProgressPercent = computed(() =>
     Math.min(100, Math.round((this.mathCorrectCount() / this.dailyGoal()) * 100))
   );
@@ -83,6 +92,15 @@ export class StatsService {
     let total = 0;
     for (const type of this.clockTypes) {
       total += types[type]?.correct ?? 0;
+    }
+    return total;
+  });
+
+  readonly clockIncorrectCount = computed(() => {
+    const types = this.byType();
+    let total = 0;
+    for (const type of this.clockTypes) {
+      total += types[type]?.incorrect ?? 0;
     }
     return total;
   });
@@ -101,6 +119,17 @@ export class StatsService {
     for (const [type, stats] of Object.entries(types)) {
       if (type.startsWith('deutsch-')) {
         total += stats.correct ?? 0;
+      }
+    }
+    return total;
+  });
+
+  readonly deutschIncorrectCount = computed(() => {
+    const types = this.byType();
+    let total = 0;
+    for (const [type, stats] of Object.entries(types)) {
+      if (type.startsWith('deutsch-')) {
+        total += stats.incorrect ?? 0;
       }
     }
     return total;

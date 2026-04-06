@@ -33,9 +33,10 @@ describe('CategoryHomeComponent', () => {
   let fixture: ComponentFixture<CategoryHomeComponent>;
   let mockStatsService: MockStatsService;
   let mockCoinsService: MockCoinsService;
+  let byTypeSignal: ReturnType<typeof signal<Record<string, { correct: number; incorrect: number }>>>;
 
   beforeEach(() => {
-    const byTypeSignal = signal<Record<string, { correct: number; incorrect: number }>>({});
+    byTypeSignal = signal<Record<string, { correct: number; incorrect: number }>>({});
     const dailyGoalSignal = signal(20);
     const clockGoalSignal = signal(20);
     const deutschGoalSignal = signal(10);
@@ -116,5 +117,35 @@ describe('CategoryHomeComponent', () => {
     expect(component.getExerciseLabel('subtraction')).toContain('Subtraktion');
     expect(component.getExerciseLabel('multiplication')).toContain('Multiplikation');
     expect(component.getExerciseLabel('division')).toContain('Division');
+  });
+
+  it('should aggregate math incorrect count', () => {
+    byTypeSignal.set({
+      'addition': { correct: 3, incorrect: 2 },
+      'subtraction': { correct: 2, incorrect: 1 },
+      'multiplication': { correct: 1, incorrect: 3 },
+      'division': { correct: 0, incorrect: 1 }
+    });
+    fixture.detectChanges();
+    expect(component.mathIncorrectCount()).toBe(7);
+  });
+
+  it('should aggregate clock incorrect count', () => {
+    byTypeSignal.set({
+      'clock-full': { correct: 2, incorrect: 1 },
+      'clock-half': { correct: 1, incorrect: 2 },
+      'clock-quarter': { correct: 3, incorrect: 0 }
+    });
+    fixture.detectChanges();
+    expect(component.clockIncorrectCount()).toBe(3);
+  });
+
+  it('should aggregate deutsch incorrect count across all types', () => {
+    byTypeSignal.set({
+      'deutsch-rechtschreibung': { correct: 5, incorrect: 3 },
+      'deutsch-hangman': { correct: 2, incorrect: 1 }
+    });
+    fixture.detectChanges();
+    expect(component.deutschIncorrectCount()).toBe(4);
   });
 });

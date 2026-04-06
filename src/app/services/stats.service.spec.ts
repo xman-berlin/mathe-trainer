@@ -125,6 +125,24 @@ describe('StatsService', () => {
       expect(service.mathCorrectCount()).toBe(5);
     });
 
+    it('should compute mathIncorrectCount from all math types', () => {
+      service.recordResult(false, 'addition');
+      service.recordResult(false, 'addition');
+      service.recordResult(false, 'subtraction');
+      service.recordResult(false, 'multiplication');
+      expect(service.mathIncorrectCount()).toBe(4);
+    });
+
+    it('should aggregate mixed correct and incorrect', () => {
+      service.recordResult(true, 'addition');
+      service.recordResult(false, 'addition');
+      service.recordResult(true, 'subtraction');
+      service.recordResult(false, 'subtraction');
+      service.recordResult(false, 'subtraction');
+      expect(service.mathCorrectCount()).toBe(2);
+      expect(service.mathIncorrectCount()).toBe(3);
+    });
+
     it('should not count non-math types in mathCorrectCount', () => {
       service.recordResult(true, 'clock-full');
       expect(service.mathCorrectCount()).toBe(0);
@@ -169,6 +187,23 @@ describe('StatsService', () => {
       expect(service.clockCorrectCount()).toBe(2);
     });
 
+    it('should compute clockIncorrectCount from all clock types', () => {
+      service.recordResult(false, 'clock-full');
+      service.recordResult(false, 'clock-half');
+      service.recordResult(false, 'clock-quarter');
+      expect(service.clockIncorrectCount()).toBe(3);
+    });
+
+    it('should aggregate mixed correct and incorrect for clock', () => {
+      service.recordResult(true, 'clock-full');
+      service.recordResult(false, 'clock-full');
+      service.recordResult(true, 'clock-half');
+      service.recordResult(false, 'clock-half');
+      service.recordResult(false, 'clock-quarter');
+      expect(service.clockCorrectCount()).toBe(2);
+      expect(service.clockIncorrectCount()).toBe(3);
+    });
+
     it('should detect clock goal reached', () => {
       for (let i = 0; i < 20; i++) {
         service.recordResult(true, 'clock-full');
@@ -180,10 +215,27 @@ describe('StatsService', () => {
   // ─── Deutsch Stats ──────────────────────────────────────────
 
   describe('deutsch stats', () => {
-    it('should aggregate all deutsch- types', () => {
+    it('should aggregate all deutsch- types for correct count', () => {
       service.recordResult(true, 'deutsch-rechtschreibung');
       service.recordResult(true, 'deutsch-hangman');
       expect(service.deutschCorrectCount()).toBe(2);
+    });
+
+    it('should aggregate all deutsch- types for incorrect count', () => {
+      service.recordResult(false, 'deutsch-rechtschreibung');
+      service.recordResult(false, 'deutsch-rechtschreibung');
+      service.recordResult(false, 'deutsch-hangman');
+      expect(service.deutschIncorrectCount()).toBe(3);
+    });
+
+    it('should aggregate mixed correct and incorrect for deutsch', () => {
+      service.recordResult(true, 'deutsch-rechtschreibung');
+      service.recordResult(false, 'deutsch-rechtschreibung');
+      service.recordResult(false, 'deutsch-rechtschreibung');
+      service.recordResult(true, 'deutsch-hangman');
+      service.recordResult(false, 'deutsch-hangman');
+      expect(service.deutschCorrectCount()).toBe(2);
+      expect(service.deutschIncorrectCount()).toBe(3);
     });
 
     it('should detect deutsch goal reached', () => {
