@@ -15,13 +15,27 @@ import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component
 export class DeutschCategoryOverviewComponent {
   protected stats = inject(StatsService);
 
-  readonly correctCount = computed(() =>
-    this.stats.statsByType()['deutsch-rechtschreibung']?.correct ?? 0
-  );
+  readonly correctCount = computed(() => {
+    const types = this.stats.statsByType();
+    let total = 0;
+    for (const [type, stats] of Object.entries(types)) {
+      if (type.startsWith('deutsch-')) {
+        total += stats.correct ?? 0;
+      }
+    }
+    return total;
+  });
 
-  readonly incorrectCount = computed(() =>
-    this.stats.statsByType()['deutsch-rechtschreibung']?.incorrect ?? 0
-  );
+  readonly incorrectCount = computed(() => {
+    const types = this.stats.statsByType();
+    let total = 0;
+    for (const [type, stats] of Object.entries(types)) {
+      if (type.startsWith('deutsch-')) {
+        total += stats.incorrect ?? 0;
+      }
+    }
+    return total;
+  });
 
   readonly showGoalEditor = signal(false);
   readonly editGoalValue = signal(10);
