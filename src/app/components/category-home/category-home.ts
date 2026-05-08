@@ -21,7 +21,7 @@ export class CategoryHomeComponent {
   showGoalEditor = signal(false);
   showClockGoalEditor = signal(false);
   showDeutschGoalEditor = signal(false);
-  editGoalValue = signal(20);
+  editGoalValue = 20;
 
   exerciseTypes = ['addition', 'subtraction', 'multiplication', 'division'];
   clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
@@ -108,12 +108,12 @@ export class CategoryHomeComponent {
   }
 
   editGoal(): void {
-    this.editGoalValue.set(this.stats.currentGoal());
+    this.editGoalValue = this.stats.currentGoal();
     this.showGoalEditor.set(true);
   }
 
   saveGoal(): void {
-    this.stats.setDailyGoal(this.editGoalValue());
+    this.stats.setDailyGoal(this.editGoalValue);
     this.showGoalEditor.set(false);
   }
 
@@ -122,12 +122,12 @@ export class CategoryHomeComponent {
   }
 
   editClockGoal(): void {
-    this.editGoalValue.set(this.stats.currentClockGoal());
+    this.editGoalValue = this.stats.currentClockGoal();
     this.showClockGoalEditor.set(true);
   }
 
   saveClockGoal(): void {
-    this.stats.setClockDailyGoal(this.editGoalValue());
+    this.stats.setClockDailyGoal(this.editGoalValue);
     this.showClockGoalEditor.set(false);
   }
 
@@ -136,12 +136,12 @@ export class CategoryHomeComponent {
   }
 
   editDeutschGoal(): void {
-    this.editGoalValue.set(this.stats.currentDeutschGoal());
+    this.editGoalValue = this.stats.currentDeutschGoal();
     this.showDeutschGoalEditor.set(true);
   }
 
   saveDeutschGoal(): void {
-    this.stats.setDeutschDailyGoal(this.editGoalValue());
+    this.stats.setDeutschDailyGoal(this.editGoalValue);
     this.showDeutschGoalEditor.set(false);
   }
 

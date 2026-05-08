@@ -52,7 +52,7 @@ describe('DeutschCategoryOverviewComponent', () => {
   });
 
   it('should save goal', () => {
-    component.editGoalValue.set(15);
+    component.editGoalValue = 15;
     component.saveGoal();
     expect(mockStatsService.setDeutschDailyGoal).toHaveBeenCalledWith(15);
     expect(component.showGoalEditor()).toBeFalse();

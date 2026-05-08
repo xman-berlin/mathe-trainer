@@ -112,6 +112,27 @@ export class SupabaseService {
   }
 
   /**
+   * Update user's daily goals
+   */
+  async updateUserGoals(
+    userId: string,
+    mathDailyGoal: number,
+    clockDailyGoal: number,
+    vocabDailyGoal: number
+  ): Promise<void> {
+    try {
+      const { error } = await this.supabase
+        .from('users')
+        .update({ math_daily_goal: mathDailyGoal, clock_daily_goal: clockDailyGoal, vocab_daily_goal: vocabDailyGoal })
+        .eq('id', userId);
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating user goals:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Update user's last active timestamp
    */
   async updateLastActive(userId: string): Promise<void> {

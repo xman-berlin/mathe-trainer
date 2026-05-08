@@ -48,7 +48,7 @@ export class StatsService {
   private byType = signal<Record<string, ExerciseTypeStats>>({});
   private dailyGoal = signal(20); // Default goal for math
   private clockDailyGoal = signal(20); // Default goal for clock
-  private vocabDailyGoal = signal(10); // Default goal for Deutsch category (stored as vocab_daily_goal in DB)
+  private vocabDailyGoal = signal(20); // Default goal for Deutsch category
   private lifetimeByType = signal<Record<string, number>>({});
   private bestStreaksByTypeSignal = signal<Record<string, number>>({});
 
@@ -200,7 +200,7 @@ export class StatsService {
     if (count > 100) count = 100;
     this.dailyGoal.set(count);
     this.persist();
-    this.syncToServer();
+    this.syncGoalsToServer();
   }
 
   setClockDailyGoal(count: number): void {
@@ -208,7 +208,7 @@ export class StatsService {
     if (count > 100) count = 100;
     this.clockDailyGoal.set(count);
     this.persist();
-    this.syncToServer();
+    this.syncGoalsToServer();
   }
 
   setDeutschDailyGoal(count: number): void {
@@ -216,7 +216,7 @@ export class StatsService {
     if (count > 100) count = 100;
     this.vocabDailyGoal.set(count);
     this.persist();
-    this.syncToServer();
+    this.syncGoalsToServer();
   }
 
   resetToday() {
@@ -378,7 +378,7 @@ export class StatsService {
     this.byType.set({});
     this.dailyGoal.set(20);
     this.clockDailyGoal.set(20);
-    this.vocabDailyGoal.set(10);
+    this.vocabDailyGoal.set(20);
     this.lifetimeByType.set({});
     this.bestStreaksByTypeSignal.set({});
     this.hasAnsweredToday.set(false);
@@ -422,6 +422,11 @@ export class StatsService {
       const userId = this.auth.currentUser()!.id;
       const today = this.today();
 
+      // Load user preferences (goals)
+      const user = this.auth.currentUser()!;
+      if (user.math_daily_goal) this.dailyGoal.set(user.math_daily_goal);
+      if (user.clock_daily_goal) this.clockDailyGoal.set(user.clock_daily_goal);
+      if (user.vocab_daily_goal) this.vocabDailyGoal.set(user.vocab_daily_goal);
 
       // Load daily stats
       const serverDaily = await this.supabase.getDailyStats(userId, today);
@@ -430,17 +435,10 @@ export class StatsService {
       const dailyStats: DailyStats = {
         date: serverDaily.date,
         byType: serverDaily.stats_by_type,
-        dailyGoal: serverDaily.math_daily_goal,
-        clockDailyGoal: serverDaily.clock_daily_goal,
-        vocabDailyGoal: serverDaily.vocab_daily_goal,
       };
 
-      // Update local state from server (server is source of truth)
       this.date.set(dailyStats.date);
       this.byType.set(dailyStats.byType);
-      if (dailyStats.dailyGoal) this.dailyGoal.set(dailyStats.dailyGoal);
-      if (dailyStats.clockDailyGoal) this.clockDailyGoal.set(dailyStats.clockDailyGoal);
-      if (dailyStats.vocabDailyGoal) this.vocabDailyGoal.set(dailyStats.vocabDailyGoal);
 
       // Check if user has answered today (by checking if any type has stats)
       const hasAnswered = Object.keys(dailyStats.byType).length > 0;
@@ -489,7 +487,7 @@ export class StatsService {
     try {
       const userId = this.auth.currentUser()!.id;
 
-      // Convert local format to server format
+      // Sync daily stats (without goals)
       const dailyStats = {
         date: this.date(),
         stats_by_type: this.byType(),
@@ -507,6 +505,21 @@ export class StatsService {
         best_streaks_by_type: this.bestStreaksByTypeSignal(),
       };
       await this.supabase.upsertLifetimeStats(userId, lifetimeStats);
+    } catch {
+      // Don't throw - sync is non-critical
+    }
+  }
+
+  /**
+   * Sync daily goals to users table (persistent user preference)
+   */
+  private async syncGoalsToServer(): Promise<void> {
+    if (!this.supabase || !this.auth || !this.auth.isAuthenticated()) {
+      return;
+    }
+    try {
+      const userId = this.auth.currentUser()!.id;
+      await this.supabase.updateUserGoals(userId, this.dailyGoal(), this.clockDailyGoal(), this.vocabDailyGoal());
     } catch {
       // Don't throw - sync is non-critical
     }

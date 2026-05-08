@@ -18,6 +18,9 @@ const MOCK_USER: User = {
   avatar_style: 'adventurer',
   created_at: '2025-01-01',
   last_active_at: '2025-01-01',
+  math_daily_goal: 20,
+  clock_daily_goal: 20,
+  vocab_daily_goal: 20,
 };
 
 describe('DeutschHangmanComponent', () => {

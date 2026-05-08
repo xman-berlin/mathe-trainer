@@ -15,6 +15,9 @@ function makeUser(overrides: Partial<User> = {}): User {
     avatar_style: 'adventurer',
     created_at: '2025-01-01T00:00:00Z',
     last_active_at: '2025-01-01T00:00:00Z',
+    math_daily_goal: 20,
+    clock_daily_goal: 20,
+    vocab_daily_goal: 20,
     ...overrides,
   };
 }

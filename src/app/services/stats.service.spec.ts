@@ -26,7 +26,7 @@ describe('StatsService', () => {
       'getDailyStreak',
     ]);
 
-    const currentUserSignal = signal<{ id: string; username: string; avatar_style: string; created_at: string; last_active_at: string } | null>(null);
+    const currentUserSignal = signal<{ id: string; username: string; avatar_style: string; created_at: string; last_active_at: string; math_daily_goal: number; clock_daily_goal: number; vocab_daily_goal: number } | null>(null);
     mockAuthService = {
       currentUser: currentUserSignal,
       isAuthenticated: () => currentUserSignal() !== null,
@@ -106,7 +106,7 @@ describe('StatsService', () => {
     });
 
     it('should call streak service on correct answer', () => {
-      mockAuthService.currentUser.set({ id: 'user-1', username: 'test', avatar_style: 'a', created_at: '', last_active_at: '' });
+      mockAuthService.currentUser.set({ id: 'user-1', username: 'test', avatar_style: 'a', created_at: '', last_active_at: '', math_daily_goal: 20, clock_daily_goal: 20, vocab_daily_goal: 20 });
       mockStreakService.recordPractice.and.resolveTo();
       service.recordResult(true, 'addition');
       expect(mockStreakService.recordPractice).toHaveBeenCalledWith('user-1');
@@ -239,7 +239,7 @@ describe('StatsService', () => {
     });
 
     it('should detect deutsch goal reached', () => {
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 20; i++) {
         service.recordResult(true, 'deutsch-rechtschreibung');
       }
       expect(service.isDeutschGoalReached()).toBeTrue();

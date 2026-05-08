@@ -7,6 +7,9 @@ export interface User {
   avatar_style: string;
   created_at: string;
   last_active_at: string;
+  math_daily_goal: number;
+  clock_daily_goal: number;
+  vocab_daily_goal: number;
 }
 
 /**

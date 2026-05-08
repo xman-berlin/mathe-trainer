@@ -99,7 +99,7 @@ describe('CategoryHomeComponent', () => {
   });
 
   it('should call setDailyGoal on saveGoal', () => {
-    component.editGoalValue.set(30);
+    component.editGoalValue = 30;
     component.saveGoal();
     expect(mockStatsService.setDailyGoal).toHaveBeenCalledWith(30);
   });

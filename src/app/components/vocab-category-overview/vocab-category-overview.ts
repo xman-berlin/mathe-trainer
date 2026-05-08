@@ -38,15 +38,15 @@ export class DeutschCategoryOverviewComponent {
   });
 
   readonly showGoalEditor = signal(false);
-  readonly editGoalValue = signal(10);
+  editGoalValue = 10;
 
   editGoal(): void {
-    this.editGoalValue.set(this.stats.currentDeutschGoal());
+    this.editGoalValue = this.stats.currentDeutschGoal();
     this.showGoalEditor.set(true);
   }
 
   saveGoal(): void {
-    this.stats.setDeutschDailyGoal(this.editGoalValue());
+    this.stats.setDeutschDailyGoal(this.editGoalValue);
     this.showGoalEditor.set(false);
   }
 
