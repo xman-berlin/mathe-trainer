@@ -262,21 +262,21 @@ describe('DeutschHangmanComponent', () => {
       expect(mockStatsService.recordResult).toHaveBeenCalledWith(false, 'deutsch-hangman');
     });
 
-    it('should update word weight on win', async () => {
+    it('should NOT update word weight on win', async () => {
       setupWithQueue([makeWord('AB')]);
       await createComponent();
       component.onLetterSelected('A');
       component.onLetterSelected('B');
-      expect(mockDeutschService.updateWordWeight).toHaveBeenCalledWith('user-1', 'AB-1', true);
+      expect(mockDeutschService.updateWordWeight).not.toHaveBeenCalled();
     });
 
-    it('should update word weight on loss', async () => {
+    it('should NOT update word weight on loss', async () => {
       setupWithQueue([makeWord('AB')]);
       await createComponent();
       for (const l of ['C', 'D', 'E', 'F', 'G', 'H']) {
         component.onLetterSelected(l);
       }
-      expect(mockDeutschService.updateWordWeight).toHaveBeenCalledWith('user-1', 'AB-1', false);
+      expect(mockDeutschService.updateWordWeight).not.toHaveBeenCalled();
     });
 
     it('should ignore letter input when keypad is disabled', async () => {

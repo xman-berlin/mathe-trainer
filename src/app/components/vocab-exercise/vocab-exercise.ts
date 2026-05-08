@@ -44,6 +44,7 @@ export class DeutschRechtschreibungComponent implements OnInit, OnDestroy {
   // --- Session ---
   private queue: VocabSessionWord[] = [];
   private currentIndex = 0;
+  private queueRebuilt = false;
 
   readonly currentWord = signal<VocabSessionWord | null>(null);
 
@@ -158,10 +159,16 @@ export class DeutschRechtschreibungComponent implements OnInit, OnDestroy {
     // Record stats
     this.statsService.recordResult(isCorrect, EXERCISE_TYPE);
 
-    // Update word weight
+    // Update word weight, then rebuild queue so phase transitions take effect
     const userId = this.authService.currentUser()?.id;
     if (userId) {
-      this.deutschService.updateWordWeight(userId, word.wordId, isCorrect);
+      this.deutschService.updateWordWeight(userId, word.wordId, isCorrect).then(() => {
+        this.deutschService.buildSession(userId).then((queue) => {
+          this.queue = queue;
+          this.currentIndex = 0;
+          this.queueRebuilt = true;
+        });
+      });
     }
 
     if (isCorrect) {
@@ -173,7 +180,12 @@ export class DeutschRechtschreibungComponent implements OnInit, OnDestroy {
   }
 
   private advance(): void {
-    this.currentIndex++;
+    if (this.queueRebuilt) {
+      // Queue was rebuilt and currentIndex reset to 0 — just show current word
+      this.queueRebuilt = false;
+    } else {
+      this.currentIndex++;
+    }
     this.showCurrentWord();
   }
 }

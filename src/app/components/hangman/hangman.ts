@@ -180,12 +180,6 @@ export class DeutschHangmanComponent implements OnInit {
 
     this.statsService.recordResult(true, EXERCISE_TYPE);
 
-    const userId = this.authService.currentUser()?.id;
-    const word = this.currentWord();
-    if (userId && word) {
-      this.deutschService.updateWordWeight(userId, word.wordId, true);
-    }
-
     this.exerciseState.handleResult(true, () => this.showNextWord(), 1500, 2000);
   }
 
@@ -194,12 +188,6 @@ export class DeutschHangmanComponent implements OnInit {
     this.keypadDisabled.set(true);
 
     this.statsService.recordResult(false, EXERCISE_TYPE);
-
-    const userId = this.authService.currentUser()?.id;
-    const word = this.currentWord();
-    if (userId && word) {
-      this.deutschService.updateWordWeight(userId, word.wordId, false);
-    }
 
     this.exerciseState.handleResult(false, () => this.showNextWord(), 1500, 2500);
   }
