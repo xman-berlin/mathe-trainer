@@ -31,23 +31,25 @@
         </app-interactive-clock-display>
       </div>
 
-      <!-- Display Mode Toggle -->
-      <div class="display-mode-selector">
-        <button
-          class="mode-btn"
-          [class.active]="displayMode() === 'digital'"
-          (click)="toggleDisplayMode()">
-          <span class="mode-icon">🕐</span>
-          <span class="mode-label">24h-Format</span>
-        </button>
-        <button
-          class="mode-btn"
-          [class.active]="displayMode() === 'german'"
-          (click)="toggleDisplayMode()">
-          <span class="mode-icon">🗣️</span>
-          <span class="mode-label">Deutsche Ausdrücke</span>
-        </button>
-      </div>
+      <!-- Display Mode Toggle — hidden when all types are unlocked (autoFormatMode) -->
+      @if (!autoFormatMode()) {
+        <div class="display-mode-selector">
+          <button
+            class="mode-btn"
+            [class.active]="displayMode() === 'digital'"
+            (click)="toggleDisplayMode()">
+            <span class="mode-icon">🕐</span>
+            <span class="mode-label">24h-Format</span>
+          </button>
+          <button
+            class="mode-btn"
+            [class.active]="displayMode() === 'german'"
+            (click)="toggleDisplayMode()">
+            <span class="mode-icon">🗣️</span>
+            <span class="mode-label">Deutsche Ausdrücke</span>
+          </button>
+        </div>
+      }
 
       <!-- Target Time Display -->
       <div class="target-time-section">
@@ -55,7 +57,7 @@
           type="text"
           class="target-time-input"
           [value]="targetTimeDisplay()"
-          [class.german]="displayMode() === 'german'"
+          [class.german]="isGermanDisplay()"
           readonly
         />
       </div>

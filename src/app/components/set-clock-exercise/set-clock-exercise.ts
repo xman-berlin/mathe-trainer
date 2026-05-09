@@ -71,6 +71,12 @@ export class SetClockExerciseComponent implements OnInit {
     return problem ? problem.targetTime : '';
   });
 
+  /** True when the current problem's target time is displayed as a German expression (not digital HH:MM). */
+  readonly isGermanDisplay = computed(() => {
+    const time = this.targetTimeDisplay();
+    return time.length > 0 && !/^\d{1,2}:\d{2}$/.test(time);
+  });
+
   readonly targetHours = computed(() => {
     const problem = this.currentProblem();
     return problem ? problem.hours : 0;
@@ -111,6 +117,9 @@ export class SetClockExerciseComponent implements OnInit {
         .filter(t => (lifetime[`clock-setClock-${t}`] ?? 0) < 100)
     );
   });
+
+  /** True when all exercise types are unlocked — format selection is hidden and chosen randomly per problem. */
+  readonly autoFormatMode = computed(() => this.lockedTypes().size === 0);
 
   isTypeLocked(type: ClockExerciseType): boolean {
     return this.lockedTypes().has(type);
@@ -228,8 +237,11 @@ export class SetClockExerciseComponent implements OnInit {
     // Randomly choose morning or afternoon
     const timeOfDay = Math.random() < 0.5 ? 'morning' : 'afternoon';
 
-    // Generate display text
-    const targetTime = this.displayMode() === 'digital'
+    // Generate display text — in autoFormatMode randomly alternate between formats
+    const effectiveMode = this.autoFormatMode()
+      ? (Math.random() < 0.5 ? 'digital' : 'german')
+      : this.displayMode();
+    const targetTime = effectiveMode === 'digital'
       ? this.formatTime24h(hours, minutes, timeOfDay)
       : this.generateGermanExpression(hours, minutes);
 
