@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, signal, AfterViewInit, ChangeDetectionStrategy, computed, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, signal, AfterViewInit, ChangeDetectionStrategy, computed, inject, OnDestroy, OnInit, effect } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { StatsService } from '../../services/stats.service';
 import { AchievementsService } from '../../services/achievements.service';
@@ -36,9 +36,37 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   readonly confettiPieces = this.exerciseState.confettiPieces;
   get confettiX() { return this.exerciseState.confettiX; }
 
+  // Level-change notifications
+  readonly showLevelUp = signal(false);
+  readonly levelUpInfo = signal<{ emoji: string; name: string; direction: 'up' | 'down' } | null>(null);
+  private levelUpTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor() {
     this.exerciseState.setMilestones([5, 10, 20, 30, 40, 50, 75, 100]);
     this.generateProblem();
+
+    effect(() => {
+      const ev = this.difficultyService.lastLevelUp();
+      if (!ev) return;
+      this.difficultyService.clearLastLevelUp();
+      const tier = this.difficultyService.getTierForLevel(ev.level);
+      this._showLevelNotification(tier.emoji, tier.name, 'up');
+    });
+
+    effect(() => {
+      const ev = this.difficultyService.lastLevelDown();
+      if (!ev) return;
+      this.difficultyService.clearLastLevelDown();
+      const tier = this.difficultyService.getTierForLevel(ev.level);
+      this._showLevelNotification(tier.emoji, tier.name, 'down');
+    });
+  }
+
+  private _showLevelNotification(emoji: string, name: string, direction: 'up' | 'down'): void {
+    if (this.levelUpTimer) clearTimeout(this.levelUpTimer);
+    this.levelUpInfo.set({ emoji, name, direction });
+    this.showLevelUp.set(true);
+    this.levelUpTimer = setTimeout(() => this.showLevelUp.set(false), 2500);
   }
 
   selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));

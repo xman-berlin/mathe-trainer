@@ -57,6 +57,13 @@ export class DifficultyService {
   readonly multiplicationLevel = computed(() => this.getLevel('multiplication'));
   readonly divisionLevel = computed(() => this.getLevel('division'));
 
+  // Level-change events — set transiently so components can react via effect()
+  readonly lastLevelUp = signal<{ type: DifficultyOperationType; level: number } | null>(null);
+  readonly lastLevelDown = signal<{ type: DifficultyOperationType; level: number } | null>(null);
+
+  clearLastLevelUp(): void { this.lastLevelUp.set(null); }
+  clearLastLevelDown(): void { this.lastLevelDown.set(null); }
+
   // ─── Load / clear ──────────────────────────────────────────────
 
   async loadForUser(userId: string): Promise<void> {
@@ -99,6 +106,10 @@ export class DifficultyService {
     return DIFFICULTY_TIERS[Math.min(level, DIFFICULTY_TIERS.length) - 1];
   }
 
+  getTierForLevel(level: number): DifficultyTier {
+    return DIFFICULTY_TIERS[Math.min(level, DIFFICULTY_TIERS.length) - 1];
+  }
+
   getMaxLevel(type: DifficultyOperationType): number {
     return MAX_LEVELS[type];
   }
@@ -119,21 +130,29 @@ export class DifficultyService {
     let level = current.level;
 
     if (correct && streak >= STREAK_UP) {
+      const prevLevel = level;
       level = Math.min(level + 1, maxLevel);
       // Reset streak after levelling up
       const nextState: DifficultyState = { level, streak: 0, recentResults: [] };
       this._updateType(type, nextState);
       this._schedulePersist();
+      if (level > prevLevel) {
+        this.lastLevelUp.set({ type, level });
+      }
       return;
     }
 
     const wrongCount = recentResults.filter((r) => !r).length;
     if (recentResults.length >= RECENT_WINDOW && wrongCount >= WRONG_THRESHOLD) {
+      const prevLevel = level;
       level = Math.max(level - 1, 1);
       // Reset window after levelling down
       const nextState: DifficultyState = { level, streak: 0, recentResults: [] };
       this._updateType(type, nextState);
       this._schedulePersist();
+      if (level < prevLevel) {
+        this.lastLevelDown.set({ type, level });
+      }
       return;
     }
 

@@ -371,6 +371,33 @@
   gap: 0.5rem;
 }
 
+/* Level-change Popup */
+.level-change-popup {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  padding: 0.9rem 1.8rem;
+  border-radius: 16px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  z-index: 1001;
+  animation: milestonePopIn 0.5s ease-out;
+  pointer-events: none;
+  white-space: nowrap;
+
+  &.level-up {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    box-shadow: 0 10px 40px rgba(56, 239, 125, 0.4);
+  }
+
+  &.level-down {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+    box-shadow: 0 10px 40px rgba(231, 76, 60, 0.4);
+  }
+}
+
 @keyframes milestonePopIn {
   0% {
     opacity: 0;

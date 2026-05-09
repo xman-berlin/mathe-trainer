@@ -161,4 +161,98 @@ describe('DifficultyService', () => {
     service.clearUser();
     expect(service.getLevel('addition')).toBe(DEFAULT_LEVELS['addition']);
   });
+
+  // ─── lastLevelUp / lastLevelDown signals ──────────────────────────────────
+
+  it('should set lastLevelUp when a level-up occurs', () => {
+    expect(service.lastLevelUp()).toBeNull();
+    for (let i = 0; i < 5; i++) service.recordResult('addition', true);
+    const ev = service.lastLevelUp();
+    expect(ev).not.toBeNull();
+    expect(ev!.type).toBe('addition');
+    expect(ev!.level).toBe(DEFAULT_LEVELS['addition'] + 1);
+  });
+
+  it('should NOT set lastLevelUp when already at max level', () => {
+    // Drive addition to max level
+    for (let round = 0; round < MAX_LEVELS['addition']; round++) {
+      for (let i = 0; i < 5; i++) service.recordResult('addition', true);
+    }
+    expect(service.getLevel('addition')).toBe(MAX_LEVELS['addition']);
+    // Consume the last event
+    service.clearLastLevelUp();
+
+    // Another streak at max — no new event
+    for (let i = 0; i < 5; i++) service.recordResult('addition', true);
+    expect(service.lastLevelUp()).toBeNull();
+  });
+
+  it('should set lastLevelDown when a level-down occurs', () => {
+    expect(service.lastLevelDown()).toBeNull();
+    // Trigger level down from default level 3
+    service.recordResult('addition', false);
+    service.recordResult('addition', false);
+    service.recordResult('addition', false);
+    service.recordResult('addition', false);
+    service.recordResult('addition', false);
+    const ev = service.lastLevelDown();
+    expect(ev).not.toBeNull();
+    expect(ev!.type).toBe('addition');
+    expect(ev!.level).toBe(DEFAULT_LEVELS['addition'] - 1);
+  });
+
+  it('should NOT set lastLevelDown when already at level 1', () => {
+    // Drive down to level 1
+    for (let round = 0; round < 10; round++) {
+      for (let i = 0; i < 5; i++) service.recordResult('addition', false);
+    }
+    expect(service.getLevel('addition')).toBe(1);
+    service.clearLastLevelDown();
+
+    // Another 5 wrong at level 1 — no new event
+    for (let i = 0; i < 5; i++) service.recordResult('addition', false);
+    expect(service.lastLevelDown()).toBeNull();
+  });
+
+  it('should remain null for lastLevelUp when no level change yet', () => {
+    // Only 4 correct — not enough to level up
+    for (let i = 0; i < 4; i++) service.recordResult('addition', true);
+    expect(service.lastLevelUp()).toBeNull();
+  });
+
+  it('clearLastLevelUp should reset the signal to null', () => {
+    for (let i = 0; i < 5; i++) service.recordResult('addition', true);
+    expect(service.lastLevelUp()).not.toBeNull();
+    service.clearLastLevelUp();
+    expect(service.lastLevelUp()).toBeNull();
+  });
+
+  it('clearLastLevelDown should reset the signal to null', () => {
+    for (let i = 0; i < 5; i++) service.recordResult('addition', false);
+    expect(service.lastLevelDown()).not.toBeNull();
+    service.clearLastLevelDown();
+    expect(service.lastLevelDown()).toBeNull();
+  });
+
+  it('lastLevelUp should stay null after additional correct answers following a cleared event', () => {
+    // Level up and consume the event
+    for (let i = 0; i < 5; i++) service.recordResult('addition', true);
+    service.clearLastLevelUp();
+
+    // More correct answers that do NOT trigger another level-up (streak < 5)
+    service.recordResult('addition', true);
+    service.recordResult('addition', true);
+    expect(service.lastLevelUp()).toBeNull();
+  });
+
+  it('lastLevelDown should stay null after additional wrong answers following a cleared event', () => {
+    // Level down and consume the event
+    for (let i = 0; i < 5; i++) service.recordResult('addition', false);
+    service.clearLastLevelDown();
+
+    // recentResults reset — need 5 more wrong to trigger another level-down
+    service.recordResult('addition', false);
+    service.recordResult('addition', false);
+    expect(service.lastLevelDown()).toBeNull();
+  });
 });

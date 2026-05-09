@@ -245,3 +245,22 @@ Apply locally via `supabase db push`, then manually on production.
 - Sachaufgaben excluded from level system (different generator, separate component)
 - No UI to manually set level — only performance-driven
 - Level persisted to Supabase; falls back to defaults if no value stored
+
+## Review
+
+### What was implemented
+- `DifficultyService` with per-type level signals, `recordResult()` for streak/window logic, `getTierForLevel()`, and transient `lastLevelUp`/`lastLevelDown` signals
+- `ProblemGeneratorService` fully rewritten with level-parameterised number ranges (6 levels for +/−/×, 4 for ÷)
+- Supabase persistence: `difficulty_levels` JSONB column on `users` table; load on login, clear on logout
+- Level-change popup in `exercise.component` — green gradient (💪) for level-up, red (😢) for level-down, auto-dismiss after 2.5s
+- Difficulty display in Achievements page (🐭 Maus → 🐉 Drache tier names)
+- 12/12 E2E tests in `e2e/mathe-schwierigkeitsstufe.spec.ts`; 557/557 unit tests passing
+- DB migration applied to both local and production Supabase (`ahmnwgqforqklfdgdrpg`)
+
+### Deviations from original plan
+- Added `clearLastLevelUp()` / `clearLastLevelDown()` consumer pattern to prevent popup re-fire on effect re-runs (not in original spec)
+- E2E tests use `page.evaluate` + `ng.getComponent()` to bypass type-toggle lock for test users
+- Added `waitForTimeout(1500)` in E2E `beforeEach` to let Supabase init settle
+
+### Date completed
+2026-05-09

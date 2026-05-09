@@ -169,6 +169,16 @@
         </div>
       }
 
+      @if (showLevelUp() && levelUpInfo()) {
+        <div class="level-change-popup" [class.level-up]="levelUpInfo()!.direction === 'up'" [class.level-down]="levelUpInfo()!.direction === 'down'">
+          @if (levelUpInfo()!.direction === 'up') {
+            &#x1F4AA; Neue Stufe: {{ levelUpInfo()!.emoji }} {{ levelUpInfo()!.name }}!
+          } @else {
+            &#x1F625; Stufe gesenkt: {{ levelUpInfo()!.emoji }} {{ levelUpInfo()!.name }}
+          }
+        </div>
+      }
+
       @if (mode() === 'practice') {
         <div class="result-summary">
           <span class="badge badge-correct">&#x2713; {{ typeCorrectCount() }}</span>
