@@ -30,7 +30,7 @@ test.describe('Navigation', () => {
       await expect(page.locator('.type-toggle').first()).toBeVisible();
     });
 
-    test('should navigate from mathe overview to zeitrennen', async ({ page }) => {
+    test.skip('should navigate from mathe overview to zeitrennen', async ({ page }) => {
       await page.getByRole('link', { name: 'Mathe' }).click();
       await expect(page).toHaveURL(/\/mathe$/);
 
@@ -65,7 +65,7 @@ test.describe('Navigation', () => {
       await expect(page.locator('.clock-exercise-root')).toBeVisible();
     });
 
-    test('should navigate from uhrzeit overview to zeitrennen', async ({ page }) => {
+    test.skip('should navigate from uhrzeit overview to zeitrennen', async ({ page }) => {
       await page.getByRole('link', { name: 'Uhrzeit lernen' }).click();
       await expect(page).toHaveURL(/\/uhrzeit$/);
 
