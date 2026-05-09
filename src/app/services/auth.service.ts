@@ -97,6 +97,10 @@ export class AuthService {
       const vocabService = this.injector.get(DeutschService);
       vocabService.clearUserData();
 
+      const { DifficultyService } = await import('./difficulty.service');
+      const difficultyService = this.injector.get(DifficultyService);
+      difficultyService.clearUser();
+
     } catch {
       // User data cleanup failed non-critically
     }
@@ -210,6 +214,11 @@ export class AuthService {
       const { DeutschService } = await import('./vocab.service');
       const vocabService = this.injector.get(DeutschService);
       await vocabService.loadUserData(userId);
+
+      // Load difficulty levels
+      const { DifficultyService } = await import('./difficulty.service');
+      const difficultyService = this.injector.get(DifficultyService);
+      await difficultyService.loadForUser(userId);
 
     } catch {
       // User data load failed non-critically

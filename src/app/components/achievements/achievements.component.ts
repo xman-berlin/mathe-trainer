@@ -3,6 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService, PersonalBest } from '../../services/timed-challenge.service';
 import { StatsService } from '../../services/stats.service';
+import { DifficultyService } from '../../services/difficulty.service';
+import type { DifficultyOperationType } from '../../models/user.model';
 
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'word-problems';
 type ClockExerciseType = 'clock-full' | 'clock-half' | 'clock-quarter' | 'clock-fiveMin';
@@ -20,6 +22,7 @@ export class AchievementsComponent implements OnInit {
   achievements = inject(AchievementsService);
   timedChallenge = inject(TimedChallengeService);
   stats = inject(StatsService);
+  private difficulty = inject(DifficultyService);
   private route = inject(ActivatedRoute);
 
   @Input() category: 'math' | 'clock' = 'math';
@@ -115,5 +118,29 @@ export class AchievementsComponent implements OnInit {
 
   getBackLink(): string {
     return this.categorySignal() === 'clock' ? '/uhrzeit' : '/mathe';
+  }
+
+  private readonly CORE_TYPES: DifficultyOperationType[] = ['addition', 'subtraction', 'multiplication', 'division'];
+
+  isCoreType(type: ExerciseType | ClockExerciseType): type is DifficultyOperationType {
+    return (this.CORE_TYPES as string[]).includes(type);
+  }
+
+  getDifficultyLevel(type: DifficultyOperationType): number {
+    return this.difficulty.getLevel(type);
+  }
+
+  getMaxLevel(type: DifficultyOperationType): number {
+    return this.difficulty.getMaxLevel(type);
+  }
+
+  getDifficultyTierName(type: DifficultyOperationType): string {
+    const tier = this.difficulty.getTier(type);
+    return tier.name;
+  }
+
+  getDifficultyTierEmoji(type: DifficultyOperationType): string {
+    const tier = this.difficulty.getTier(type);
+    return tier.emoji;
   }
 }

@@ -4,6 +4,7 @@ import { environment } from '../../environments/environment';
 import type {
   User,
   CreateUserData,
+  DifficultyLevels,
 } from '../models/user.model';
 import type {
   DailyStats,
@@ -129,6 +130,34 @@ export class SupabaseService {
     } catch (error) {
       console.error('Error updating user goals:', error);
       throw error;
+    }
+  }
+
+  async updateDifficultyLevels(userId: string, levels: DifficultyLevels): Promise<void> {
+    try {
+      const { error } = await this.supabase
+        .from('users')
+        .update({ difficulty_levels: levels })
+        .eq('id', userId);
+      if (error) throw error;
+    } catch (error) {
+      console.error('[SupabaseService] Error updating difficulty levels:', error);
+      throw error;
+    }
+  }
+
+  async getDifficultyLevels(userId: string): Promise<DifficultyLevels | null> {
+    try {
+      const { data, error } = await this.supabase
+        .from('users')
+        .select('difficulty_levels')
+        .eq('id', userId)
+        .single();
+      if (error) throw error;
+      return (data?.difficulty_levels as DifficultyLevels) ?? null;
+    } catch (error) {
+      console.error('[SupabaseService] Error fetching difficulty levels:', error);
+      return null;
     }
   }
 

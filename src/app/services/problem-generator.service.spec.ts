@@ -2,6 +2,8 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ProblemGeneratorService } from './problem-generator.service';
 
+const RUNS = 100; // repetitions for statistical tests
+
 describe('ProblemGeneratorService', () => {
   let service: ProblemGeneratorService;
 
@@ -16,7 +18,7 @@ describe('ProblemGeneratorService', () => {
 
   describe('randomInt', () => {
     it('should return a number within range (inclusive)', () => {
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < RUNS; i++) {
         const result = service.randomInt(1, 5);
         expect(result).toBeGreaterThanOrEqual(1);
         expect(result).toBeLessThanOrEqual(5);
@@ -26,32 +28,72 @@ describe('ProblemGeneratorService', () => {
     it('should return min when min === max', () => {
       expect(service.randomInt(7, 7)).toBe(7);
     });
+
+    it('should return min when max < min', () => {
+      expect(service.randomInt(5, 3)).toBe(5);
+    });
   });
 
   // ─── generateAddition ──────────────────────────────────────
 
   describe('generateAddition', () => {
-    it('should return a valid addition problem', () => {
-      const problem = service.generateAddition();
-      expect(problem.operation).toBe('addition');
-      expect(problem.symbol).toBe('+');
-      expect(problem.answer).toBe(problem.operandA + problem.operandB);
-      expect(problem.text).toContain('+');
-      expect(problem.text).toContain('= ?');
+    it('should return valid problem metadata', () => {
+      const p = service.generateAddition(3);
+      expect(p.operation).toBe('addition');
+      expect(p.symbol).toBe('+');
+      expect(p.answer).toBe(p.operandA + p.operandB);
+      expect(p.text).toContain('+');
+      expect(p.text).toContain('= ?');
     });
 
-    it('should have operandA >= 1', () => {
-      for (let i = 0; i < 50; i++) {
-        const p = service.generateAddition();
+    it('level 1: result ≤ 10, both operands ≥ 1', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateAddition(1);
+        expect(p.operandA).toBeGreaterThanOrEqual(1);
+        expect(p.operandB).toBeGreaterThanOrEqual(1);
+        expect(p.answer).toBeLessThanOrEqual(10);
+      }
+    });
+
+    it('level 2: no carry (ones do not cross decade), result ≤ 100', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateAddition(2);
+        expect(p.answer).toBeLessThanOrEqual(100);
+        expect(p.operandA).toBeGreaterThanOrEqual(1);
+        expect(p.operandB).toBeGreaterThanOrEqual(1);
+      }
+    });
+
+    it('level 3: answer correct and result ≤ 100', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateAddition(3);
+        expect(p.answer).toBe(p.operandA + p.operandB);
+        expect(p.answer).toBeLessThanOrEqual(100);
+      }
+    });
+
+    it('level 4: result ≤ 100, both operands ≥ 1', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateAddition(4);
+        expect(p.answer).toBeLessThanOrEqual(100);
+        expect(p.operandA).toBeGreaterThanOrEqual(1);
+        expect(p.operandB).toBeGreaterThanOrEqual(1);
+      }
+    });
+
+    it('level 5: result ≤ 1000', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateAddition(5);
+        expect(p.answer).toBeLessThanOrEqual(1000);
         expect(p.operandA).toBeGreaterThanOrEqual(1);
       }
     });
 
-    it('should have operandB between 1 and 10', () => {
-      for (let i = 0; i < 50; i++) {
-        const p = service.generateAddition();
-        expect(p.operandB).toBeGreaterThanOrEqual(1);
-        expect(p.operandB).toBeLessThanOrEqual(10);
+    it('level 6: result ≤ 1000', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateAddition(6);
+        expect(p.answer).toBeLessThanOrEqual(1000);
+        expect(p.operandA).toBeGreaterThanOrEqual(1);
       }
     });
   });
@@ -59,34 +101,61 @@ describe('ProblemGeneratorService', () => {
   // ─── generateSubtraction ───────────────────────────────────
 
   describe('generateSubtraction', () => {
-    it('should return a valid subtraction problem', () => {
-      const problem = service.generateSubtraction();
-      expect(problem.operation).toBe('subtraction');
-      expect(problem.symbol).toBe('−');
-      expect(problem.answer).toBe(problem.operandA - problem.operandB);
-      expect(problem.text).toContain('−');
-      expect(problem.text).toContain('= ?');
+    it('should return valid problem metadata', () => {
+      const p = service.generateSubtraction(3);
+      expect(p.operation).toBe('subtraction');
+      expect(p.symbol).toBe('−');
+      expect(p.answer).toBe(p.operandA - p.operandB);
     });
 
-    it('should force 10s crossing (borrowing)', () => {
-      for (let i = 0; i < 50; i++) {
-        const p = service.generateSubtraction();
+    it('level 1: result ≥ 0, operands 1–10', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateSubtraction(1);
+        expect(p.answer).toBeGreaterThanOrEqual(0);
+        expect(p.operandA).toBeLessThanOrEqual(10);
+      }
+    });
+
+    it('level 2: no borrow, result ≥ 1', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateSubtraction(2);
+        expect(p.answer).toBeGreaterThanOrEqual(1);
+        expect(p.operandA).toBeLessThanOrEqual(99);
+      }
+    });
+
+    it('level 3: 10er borrow (b 1–9), result ≥ 0', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateSubtraction(3);
+        expect(p.operandB).toBeGreaterThanOrEqual(1);
+        expect(p.operandB).toBeLessThanOrEqual(9);
+        expect(p.answer).toBeGreaterThanOrEqual(0);
+        // ones of a must be less than b (forcing borrow)
         expect(p.operandA % 10).toBeLessThan(p.operandB);
       }
     });
 
-    it('should always have a non-negative result', () => {
-      for (let i = 0; i < 50; i++) {
-        const p = service.generateSubtraction();
+    it('level 4: b ≥ 10, result ≥ 1', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateSubtraction(4);
+        expect(p.operandB).toBeGreaterThanOrEqual(10);
+        expect(p.answer).toBeGreaterThanOrEqual(1);
+      }
+    });
+
+    it('level 5: 10er borrow in 1–1000 range, result ≥ 0', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateSubtraction(5);
+        expect(p.operandA % 10).toBeLessThan(p.operandB);
         expect(p.answer).toBeGreaterThanOrEqual(0);
       }
     });
 
-    it('should have operandB between 1 and 10', () => {
-      for (let i = 0; i < 50; i++) {
-        const p = service.generateSubtraction();
-        expect(p.operandB).toBeGreaterThanOrEqual(1);
-        expect(p.operandB).toBeLessThanOrEqual(10);
+    it('level 6: b ≥ 10 in 1–1000 range, result ≥ 1', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateSubtraction(6);
+        expect(p.operandB).toBeGreaterThanOrEqual(10);
+        expect(p.answer).toBeGreaterThanOrEqual(1);
       }
     });
   });
@@ -94,18 +163,26 @@ describe('ProblemGeneratorService', () => {
   // ─── generateMultiplication ────────────────────────────────
 
   describe('generateMultiplication', () => {
-    it('should return a valid multiplication problem', () => {
-      const problem = service.generateMultiplication();
-      expect(problem.operation).toBe('multiplication');
-      expect(problem.symbol).toBe('×');
-      expect(problem.answer).toBe(problem.operandA * problem.operandB);
-      expect(problem.text).toContain('×');
-      expect(problem.text).toContain('= ?');
+    it('should return valid problem metadata', () => {
+      const p = service.generateMultiplication(2);
+      expect(p.operation).toBe('multiplication');
+      expect(p.symbol).toBe('×');
+      expect(p.answer).toBe(p.operandA * p.operandB);
     });
 
-    it('should have operands between 1 and 10', () => {
-      for (let i = 0; i < 50; i++) {
-        const p = service.generateMultiplication();
+    it('level 1: both factors 1–5', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateMultiplication(1);
+        expect(p.operandA).toBeGreaterThanOrEqual(1);
+        expect(p.operandA).toBeLessThanOrEqual(5);
+        expect(p.operandB).toBeGreaterThanOrEqual(1);
+        expect(p.operandB).toBeLessThanOrEqual(5);
+      }
+    });
+
+    it('level 2: both factors 1–10', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateMultiplication(2);
         expect(p.operandA).toBeGreaterThanOrEqual(1);
         expect(p.operandA).toBeLessThanOrEqual(10);
         expect(p.operandB).toBeGreaterThanOrEqual(1);
@@ -113,17 +190,53 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('should respect allowedNumbers for operandB', () => {
+    it('level 3: a 1–10, b 11–20', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateMultiplication(3);
+        expect(p.operandA).toBeLessThanOrEqual(10);
+        expect(p.operandB).toBeGreaterThanOrEqual(11);
+        expect(p.operandB).toBeLessThanOrEqual(20);
+      }
+    });
+
+    it('level 4: both factors 11–20', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateMultiplication(4);
+        expect(p.operandA).toBeGreaterThanOrEqual(11);
+        expect(p.operandA).toBeLessThanOrEqual(20);
+        expect(p.operandB).toBeGreaterThanOrEqual(11);
+        expect(p.operandB).toBeLessThanOrEqual(20);
+      }
+    });
+
+    it('level 5: a 1–10, b 1–100', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateMultiplication(5);
+        expect(p.operandA).toBeLessThanOrEqual(10);
+        expect(p.operandB).toBeLessThanOrEqual(100);
+      }
+    });
+
+    it('level 6: both factors 11–100', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateMultiplication(6);
+        expect(p.operandA).toBeGreaterThanOrEqual(11);
+        expect(p.operandA).toBeLessThanOrEqual(100);
+        expect(p.operandB).toBeGreaterThanOrEqual(11);
+        expect(p.operandB).toBeLessThanOrEqual(100);
+      }
+    });
+
+    it('legacy: should respect Set<number> for operandB', () => {
       const allowed = new Set([2, 4, 6]);
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < RUNS; i++) {
         const p = service.generateMultiplication(allowed);
         expect(allowed.has(p.operandB)).toBeTrue();
       }
     });
 
-    it('should work with empty allowedNumbers set', () => {
+    it('legacy: should work with empty Set', () => {
       const p = service.generateMultiplication(new Set());
-      expect(p.operation).toBe('multiplication');
       expect(p.answer).toBe(p.operandA * p.operandB);
     });
   });
@@ -131,61 +244,65 @@ describe('ProblemGeneratorService', () => {
   // ─── generateDivision ──────────────────────────────────────
 
   describe('generateDivision', () => {
-    it('should return a valid division problem with whole number result', () => {
-      const problem = service.generateDivision();
-      expect(problem.operation).toBe('division');
-      expect(problem.symbol).toBe('÷');
-      expect(problem.answer).toBe(Math.floor(problem.operandA / problem.operandB));
-      expect(Number.isInteger(problem.answer)).toBeTrue();
-      expect(problem.operandA).toBe(problem.operandB * problem.answer);
-      expect(problem.text).toContain('÷');
-      expect(problem.text).toContain('= ?');
+    it('should return valid whole-number division problem', () => {
+      const p = service.generateDivision(2);
+      expect(p.operation).toBe('division');
+      expect(p.symbol).toBe('÷');
+      expect(Number.isInteger(p.answer)).toBeTrue();
+      expect(p.operandA).toBe(p.operandB * p.answer);
     });
 
-    it('should have quotient between 1 and 10', () => {
-      for (let i = 0; i < 50; i++) {
-        const p = service.generateDivision();
+    it('level 1: dividend ≤ 25, divisor 1–5', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateDivision(1);
+        expect(p.operandA).toBeLessThanOrEqual(25);
+        expect(p.operandB).toBeLessThanOrEqual(5);
         expect(p.answer).toBeGreaterThanOrEqual(1);
-        expect(p.answer).toBeLessThanOrEqual(10);
       }
     });
 
-    it('should respect allowedNumbers for divisor', () => {
+    it('level 2: dividend ≤ 100, divisor 1–10', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateDivision(2);
+        expect(p.operandA).toBeLessThanOrEqual(100);
+        expect(p.operandB).toBeLessThanOrEqual(10);
+        expect(p.answer).toBeGreaterThanOrEqual(1);
+      }
+    });
+
+    it('level 3: dividend ≤ 200, divisor 1–10', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateDivision(3);
+        expect(p.operandA).toBeLessThanOrEqual(200);
+        expect(p.operandB).toBeLessThanOrEqual(10);
+      }
+    });
+
+    it('level 4: dividend ≤ 1000, divisor 1–10', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateDivision(4);
+        expect(p.operandA).toBeLessThanOrEqual(1000);
+        expect(p.operandB).toBeLessThanOrEqual(10);
+      }
+    });
+
+    it('legacy: should respect Set<number> for divisor', () => {
       const allowed = new Set([3, 7]);
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < RUNS; i++) {
         const p = service.generateDivision(allowed);
         expect(allowed.has(p.operandB)).toBeTrue();
       }
-    });
-
-    it('should work with empty allowedNumbers set', () => {
-      const p = service.generateDivision(new Set());
-      expect(p.operation).toBe('division');
-      expect(Number.isInteger(p.answer)).toBeTrue();
     });
   });
 
   // ─── generateProblem ───────────────────────────────────────
 
   describe('generateProblem', () => {
-    it('should generate addition when only addition type is given', () => {
-      const p = service.generateProblem(['addition']);
-      expect(p.operation).toBe('addition');
-    });
-
-    it('should generate subtraction when only subtraction type is given', () => {
-      const p = service.generateProblem(['subtraction']);
-      expect(p.operation).toBe('subtraction');
-    });
-
-    it('should generate multiplication when only multiplication type is given', () => {
-      const p = service.generateProblem(['multiplication']);
-      expect(p.operation).toBe('multiplication');
-    });
-
-    it('should generate division when only division type is given', () => {
-      const p = service.generateProblem(['division']);
-      expect(p.operation).toBe('division');
+    it('should generate the single specified type', () => {
+      expect(service.generateProblem(['addition']).operation).toBe('addition');
+      expect(service.generateProblem(['subtraction']).operation).toBe('subtraction');
+      expect(service.generateProblem(['multiplication']).operation).toBe('multiplication');
+      expect(service.generateProblem(['division']).operation).toBe('division');
     });
 
     it('should generate one of the specified types', () => {
@@ -196,18 +313,35 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('should pass allowedNumbers to multiplication', () => {
+    it('should pass levels to generators', () => {
+      // Level 1 addition: result ≤ 10
+      for (let i = 0; i < 50; i++) {
+        const p = service.generateProblem(['addition'], undefined, { addition: 1 });
+        expect(p.answer).toBeLessThanOrEqual(10);
+      }
+    });
+
+    it('should use level for multiplication when no allowedNumbers given', () => {
+      // Level 1 multiplication: both factors 1–5
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateProblem(['multiplication'], undefined, { multiplication: 1 });
+        expect(p.operandA).toBeLessThanOrEqual(5);
+        expect(p.operandB).toBeLessThanOrEqual(5);
+      }
+    });
+
+    it('should prefer allowedNumbers over level for multiplication when set is non-empty', () => {
       const allowed = new Set([5]);
       for (let i = 0; i < 20; i++) {
-        const p = service.generateProblem(['multiplication'], allowed);
+        const p = service.generateProblem(['multiplication'], allowed, { multiplication: 6 });
         expect(allowed.has(p.operandB)).toBeTrue();
       }
     });
 
-    it('should pass allowedNumbers to division', () => {
+    it('should prefer allowedNumbers over level for division when set is non-empty', () => {
       const allowed = new Set([5]);
       for (let i = 0; i < 20; i++) {
-        const p = service.generateProblem(['division'], allowed);
+        const p = service.generateProblem(['division'], allowed, { division: 4 });
         expect(allowed.has(p.operandB)).toBeTrue();
       }
     });

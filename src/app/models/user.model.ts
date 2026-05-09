@@ -10,6 +10,7 @@ export interface User {
   math_daily_goal: number;
   clock_daily_goal: number;
   vocab_daily_goal: number;
+  difficulty_levels?: DifficultyLevels;
 }
 
 /**
@@ -19,6 +20,22 @@ export interface CreateUserData {
   username: string;
   avatar_style: string;
 }
+
+/**
+ * Difficulty state for a single exercise type
+ */
+export interface DifficultyState {
+  level: number;
+  streak: number;
+  recentResults: boolean[];
+}
+
+/**
+ * Per-type difficulty levels stored in users.difficulty_levels
+ */
+export type DifficultyOperationType = 'addition' | 'subtraction' | 'multiplication' | 'division';
+
+export type DifficultyLevels = Partial<Record<DifficultyOperationType, DifficultyState>>;
 
 /**
  * Available avatar styles from DiceBear

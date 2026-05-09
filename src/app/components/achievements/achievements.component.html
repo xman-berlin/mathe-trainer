@@ -46,6 +46,12 @@
           <div class="medal-exercise-icon">{{ type.icon }}</div>
           <div class="medal-label">{{ type.label }}</div>
           <div class="medal-status">{{ getMedalLabel(type.key) }}</div>
+          @if (isCoreType(type.key)) {
+            <div class="difficulty-level">
+              Stufe {{ getDifficultyLevel(type.key) }}/{{ getMaxLevel(type.key) }}
+              — {{ getDifficultyTierEmoji(type.key) }} {{ getDifficultyTierName(type.key) }}
+            </div>
+          }
           <div class="medal-progress-section">
             <div class="progress-bar-mini">
               <div class="progress-fill-mini" [style.width.%]="getProgress(type.key).percent"></div>

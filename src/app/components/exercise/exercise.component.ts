@@ -4,6 +4,7 @@ import { StatsService } from '../../services/stats.service';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService } from '../../services/timed-challenge.service';
 import { ProblemGeneratorService, OperationType } from '../../services/problem-generator.service';
+import { DifficultyService } from '../../services/difficulty.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
 import { ExerciseStateService } from '../../services/exercise-state.service';
 import { createStatsAggregator } from '../../utils/stats-aggregator';
@@ -64,6 +65,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   private achievements = inject(AchievementsService);
   private timedChallengeService = inject(TimedChallengeService);
   private problemGenerator = inject(ProblemGeneratorService);
+  private difficultyService = inject(DifficultyService);
   private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
@@ -209,7 +211,12 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
       const allowedNumbers = this.mode() === 'timeTrial' ? undefined :
         (this.selectedNumbers().size > 0 ? this.selectedNumbers() : undefined);
 
-      problem = this.problemGenerator.generateProblem(types, allowedNumbers);
+      problem = this.problemGenerator.generateProblem(types, allowedNumbers, {
+          addition: this.difficultyService.getLevel('addition'),
+          subtraction: this.difficultyService.getLevel('subtraction'),
+          multiplication: this.difficultyService.getLevel('multiplication'),
+          division: this.difficultyService.getLevel('division'),
+        });
     } while (
       problem.operation === prevType &&
       problem.operandA === prevA &&
@@ -264,6 +271,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
       this.exerciseState.handleResult(isCorrect, () => this.generateProblem());
 
       this.stats.recordResult(isCorrect, this.currentType());
+      this.difficultyService.recordResult(this.currentType() as OperationType, isCorrect);
 
       // Track multiplication mastery
       if (this.currentType() === 'multiplication') {
