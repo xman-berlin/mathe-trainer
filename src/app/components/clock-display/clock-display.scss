@@ -2,6 +2,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  margin: 0 auto;
   padding: 1rem;
 }
 
@@ -18,8 +20,15 @@
   stroke-width: 3;
 }
 
-.hour-marker {
-  fill: var(--gray-400);
+.minute-tick {
+  stroke: var(--gray-400);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.minute-tick--hour {
+  stroke: var(--gray-600);
+  stroke-width: 1.5;
 }
 
 .hour-number {

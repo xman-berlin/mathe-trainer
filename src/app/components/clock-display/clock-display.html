@@ -3,13 +3,15 @@
     <!-- Clock face circle -->
     <circle cx="100" cy="100" r="95" class="clock-face" />
 
-    <!-- Hour markers (dots) -->
-    @for (hour of hourMarkers; track hour) {
-      <circle
-        [attr.cx]="getHourPosition(hour).x"
-        [attr.cy]="getHourPosition(hour).y"
-        r="1"
-        class="hour-marker"
+    <!-- Minute tick marks -->
+    @for (tick of minuteTickMarks; track tick) {
+      <line
+        [attr.x1]="getMinuteTick(tick).x1"
+        [attr.y1]="getMinuteTick(tick).y1"
+        [attr.x2]="getMinuteTick(tick).x2"
+        [attr.y2]="getMinuteTick(tick).y2"
+        [class.minute-tick--hour]="isHourTick(tick)"
+        class="minute-tick"
       />
     }
 

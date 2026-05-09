@@ -268,7 +268,7 @@
     gap: 1.5rem;
     width: 100%;
     align-self: center;
-    padding: 0;
+    padding: 2rem;
   }
 
   /* Time Indicators - centered with labels */
@@ -302,7 +302,7 @@
     display: inline;
   }
 
-  /* Make clock use full width in landscape */
+  /* Make clock same size as interactive clock */
   .clock-section app-clock-display {
     width: 100%;
     max-width: 100%;
@@ -311,6 +311,7 @@
   ::ng-deep .clock-section app-clock-display .clock-container {
     max-width: 100% !important;
     width: 100%;
+    padding: 0 !important;
   }
 
   ::ng-deep .clock-section app-clock-display .clock-svg {
@@ -467,6 +468,7 @@
     max-width: 240px !important;
     width: 240px !important;
     margin: 0 auto !important;
+    padding: 0 !important;
   }
 
   ::ng-deep .clock-section app-clock-display .clock-svg {
@@ -802,22 +804,25 @@
   /* Clock size matching set-clock-exercise - force 600px */
   ::ng-deep .clock-section app-clock-display {
     max-width: 600px !important;
+    width: 100% !important;
   }
 
   ::ng-deep .clock-section app-clock-display .clock-container {
     max-width: 600px !important;
-    width: auto !important;
+    width: 100% !important;
+    padding: 0 !important;
   }
 
   ::ng-deep .clock-section app-clock-display .clock-svg {
     max-width: 600px !important;
-    width: auto !important;
+    width: 100% !important;
   }
 
   /* Override any portrait rules */
   ::ng-deep app-clock-display .clock-container,
   ::ng-deep app-clock-display .clock-svg {
     max-width: 600px !important;
+    width: 100% !important;
   }
 
   /* Question */
@@ -1421,6 +1426,3 @@
   }
 }
 
-::ng-deep .clock-section app-clock-display .clock-svg {
-  max-width: 160px !important;
-}
