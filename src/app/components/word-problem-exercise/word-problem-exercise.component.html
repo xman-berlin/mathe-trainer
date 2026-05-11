@@ -29,22 +29,6 @@
     </button>
   </div>
 
-  <!-- Zahlenbereich-Toggle -->
-  <div class="range-selector">
-    <button
-      [class.active]="numberRange() === 'bis20'"
-      (click)="setNumberRange('bis20')"
-      class="range-btn">
-      Bis 20
-    </button>
-    <button
-      [class.active]="numberRange() === 'bis100'"
-      (click)="setNumberRange('bis100')"
-      class="range-btn">
-      Bis 100
-    </button>
-  </div>
-
   <!-- Story-Anzeige -->
   <div class="story-display">
     <div class="story-icon">{{ storyIcon() }}</div>

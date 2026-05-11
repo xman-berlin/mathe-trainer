@@ -1,7 +1,7 @@
 <div class="exercise-root">
   <div class="exercise-container">
+    <a routerLink="/mathe" class="back-home-btn">← Zurück</a>
     <div class="main-area">
-      <a routerLink="/mathe" class="back-home-btn">← Zurück</a>
 
       @if (timeTrialActive()) {
         <div class="timer-display" [class.critical]="timeRemaining() <= 10">
@@ -241,5 +241,6 @@
         <a routerLink="/" class="secondary-btn">← Zurück</a>
       </div>
     </div>
-  </div>
+   </div>
 }
+

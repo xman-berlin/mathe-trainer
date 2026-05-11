@@ -99,7 +99,7 @@ export class WordProblemService {
   private recentProblems: string[] = [];
   private readonly maxRecentProblems = 10;
 
-  generateProblem(type: WordProblemType, range: NumberRange): WordProblem {
+  generateProblem(type: WordProblemType, range: NumberRange, maxValue?: number): WordProblem {
     // Select random template
     const availableTemplates = this.storyTemplates.filter(t => t.templates[type]);
     const template = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
@@ -110,7 +110,7 @@ export class WordProblemService {
     const maxAttempts = 50;
 
     do {
-      const numbers = this.generateNumbers(type, range);
+      const numbers = this.generateNumbers(type, range, maxValue);
       operandA = numbers.a;
       operandB = numbers.b;
       attempt++;
@@ -143,85 +143,61 @@ export class WordProblemService {
     };
   }
 
-  private generateNumbers(type: WordProblemType, range: NumberRange): { a: number; b: number } {
+  private generateNumbers(type: WordProblemType, range: NumberRange, maxValue?: number): { a: number; b: number } {
     switch (type) {
       case 'addition':
-        return this.generateAddition(range);
+        return this.generateAddition(range, maxValue);
       case 'subtraction':
-        return this.generateSubtraction(range);
+        return this.generateSubtraction(range, maxValue);
       case 'multiplication':
-        return this.generateMultiplication(range);
+        return this.generateMultiplication(range, maxValue);
       case 'division':
-        return this.generateDivision(range);
+        return this.generateDivision(range, maxValue);
     }
   }
 
-  private generateAddition(range: NumberRange): { a: number; b: number } {
-    if (range === 'bis20') {
-      // Zehnerübergang bei 10, Ergebnis 11-19
-      const b = Math.floor(Math.random() * 10) + 1; // 1-10
-      const ones = Math.floor(Math.random() * (10 - b)) + (11 - b); // [11-b, 9]
-      const a = ones;
-      return { a, b };
+  private generateAddition(range: NumberRange, maxValue?: number): { a: number; b: number } {
+    const max = maxValue ?? (range === 'bis20' ? 20 : 100);
+    if (max <= 20) {
+      const b = Math.floor(Math.random() * 10) + 1;
+      const ones = Math.floor(Math.random() * (10 - b)) + (11 - b);
+      return { a: ones, b };
     } else {
-      // Bis 100: Zehnerübergang an beliebiger Zehnergrenze
-      const b = Math.floor(Math.random() * 10) + 1; // 1-10
-      const tens = Math.floor(Math.random() * Math.floor((100 - b) / 10)) + 1; // [1, floor((100-b)/10)]
-      const ones = Math.floor(Math.random() * (10 - b)) + (11 - b); // [11-b, 9]
-      const a = tens * 10 + ones;
-      return { a, b };
+      const b = Math.floor(Math.random() * 10) + 1;
+      const tens = Math.floor(Math.random() * Math.floor((max - b) / 10)) + 1;
+      const ones = Math.floor(Math.random() * (10 - b)) + (11 - b);
+      return { a: tens * 10 + ones, b };
     }
   }
 
-  private generateSubtraction(range: NumberRange): { a: number; b: number } {
-    if (range === 'bis20') {
-      // Zehnerunterschreitung bei 10, Ergebnis im Bereich 10-19
-      const b = Math.floor(Math.random() * 10) + 1; // 1-10
-      const ones = Math.floor(Math.random() * b); // [0, b-1]
-      const a = 10 + ones;
-      return { a, b };
+  private generateSubtraction(range: NumberRange, maxValue?: number): { a: number; b: number } {
+    const max = maxValue ?? (range === 'bis20' ? 20 : 100);
+    if (max <= 20) {
+      const b = Math.floor(Math.random() * 10) + 1;
+      const ones = Math.floor(Math.random() * b);
+      return { a: 10 + ones, b };
     } else {
-      // Bis 100: Zehnerunterschreitung
-      const b = Math.floor(Math.random() * 10) + 1; // 1-10
-      const tens = Math.floor(Math.random() * 9) + 1; // [1, 9]
-      const ones = Math.floor(Math.random() * b); // [0, b-1]
-      const a = tens * 10 + ones;
-      return { a, b };
+      const b = Math.floor(Math.random() * 10) + 1;
+      const tens = Math.floor(Math.random() * Math.floor((max - 1) / 10)) + 1;
+      const ones = Math.floor(Math.random() * b);
+      return { a: tens * 10 + ones, b };
     }
   }
 
-  private generateMultiplication(range: NumberRange): { a: number; b: number } {
-    if (range === 'bis20') {
-      // Kleine Faktoren, Ergebnis ≤ 20
-      const a = Math.floor(Math.random() * 4) + 2; // 2-5
-      const maxB = Math.floor(20 / a);
-      const b = Math.floor(Math.random() * (maxB - 1)) + 2; // [2, maxB]
-      return { a, b };
-    } else {
-      // Ergebnis ≤ 100
-      const a = Math.floor(Math.random() * 9) + 2; // 2-10
-      const maxB = Math.floor(100 / a);
-      const b = Math.floor(Math.random() * (maxB - 1)) + 2; // [2, maxB]
-      return { a, b };
-    }
+  private generateMultiplication(range: NumberRange, maxValue?: number): { a: number; b: number } {
+    const max = maxValue ?? (range === 'bis20' ? 20 : 100);
+    const a = Math.floor(Math.random() * 9) + 2;
+    const maxB = Math.floor(max / a);
+    const b = Math.max(2, Math.floor(Math.random() * (maxB - 1)) + 2);
+    return { a, b };
   }
 
-  private generateDivision(range: NumberRange): { a: number; b: number } {
-    if (range === 'bis20') {
-      // Glatte Division, Ergebnis ≤ 20
-      const b = Math.floor(Math.random() * 4) + 2; // 2-5
-      const maxQuotient = Math.floor(20 / b);
-      const quotient = Math.floor(Math.random() * (maxQuotient - 1)) + 2; // [2, maxQuotient]
-      const a = b * quotient;
-      return { a, b };
-    } else {
-      // Glatte Division, Ergebnis ≤ 100
-      const b = Math.floor(Math.random() * 9) + 2; // 2-10
-      const maxQuotient = Math.floor(100 / b);
-      const quotient = Math.floor(Math.random() * (maxQuotient - 1)) + 2; // [2, maxQuotient]
-      const a = b * quotient;
-      return { a, b };
-    }
+  private generateDivision(range: NumberRange, maxValue?: number): { a: number; b: number } {
+    const max = maxValue ?? (range === 'bis20' ? 20 : 100);
+    const b = Math.floor(Math.random() * 9) + 2;
+    const maxQuotient = Math.floor(max / b);
+    const quotient = Math.max(2, Math.floor(Math.random() * (maxQuotient - 1)) + 2);
+    return { a: b * quotient, b };
   }
 
   private calculateAnswer(type: WordProblemType, a: number, b: number): number {

@@ -158,5 +158,25 @@ describe('SupabaseService', () => {
     it('updateLastActive should not throw', async () => {
       await expectAsync(service.updateLastActive('any-user')).not.toBeRejected();
     });
+    it('should have updateUserGoals method', () => {
+      expect(typeof service.updateUserGoals).toBe('function');
+    });
+  });
+
+  // ─── updateUserGoals ────────────────────────────────────────
+
+  describe('updateUserGoals', () => {
+    it('should not succeed silently (network not available in tests)', async () => {
+      // No real DB — the call will reject; we just confirm the method runs and rejects
+      await expectAsync(
+        service.updateUserGoals('any-user', 20, 20, 20)
+      ).toBeRejected();
+    });
+
+    it('should accept optional mathNumberRange param without throwing a JS error', async () => {
+      await expectAsync(
+        service.updateUserGoals('any-user', 20, 20, 20, 300)
+      ).toBeRejected();
+    });
   });
 });

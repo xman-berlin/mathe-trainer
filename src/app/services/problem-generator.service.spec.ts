@@ -345,5 +345,58 @@ describe('ProblemGeneratorService', () => {
         expect(allowed.has(p.operandB)).toBeTrue();
       }
     });
+
+    it('maxValue: operands should not exceed maxValue', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateProblem(['addition'], undefined, { addition: 3 }, 150);
+        expect(p.operandA).toBeLessThanOrEqual(150);
+        expect(p.operandB).toBeLessThanOrEqual(150);
+      }
+    });
+
+    it('maxValue: works for subtraction', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateProblem(['subtraction'], undefined, { subtraction: 3 }, 120);
+        expect(p.operandA).toBeLessThanOrEqual(120);
+        expect(p.operandB).toBeLessThanOrEqual(120);
+      }
+    });
+
+    it('maxValue: works for multiplication', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateProblem(['multiplication'], undefined, { multiplication: 2 }, 50);
+        expect(p.operandA).toBeLessThanOrEqual(50);
+        expect(p.operandB).toBeLessThanOrEqual(50);
+      }
+    });
+
+    it('maxValue: works for division', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateProblem(['division'], undefined, { division: 2 }, 50);
+        expect(p.operandA).toBeLessThanOrEqual(50);
+        expect(p.operandB).toBeLessThanOrEqual(50);
+      }
+    });
+
+    it('maxValue: fallback returns valid problem when constraint is impossible', () => {
+      // maxValue of 1 is impossible for most levels — fallback to level 1
+      const p = service.generateProblem(['addition'], undefined, { addition: 6 }, 1);
+      expect(p).toBeTruthy();
+      expect(p.operation).toBe('addition');
+      expect(typeof p.answer).toBe('number');
+    });
+
+    it('no maxValue: should not restrict operands (fast path)', () => {
+      // Level 6 addition can produce large numbers — with no maxValue they are allowed
+      let foundLarge = false;
+      for (let i = 0; i < RUNS * 5; i++) {
+        const p = service.generateProblem(['addition'], undefined, { addition: 6 });
+        if (p.operandA > 100 || p.operandB > 100) {
+          foundLarge = true;
+          break;
+        }
+      }
+      expect(foundLarge).toBeTrue();
+    });
   });
 });

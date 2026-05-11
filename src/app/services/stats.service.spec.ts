@@ -334,5 +334,116 @@ describe('StatsService', () => {
       expect(service.mathCorrectCount()).toBe(0);
       expect(service.currentGoal()).toBe(20);
     });
+
+    it('should reset mathNumberRange to 100', () => {
+      service.setMathNumberRange(500);
+      service.clearUserData();
+      expect(service.currentMathNumberRange()).toBe(100);
+    });
+  });
+
+  // ─── mathNumberRange ────────────────────────────────────────
+
+  describe('mathNumberRange', () => {
+    it('should have default value of 100', () => {
+      expect(service.currentMathNumberRange()).toBe(100);
+    });
+
+    it('setMathNumberRange should update the signal', () => {
+      service.setMathNumberRange(200);
+      expect(service.currentMathNumberRange()).toBe(200);
+    });
+
+    it('setMathNumberRange should clamp values below 100 to 100', () => {
+      service.setMathNumberRange(50);
+      expect(service.currentMathNumberRange()).toBe(100);
+    });
+
+    it('setMathNumberRange should clamp 0 to 100', () => {
+      service.setMathNumberRange(0);
+      expect(service.currentMathNumberRange()).toBe(100);
+    });
+
+    it('setMathNumberRange should write to localStorage', () => {
+      service.setMathNumberRange(300);
+      expect(localStorage.setItem).toHaveBeenCalledWith('schlaufuchs-number-range', '300');
+    });
+
+    it('setMathNumberRange should call syncGoalsToServer when authenticated', async () => {
+      mockSupabase.updateUserGoals = jasmine.createSpy('updateUserGoals').and.resolveTo();
+      mockAuthService.currentUser.set({
+        id: 'user-1', username: 'test', avatar_style: 'a',
+        created_at: '', last_active_at: '',
+        math_daily_goal: 20, clock_daily_goal: 20, vocab_daily_goal: 20,
+      });
+      service.setMathNumberRange(250);
+      await Promise.resolve(); // flush microtask
+      expect(mockSupabase.updateUserGoals).toHaveBeenCalledWith('user-1', jasmine.any(Number), jasmine.any(Number), jasmine.any(Number), 250);
+    });
+
+    it('load: should pick up valid value from localStorage', () => {
+      // Reset the spy to return a value for the range key
+      (localStorage.getItem as jasmine.Spy).and.callFake((key: string) => {
+        if (key === 'schlaufuchs-number-range') return '400';
+        return null;
+      });
+      // Re-create service so load() runs again with the new spy
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideZonelessChangeDetection(),
+          StatsService,
+          { provide: SupabaseService, useValue: mockSupabase },
+          { provide: AuthService, useValue: mockAuthService },
+          { provide: DailyStreakService, useValue: mockStreakService },
+          { provide: CoinsService, useValue: mockCoinsService },
+          { provide: BadgeService, useValue: mockBadgeService },
+        ],
+      });
+      const freshService = TestBed.inject(StatsService);
+      expect(freshService.currentMathNumberRange()).toBe(400);
+    });
+
+    it('load: should ignore non-numeric value in localStorage', () => {
+      (localStorage.getItem as jasmine.Spy).and.callFake((key: string) => {
+        if (key === 'schlaufuchs-number-range') return 'abc';
+        return null;
+      });
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideZonelessChangeDetection(),
+          StatsService,
+          { provide: SupabaseService, useValue: mockSupabase },
+          { provide: AuthService, useValue: mockAuthService },
+          { provide: DailyStreakService, useValue: mockStreakService },
+          { provide: CoinsService, useValue: mockCoinsService },
+          { provide: BadgeService, useValue: mockBadgeService },
+        ],
+      });
+      const freshService = TestBed.inject(StatsService);
+      expect(freshService.currentMathNumberRange()).toBe(100);
+    });
+
+    it('load: should ignore value below 100 in localStorage', () => {
+      (localStorage.getItem as jasmine.Spy).and.callFake((key: string) => {
+        if (key === 'schlaufuchs-number-range') return '50';
+        return null;
+      });
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideZonelessChangeDetection(),
+          StatsService,
+          { provide: SupabaseService, useValue: mockSupabase },
+          { provide: AuthService, useValue: mockAuthService },
+          { provide: DailyStreakService, useValue: mockStreakService },
+          { provide: CoinsService, useValue: mockCoinsService },
+          { provide: BadgeService, useValue: mockBadgeService },
+        ],
+      });
+      const freshService = TestBed.inject(StatsService);
+      expect(freshService.currentMathNumberRange()).toBe(100);
+    });
   });
 });

@@ -29,6 +29,10 @@
           @if (categoryIsGoalReached()) {
             <div class="goal-reached-badge">🎯 Ziel erreicht!</div>
           }
+          <div class="range-row">
+            <span class="range-label">Zahlenraum: bis {{ mathNumberRange() }}</span>
+            <button class="goal-edit-btn-inline" (click)="openRangeEditor()" aria-label="Zahlenraum ändern">⚙️</button>
+          </div>
         </div>
       }
 
@@ -91,6 +95,23 @@
       <div class="modal-actions">
         <button class="primary-btn" (click)="saveGoal()">Speichern</button>
         <button class="secondary-btn" (click)="cancelGoalEdit()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showRangeEditor()) {
+  <div class="modal-overlay" (click)="cancelRangeEdit()" (keydown.escape)="cancelRangeEdit()" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="goal-editor-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="document">
+      <h3>Zahlenraum festlegen</h3>
+      <p>Bis zu welcher Zahl sollen die Aufgaben gehen? (Minimum: 100)</p>
+      <input type="number" min="100" [(ngModel)]="editRangeInput" />
+      @if (editRangeError()) {
+        <p class="error-msg">Bitte gib eine ganze Zahl von mindestens 100 ein.</p>
+      }
+      <div class="modal-actions">
+        <button class="primary-btn" [disabled]="!editRangeValid()" (click)="saveRange()">Speichern</button>
+        <button class="secondary-btn" (click)="cancelRangeEdit()">Abbrechen</button>
       </div>
     </div>
   </div>

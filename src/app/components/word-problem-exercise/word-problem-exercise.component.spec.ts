@@ -30,6 +30,7 @@ describe('WordProblemExerciseComponent', () => {
           provide: StatsService,
           useValue: {
             statsByType: signal({}).asReadonly(),
+            currentMathNumberRange: signal(100).asReadonly(),
             recordResult: jasmine.createSpy('recordResult'),
             getBestStreak: jasmine.createSpy('getBestStreak').and.returnValue(5),
             updateBestStreak: jasmine.createSpy('updateBestStreak'),
@@ -97,5 +98,19 @@ describe('WordProblemExerciseComponent', () => {
     component.selectedTypes.set(new Set(['addition']));
     component.toggleType('subtraction');
     expect(component.selectedTypes().has('subtraction')).toBeTrue();
+  });
+
+  // ─── mathNumberRange integration ────────────────────────────
+
+  describe('mathNumberRange integration', () => {
+    it('generateProblem should pass currentMathNumberRange as third arg to wordProblemService', () => {
+      const mockWordProblemService = TestBed.inject(WordProblemService) as jasmine.SpyObj<WordProblemService>;
+      // Trigger a new problem generation by calling generateProblem directly
+      (component as unknown as { generateProblem: () => void }).generateProblem();
+      const calls = (mockWordProblemService.generateProblem as jasmine.Spy).calls.all();
+      const lastCall = calls[calls.length - 1];
+      // Third argument should be the currentMathNumberRange value (100 from mock)
+      expect(lastCall.args[2]).toBe(100);
+    });
   });
 });

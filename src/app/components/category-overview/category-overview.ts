@@ -103,4 +103,33 @@ export class CategoryOverviewComponent {
   cancelGoalEdit(): void {
     this.showGoalEditor.set(false);
   }
+
+  // Number range (Zahlenraum) editor — math only
+  readonly mathNumberRange = computed(() => this.stats.currentMathNumberRange());
+  showRangeEditor = signal(false);
+  editRangeInput = signal(100);
+  editRangeError = signal(false);
+  readonly editRangeValid = computed(() => {
+    const v = this.editRangeInput();
+    return Number.isInteger(v) && v >= 100;
+  });
+
+  openRangeEditor(): void {
+    this.editRangeInput.set(this.stats.currentMathNumberRange());
+    this.editRangeError.set(false);
+    this.showRangeEditor.set(true);
+  }
+
+  saveRange(): void {
+    if (!this.editRangeValid()) {
+      this.editRangeError.set(true);
+      return;
+    }
+    this.stats.setMathNumberRange(this.editRangeInput());
+    this.showRangeEditor.set(false);
+  }
+
+  cancelRangeEdit(): void {
+    this.showRangeEditor.set(false);
+  }
 }

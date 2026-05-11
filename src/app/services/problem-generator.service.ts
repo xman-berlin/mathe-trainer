@@ -296,34 +296,56 @@ export class ProblemGeneratorService {
     };
   }
 
-  // ─── Main entry point ─────────────────────────────────────────────────────
-
   /**
    * Generate a random problem of the specified types.
    * levels: per-type level map — defaults to level 2/3 if not provided.
    * allowedNumbers: legacy Set<number> filter for ×/÷ (kept for BalloonPop compatibility).
+   * maxValue: optional cap on operands (inclusive). Problems where any operand exceeds
+   *           maxValue are re-generated (up to 50 retries, then level 1 is used as fallback).
    */
   generateProblem(
     types: OperationType[],
     allowedNumbers?: Set<number>,
-    levels?: Partial<Record<OperationType, number>>
+    levels?: Partial<Record<OperationType, number>>,
+    maxValue?: number
   ): Problem {
     const type = types[Math.floor(Math.random() * types.length)];
 
+    const generate = (): Problem => {
+      switch (type) {
+        case 'addition':
+          return this.generateAddition(levels?.addition ?? 3);
+        case 'subtraction':
+          return this.generateSubtraction(levels?.subtraction ?? 3);
+        case 'multiplication':
+          return this.generateMultiplication(
+            allowedNumbers && allowedNumbers.size > 0 ? allowedNumbers : (levels?.multiplication ?? 2)
+          );
+        case 'division':
+          return this.generateDivision(
+            allowedNumbers && allowedNumbers.size > 0 ? allowedNumbers : (levels?.division ?? 2)
+          );
+      }
+    };
+
+    if (!maxValue) {
+      return generate();
+    }
+
+    // Retry loop: cap operands to maxValue
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const problem = generate();
+      if (problem.operandA <= maxValue && problem.operandB <= maxValue) {
+        return problem;
+      }
+    }
+
+    // Fallback: level 1 guarantees small numbers
     switch (type) {
-      case 'addition':
-        return this.generateAddition(levels?.addition ?? 3);
-      case 'subtraction':
-        return this.generateSubtraction(levels?.subtraction ?? 3);
-      case 'multiplication':
-        // If allowedNumbers provided (legacy), use that; otherwise use level
-        return this.generateMultiplication(
-          allowedNumbers && allowedNumbers.size > 0 ? allowedNumbers : (levels?.multiplication ?? 2)
-        );
-      case 'division':
-        return this.generateDivision(
-          allowedNumbers && allowedNumbers.size > 0 ? allowedNumbers : (levels?.division ?? 2)
-        );
+      case 'addition':    return this.generateAddition(1);
+      case 'subtraction': return this.generateSubtraction(1);
+      case 'multiplication': return this.generateMultiplication(1);
+      case 'division':    return this.generateDivision(1);
     }
   }
 }

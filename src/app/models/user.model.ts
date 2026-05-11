@@ -11,6 +11,7 @@ export interface User {
   clock_daily_goal: number;
   vocab_daily_goal: number;
   difficulty_levels?: DifficultyLevels;
+  math_number_range?: number;
 }
 
 /**

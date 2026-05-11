@@ -119,12 +119,19 @@ export class SupabaseService {
     userId: string,
     mathDailyGoal: number,
     clockDailyGoal: number,
-    vocabDailyGoal: number
+    vocabDailyGoal: number,
+    mathNumberRange?: number
   ): Promise<void> {
     try {
+      const update: Record<string, unknown> = {
+        math_daily_goal: mathDailyGoal,
+        clock_daily_goal: clockDailyGoal,
+        vocab_daily_goal: vocabDailyGoal,
+      };
+      if (mathNumberRange !== undefined) update['math_number_range'] = mathNumberRange;
       const { error } = await this.supabase
         .from('users')
-        .update({ math_daily_goal: mathDailyGoal, clock_daily_goal: clockDailyGoal, vocab_daily_goal: vocabDailyGoal })
+        .update(update)
         .eq('id', userId);
       if (error) throw error;
     } catch (error) {

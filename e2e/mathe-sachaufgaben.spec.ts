@@ -21,12 +21,10 @@ test.describe('Mathe Sachaufgaben', () => {
     await expect(page.locator('.type-btn')).toHaveCount(4);
   });
 
-  test('should show number range selector', async ({ page }) => {
+  test('should not show range selector buttons (Zahlenraum is set on Mathe overview)', async ({ page }) => {
     await page.goto('/mathe/sachaufgaben');
 
-    await expect(page.locator('.range-selector')).toBeVisible();
-    await expect(page.locator('.range-btn', { hasText: 'Bis 20' })).toBeVisible();
-    await expect(page.locator('.range-btn', { hasText: 'Bis 100' })).toBeVisible();
+    await expect(page.locator('.range-selector')).not.toBeVisible();
   });
 
   test('should display a word problem', async ({ page }) => {

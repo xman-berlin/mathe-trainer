@@ -2,6 +2,7 @@ import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { ExerciseComponent } from './exercise.component';
 import { StatsService } from '../../services/stats.service';
@@ -25,6 +26,7 @@ describe('ExerciseComponent', () => {
     mockSupabase.updateDifficultyLevels.and.resolveTo();
 
     TestBed.configureTestingModule({
+      imports: [FormsModule],
       providers: [
         provideZonelessChangeDetection(),
         provideRouter([]),
@@ -41,9 +43,11 @@ describe('ExerciseComponent', () => {
           useValue: {
             lifetimeStatsByType: signal({}).asReadonly(),
             statsByType: signal({}).asReadonly(),
+            currentMathNumberRange: signal(100).asReadonly(),
             recordResult: jasmine.createSpy('recordResult'),
             getBestStreak: jasmine.createSpy('getBestStreak').and.returnValue(0),
             updateBestStreak: jasmine.createSpy('updateBestStreak'),
+            setMathNumberRange: jasmine.createSpy('setMathNumberRange'),
           },
         },
         {

@@ -14,6 +14,7 @@ Schlaufuchs is a web-based application that helps elementary school students imp
 - **Time Learning**: Analog and digital clock exercises with detailed minute tick marks on the interactive clock face
 - **Deutsch / Rechtschreibung**: German spelling exercises — TTS speaks a word, pupils type it on a QWERTZ keyboard; full streak, daily stats, and goal tracking; smart session phases prioritise the active vocab list until mastered (weight cap 5)
 - **Deutsch / Wörter Raten**: Word guessing game (hangman-style) — guess letters to reveal words from vocab lists; caterpillar figure shows remaining guesses; word weights unaffected by hangman results
+- **Zahlenraum**: Configurable number range (≥ 100) for all math exercises, set via gear icon on the Mathe overview page; persisted per user in Supabase and localStorage
 - **Adaptive Difficulty**: Per-type difficulty levels (🐭 Maus → 🐉 Drache, 6 tiers) that automatically adjust based on performance — level up after 5 correct in a row, level down after 3 of last 5 wrong; persisted to Supabase
 - **Gamification**: Badge system with 34+ badges, coin collection, streak tracking, bronze lock (exercise types become permanent once ≥100 lifetime correct answers reached)
 - **Mini-Games**: Flappy Fox, Dino Run, Breakout, Balloon Pop

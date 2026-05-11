@@ -1,6 +1,6 @@
 import { Component, signal, computed, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { WordProblem, WordProblemType, NumberRange } from '../../models/word-problem.model';
+import { WordProblem, WordProblemType } from '../../models/word-problem.model';
 import { WordProblemService } from '../../services/word-problem.service';
 import { StatsService } from '../../services/stats.service';
 import { AchievementsService } from '../../services/achievements.service';
@@ -36,7 +36,6 @@ export class WordProblemExerciseComponent implements OnInit {
 
   selectedTypes = signal<Set<WordProblemType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
   currentType = signal<WordProblemType>('addition');
-  numberRange = signal<NumberRange>('bis20');
 
   private wordProblemService = inject(WordProblemService);
   private stats = inject(StatsService);
@@ -47,14 +46,9 @@ export class WordProblemExerciseComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Load number range preference from localStorage
-    const savedRange = localStorage.getItem('wordProblemRange') as NumberRange | null;
-    if (savedRange === 'bis20' || savedRange === 'bis100') {
-      this.numberRange.set(savedRange);
-    }
-
     // Clean up old localStorage item (migration)
     localStorage.removeItem('wordProblemCurrentStreak');
+    localStorage.removeItem('wordProblemRange');
 
     // Current streak always starts at 0 when entering the exercise
     // Only the best streak is loaded from StatsService (persistent)
@@ -114,18 +108,12 @@ export class WordProblemExerciseComponent implements OnInit {
     }
   }
 
-  setNumberRange(range: NumberRange) {
-    this.numberRange.set(range);
-    localStorage.setItem('wordProblemRange', range);
-    this.generateProblem();
-  }
-
-
   generateProblem() {
     const types = Array.from(this.selectedTypes());
     const type = types[Math.floor(Math.random() * types.length)];
+    const maxValue = this.stats.currentMathNumberRange();
 
-    const problem = this.wordProblemService.generateProblem(type, this.numberRange());
+    const problem = this.wordProblemService.generateProblem(type, 'bis100', maxValue);
     this.currentProblem.set(problem);
     this.currentType.set(type);
 

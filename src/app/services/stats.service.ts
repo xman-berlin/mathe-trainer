@@ -29,6 +29,7 @@ interface LifetimeStats {
 export class StatsService {
   private readonly storageKey = 'schlaufuchs-stats';
   private readonly lifetimeStorageKey = 'schlaufuchs-lifetime-stats';
+  private readonly numberRangeStorageKey = 'schlaufuchs-number-range';
 
   // Server sync dependencies - not optional, circular dep resolved by lazy loading
   private supabase = inject(SupabaseService);
@@ -49,6 +50,7 @@ export class StatsService {
   private dailyGoal = signal(20); // Default goal for math
   private clockDailyGoal = signal(20); // Default goal for clock
   private vocabDailyGoal = signal(20); // Default goal for Deutsch category
+  private mathNumberRange = signal(100); // Default number range for math exercises
   private lifetimeByType = signal<Record<string, number>>({});
   private bestStreaksByTypeSignal = signal<Record<string, number>>({});
 
@@ -61,6 +63,7 @@ export class StatsService {
   readonly statsByType = this.byType.asReadonly();
   readonly currentGoal = this.dailyGoal.asReadonly();
   readonly lifetimeStatsByType = this.lifetimeByType.asReadonly();
+  readonly currentMathNumberRange = this.mathNumberRange.asReadonly();
 
   // Math-specific stats
   readonly mathCorrectCount = computed(() => {
@@ -219,6 +222,17 @@ export class StatsService {
     this.syncGoalsToServer();
   }
 
+  setMathNumberRange(value: number): void {
+    if (value < 100) value = 100;
+    this.mathNumberRange.set(value);
+    try {
+      localStorage.setItem(this.numberRangeStorageKey, String(value));
+    } catch {
+      // ignore storage errors
+    }
+    this.syncGoalsToServer();
+  }
+
   resetToday() {
     const today = this.today();
     this.date.set(today);
@@ -247,6 +261,15 @@ export class StatsService {
 
   private load() {
     try {
+      // Load number range from its own key
+      const rangeRaw = localStorage.getItem(this.numberRangeStorageKey);
+      if (rangeRaw) {
+        const parsed = parseInt(rangeRaw, 10);
+        if (!isNaN(parsed) && parsed >= 100) {
+          this.mathNumberRange.set(parsed);
+        }
+      }
+
       const raw = localStorage.getItem(this.storageKey);
       if (!raw) {
         this.persist();
@@ -379,6 +402,7 @@ export class StatsService {
     this.dailyGoal.set(20);
     this.clockDailyGoal.set(20);
     this.vocabDailyGoal.set(20);
+    this.mathNumberRange.set(100);
     this.lifetimeByType.set({});
     this.bestStreaksByTypeSignal.set({});
     this.hasAnsweredToday.set(false);
@@ -386,6 +410,7 @@ export class StatsService {
     // Clear localStorage
     localStorage.removeItem(this.storageKey);
     localStorage.removeItem(this.lifetimeStorageKey);
+    localStorage.removeItem(this.numberRangeStorageKey);
   }
 
   // ============================================================================
@@ -427,6 +452,10 @@ export class StatsService {
       if (user.math_daily_goal) this.dailyGoal.set(user.math_daily_goal);
       if (user.clock_daily_goal) this.clockDailyGoal.set(user.clock_daily_goal);
       if (user.vocab_daily_goal) this.vocabDailyGoal.set(user.vocab_daily_goal);
+      if (user.math_number_range && user.math_number_range >= 100) {
+        this.mathNumberRange.set(user.math_number_range);
+        try { localStorage.setItem(this.numberRangeStorageKey, String(user.math_number_range)); } catch { /* ignore */ }
+      }
 
       // Load daily stats
       const serverDaily = await this.supabase.getDailyStats(userId, today);
@@ -519,7 +548,7 @@ export class StatsService {
     }
     try {
       const userId = this.auth.currentUser()!.id;
-      await this.supabase.updateUserGoals(userId, this.dailyGoal(), this.clockDailyGoal(), this.vocabDailyGoal());
+      await this.supabase.updateUserGoals(userId, this.dailyGoal(), this.clockDailyGoal(), this.vocabDailyGoal(), this.mathNumberRange());
     } catch {
       // Don't throw - sync is non-critical
     }

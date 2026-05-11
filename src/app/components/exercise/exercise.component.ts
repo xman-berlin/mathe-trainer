@@ -90,6 +90,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
 
   private isInitialized = false;
   private stats = inject(StatsService);
+  readonly mathNumberRange = computed(() => this.stats.currentMathNumberRange());
   private achievements = inject(AchievementsService);
   private timedChallengeService = inject(TimedChallengeService);
   private problemGenerator = inject(ProblemGeneratorService);
@@ -244,7 +245,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
           subtraction: this.difficultyService.getLevel('subtraction'),
           multiplication: this.difficultyService.getLevel('multiplication'),
           division: this.difficultyService.getLevel('division'),
-        });
+        }, this.mathNumberRange());
     } while (
       problem.operation === prevType &&
       problem.operandA === prevA &&

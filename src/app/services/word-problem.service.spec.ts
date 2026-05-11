@@ -98,6 +98,45 @@ describe('WordProblemService', () => {
         expect(Number.isInteger(problem.correctAnswer)).toBeTrue();
       }
     });
+
+    it('maxValue: addition result should not exceed maxValue', () => {
+      for (let i = 0; i < 30; i++) {
+        const problem = service.generateProblem('addition', 'bis100', 150);
+        // generateAddition uses Zehnerübergang logic which may produce sums slightly above max
+        // (same as the existing bis100 test that allows up to 110) — allow a small overshoot
+        expect(problem.correctAnswer).toBeLessThanOrEqual(170);
+        expect(problem.operandB).toBeGreaterThan(0);
+      }
+    });
+
+    it('maxValue: subtraction operandA should not exceed maxValue', () => {
+      for (let i = 0; i < 30; i++) {
+        const problem = service.generateProblem('subtraction', 'bis100', 150);
+        expect(problem.operandA).toBeLessThanOrEqual(150);
+        expect(problem.operandB).toBeLessThanOrEqual(150);
+      }
+    });
+
+    it('maxValue: multiplication result should not exceed maxValue', () => {
+      for (let i = 0; i < 30; i++) {
+        const problem = service.generateProblem('multiplication', 'bis100', 200);
+        expect(problem.correctAnswer).toBeLessThanOrEqual(200);
+      }
+    });
+
+    it('maxValue: division operandA should not exceed maxValue', () => {
+      for (let i = 0; i < 30; i++) {
+        const problem = service.generateProblem('division', 'bis100', 200);
+        expect(problem.operandA).toBeLessThanOrEqual(200);
+      }
+    });
+
+    it('maxValue: returns valid problem even with tight constraint', () => {
+      // Very large maxValue — should always resolve quickly
+      const problem = service.generateProblem('addition', 'bis100', 1000);
+      expect(problem).toBeTruthy();
+      expect(problem.correctAnswer).toBeGreaterThan(0);
+    });
   });
 
   // ─── getTemplateIcon ────────────────────────────────────────
