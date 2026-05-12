@@ -235,4 +235,17 @@ export class AuthService {
       console.error('Error saving user to storage:', error);
     }
   }
+
+  /**
+   * Patch the in-memory and localStorage user cache with updated fields.
+   * Call this whenever a user preference is saved to the server so that
+   * the next session reload picks up the latest values instead of stale ones.
+   */
+  updateCurrentUserCache(patch: Partial<User>): void {
+    const user = this.currentUser();
+    if (!user) return;
+    const updated = { ...user, ...patch };
+    this.currentUser.set(updated);
+    this.saveUserToStorage(updated);
+  }
 }

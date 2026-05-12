@@ -549,6 +549,13 @@ export class StatsService {
     try {
       const userId = this.auth.currentUser()!.id;
       await this.supabase.updateUserGoals(userId, this.dailyGoal(), this.clockDailyGoal(), this.vocabDailyGoal(), this.mathNumberRange());
+      // Keep the cached user in sync so that a page refresh loads the latest values
+      this.auth.updateCurrentUserCache({
+        math_daily_goal: this.dailyGoal(),
+        clock_daily_goal: this.clockDailyGoal(),
+        vocab_daily_goal: this.vocabDailyGoal(),
+        math_number_range: this.mathNumberRange(),
+      });
     } catch {
       // Don't throw - sync is non-critical
     }

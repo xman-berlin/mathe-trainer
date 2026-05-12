@@ -269,7 +269,7 @@ export class ProblemGeneratorService {
           break;
         case 2:
           b = this.randomInt(1, 10);
-          maxQuotient = Math.floor(100 / b);
+          maxQuotient = Math.min(10, Math.floor(100 / b));
           break;
         case 3:
           b = this.randomInt(1, 10);
@@ -317,14 +317,26 @@ export class ProblemGeneratorService {
           return this.generateAddition(levels?.addition ?? 3);
         case 'subtraction':
           return this.generateSubtraction(levels?.subtraction ?? 3);
-        case 'multiplication':
-          return this.generateMultiplication(
-            allowedNumbers && allowedNumbers.size > 0 ? allowedNumbers : (levels?.multiplication ?? 2)
-          );
-        case 'division':
-          return this.generateDivision(
-            allowedNumbers && allowedNumbers.size > 0 ? allowedNumbers : (levels?.division ?? 2)
-          );
+        case 'multiplication': {
+          // Within Zahlenraum ≤ 100: restrict to small times table (1–10 × 1–10, level 2)
+          const multLevel =
+            allowedNumbers && allowedNumbers.size > 0
+              ? allowedNumbers
+              : maxValue && maxValue <= 100
+                ? Math.min(levels?.multiplication ?? 2, 2)
+                : (levels?.multiplication ?? 2);
+          return this.generateMultiplication(multLevel);
+        }
+        case 'division': {
+          // Within Zahlenraum ≤ 100: restrict divisor range so dividend stays in range (level 2)
+          const divLevel =
+            allowedNumbers && allowedNumbers.size > 0
+              ? allowedNumbers
+              : maxValue && maxValue <= 100
+                ? Math.min(levels?.division ?? 2, 2)
+                : (levels?.division ?? 2);
+          return this.generateDivision(divLevel);
+        }
       }
     };
 
@@ -332,10 +344,14 @@ export class ProblemGeneratorService {
       return generate();
     }
 
-    // Retry loop: cap operands to maxValue
+    // Retry loop: for multiplication/division cap the result (answer), for others cap operands
     for (let attempt = 0; attempt < 50; attempt++) {
       const problem = generate();
-      if (problem.operandA <= maxValue && problem.operandB <= maxValue) {
+      const withinRange =
+        problem.operation === 'multiplication'
+          ? problem.answer <= maxValue
+          : problem.operandA <= maxValue && problem.operandB <= maxValue;
+      if (withinRange) {
         return problem;
       }
     }
