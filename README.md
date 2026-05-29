@@ -11,7 +11,7 @@ Schlaufuchs is a web-based application that helps elementary school students imp
 ### ✨ Features
 
 - **Math Exercises**: Addition, Subtraction, Multiplication, Division, Word Problems
-- **Time Learning**: Analog and digital clock exercises with detailed minute tick marks on the interactive clock face
+- **Time Learning**: Analog and digital clock exercises with detailed minute tick marks on the interactive clock face; Zeiger-Setzen now includes 7 exercise types (full hour, half, quarter, 5-min, minutes-after, minutes-before, vor/nach-halb) with auto-positioned hour hand for the three new types; type selection persists across sessions
 - **Deutsch / Rechtschreibung**: German spelling exercises — TTS speaks a word, pupils type it on a QWERTZ keyboard; full streak, daily stats, and goal tracking; smart session phases prioritise the active vocab list until mastered (weight cap 5)
 - **Deutsch / Wörter Raten**: Word guessing game (hangman-style) — guess letters to reveal words from vocab lists; caterpillar figure shows remaining guesses; word weights unaffected by hangman results
 - **Zahlenraum**: Configurable number range (≥ 100) for all math exercises, set via gear icon on the Mathe overview page; persisted per user in Supabase and localStorage. At Zahlenraum ≤ 100, multiplication and division are restricted to the small times table (factors 1–10, product ≤ 100). User cache is kept in sync after saving so the setting survives page refresh.

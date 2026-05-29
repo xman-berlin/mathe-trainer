@@ -96,3 +96,35 @@ npm run test -- --watch=false --browsers=ChromeHeadless
 
 - Soll `fiveMinHalf` auch im "Uhrzeit ablesen"-Modus (`ClockExerciseComponent`) verfügbar sein?
 - Toleranz: Reichen ±5° für 5-Min-Schritte, oder soll sie auf ±6° erhöht werden?
+
+## Review
+
+**Abgeschlossen:** 2026-05-29
+
+### Was wurde implementiert
+
+- 3 neue Übungstypen in Zeiger-Setzen: `fiveMinAfter`, `fiveMinBefore`, `fiveMinHalf`
+- Stundenzeiger wird bei neuen Typen automatisch positioniert und kann nicht gezogen werden
+- Visueller Hinweis wechselt zwischen "Ziehe die Zeiger!" und "Setze den Minutenzeiger!"
+- Typ-Auswahl wird in localStorage gespeichert und beim nächsten Besuch wiederhergestellt
+- Bug behoben: Minutenzeiger wurde bei neuem Problem mit gleichen Minuten nicht zurückgesetzt (`ngOnChanges`)
+- Bug behoben: Doppelter Badge-Insert beim App-Start verursachte 409-Fehler (upsert mit `ignoreDuplicates`)
+- Bug behoben: `precision-streak` berechnete Fortschritt falsch (summierte Tages-Gesamt statt Streak)
+- 3 neue Badges: `vor-nach-beginner` (25), `vor-nach-expert` (100), `clock-all-types` (alle 7 je ≥100)
+- Zeitrennen-Badges und UI-Abschnitt ausgeblendet (Feature deaktiviert, Code erhalten)
+- Alle `clockTypes`-Listen in stats, category-home, category-overview, achievements aktualisiert
+- Neue Typen default aktiv, zählen bei Tageszielen und Erfolgen mit
+
+### Abweichungen vom Plan
+
+- `fiveMinHalf` enthält Minuten 20/25/35/40 wie geplant
+- Keine neue Route — alles in bestehende Zeiger-Setzen-Übung integriert wie geplant
+- Zusätzlich: persistente Typ-Auswahl (nicht ursprünglich geplant, auf Nutzerwunsch ergänzt)
+- Zusätzlich: Sperr-Logik umgekehrt (gesperrt = gemeistert ≥100, nicht "noch nicht freigeschaltet")
+
+### Qualität
+
+- 658 Unit-Tests ✓
+- 81 E2E-Tests ✓
+- Lint + Build ✓
+- CI grün ✓
