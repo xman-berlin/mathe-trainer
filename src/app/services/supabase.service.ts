@@ -576,10 +576,10 @@ export class SupabaseService {
    */
   async awardBadge(userId: string, badgeId: string): Promise<void> {
     try {
-      const { error } = await this.supabase.from('user_badges').insert({
-        user_id: userId,
-        badge_id: badgeId,
-      });
+      const { error } = await this.supabase.from('user_badges').upsert(
+        { user_id: userId, badge_id: badgeId },
+        { onConflict: 'user_id,badge_id', ignoreDuplicates: true }
+      );
 
       if (error) throw error;
     } catch (error) {

@@ -140,6 +140,17 @@ describe('CategoryHomeComponent', () => {
     expect(component.clockIncorrectCount()).toBe(3);
   });
 
+  it('should count new vor/nach types in clockCorrectCount', () => {
+    byTypeSignal.set({
+      'clock-setClock-fiveMinAfter': { correct: 5, incorrect: 1 },
+      'clock-setClock-fiveMinBefore': { correct: 3, incorrect: 0 },
+      'clock-setClock-fiveMinHalf': { correct: 2, incorrect: 1 },
+    });
+    fixture.detectChanges();
+    expect(component.clockCorrectCount()).toBe(10);
+    expect(component.clockIncorrectCount()).toBe(2);
+  });
+
   it('should aggregate deutsch incorrect count across all types', () => {
     byTypeSignal.set({
       'deutsch-rechtschreibung': { correct: 5, incorrect: 3 },

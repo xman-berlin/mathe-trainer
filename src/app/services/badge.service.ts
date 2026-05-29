@@ -201,42 +201,43 @@ export class BadgeService {
         return types.every(type => (data.lifetimeStats[type] || 0) >= 1000);
       },
     },
-    {
-      id: 'time-trial-rookie',
-      name: 'Zeitrennen-Anfänger',
-      description: 'Erreiche 30+ richtig in einem Time Trial',
-      icon: '⏱️',
-      category: 'milestone',
-      requiredProgress: 30,
-      coinReward: 75,
-      checkFunction: (data: BadgeCheckData) => {
-        return data.timeTrialBests.some(best => best.correct_count >= 30);
-      },
-    },
-    {
-      id: 'time-trial-champion',
-      name: 'Zeitrennen-Champion',
-      description: 'Erreiche 45+ richtig in einem Time Trial',
-      icon: '🏆',
-      category: 'milestone',
-      requiredProgress: 45,
-      coinReward: 150,
-      checkFunction: (data: BadgeCheckData) => {
-        return data.timeTrialBests.some(best => best.correct_count >= 45);
-      },
-    },
-    {
-      id: 'time-trial-legend',
-      name: 'Zeitrennen-Legende',
-      description: 'Erreiche 60+ richtig in einem Time Trial',
-      icon: '⚡',
-      category: 'milestone',
-      requiredProgress: 60,
-      coinReward: 300,
-      checkFunction: (data: BadgeCheckData) => {
-        return data.timeTrialBests.some(best => best.correct_count >= 60);
-      },
-    },
+    // time-trial badges hidden (feature disabled)
+    // {
+    //   id: 'time-trial-rookie',
+    //   name: 'Zeitrennen-Anfänger',
+    //   description: 'Erreiche 30+ richtig in einem Time Trial',
+    //   icon: '⏱️',
+    //   category: 'milestone',
+    //   requiredProgress: 30,
+    //   coinReward: 75,
+    //   checkFunction: (data: BadgeCheckData) => {
+    //     return data.timeTrialBests.some(best => best.correct_count >= 30);
+    //   },
+    // },
+    // {
+    //   id: 'time-trial-champion',
+    //   name: 'Zeitrennen-Champion',
+    //   description: 'Erreiche 45+ richtig in einem Time Trial',
+    //   icon: '🏆',
+    //   category: 'milestone',
+    //   requiredProgress: 45,
+    //   coinReward: 150,
+    //   checkFunction: (data: BadgeCheckData) => {
+    //     return data.timeTrialBests.some(best => best.correct_count >= 45);
+    //   },
+    // },
+    // {
+    //   id: 'time-trial-legend',
+    //   name: 'Zeitrennen-Legende',
+    //   description: 'Erreiche 60+ richtig in einem Time Trial',
+    //   icon: '⚡',
+    //   category: 'milestone',
+    //   requiredProgress: 60,
+    //   coinReward: 300,
+    //   checkFunction: (data: BadgeCheckData) => {
+    //     return data.timeTrialBests.some(best => best.correct_count >= 60);
+    //   },
+    // },
     {
       id: 'multiplication-novice',
       name: 'Multiplikation-Anfänger',
@@ -282,7 +283,7 @@ export class BadgeService {
       requiredProgress: 50,
       coinReward: 75,
       checkFunction: (data: BadgeCheckData) => {
-        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
         const total = clockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
         return total >= 50;
       },
@@ -296,7 +297,7 @@ export class BadgeService {
       requiredProgress: 200,
       coinReward: 200,
       checkFunction: (data: BadgeCheckData) => {
-        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
         const total = clockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
         return total >= 200;
       },
@@ -311,7 +312,7 @@ export class BadgeService {
       requiredProgress: 50,
       coinReward: 75,
       checkFunction: (data: BadgeCheckData) => {
-        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
         const total = setClockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
         return total >= 50;
       },
@@ -325,7 +326,7 @@ export class BadgeService {
       requiredProgress: 200,
       coinReward: 150,
       checkFunction: (data: BadgeCheckData) => {
-        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
         const total = setClockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
         return total >= 200;
       },
@@ -339,7 +340,7 @@ export class BadgeService {
       requiredProgress: 500,
       coinReward: 300,
       checkFunction: (data: BadgeCheckData) => {
-        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
         const total = setClockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
         return total >= 500;
       },
@@ -353,7 +354,7 @@ export class BadgeService {
       requiredProgress: 10,
       coinReward: 50,
       checkFunction: (data: BadgeCheckData) => {
-        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
         const maxStreak = Math.max(...setClockTypes.map(type => data.bestStreaksByType[type] || 0));
         return maxStreak >= 10;
       },
@@ -367,9 +368,51 @@ export class BadgeService {
       requiredProgress: 20,
       coinReward: 100,
       checkFunction: (data: BadgeCheckData) => {
-        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+        const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
         const maxStreak = Math.max(...setClockTypes.map(type => data.bestStreaksByType[type] || 0));
         return maxStreak >= 20;
+      },
+    },
+
+    {
+      id: 'vor-nach-beginner',
+      name: 'Vor & Nach Anfänger',
+      description: 'Löse 25 Aufgaben mit "vor", "nach" und "halb" (lifetime)',
+      icon: '⏱️',
+      category: 'milestone',
+      requiredProgress: 25,
+      coinReward: 75,
+      checkFunction: (data: BadgeCheckData) => {
+        const types = ['clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
+        const total = types.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
+        return total >= 25;
+      },
+    },
+    {
+      id: 'vor-nach-expert',
+      name: 'Vor & Nach Experte',
+      description: 'Löse 100 Aufgaben mit "vor", "nach" und "halb" (lifetime)',
+      icon: '⏱️⚡',
+      category: 'milestone',
+      requiredProgress: 100,
+      coinReward: 150,
+      checkFunction: (data: BadgeCheckData) => {
+        const types = ['clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
+        const total = types.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
+        return total >= 100;
+      },
+    },
+    {
+      id: 'clock-all-types',
+      name: 'Zeitausdrucks-Meister',
+      description: 'Meistere alle 7 Zeiger-Setzen-Typen (je ≥ 100 Aufgaben)',
+      icon: '🕰️✨',
+      category: 'challenge',
+      requiredProgress: 7,
+      coinReward: 500,
+      checkFunction: (data: BadgeCheckData) => {
+        const allTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
+        return allTypes.every(type => (data.lifetimeStats[type] || 0) >= 100);
       },
     },
 
@@ -575,20 +618,21 @@ export class BadgeService {
     } else if (badgeId.startsWith('multiplication-')) {
       current = data.masteredReihen.length;
     } else if (badgeId.startsWith('clock-')) {
-      const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+      const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
       current = clockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
     } else if (badgeId.startsWith('set-clock-')) {
-      const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+      const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
       current = setClockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
     } else if (badgeId === 'precision-streak' || badgeId === 'master-precision') {
-      const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin'];
+      const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
       const maxStreak = Math.max(...setClockTypes.map(type => data.bestStreaksByType[type] || 0));
       current = Math.min(maxStreak, badge.requiredProgress);
-      let totalCorrect = 0;
-      for (const stats of Object.values(data.dailyStats)) {
-        totalCorrect += stats.correct;
-      }
-      current = totalCorrect;
+    } else if (badgeId === 'vor-nach-beginner' || badgeId === 'vor-nach-expert') {
+      const types = ['clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
+      current = types.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
+    } else if (badgeId === 'clock-all-types') {
+      const allTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
+      current = allTypes.filter(type => (data.lifetimeStats[type] || 0) >= 100).length;
     } else if (badgeId.startsWith('deutsch-')) {
       if (badgeId === 'deutsch-daily-10' || badgeId === 'deutsch-perfect-day') {
         const daily = data.dailyStats['deutsch-rechtschreibung'];

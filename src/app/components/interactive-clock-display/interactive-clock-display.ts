@@ -1,4 +1,4 @@
-import { Component, input, output, signal, ElementRef, ViewChild, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, signal, ElementRef, ViewChild, AfterViewInit, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-interactive-clock-display',
@@ -7,10 +7,15 @@ import { Component, input, output, signal, ElementRef, ViewChild, AfterViewInit,
   styleUrls: ['./interactive-clock-display.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InteractiveClockDisplayComponent implements AfterViewInit {
+export class InteractiveClockDisplayComponent implements AfterViewInit, OnChanges {
   // Target time (what student should match)
   targetHours = input.required<number>();
   targetMinutes = input.required<number>();
+
+  /** When true, hour hand is pre-set to correctHourAngle and cannot be dragged. */
+  lockHourHand = input<boolean>(false);
+  /** Pre-set angle for the hour hand when lockHourHand is true. */
+  initialHourAngle = input<number>(0);
 
   // User's current hand positions
   userHourAngle = output<number>();
@@ -36,13 +41,32 @@ export class InteractiveClockDisplayComponent implements AfterViewInit {
   private readonly radius = 80;
 
   ngAfterViewInit(): void {
-    // Initialize with current angles
+    this.syncHourHandLock();
     this.emitAngles();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Reset hands when a new problem loads (target time changed)
+    if (changes['targetHours'] || changes['targetMinutes']) {
+      this.currentMinuteAngle.set(0);
+      if (!this.lockHourHand()) {
+        this.currentHourAngle.set(0);
+      }
+    }
+    this.syncHourHandLock();
+  }
+
+  private syncHourHandLock(): void {
+    if (this.lockHourHand()) {
+      this.currentHourAngle.set(this.initialHourAngle());
+    }
   }
 
   startDrag(hand: 'hour' | 'minute', event: MouseEvent | TouchEvent): void {
     event.preventDefault();
     event.stopPropagation();
+
+    if (hand === 'hour' && this.lockHourHand()) return;
 
     if (hand === 'hour') {
       this.isDraggingHour.set(true);

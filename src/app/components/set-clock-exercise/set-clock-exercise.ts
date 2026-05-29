@@ -6,7 +6,7 @@ import { StatsService } from '../../services/stats.service';
 import { ExerciseStateService } from '../../services/exercise-state.service';
 import { createStatsAggregator } from '../../utils/stats-aggregator';
 
-export type ClockExerciseType = 'full' | 'half' | 'quarter' | 'fiveMin';
+export type ClockExerciseType = 'full' | 'half' | 'quarter' | 'fiveMin' | 'fiveMinAfter' | 'fiveMinBefore' | 'fiveMinHalf';
 export type TimeDisplayMode = 'digital' | 'german';
 
 export interface SetClockProblem {
@@ -42,10 +42,10 @@ export class SetClockExerciseComponent implements OnInit {
 
   // UI Layout
   displayMode = signal<TimeDisplayMode>('digital');
-  selectedTypes = signal<Set<ClockExerciseType>>(new Set(['full', 'half', 'quarter', 'fiveMin']));
+  selectedTypes = signal<Set<ClockExerciseType>>(new Set(['full', 'half', 'quarter', 'fiveMin', 'fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf']));
 
   // Available exercise types
-  readonly exerciseTypes: ClockExerciseType[] = ['full', 'half', 'quarter', 'fiveMin'];
+  readonly exerciseTypes: ClockExerciseType[] = ['full', 'half', 'quarter', 'fiveMin', 'fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf'];
 
   // Interactive Clock
   userHourAngle = signal(0);
@@ -65,6 +65,15 @@ export class SetClockExerciseComponent implements OnInit {
   readonly typeCorrectCount = this.statsAgg.correct;
   readonly typeIncorrectCount = this.statsAgg.incorrect;
   readonly typeTotalCount = this.statsAgg.total;
+
+  /** New exercise types that require the hour hand to be locked (auto-positioned). */
+  private readonly newTypes = new Set<ClockExerciseType>(['fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf']);
+
+  /** True when the current problem's hour hand should be auto-set and non-draggable. */
+  readonly lockHourHand = computed(() => {
+    const problem = this.currentProblem();
+    return problem ? this.newTypes.has(problem.type) : false;
+  });
 
   readonly targetTimeDisplay = computed(() => {
     const problem = this.currentProblem();
@@ -112,15 +121,19 @@ export class SetClockExerciseComponent implements OnInit {
 
   readonly lockedTypes = computed(() => {
     const lifetime = this.stats.lifetimeStatsByType();
+    const allTypes: ClockExerciseType[] = ['full', 'half', 'quarter', 'fiveMin', 'fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf'];
+    // New types are additionally hidden until fiveMin is mastered
+    const fiveMinMastered = (lifetime[`clock-setClock-fiveMin`] ?? 0) >= 100;
     return new Set<ClockExerciseType>(
-      (['full', 'half', 'quarter', 'fiveMin'] as ClockExerciseType[])
-        .filter(t => (lifetime[`clock-setClock-${t}`] ?? 0) < 100)
+      allTypes.filter(t => {
+        if (this.newTypes.has(t)) return fiveMinMastered && (lifetime[`clock-setClock-${t}`] ?? 0) >= 100;
+        return (lifetime[`clock-setClock-${t}`] ?? 0) >= 100;
+      })
     );
   });
 
-  /** True when all exercise types are unlocked — format selection is hidden and chosen randomly per problem. */
-  readonly autoFormatMode = computed(() => this.lockedTypes().size === 0);
-
+  /** True when all exercise types are mastered — format selection is hidden and chosen randomly per problem. */
+  readonly autoFormatMode = computed(() => this.exerciseTypes.every(t => this.lockedTypes().has(t)));
   isTypeLocked(type: ClockExerciseType): boolean {
     return this.lockedTypes().has(type);
   }
@@ -130,7 +143,10 @@ export class SetClockExerciseComponent implements OnInit {
       'full': 'Volle Stunden',
       'half': 'Halbe Stunden',
       'quarter': 'Viertelstunden',
-      'fiveMin': '5 Minuten'
+      'fiveMin': '5 Minuten',
+      'fiveMinAfter': 'Minuten nach',
+      'fiveMinBefore': 'Minuten vor',
+      'fiveMinHalf': 'Vor/Nach halb'
     };
     return labels[type];
   }
@@ -140,7 +156,10 @@ export class SetClockExerciseComponent implements OnInit {
       'full': '60',
       'half': '30',
       'quarter': '15',
-      'fiveMin': '05'
+      'fiveMin': '05',
+      'fiveMinAfter': '→',
+      'fiveMinBefore': '←',
+      'fiveMinHalf': '½'
     };
     return icons[type];
   }
@@ -196,6 +215,18 @@ export class SetClockExerciseComponent implements OnInit {
         hours = Math.floor(Math.random() * 12);
         minutes = Math.floor(Math.random() * 12) * 5;
         break;
+      case 'fiveMinAfter':
+        hours = Math.floor(Math.random() * 12);
+        minutes = (Math.floor(Math.random() * 5) + 1) * 5; // 5, 10, 15, 20, 25
+        break;
+      case 'fiveMinBefore':
+        hours = Math.floor(Math.random() * 12);
+        minutes = 60 - (Math.floor(Math.random() * 5) + 1) * 5; // 35, 40, 45, 50, 55
+        break;
+      case 'fiveMinHalf':
+        hours = Math.floor(Math.random() * 12);
+        minutes = [20, 25, 35, 40][Math.floor(Math.random() * 4)];
+        break;
     }
 
     // Ensure it's not in recent history
@@ -218,6 +249,18 @@ export class SetClockExerciseComponent implements OnInit {
           case 'fiveMin':
             hours = Math.floor(Math.random() * 12);
             minutes = Math.floor(Math.random() * 12) * 5;
+            break;
+          case 'fiveMinAfter':
+            hours = Math.floor(Math.random() * 12);
+            minutes = (Math.floor(Math.random() * 5) + 1) * 5;
+            break;
+          case 'fiveMinBefore':
+            hours = Math.floor(Math.random() * 12);
+            minutes = 60 - (Math.floor(Math.random() * 5) + 1) * 5;
+            break;
+          case 'fiveMinHalf':
+            hours = Math.floor(Math.random() * 12);
+            minutes = [20, 25, 35, 40][Math.floor(Math.random() * 4)];
             break;
         }
         if (!this.isProblemInHistory(hours, minutes)) break;
@@ -309,25 +352,33 @@ export class SetClockExerciseComponent implements OnInit {
     if (minutes === 0) {
       return `${currentHourName} Uhr`;
     } else if (minutes === 15) {
-      // Equivalent: "viertel nach [hour]" or "viertel [nextHour]"
       return Math.random() < 0.5 ? `viertel nach ${currentHourName}` : `viertel ${nextHourName}`;
     } else if (minutes === 30) {
       return `halb ${nextHourName}`;
     } else if (minutes === 45) {
-      // Equivalent: "viertel vor [nextHour]" or "dreiviertel [nextHour]"
       return Math.random() < 0.5 ? `viertel vor ${nextHourName}` : `dreiviertel ${nextHourName}`;
+    } else if (minutes === 5) {
+      return `fünf nach ${currentHourName}`;
+    } else if (minutes === 10) {
+      return `zehn nach ${currentHourName}`;
+    } else if (minutes === 20) {
+      return `zwanzig nach ${currentHourName}`;
+    } else if (minutes === 25) {
+      return `fünf vor halb ${nextHourName}`;
+    } else if (minutes === 35) {
+      return `fünf nach halb ${nextHourName}`;
+    } else if (minutes === 40) {
+      return `zwanzig vor ${nextHourName}`;
+    } else if (minutes === 50) {
+      return `zehn vor ${nextHourName}`;
+    } else if (minutes === 55) {
+      return `fünf vor ${nextHourName}`;
     } else {
-      // 5-minute intervals
-      const minuteWords = [
-        '', 'fünf', 'zehn', 'viertel', 'zwanzig', 'fünf',
-        'halb', 'fünf', 'zwanzig', 'viertel', 'zehn', 'fünf'
-      ];
-      const minuteWord = minuteWords[minutes / 5];
-
+      // Fallback for arbitrary minutes
       if (minutes < 30) {
-        return `${minuteWord} nach ${currentHourName}`;
+        return `${minutes} Minuten nach ${currentHourName}`;
       } else {
-        return `${minuteWord} vor ${nextHourName}`;
+        return `${60 - minutes} Minuten vor ${nextHourName}`;
       }
     }
   }
@@ -344,7 +395,7 @@ export class SetClockExerciseComponent implements OnInit {
     const hourDiff = Math.abs(this.normalizeAngle(userHour - problem.correctHourAngle));
     const minuteDiff = Math.abs(this.normalizeAngle(userMinute - problem.correctMinuteAngle));
 
-    const isHourCorrect = hourDiff <= 5 || hourDiff >= 355; // Handle angle wraparound
+    const isHourCorrect = this.newTypes.has(problem.type) || hourDiff <= 5 || hourDiff >= 355;
     const isMinuteCorrect = minuteDiff <= 5 || minuteDiff >= 355;
 
     const correct = isHourCorrect && isMinuteCorrect;

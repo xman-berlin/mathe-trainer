@@ -11,6 +11,9 @@ function allTypesWithCount(count: number): Record<string, number> {
     'clock-setClock-half': count,
     'clock-setClock-quarter': count,
     'clock-setClock-fiveMin': count,
+    'clock-setClock-fiveMinAfter': count,
+    'clock-setClock-fiveMinBefore': count,
+    'clock-setClock-fiveMinHalf': count,
   };
 }
 
@@ -47,8 +50,16 @@ describe('SetClockExerciseComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have all four exercise types', () => {
-    expect(component.exerciseTypes).toEqual(['full', 'half', 'quarter', 'fiveMin']);
+  it('should have all seven exercise types', () => {
+    expect(component.exerciseTypes).toEqual(['full', 'half', 'quarter', 'fiveMin', 'fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf']);
+  });
+
+  it('should have all seven types selected by default', () => {
+    const defaultTypes = component.selectedTypes();
+    expect(defaultTypes.size).toBe(7);
+    expect(defaultTypes.has('fiveMinAfter')).toBeTrue();
+    expect(defaultTypes.has('fiveMinBefore')).toBeTrue();
+    expect(defaultTypes.has('fiveMinHalf')).toBeTrue();
   });
 
   // ─── Type labels / icons ──────────────────────────────────────────────────
@@ -58,6 +69,9 @@ describe('SetClockExerciseComponent', () => {
     expect(component.getTypeLabel('half')).toBe('Halbe Stunden');
     expect(component.getTypeLabel('quarter')).toBe('Viertelstunden');
     expect(component.getTypeLabel('fiveMin')).toBe('5 Minuten');
+    expect(component.getTypeLabel('fiveMinAfter')).toBe('Minuten nach');
+    expect(component.getTypeLabel('fiveMinBefore')).toBe('Minuten vor');
+    expect(component.getTypeLabel('fiveMinHalf')).toBe('Vor/Nach halb');
   });
 
   it('should return correct type icons', () => {
@@ -65,6 +79,9 @@ describe('SetClockExerciseComponent', () => {
     expect(component.getTypeIcon('half')).toBe('30');
     expect(component.getTypeIcon('quarter')).toBe('15');
     expect(component.getTypeIcon('fiveMin')).toBe('05');
+    expect(component.getTypeIcon('fiveMinAfter')).toBe('→');
+    expect(component.getTypeIcon('fiveMinBefore')).toBe('←');
+    expect(component.getTypeIcon('fiveMinHalf')).toBe('½');
   });
 
   // ─── Type selection ───────────────────────────────────────────────────────
@@ -81,23 +98,24 @@ describe('SetClockExerciseComponent', () => {
     expect(component.isTypeSelected('half')).toBeTrue();
   });
 
-  it('should deselect a type when it is unlocked and not the last one', () => {
-    // Unlock 'full' by giving it ≥ 100 answers
-    lifetimeStats.set({ 'clock-setClock-full': 100 });
+  it('should deselect a type when it is not yet mastered and not the last one', () => {
+    // 'full' has < 100 answers → not locked in → can be deselected
+    lifetimeStats.set({ 'clock-setClock-full': 0 });
     component.selectedTypes.set(new Set(['full', 'half']));
     component.toggleType('full');
     expect(component.isTypeSelected('full')).toBeFalse();
   });
 
-  it('should not deselect the last remaining type even when unlocked', () => {
-    lifetimeStats.set({ 'clock-setClock-full': 100 });
+  it('should not deselect the last remaining type even when not mastered', () => {
+    lifetimeStats.set({ 'clock-setClock-full': 0 });
     component.selectedTypes.set(new Set(['full']));
     component.toggleType('full');
     expect(component.isTypeSelected('full')).toBeTrue();
   });
 
-  it('should not deselect a locked type (< 100 lifetime answers)', () => {
-    // lifetimeStats is empty → all types locked
+  it('should not deselect a mastered type (≥ 100 lifetime answers)', () => {
+    // lifetimeStats has 100 for full → locked in → cannot be deselected
+    lifetimeStats.set({ 'clock-setClock-full': 100 });
     component.selectedTypes.set(new Set(['full', 'half']));
     component.toggleType('full');
     expect(component.isTypeSelected('full')).toBeTrue();
@@ -105,36 +123,36 @@ describe('SetClockExerciseComponent', () => {
 
   // ─── Locked types ─────────────────────────────────────────────────────────
 
-  it('should report all types locked when lifetime stats are empty', () => {
-    const types: ClockExerciseType[] = ['full', 'half', 'quarter', 'fiveMin'];
+  it('should report all types unlocked (not locked in) when lifetime stats are empty', () => {
+    const types: ClockExerciseType[] = ['full', 'half', 'quarter', 'fiveMin', 'fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf'];
     for (const t of types) {
-      expect(component.isTypeLocked(t)).toBeTrue();
+      expect(component.isTypeLocked(t)).toBeFalse();
     }
   });
 
-  it('should report a type unlocked once it reaches 100 lifetime answers', () => {
+  it('should report a type locked in once it reaches 100 lifetime answers', () => {
     lifetimeStats.set({ 'clock-setClock-half': 100 });
-    expect(component.isTypeLocked('half')).toBeFalse();
-    expect(component.isTypeLocked('full')).toBeTrue(); // others still locked
+    expect(component.isTypeLocked('half')).toBeTrue();
+    expect(component.isTypeLocked('full')).toBeFalse(); // others not yet locked in
   });
 
-  it('should keep a type locked when it has exactly 99 answers', () => {
+  it('should not lock a type when it has exactly 99 answers', () => {
     lifetimeStats.set({ 'clock-setClock-full': 99 });
-    expect(component.isTypeLocked('full')).toBeTrue();
+    expect(component.isTypeLocked('full')).toBeFalse();
   });
 
   // ─── autoFormatMode ───────────────────────────────────────────────────────
 
-  it('should have autoFormatMode false when any type is still locked', () => {
+  it('should have autoFormatMode false when no types are mastered yet', () => {
     expect(component.autoFormatMode()).toBeFalse();
   });
 
-  it('should have autoFormatMode false when only some types are unlocked', () => {
+  it('should have autoFormatMode false when only some types are mastered', () => {
     lifetimeStats.set({ 'clock-setClock-full': 100, 'clock-setClock-half': 100 });
     expect(component.autoFormatMode()).toBeFalse();
   });
 
-  it('should have autoFormatMode true when all four types reach 100 answers', () => {
+  it('should have autoFormatMode true when all types reach 100 answers', () => {
     lifetimeStats.set(allTypesWithCount(100));
     expect(component.autoFormatMode()).toBeTrue();
   });
@@ -334,6 +352,8 @@ describe('SetClockExerciseComponent', () => {
   });
 
   it('should mark answer as incorrect when hour angle is far off', () => {
+    // Use a base type (not a new locked-hour type) so hour matters
+    component.selectedTypes.set(new Set(['full']));
     component.generateProblem();
     const p = component.currentProblem()!;
     // Set minute correct but hour wildly wrong (90° off)
@@ -361,5 +381,68 @@ describe('SetClockExerciseComponent', () => {
     component.userMinuteAngle.set(p.correctMinuteAngle);
     component.submitAnswer();
     expect(statsService.recordResult).toHaveBeenCalledWith(true, `clock-setClock-${p.type}`);
+  });
+
+  // ─── New exercise types ───────────────────────────────────────────────────
+
+  it('should generate only 5–25 minute values for fiveMinAfter', () => {
+    component.selectedTypes.set(new Set(['fiveMinAfter']));
+    for (let i = 0; i < 30; i++) {
+      component.generateProblem();
+      expect([5, 10, 15, 20, 25]).toContain(component.currentProblem()!.minutes);
+    }
+  });
+
+  it('should generate only 35–55 minute values for fiveMinBefore', () => {
+    component.selectedTypes.set(new Set(['fiveMinBefore']));
+    for (let i = 0; i < 30; i++) {
+      component.generateProblem();
+      expect([35, 40, 45, 50, 55]).toContain(component.currentProblem()!.minutes);
+    }
+  });
+
+  it('should generate only 20/25/35/40 minute values for fiveMinHalf', () => {
+    component.selectedTypes.set(new Set(['fiveMinHalf']));
+    for (let i = 0; i < 30; i++) {
+      component.generateProblem();
+      expect([20, 25, 35, 40]).toContain(component.currentProblem()!.minutes);
+    }
+  });
+
+  it('should lock hour hand for new exercise types', () => {
+    component.selectedTypes.set(new Set(['fiveMinAfter']));
+    component.generateProblem();
+    expect(component.lockHourHand()).toBeTrue();
+  });
+
+  it('should not lock hour hand for base exercise types', () => {
+    component.selectedTypes.set(new Set(['full']));
+    component.generateProblem();
+    expect(component.lockHourHand()).toBeFalse();
+  });
+
+  it('should accept correct minute angle even when hour angle is wrong for new types', () => {
+    component.selectedTypes.set(new Set(['fiveMinAfter']));
+    component.generateProblem();
+    const p = component.currentProblem()!;
+    // Wrong hour angle, correct minute angle
+    component.userHourAngle.set((p.correctHourAngle + 90) % 360);
+    component.userMinuteAngle.set(p.correctMinuteAngle);
+    component.submitAnswer();
+    expect(component.isCorrect()).toBeTrue();
+  });
+
+  it('should keep new types not locked in when fiveMin is not yet mastered', () => {
+    lifetimeStats.set({ 'clock-setClock-fiveMin': 0 });
+    expect(component.isTypeLocked('fiveMinAfter')).toBeFalse();
+    expect(component.isTypeLocked('fiveMinBefore')).toBeFalse();
+    expect(component.isTypeLocked('fiveMinHalf')).toBeFalse();
+  });
+
+  it('should lock in new types once fiveMin is mastered and they have 100 answers', () => {
+    lifetimeStats.set(allTypesWithCount(100));
+    expect(component.isTypeLocked('fiveMinAfter')).toBeTrue();
+    expect(component.isTypeLocked('fiveMinBefore')).toBeTrue();
+    expect(component.isTypeLocked('fiveMinHalf')).toBeTrue();
   });
 });

@@ -31,12 +31,15 @@ async function setLifetimeStats(
   );
 }
 
-/** Stats that unlock all four types (≥ 100 answers each). */
+/** Stats that unlock all seven types (≥ 100 answers each). */
 const ALL_UNLOCKED = {
   'clock-setClock-full': 100,
   'clock-setClock-half': 100,
   'clock-setClock-quarter': 100,
   'clock-setClock-fiveMin': 100,
+  'clock-setClock-fiveMinAfter': 100,
+  'clock-setClock-fiveMinBefore': 100,
+  'clock-setClock-fiveMinHalf': 100,
 };
 
 /** Stats that keep all types locked (0 answers). */
@@ -75,21 +78,21 @@ test.describe('Uhrzeit Zeiger setzen', () => {
 
   // ─── Type selector ────────────────────────────────────────────────────────
 
-  test('should show all four type buttons', async ({ page }) => {
+  test('should show all seven type buttons', async ({ page }) => {
     await page.goto(ROUTE);
-    await expect(page.locator('.type-btn')).toHaveCount(4);
+    await expect(page.locator('.type-btn')).toHaveCount(7);
   });
 
-  test('should show all four type buttons as active by default', async ({ page }) => {
+  test('should show all seven type buttons as active by default', async ({ page }) => {
     await page.goto(ROUTE);
-    await expect(page.locator('.type-btn.active')).toHaveCount(4);
+    await expect(page.locator('.type-btn.active')).toHaveCount(7);
   });
 
   test('should show lock icons on all type buttons when stats are empty', async ({ page }) => {
     await setLifetimeStats(page, ALL_LOCKED);
     await page.goto(ROUTE);
     // Every type button should carry the lock-icon span
-    await expect(page.locator('.type-btn .lock-icon')).toHaveCount(4);
+    await expect(page.locator('.type-btn .lock-icon')).toHaveCount(7);
   });
 
   test('should not show lock icons when all types are unlocked', async ({ page }) => {
@@ -127,10 +130,13 @@ test.describe('Uhrzeit Zeiger setzen', () => {
     await page.goto(ROUTE);
 
     const btns = page.locator('.type-btn');
-    // Deselect three types, leaving only the first
+    // Deselect six types, leaving only the first
     await btns.nth(1).click();
     await btns.nth(2).click();
     await btns.nth(3).click();
+    await btns.nth(4).click();
+    await btns.nth(5).click();
+    await btns.nth(6).click();
     await expect(page.locator('.type-btn.active')).toHaveCount(1);
 
     // Try to deselect the last one — it must stay active

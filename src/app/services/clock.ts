@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-export type ClockExerciseType = 'full' | 'half' | 'quarter' | 'fiveMin';
+export type ClockExerciseType = 'full' | 'half' | 'quarter' | 'fiveMin' | 'fiveMinAfter' | 'fiveMinBefore' | 'fiveMinHalf';
 export type TimeOfDay = 'morning' | 'afternoon';
 
 export interface ClockProblem {
@@ -46,6 +46,24 @@ export class ClockService {
         // Five minute intervals: 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55
         hours = Math.floor(Math.random() * 12);
         minutes = Math.floor(Math.random() * 12) * 5; // 0-11 * 5 = 0, 5, 10, ..., 55
+        break;
+
+      case 'fiveMinAfter':
+        // 5–25 minutes after full hour
+        hours = Math.floor(Math.random() * 12);
+        minutes = (Math.floor(Math.random() * 5) + 1) * 5; // 5, 10, 15, 20, 25
+        break;
+
+      case 'fiveMinBefore':
+        // 5–25 minutes before full hour
+        hours = Math.floor(Math.random() * 12);
+        minutes = 60 - (Math.floor(Math.random() * 5) + 1) * 5; // 35, 40, 45, 50, 55
+        break;
+
+      case 'fiveMinHalf':
+        // 5 or 10 minutes before/after half hour
+        hours = Math.floor(Math.random() * 12);
+        minutes = [20, 25, 35, 40][Math.floor(Math.random() * 4)];
         break;
     }
 
@@ -98,7 +116,10 @@ export class ClockService {
       'full': 'Volle Stunden',
       'half': 'Halbe Stunden',
       'quarter': 'Viertelstunden',
-      'fiveMin': '5 Minuten'
+      'fiveMin': '5 Minuten',
+      'fiveMinAfter': 'Minuten nach',
+      'fiveMinBefore': 'Minuten vor',
+      'fiveMinHalf': 'Vor/Nach halb'
     };
     return labels[type];
   }
@@ -111,7 +132,10 @@ export class ClockService {
       'full': '60',
       'half': '30',
       'quarter': '15',
-      'fiveMin': '05'
+      'fiveMin': '05',
+      'fiveMinAfter': '→',
+      'fiveMinBefore': '←',
+      'fiveMinHalf': '½'
     };
     return icons[type];
   }

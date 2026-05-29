@@ -75,16 +75,18 @@
     <g
       [style.transform]="'rotate(' + hourAngle() + 'deg)'"
       [style.transform-origin]="'100px 100px'">
-      <!-- Invisible wide touch target for easier grabbing -->
-      <line
-        x1="100"
-        y1="100"
-        x2="100"
-        y2="50"
-        class="hour-hand-touch-target"
-        (mousedown)="startDrag('hour', $event)"
-        (touchstart)="startDrag('hour', $event)"
-      />
+      <!-- Invisible wide touch target for easier grabbing (only when not locked) -->
+      @if (!lockHourHand()) {
+        <line
+          x1="100"
+          y1="100"
+          x2="100"
+          y2="50"
+          class="hour-hand-touch-target"
+          (mousedown)="startDrag('hour', $event)"
+          (touchstart)="startDrag('hour', $event)"
+        />
+      }
       <!-- Visible hand -->
       <line
         x1="100"
@@ -93,24 +95,21 @@
         y2="50"
         class="hour-hand"
         [class.dragging]="isDraggingHour()"
+        [class.hour-hand--locked]="lockHourHand()"
       />
-      <!-- Touch handle at the end -->
-      <circle
-        cx="100"
-        cy="50"
-        r="8"
-        class="hour-hand-handle"
-        [class.dragging]="isDraggingHour()"
-        (mousedown)="startDrag('hour', $event)"
-        (touchstart)="startDrag('hour', $event)"
-      />
+      <!-- Touch handle at the end (only when not locked) -->
+      @if (!lockHourHand()) {
+        <circle
+          cx="100"
+          cy="50"
+          r="8"
+          class="hour-hand-handle"
+          [class.dragging]="isDraggingHour()"
+          (mousedown)="startDrag('hour', $event)"
+          (touchstart)="startDrag('hour', $event)"
+        />
+      }
     </g>
 
-    <!-- Drag instruction overlay (shown when not dragging) -->
-    @if (!isDraggingHour() && !isDraggingMinute()) {
-      <text x="100" y="140" class="drag-instruction" text-anchor="middle">
-        Ziehe die Zeiger
-      </text>
-    }
   </svg>
 </div>

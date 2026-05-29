@@ -10,7 +10,7 @@
             class="type-btn"
             [class.active]="isTypeSelected(type)"
             [class.locked]="lockedTypes().has(type)"
-            [title]="lockedTypes().has(type) ? 'Erreiche Bronze, um diese Aufgabenart abzuw\u00e4hlen!' : ''"
+            [title]="lockedTypes().has(type) ? 'Du hast diese Aufgabenart gemeistert – sie bleibt immer aktiv!' : ''"
             (click)="toggleType(type)">
             <span class="type-icon">{{ getTypeIcon(type) }}</span>
             <span class="type-label">{{ getTypeLabel(type) }}</span>
@@ -23,9 +23,16 @@
 
       <!-- Interactive Clock -->
       <div class="clock-section">
+        @if (lockHourHand()) {
+          <div class="minute-hand-hint">Setze den Minutenzeiger!</div>
+        } @else {
+          <div class="minute-hand-hint">Ziehe die Zeiger!</div>
+        }
         <app-interactive-clock-display
           [targetHours]="targetHours()"
           [targetMinutes]="targetMinutes()"
+          [lockHourHand]="lockHourHand()"
+          [initialHourAngle]="currentProblem()?.correctHourAngle ?? 0"
           (userHourAngle)="onUserHourAngleChange($event)"
           (userMinuteAngle)="onUserMinuteAngleChange($event)">
         </app-interactive-clock-display>

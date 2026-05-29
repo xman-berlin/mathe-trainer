@@ -136,6 +136,17 @@
   width: 100%;
 }
 
+.minute-hand-hint {
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
 /* Type Selector */
 .type-selector {
   display: flex;

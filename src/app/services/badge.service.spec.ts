@@ -152,3 +152,93 @@ describe('BadgeService — Deutsch badges', () => {
     });
   });
 });
+
+describe('BadgeService — Vor/Nach clock badges', () => {
+  let service: BadgeService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection(), BadgeService],
+    });
+    service = TestBed.inject(BadgeService);
+  });
+
+  function makeData(lifetimeStats: Record<string, number>): BadgeCheckData {
+    return {
+      lifetimeStats,
+      dailyStats: {},
+      currentStreak: 0,
+      longestStreak: 0,
+      bestStreaksByType: {},
+      timeTrialBests: [],
+      masteredReihen: [],
+    };
+  }
+
+  function check(badgeId: string, data: BadgeCheckData): boolean {
+    const badge = service.getBadgeById(badgeId);
+    if (!badge) throw new Error(`Badge ${badgeId} not found`);
+    return badge.checkFunction(data);
+  }
+
+  describe('vor-nach-beginner (≥25 combined)', () => {
+    it('should NOT trigger at 24', () => {
+      expect(check('vor-nach-beginner', makeData({
+        'clock-setClock-fiveMinAfter': 10,
+        'clock-setClock-fiveMinBefore': 10,
+        'clock-setClock-fiveMinHalf': 4,
+      }))).toBeFalse();
+    });
+    it('should trigger at 25', () => {
+      expect(check('vor-nach-beginner', makeData({
+        'clock-setClock-fiveMinAfter': 10,
+        'clock-setClock-fiveMinBefore': 10,
+        'clock-setClock-fiveMinHalf': 5,
+      }))).toBeTrue();
+    });
+    it('should trigger with only one type', () => {
+      expect(check('vor-nach-beginner', makeData({
+        'clock-setClock-fiveMinAfter': 25,
+      }))).toBeTrue();
+    });
+  });
+
+  describe('vor-nach-expert (≥100 combined)', () => {
+    it('should NOT trigger at 99', () => {
+      expect(check('vor-nach-expert', makeData({
+        'clock-setClock-fiveMinAfter': 99,
+      }))).toBeFalse();
+    });
+    it('should trigger at 100', () => {
+      expect(check('vor-nach-expert', makeData({
+        'clock-setClock-fiveMinAfter': 40,
+        'clock-setClock-fiveMinBefore': 40,
+        'clock-setClock-fiveMinHalf': 20,
+      }))).toBeTrue();
+    });
+  });
+
+  describe('clock-all-types (all 7 setClock types ≥100 each)', () => {
+    const allTypes = {
+      'clock-setClock-full': 100,
+      'clock-setClock-half': 100,
+      'clock-setClock-quarter': 100,
+      'clock-setClock-fiveMin': 100,
+      'clock-setClock-fiveMinAfter': 100,
+      'clock-setClock-fiveMinBefore': 100,
+      'clock-setClock-fiveMinHalf': 100,
+    };
+
+    it('should NOT trigger when one type is missing', () => {
+      const partial = { ...allTypes, 'clock-setClock-fiveMinHalf': 99 };
+      expect(check('clock-all-types', makeData(partial))).toBeFalse();
+    });
+    it('should trigger when all 7 types have ≥100', () => {
+      expect(check('clock-all-types', makeData(allTypes))).toBeTrue();
+    });
+    it('should trigger with more than 100', () => {
+      const over = { ...allTypes, 'clock-setClock-fiveMinAfter': 150 };
+      expect(check('clock-all-types', makeData(over))).toBeTrue();
+    });
+  });
+});

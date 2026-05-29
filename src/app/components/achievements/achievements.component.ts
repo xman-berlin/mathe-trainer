@@ -7,7 +7,7 @@ import { DifficultyService } from '../../services/difficulty.service';
 import type { DifficultyOperationType } from '../../models/user.model';
 
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'word-problems';
-type ClockExerciseType = 'clock-full' | 'clock-half' | 'clock-quarter' | 'clock-fiveMin';
+type ClockExerciseType = 'clock-full' | 'clock-half' | 'clock-quarter' | 'clock-fiveMin' | 'clock-setClock-full' | 'clock-setClock-half' | 'clock-setClock-quarter' | 'clock-setClock-fiveMin' | 'clock-setClock-fiveMinAfter' | 'clock-setClock-fiveMinBefore' | 'clock-setClock-fiveMinHalf';
 type MedalLevel = 'none' | 'bronze' | 'silver' | 'gold';
 
 @Component({
@@ -46,7 +46,14 @@ export class AchievementsComponent implements OnInit {
     { key: 'clock-full', label: 'Volle Stunde', icon: '🕐' },
     { key: 'clock-half', label: 'Halbe Stunde', icon: '🕧' },
     { key: 'clock-quarter', label: 'Viertelstunde', icon: '🕒' },
-    { key: 'clock-fiveMin', label: '5-Minuten', icon: '🕔' }
+    { key: 'clock-fiveMin', label: '5 Minuten', icon: '🕔' },
+    { key: 'clock-setClock-full', label: 'Zeiger: Volle Stunde', icon: '🕐' },
+    { key: 'clock-setClock-half', label: 'Zeiger: Halbe Stunde', icon: '🕧' },
+    { key: 'clock-setClock-quarter', label: 'Zeiger: Viertelstunde', icon: '🕒' },
+    { key: 'clock-setClock-fiveMin', label: 'Zeiger: 5 Minuten', icon: '🕔' },
+    { key: 'clock-setClock-fiveMinAfter', label: 'Zeiger: Minuten nach', icon: '→' },
+    { key: 'clock-setClock-fiveMinBefore', label: 'Zeiger: Minuten vor', icon: '←' },
+    { key: 'clock-setClock-fiveMinHalf', label: 'Zeiger: Vor/Nach halb', icon: '½' },
   ];
 
   ngOnInit(): void {
