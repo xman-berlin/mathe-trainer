@@ -31,7 +31,7 @@ async function setLifetimeStats(
   );
 }
 
-/** Stats that unlock all seven types (≥ 100 answers each). */
+/** Stats where all seven types are mastered (≥ 100 correct) — permanently active, can't be deselected. */
 const ALL_UNLOCKED = {
   'clock-setClock-full': 100,
   'clock-setClock-half': 100,
@@ -42,7 +42,7 @@ const ALL_UNLOCKED = {
   'clock-setClock-fiveMinHalf': 100,
 };
 
-/** Stats that keep all types locked (0 answers). */
+/** Stats with no answers yet — types are freely deselectable, no lock icons shown. */
 const ALL_LOCKED = {};
 
 test.describe('Uhrzeit Zeiger setzen', () => {
@@ -59,6 +59,13 @@ test.describe('Uhrzeit Zeiger setzen', () => {
   });
 
   test('should display interactive clock with draggable hands', async ({ page }) => {
+    // Restrict to basic types so the hour hand is never auto-locked
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        'schlaufuchs-setClock-selectedTypes',
+        JSON.stringify(['full', 'half', 'quarter', 'fiveMin']),
+      );
+    });
     await page.goto(ROUTE);
     await expect(page.locator('.clock-svg')).toBeVisible();
     await expect(page.locator('.hour-hand-handle')).toBeVisible();
@@ -89,23 +96,23 @@ test.describe('Uhrzeit Zeiger setzen', () => {
   });
 
   test('should show lock icons on all type buttons when stats are empty', async ({ page }) => {
-    await setLifetimeStats(page, ALL_LOCKED);
+    await setLifetimeStats(page, ALL_UNLOCKED);
     await page.goto(ROUTE);
-    // Every type button should carry the lock-icon span
+    // Every type button should carry the lock-icon span (mastered = permanently locked)
     await expect(page.locator('.type-btn .lock-icon')).toHaveCount(7);
   });
 
   test('should not show lock icons when all types are unlocked', async ({ page }) => {
-    await setLifetimeStats(page, ALL_UNLOCKED);
+    await setLifetimeStats(page, ALL_LOCKED);
     await page.goto(ROUTE);
     await expect(page.locator('.type-btn .lock-icon')).toHaveCount(0);
   });
 
   test('should not deselect a locked type when clicked', async ({ page }) => {
-    await setLifetimeStats(page, ALL_LOCKED);
+    await setLifetimeStats(page, ALL_UNLOCKED);
     await page.goto(ROUTE);
 
-    // Click the first type button (it's locked)
+    // Click the first type button (it's locked / mastered)
     const firstBtn = page.locator('.type-btn').first();
     await expect(firstBtn).toHaveClass(/active/);
     await firstBtn.click();
@@ -114,11 +121,11 @@ test.describe('Uhrzeit Zeiger setzen', () => {
   });
 
   test('should allow deselecting a type once it is unlocked', async ({ page }) => {
-    // Unlock all types so buttons are deselectable
-    await setLifetimeStats(page, ALL_UNLOCKED);
+    // Types not yet mastered (<100) are freely deselectable
+    await setLifetimeStats(page, ALL_LOCKED);
     await page.goto(ROUTE);
 
-    // All 4 active; click the first one to deselect it
+    // All 7 active; click the first one to deselect it
     const firstBtn = page.locator('.type-btn').first();
     await expect(firstBtn).toHaveClass(/active/);
     await firstBtn.click();
@@ -126,7 +133,7 @@ test.describe('Uhrzeit Zeiger setzen', () => {
   });
 
   test('should not deselect the last remaining active type even when unlocked', async ({ page }) => {
-    await setLifetimeStats(page, ALL_UNLOCKED);
+    await setLifetimeStats(page, ALL_LOCKED);
     await page.goto(ROUTE);
 
     const btns = page.locator('.type-btn');
@@ -199,9 +206,9 @@ test.describe('Uhrzeit Zeiger setzen', () => {
     const germanBtn = page.locator('.mode-btn').nth(1);
     await germanBtn.click();
 
-    const targetValue = await page.locator('.target-time-input').inputValue();
+    // Use toHaveValue to wait for the Angular signal update to propagate
     // German expressions contain letters, not just digits and ':'
-    expect(targetValue).toMatch(/[a-zäöü]/i);
+    await expect(page.locator('.target-time-input')).toHaveValue(/[a-zäöü]/i);
   });
 
   test('target-time-input should have .german class in german mode', async ({ page }) => {
@@ -274,7 +281,7 @@ test.describe('Uhrzeit Zeiger setzen', () => {
   // ─── Persistent type selection ────────────────────────────────────────────
 
   test('should persist type selection across page reloads', async ({ page }) => {
-    await setLifetimeStats(page, ALL_UNLOCKED);
+    await setLifetimeStats(page, ALL_LOCKED);
     await page.goto(ROUTE);
 
     // Deselect all but 'fiveMinAfter' (last button, index 4)
