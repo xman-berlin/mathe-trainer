@@ -270,4 +270,37 @@ test.describe('Uhrzeit Zeiger setzen', () => {
     await page.locator('.submit-btn').click();
     await expect(page.locator('.submit-btn')).toBeDisabled();
   });
+
+  // ─── Persistent type selection ────────────────────────────────────────────
+
+  test('should persist type selection across page reloads', async ({ page }) => {
+    await setLifetimeStats(page, ALL_UNLOCKED);
+    await page.goto(ROUTE);
+
+    // Deselect all but 'fiveMinAfter' (last button, index 4)
+    const btns = page.locator('.type-btn');
+    await btns.nth(0).click(); // full
+    await btns.nth(1).click(); // half
+    await btns.nth(2).click(); // quarter
+    await btns.nth(3).click(); // fiveMin
+    await btns.nth(5).click(); // fiveMinBefore
+    await btns.nth(6).click(); // fiveMinHalf
+    await expect(page.locator('.type-btn.active')).toHaveCount(1);
+
+    // Reload the page
+    await page.reload();
+    await page.waitForSelector('.type-btn');
+
+    // Selection should be restored
+    await expect(page.locator('.type-btn.active')).toHaveCount(1);
+    await expect(btns.nth(4)).toHaveClass(/active/);
+  });
+
+  test('should show all seven types when localStorage is empty', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.removeItem('schlaufuchs-setClock-selectedTypes');
+    });
+    await page.goto(ROUTE);
+    await expect(page.locator('.type-btn.active')).toHaveCount(7);
+  });
 });

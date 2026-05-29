@@ -54,12 +54,70 @@ describe('SetClockExerciseComponent', () => {
     expect(component.exerciseTypes).toEqual(['full', 'half', 'quarter', 'fiveMin', 'fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf']);
   });
 
-  it('should have all seven types selected by default', () => {
+  it('should have all seven types selected by default (when no saved selection)', () => {
+    localStorage.removeItem('schlaufuchs-setClock-selectedTypes');
+    // Re-create component without saved state
+    fixture = TestBed.createComponent(SetClockExerciseComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
     const defaultTypes = component.selectedTypes();
     expect(defaultTypes.size).toBe(7);
     expect(defaultTypes.has('fiveMinAfter')).toBeTrue();
     expect(defaultTypes.has('fiveMinBefore')).toBeTrue();
     expect(defaultTypes.has('fiveMinHalf')).toBeTrue();
+  });
+
+  // ─── Persistent type selection ────────────────────────────────────────────
+
+  it('should save selected types to localStorage on toggle', () => {
+    localStorage.removeItem('schlaufuchs-setClock-selectedTypes');
+    // deselect 'half' (not locked, multiple types active)
+    component.selectedTypes.set(new Set(['full', 'half', 'quarter']));
+    component['saveSelectedTypes'](new Set(['full', 'quarter']));
+    const raw = localStorage.getItem('schlaufuchs-setClock-selectedTypes');
+    expect(raw).not.toBeNull();
+    const parsed = JSON.parse(raw!);
+    expect(parsed).toContain('full');
+    expect(parsed).toContain('quarter');
+    expect(parsed).not.toContain('half');
+  });
+
+  it('should restore saved types from localStorage on init', () => {
+    localStorage.setItem('schlaufuchs-setClock-selectedTypes', JSON.stringify(['fiveMinAfter', 'fiveMinBefore']));
+    fixture = TestBed.createComponent(SetClockExerciseComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    expect(component.selectedTypes().size).toBe(2);
+    expect(component.selectedTypes().has('fiveMinAfter')).toBeTrue();
+    expect(component.selectedTypes().has('fiveMinBefore')).toBeTrue();
+    expect(component.selectedTypes().has('full')).toBeFalse();
+  });
+
+  it('should fall back to all types when localStorage contains invalid data', () => {
+    localStorage.setItem('schlaufuchs-setClock-selectedTypes', 'not-json{{');
+    fixture = TestBed.createComponent(SetClockExerciseComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    expect(component.selectedTypes().size).toBe(7);
+  });
+
+  it('should fall back to all types when localStorage contains unknown type keys', () => {
+    localStorage.setItem('schlaufuchs-setClock-selectedTypes', JSON.stringify(['unknown-type']));
+    fixture = TestBed.createComponent(SetClockExerciseComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    expect(component.selectedTypes().size).toBe(7);
+  });
+
+  it('should persist selection after toggleType', () => {
+    localStorage.removeItem('schlaufuchs-setClock-selectedTypes');
+    // Ensure all 7 types active so we can deselect one
+    component.selectedTypes.set(new Set(['full', 'half', 'quarter', 'fiveMin', 'fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf']));
+    // Make types not locked (0 lifetime stats already set in beforeEach)
+    component.toggleType('half');
+    const saved = JSON.parse(localStorage.getItem('schlaufuchs-setClock-selectedTypes')!);
+    expect(saved).not.toContain('half');
+    expect(saved).toContain('full');
   });
 
   // ─── Type labels / icons ──────────────────────────────────────────────────

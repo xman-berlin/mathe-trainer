@@ -40,9 +40,12 @@ export class SetClockExerciseComponent implements OnInit {
   readonly confettiPieces = this.exerciseState.confettiPieces;
   get confettiX() { return this.exerciseState.confettiX; }
 
+  private readonly STORAGE_KEY = 'schlaufuchs-setClock-selectedTypes';
+  private readonly ALL_TYPES: ClockExerciseType[] = ['full', 'half', 'quarter', 'fiveMin', 'fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf'];
+
   // UI Layout
   displayMode = signal<TimeDisplayMode>('digital');
-  selectedTypes = signal<Set<ClockExerciseType>>(new Set(['full', 'half', 'quarter', 'fiveMin', 'fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf']));
+  selectedTypes = signal<Set<ClockExerciseType>>(this.loadSelectedTypes());
 
   // Available exercise types
   readonly exerciseTypes: ClockExerciseType[] = ['full', 'half', 'quarter', 'fiveMin', 'fiveMinAfter', 'fiveMinBefore', 'fiveMinHalf'];
@@ -112,6 +115,7 @@ export class SetClockExerciseComponent implements OnInit {
       current.add(type);
     }
     this.selectedTypes.set(current);
+    this.saveSelectedTypes(current);
     this.generateProblem();
   }
 
@@ -414,5 +418,31 @@ export class SetClockExerciseComponent implements OnInit {
     while (angle < 0) angle += 360;
     while (angle >= 360) angle -= 360;
     return angle;
+  }
+
+  private loadSelectedTypes(): Set<ClockExerciseType> {
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (raw) {
+        const parsed: unknown = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const valid = (parsed as string[]).filter((t): t is ClockExerciseType =>
+            this.ALL_TYPES.includes(t as ClockExerciseType)
+          );
+          if (valid.length > 0) return new Set(valid);
+        }
+      }
+    } catch {
+      // ignore corrupt storage
+    }
+    return new Set(this.ALL_TYPES);
+  }
+
+  private saveSelectedTypes(types: Set<ClockExerciseType>): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(Array.from(types)));
+    } catch {
+      // ignore storage errors
+    }
   }
 }
