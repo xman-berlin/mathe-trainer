@@ -169,6 +169,31 @@ describe('DeutschService', () => {
       expect(w2Entries.length).toBe(3);
     });
 
+    it('Phase 1: excludes words at weight 1 from session', async () => {
+      mockSupabase.getVocabAssignmentsForUser.and.resolveTo([
+        makeAssignment({ id: 'a1', list_id: 'list-1', assigned_at: '2025-01-02T00:00:00Z' }),
+      ]);
+      mockSupabase.getWordProgressForUser.and.resolveTo([
+        makeProgress({ word_id: 'w1', weight: 1 }),
+        makeProgress({ word_id: 'w2', weight: 3 }),
+      ]);
+      mockSupabase.getVocabListWords.and.resolveTo([
+        makeWord({ id: 'w1', word: 'Hund' }),
+        makeWord({ id: 'w2', word: 'Katze' }),
+      ]);
+
+      await service.loadUserData('user-1');
+      const session = await service.buildSession('user-1');
+
+      // w1 at weight 1 → excluded
+      const w1Entries = session.filter((w) => w.wordId === 'w1');
+      expect(w1Entries.length).toBe(0);
+
+      // w2 at weight 3 → appears 3 times
+      const w2Entries = session.filter((w) => w.wordId === 'w2');
+      expect(w2Entries.length).toBe(3);
+    });
+
     it('Phase 1: includes only active list when any active word weight > 1', async () => {
       mockSupabase.getVocabAssignmentsForUser.and.resolveTo([
         makeAssignment({ id: 'a1', list_id: 'list-1', assigned_at: '2025-01-02T00:00:00Z' }),

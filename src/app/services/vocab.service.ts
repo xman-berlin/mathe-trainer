@@ -81,9 +81,10 @@ export class DeutschService {
     const sessionWords: VocabSessionWord[] = [];
 
     if (isPhase1) {
-      // Only active list
+      // Only active list, only words that still need drilling (weight > 1)
       for (const w of activeWords) {
         const weight = Math.min(MAX_WORD_WEIGHT, progressMap[w.id] ?? DEFAULT_WORD_WEIGHT);
+        if (weight <= 1) continue;
         sessionWords.push({ wordId: w.id, word: w.word, listId: w.list_id, weight });
       }
     } else {
