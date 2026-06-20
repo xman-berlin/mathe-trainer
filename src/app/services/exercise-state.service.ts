@@ -23,7 +23,11 @@ export class ExerciseStateService {
   readonly confettiPieces = Array.from({ length: 20 }, (_, i) => i);
   readonly confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
 
+  /** Override in tests to avoid long waits. */
+  milestoneHideDelay = 2000;
+
   private milestones = [5, 10, 20, 30, 40, 50];
+  private milestoneTimer: ReturnType<typeof setTimeout> | undefined;
 
   /**
    * Configure which milestone thresholds trigger the popup.
@@ -52,7 +56,8 @@ export class ExerciseStateService {
       if (milestone) {
         this.milestoneValue.set(milestone);
         this.showMilestone.set(true);
-        setTimeout(() => this.showMilestone.set(false), 2000);
+        clearTimeout(this.milestoneTimer);
+        this.milestoneTimer = setTimeout(() => this.showMilestone.set(false), this.milestoneHideDelay);
       }
       setTimeout(onAdvance, correctDelay);
     } else {
@@ -67,5 +72,6 @@ export class ExerciseStateService {
     this.bestStreak.set(0);
     this.showMilestone.set(false);
     this.milestoneValue.set(0);
+    clearTimeout(this.milestoneTimer);
   }
 }

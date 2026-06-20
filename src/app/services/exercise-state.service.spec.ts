@@ -125,13 +125,14 @@ describe('ExerciseStateService', () => {
       expect(service.milestoneValue()).toBe(5);
     });
 
-    it('should auto-hide milestone popup after 2000ms', async () => {
+    it('should auto-hide milestone popup', async () => {
+      service.milestoneHideDelay = 50;
       for (let i = 0; i < 5; i++) {
         service.handleResult(true, () => { /* noop */ }, 0);
         await new Promise(r => setTimeout(r, 10));
       }
       expect(service.showMilestone()).toBeTrue();
-      await new Promise(r => setTimeout(r, 2100));
+      await new Promise(r => setTimeout(r, 100));
       expect(service.showMilestone()).toBeFalse();
     });
 
