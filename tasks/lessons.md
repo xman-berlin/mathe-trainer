@@ -30,3 +30,9 @@ Only after ALL pass → commit → push → verify CI.
 **Mistake**: When fixing multiplication to check `answer <= maxValue` (so the product stays in range), I incorrectly extended the same logic to division. For division, `operandA` is the **dividend** and `answer` is the **quotient** — the existing contract (and tests) check `operandA <= maxValue`, not `answer`.
 
 **Rule**: For multiplication, cap `answer` (= product). For division, cap `operandA` (= dividend). Always verify the semantics of `operandA/operandB/answer` per operation type before changing range-check logic.
+
+## 2026-06-16 — Neuen Feature-Plan immer sofort in tasks/todo.md eintragen
+
+**Mistake**: Rechenhaus-Plan in `tasks/rechenhaus.md` erstellt, ohne den Eintrag in `tasks/todo.md` hinzuzufügen.
+
+**Rule**: Jedes Mal wenn eine neue `tasks/<feature>.md` erstellt wird, sofort eine Zeile in `tasks/todo.md` ergänzen. Die todo.md ist der Index — sie ist wertlos wenn sie unvollständig ist.

@@ -1,303 +1,132 @@
-# AGENTS.md - Development Guidelines for Schlaufuchs
+# AGENTS.md — Schlaufuchs
 
-This file provides comprehensive guidelines for agentic coding assistants working on the Schlaufuchs project. Follow these rules to maintain code quality, consistency, and project standards.
+Angular 20 zoneless SPA (standalone components, signals). Learning app for kids (Mathe, Uhrzeit, Deutsch) with Supabase sync.
 
-## 🚀 Build, Lint & Test Commands
+## Commands
 
-### Development Server
 ```bash
-# Start development server (default port 4200)
-npm start
-# Alternative with polling for reliable file watching
-npm run start:poll
-# Hot module replacement
-npm run start:hmr
+npm start                    # Dev server → http://localhost:4200 (live-reload)
+npm run start:poll           # Poll mode (reliable file watching)
+npm run start:hmr            # HMR dev server (development config)
+npm run watch                # Build watch mode (development config)
+npm run build                # Production build → dist/schlaufuchs/browser/
+npm run lint                 # ESLint on src/**/*.ts + src/**/*.html
+npm run test                 # Karma + Jasmine unit tests
+npm run test -- --watch=false --browsers=ChromeHeadless  # CI: once, headless
+npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage  # CI with coverage
+npm run test -- --include="**/foo.spec.ts"               # Single spec file
+npm run e2e                  # Playwright E2E (auto-starts dev server if not running)
+npm run e2e:ui               # Playwright with UI mode
+npx kill-port 4200           # Kill stuck dev server
 ```
 
-### Building
-```bash
-# Production build (outputs to dist/)
-npm run build
-# Development build with source maps
-npm run watch
-```
+## Pre-commit gates (always run in order)
 
-### Testing
-```bash
-# Run all unit tests (Karma + Jasmine)
-npm run test
-# Run tests once (for CI/CD)
-npm run test -- --watch=false --browsers=ChromeHeadless
-# Run tests with code coverage
-npm run test -- --code-coverage
-# Run a single test file
-npm run test -- --include="**/my-component.spec.ts"
-# Run tests for a specific component
-npm run test -- --include="**/exercise.component.spec.ts"
-```
+1. `npm run lint`
+2. `npm run build` (ignore budget warnings < 500KB / < 12KB component style)
+3. `npm run test -- --watch=false`
+4. `npm run e2e` (if E2E changed)
 
-### Linting
-```bash
-# Run ESLint on all TypeScript and HTML files
-npm run lint
-```
+## Architecture
 
-### Pre-Commit Checklist
-**ALWAYS run these commands before committing:**
-1. `npm run lint` - Fix all ESLint errors
-2. `npm run build` - Ensure build succeeds (ignore budget warnings < 500KB)
-3. `npm run test -- --watch=false` - Run tests once
+- **3 categories**: `mathe/*` (addition/subtraction/multiplication/division/sachaufgaben), `uhrzeit/*` (clock), `deutsch/*` (spelling, hangman, vocab management)
+- **Games**: `spielen/flappy-fox`, `dino-run`, `breakout`, `balloon-pop`
+- **Entrypoint**: `src/main.ts` bootstraps standalone `App` with `appConfig`
+- **Routes** (`src/app/app.routes.ts`): all guarded by `authGuard` except `/login`
+- **Root component**: `src/app/app.ts` — renders `<router-outlet>`, tracks daily goal confetti
+- **Deploy output**: `dist/schlaufuchs/browser/` (not `dist/`)
+- **CI matrix**: Node 22.x and 24.x (not 18/20)
 
-## 📝 Code Style Guidelines
+## Key routes
 
-### TypeScript Configuration
-- **Strict mode**: All strict TypeScript checks enabled
-- **Target**: ES2022
-- **Module**: preserve (for Angular)
-- **Strict injection parameters**: Enabled
-- **Strict input access modifiers**: Enabled
-- **Strict templates**: Enabled
+| Path | Component / Note |
+|---|---|
+| `mathe/sachaufgaben` | `WordProblemExerciseComponent` |
+| `erfolge` | `GlobalAchievementsComponent` (tabs: Mathe / Uhrzeit / Badges / Spiele) |
+| `mathe/erfolge`, `uhrzeit/erfolge` | Redirect → `/erfolge?tab=math` / `?tab=clock` |
+| `vokabeln`, `uebung`, `zeitrennen` | Compat redirects to new routes |
 
-### Angular-Specific Rules
+## Patterns
 
-#### Component Structure
-```typescript
-@Component({
-  standalone: true,
-  selector: 'app-component-name',  // kebab-case
-  imports: [/* explicit imports only */],
-  templateUrl: './component-name.component.html',
-  styleUrls: ['./component-name.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush  // Always use OnPush
-})
-export class ComponentName implements OnInit, OnDestroy {
-  // Signals for reactive state (preferred over RxJS)
-  readonly mySignal = signal(initialValue);
+- **Signals for all UI state** — never use RxJS `BehaviorSubject` for UI; avoid `ChangeDetectorRef` (zoneless)
+- **`inject()` everywhere** — no constructor DI in new code (exception: `effect()` in constructors is fine)
+- **Immutable signal updates** — spread, never mutate signal values directly
+- **Style**: `styleUrl: './foo.scss'` (singular, new Angular convention)
+- **SCSS** partials in `src/styles/`: `_variables.scss`, `_mixins.scss`, `_animations.scss`, `_badges.scss`, `_buttons.scss`, `_exercise.scss`, `_modals.scss`
+- **Breakpoints**: 540px (small mobile), 768px (tablet), 1024px (desktop), 700px (landscape min)
+- **`localStorage`** for offline/cache, Supabase for cloud sync (background, non-blocking)
+- **Auth localStorage key**: `'schlaufuchs-current-user'`
+- **Division semantics**: `operandA` = dividend, `answer` = quotient; cap `operandA` (not `answer`) for range checks; cap `answer` (= product) for multiplication
 
-  // Computed signals for derived state
-  readonly computedValue = computed(() => {
-    return this.mySignal() * 2;
-  });
+## appConfig
 
-  // Effects for side effects
-  constructor() {
-    effect(() => {
-      console.log('Signal changed:', this.mySignal());
-    });
-  }
-}
-```
+`src/app/app.config.ts` provides: `provideBrowserGlobalErrorListeners()`, `provideZonelessChangeDetection()`, `provideRouter(routes)`.
 
-#### Services
-```typescript
-@Injectable({ providedIn: 'root' })
-export class MyService {
-  private readonly mySignal = signal(initialValue);
+## Testing quirks
 
-  // Expose readonly signals
-  readonly publicSignal = this.mySignal.asReadonly();
+- All specs need `provideZonelessChangeDetection()` in `TestBed.configureTestingModule`
+- Mock `localStorage` with `spyOn(localStorage, ...)` for services that persist
+- Signal-driven effects require `TestBed.flushEffects()` to trigger
+- Service deps to mock: `SupabaseService`, `AuthService`, `DailyStreakService`, `CoinsService`, `BadgeService`, `DifficultyService`, `TimedChallengeService`, `AchievementsService`, `ProblemGeneratorService`, `ExerciseStateService`, `GameService`, `MigrationService`, `WordProblemService`, `AvatarService`, `VocabService`
+- When adding a new service with signals, update mocks in ALL existing specs that provide it — missing mock signals break unrelated tests
 
-  constructor() {
-    // Use inject() for dependencies (preferred in Angular 20)
-    private dependency = inject(DependencyService);
-  }
-}
-```
+## E2E quirks
 
-### Import Organization
-```typescript
-// Angular imports first
-import { Component, signal, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
+- Playwright auto-starts `npm run start` via `webServer` config — no manual server needed locally
+- Only Chromium is tested (no Firefox, no Safari)
+- CI: 2 retries, 1 worker, `forbidOnly`
+- All specs use `bypassLogin(page)` + `handleMigrationDialog(page)` from `e2e/helpers.ts` in `beforeEach`
+- `setUserDirectly(page)` injects `'schlaufuchs-current-user'` via `page.evaluate` for immediate-auth pages
+- Every new route must have a click-through test in `e2e/navigation.spec.ts` — navigate by clicking UI links (never `page.goto()`) to catch broken `routerLink` bindings
 
-// Third-party libraries
-import { SupabaseClient } from '@supabase/supabase-js';
+## GitHub Pages SPA redirect
 
-// Local imports - group by type
-import { MyService } from '../../services/my.service';
-import { MyModel } from '../../models/my.model';
-import { MyComponent } from '../shared/my.component';
+- `public/404.html` encodes the current path as query param; `src/index.html` restores it on load — this is how `/mathe-trainer/` SPA routing works on GitHub Pages without a server
+- Both files are required; breakage here breaks deep-linking
 
-// Relative imports use barrel exports when available
-import { StatsService, AuthService } from '../../services';
-```
+## Lint
 
-### Naming Conventions
+- Config is `eslint.config.js` (flat config, not `.eslintrc.json`)
+- `no-console` allows only `warn`, `error` (not `log`)
+- Component selector: `app` prefix, kebab-case for elements, camelCase for attributes
+- Unused variables ignored when prefixed `_`
+- HTML accessibility rules enabled (`templateAccessibility`) — new templates must pass a11y lint
 
-#### Files and Directories
-- **Components**: `component-name.component.ts`
-- **Services**: `service-name.service.ts`
-- **Models**: `model-name.model.ts`
-- **Guards**: `guard-name.guard.ts`
-- **Directories**: `kebab-case`
+## Prettier
 
-#### Code Elements
-- **Classes**: `PascalCase` (e.g., `StatsService`, `ExerciseComponent`)
-- **Interfaces**: `PascalCase` with `I` prefix avoided (e.g., `ExerciseType`)
-- **Types**: `PascalCase` (e.g., `ExerciseType`)
-- **Constants**: `SCREAMING_SNAKE_CASE`
-- **Variables/Methods**: `camelCase`
-- **Signals**: `camelCase` with descriptive names
-- **Private members**: Prefix with `_` (but avoid when possible)
+Config in `package.json`: `printWidth: 100`, `singleQuote: true`, Angular HTML parser for templates.
 
-#### Selectors
-- **Components**: `app-component-name` (kebab-case)
-- **Directives**: `appDirectiveName` (camelCase)
+## Supabase
 
-### Signals vs RxJS
-- **Use Signals** for all new reactive state in components and services
-- **Avoid RxJS** for UI state management (use signals + computed/effect)
-- **RxJS allowed** for complex async operations or when interfacing with external APIs
+- **Local dev**: `http://127.0.0.1:54321` (config in `src/environments/environment.ts`)
+- RLS enabled on all tables. Service role key never used in frontend.
+- Migrations in `supabase/migrations/` (SQL); `src/sql/` for local scripts
+- Environment files committed with local-only keys (anon key is public); never commit service role keys or secrets
 
-### Error Handling
-```typescript
-// Service methods
-async myMethod(): Promise<Result> {
-  try {
-    const result = await this.apiCall();
-    return result;
-  } catch (error) {
-    console.error('[MyService] Failed to fetch data:', error);
-    throw error; // Re-throw for caller to handle
-  }
-}
+## Session Start
 
-// Component effects
-constructor() {
-  effect(() => {
-    try {
-      this.processData();
-    } catch (error) {
-      console.error('Error processing data:', error);
-      this.showError.set(true);
-    }
-  });
-}
-```
+At the start of every session or initialization, load relevant skills via the skill tool:
 
-### Type Safety
-- **Always use strict types** - avoid `any`
-- **Interface over type alias** for complex objects
-- **Union types** for constrained values
-- **Generic constraints** when appropriate
-- **Optional properties** with `?` for backward compatibility
+- `commit-and-push` — commit/push workflow with quality gates
+- `finish-feature` — complete and close a feature
+- `codebase-audit` — deep codebase analysis
+- `customize-opencode` — opencode configuration (built-in)
+- `wm-tipp` — WM-Tipp skill
 
-```typescript
-interface ExerciseStats {
-  correct: number;
-  incorrect: number;
-}
+Also review `tasks/lessons.md` before starting any work.
 
-type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
+## Task tracking
 
-interface DailyStats {
-  date: string;
-  byType: Record<string, ExerciseStats>;
-  dailyGoal?: number; // Optional for backward compatibility
-}
-```
+- `tasks/todo.md` — index of active feature files
+- `tasks/<feature>.md` — plan with checkboxes
+- `tasks/done/<feature>.md` — completed features
+- `tasks/lessons.md` — append-only lessons log (review at session start)
 
-### CSS and Styling
-- **CSS Variables** for colors and common values
-- **Mobile-first** responsive design
-- **Breakpoints**: 540px (small mobile), 768px (tablet), 1024px (desktop)
-- **Tablet landscape optimizations** for components > 750px height
+## Critical
 
-### Testing Patterns
-```typescript
-describe('MyService', () => {
-  let service: MyService;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [MyService]
-    });
-    service = TestBed.inject(MyService);
-  });
-
-  it('should create service', () => {
-    expect(service).toBeTruthy();
-  });
-
-  it('should handle signal updates', () => {
-    // Test signal-based logic
-    expect(service.myComputedValue()).toBe(expectedValue);
-  });
-});
-```
-
-### File Organization
-```
-src/app/
-├── components/          # UI components
-│   ├── shared/         # Reusable components
-│   ├── exercise/       # Exercise-specific components
-│   └── category-home/  # Category landing pages
-├── services/           # Business logic services
-├── models/            # TypeScript interfaces/types
-├── guards/            # Route guards
-└── utils/             # Helper functions
-```
-
-### Git Workflow
-- **Branch naming**: `feature/description`, `fix/description`
-- **Commits**: Conventional commits (`feat:`, `fix:`, `docs:`, `refactor:`)
-- **English commit messages and PR descriptions**
-- **NEVER commit secrets** or environment files
-- **Always run lint + build + tests** before committing
-
-### E2E Tests — Route Coverage
-- **Rule**: Every new user-facing route added to `app.routes.ts` MUST be covered by a click-through test in `e2e/navigation.spec.ts`
-- **How**: Add a test that navigates from the home page (or category overview) to the new route by clicking links, then asserts the correct URL and a visible element on the destination page
-- **Do NOT** use `page.goto()` for navigation tests — always click through the UI to catch broken `routerLink` bindings, missing routes, or guard issues
-- **When in doubt**: Run `e2e/navigation.spec.ts` after adding any route to verify it passes
-
-### Supabase Integration
-- **RLS enabled** on all tables
-- **Environment variables** for sensitive data (never commit)
-- **Background sync** for offline-first experience
-- **Error handling** for network failures
-
-### Performance Considerations
-- **ChangeDetectionStrategy.OnPush** for all components
-- **Lazy loading** for routes when appropriate
-- **Signal computed values** instead of getters
-- **Avoid memory leaks** with proper effect cleanup
-
-### Security
-- **Never log secrets** or sensitive data
-- **Validate user input** on both client and server
-- **Use HTTPS** for all external requests
-- **Sanitize HTML content** if displaying user-generated content
-
-## 🔧 Development Tools
-
-### Prettier Configuration
-```json
-{
-  "printWidth": 100,
-  "singleQuote": true
-}
-```
-
-### ESLint Rules
-- **Angular ESLint** recommended rules
-- **TypeScript ESLint** strict rules
-- **Unused variables** ignored when prefixed with `_`
-- **Component selectors**: `app` prefix, camelCase for attributes, kebab-case for elements
-
-## 📚 Resources
-- [Angular Signals Documentation](https://angular.dev/guide/signals)
-- [Angular Standalone Components](https://angular.dev/guide/standalone-components)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [ESLint Rules](https://eslint.org/docs/rules/)
-
-## 🚨 Critical Reminders
-- **Git Operations**: Commit and push ONLY on explicit user command - NEVER initiate automatically
-- **UI Language**: ALL user-facing text must be in German - never use English in the interface
-- **Zoneless Angular**: Do not use `ChangeDetectorRef`
-- **Signals over RxJS**: Use signals for UI state
-- **Standalone components**: All components use `standalone: true`
-- **Base href**: `/mathe-trainer/` for production (GitHub Pages)
-- **Budget warnings**: Acceptable if < 500KB initial, < 16KB per component style</content>
-<parameter name="filePath">/Users/xman/projects/mathe-trainer/AGENTS.md
+- **UI text must be German**, code in English, commit messages in English
+- **Commit and push only on explicit command** — never autonomously
+- **Zoneless**: no `ChangeDetectorRef`, `NgZone`, or `zone.js` patterns
+- **Prod base href**: `/mathe-trainer/` (set via `--base-href` in deploy workflow)
+- **Budget warnings** (< 500KB initial, < 12KB per component style) are acceptable
+- Run the full test suite after any service change — new signals break unrelated specs silently

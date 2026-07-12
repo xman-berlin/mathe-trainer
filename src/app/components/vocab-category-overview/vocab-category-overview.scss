@@ -60,6 +60,21 @@
   line-height: 1.6;
 }
 
+.admin-gear {
+  display: inline-block;
+  font-size: 1.25rem;
+  text-decoration: none;
+  opacity: 0.35;
+  margin-left: 0.3rem;
+  transition: opacity 0.2s;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.admin-gear:hover {
+  opacity: 1;
+}
+
 .content-area {
   flex: 1;
   max-width: 1000px;
@@ -177,16 +192,6 @@
   background: linear-gradient(135deg, rgba(51, 130, 191, 0.08) 0%, white 100%);
 }
 
-.manage-card {
-  border-color: #8B5CF6;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.03) 0%, white 100%);
-}
-
-.manage-card:hover {
-  border-color: #8B5CF6;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, white 100%);
-}
-
 .hangman-card {
   border-color: #ef6c00;
   background: linear-gradient(135deg, rgba(239, 108, 0, 0.03) 0%, white 100%);
@@ -195,6 +200,26 @@
 .hangman-card:hover {
   border-color: #ef6c00;
   background: linear-gradient(135deg, rgba(239, 108, 0, 0.08) 0%, white 100%);
+}
+
+.weekdays-card {
+  border-color: #7c3aed;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.03) 0%, white 100%);
+}
+
+.weekdays-card:hover {
+  border-color: #7c3aed;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, white 100%);
+}
+
+.months-card {
+  border-color: #0891b2;
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.03) 0%, white 100%);
+}
+
+.months-card:hover {
+  border-color: #0891b2;
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.08) 0%, white 100%);
 }
 
 .card-icon {

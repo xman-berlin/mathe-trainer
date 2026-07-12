@@ -3,7 +3,7 @@
 
   <div class="hero">
     <div class="hero-content">
-      <h1>📖 Deutsch</h1>
+      <h1>📖 Deutsch <a routerLink="/deutsch/verwalten" class="admin-gear" aria-label="Wortlisten verwalten" title="Wortlisten verwalten">⚙️</a></h1>
       <p>Rechtschreibung üben und Wortlisten verwalten</p>
     </div>
   </div>
@@ -44,10 +44,16 @@
         <p>Wörter erraten, Buchstabe für Buchstabe</p>
       </a>
 
-      <a routerLink="/deutsch/verwalten" class="action-card manage-card">
-        <div class="card-icon">📝</div>
-        <h3>Wortlisten</h3>
-        <p>Wortlisten erstellen und verwalten</p>
+      <a routerLink="/deutsch/wochentage" class="action-card weekdays-card">
+        <div class="card-icon">📅</div>
+        <h3>Wochentage</h3>
+        <p>Tage der Woche und ihre Reihenfolge</p>
+      </a>
+
+      <a routerLink="/deutsch/monate" class="action-card months-card">
+        <div class="card-icon">🗓️</div>
+        <h3>Monate</h3>
+        <p>Monate des Jahres und ihre Reihenfolge</p>
       </a>
     </div>
   </section>

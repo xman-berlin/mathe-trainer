@@ -326,10 +326,10 @@ describe('DeutschHangmanComponent', () => {
       setupWithQueue([makeWord('AB', 'w1'), makeWord('CD', 'w2')]);
       await createComponent();
       const firstWord = component.currentWord();
+      component.advanceDelay = 0;
       component.onLetterSelected('A');
       component.onLetterSelected('B');
-      // After win, advance is called via ExerciseStateService
-      await new Promise(r => setTimeout(r, 1600));
+      await new Promise(r => setTimeout(r, 10));
       expect(component.currentWord()).not.toEqual(firstWord);
     });
   });

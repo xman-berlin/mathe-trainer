@@ -15,6 +15,7 @@ import { DeutschCategoryOverviewComponent } from './components/vocab-category-ov
 import { DeutschRechtschreibungComponent } from './components/vocab-exercise/vocab-exercise';
 import { VocabManagementComponent } from './components/vocab-management/vocab-management';
 import { DeutschHangmanComponent } from './components/hangman/hangman';
+import { SequenceExerciseComponent } from './components/sequence-exercise/sequence-exercise';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -52,6 +53,8 @@ export const routes: Routes = [
   { path: 'deutsch/rechtschreibung', component: DeutschRechtschreibungComponent, canActivate: [authGuard] },
   { path: 'deutsch/hangman', component: DeutschHangmanComponent, canActivate: [authGuard] },
   { path: 'deutsch/verwalten', component: VocabManagementComponent, canActivate: [authGuard] },
+  { path: 'deutsch/wochentage', component: SequenceExerciseComponent, data: { type: 'weekdays' }, canActivate: [authGuard] },
+  { path: 'deutsch/monate', component: SequenceExerciseComponent, data: { type: 'months' }, canActivate: [authGuard] },
   // Backward compatibility redirects
   { path: 'vokabeln', redirectTo: '/deutsch', pathMatch: 'full' },
   { path: 'vokabeln/uebung', redirectTo: '/deutsch/rechtschreibung', pathMatch: 'full' },

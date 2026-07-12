@@ -46,6 +46,10 @@ export class DeutschHangmanComponent implements OnInit {
   private currentIndex = 0;
   private lastWordId: string | null = null;
 
+  /** Override in tests for faster advance. */
+  advanceDelay = 1500;
+  lossAdvanceDelay = 2500;
+
   // --- Streak & milestone ---
   readonly streak = this.exerciseState.streak;
   readonly bestStreak = this.exerciseState.bestStreak;
@@ -180,7 +184,7 @@ export class DeutschHangmanComponent implements OnInit {
 
     this.statsService.recordResult(true, EXERCISE_TYPE);
 
-    this.exerciseState.handleResult(true, () => this.showNextWord(), 1500, 2000);
+    this.exerciseState.handleResult(true, () => this.showNextWord(), this.advanceDelay, 2000);
   }
 
   private handleLoss(): void {
@@ -189,6 +193,6 @@ export class DeutschHangmanComponent implements OnInit {
 
     this.statsService.recordResult(false, EXERCISE_TYPE);
 
-    this.exerciseState.handleResult(false, () => this.showNextWord(), 1500, 2500);
+    this.exerciseState.handleResult(false, () => this.showNextWord(), 1500, this.lossAdvanceDelay);
   }
 }

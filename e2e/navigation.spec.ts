@@ -113,9 +113,27 @@ test.describe('Navigation', () => {
       await page.getByRole('link', { name: 'Deutsch' }).click();
       await expect(page).toHaveURL(/\/deutsch$/);
 
-      await page.getByRole('link', { name: 'Wortlisten' }).click();
+      await page.getByRole('link', { name: 'Wortlisten verwalten' }).click();
       await expect(page).toHaveURL(/\/deutsch\/verwalten$/);
       await expect(page.getByRole('heading', { name: 'Wortlisten' })).toBeVisible();
+    });
+
+    test('should navigate from deutsch overview to wochentage', async ({ page }) => {
+      await page.getByRole('link', { name: 'Deutsch' }).click();
+      await expect(page).toHaveURL(/\/deutsch$/);
+
+      await page.getByRole('link', { name: 'Wochentage' }).click();
+      await expect(page).toHaveURL(/\/deutsch\/wochentage$/);
+      await expect(page.getByText('📅 Wochentage')).toBeVisible();
+    });
+
+    test('should navigate from deutsch overview to monate', async ({ page }) => {
+      await page.getByRole('link', { name: 'Deutsch' }).click();
+      await expect(page).toHaveURL(/\/deutsch$/);
+
+      await page.getByRole('link', { name: 'Monate' }).click();
+      await expect(page).toHaveURL(/\/deutsch\/monate$/);
+      await expect(page.getByText('🗓️ Monate')).toBeVisible();
     });
   });
 
