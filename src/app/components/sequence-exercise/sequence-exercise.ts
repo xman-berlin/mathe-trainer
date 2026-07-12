@@ -20,7 +20,7 @@ export class SequenceExerciseComponent implements OnInit, OnDestroy {
   protected statsService = inject(StatsService);
   protected exerciseState = inject(ExerciseStateService);
 
-  readonly exerciseType = signal<'weekdays' | 'months'>('weekdays');
+  readonly exerciseType = signal<'weekdays' | 'months' | 'alphabet'>('weekdays');
   readonly question = signal('');
   readonly options = signal<string[]>([]);
   readonly correctIndex = signal(-1);
@@ -42,7 +42,7 @@ export class SequenceExerciseComponent implements OnInit, OnDestroy {
   private statsInterval: ReturnType<typeof setInterval> | undefined;
 
   ngOnInit(): void {
-    const type = this.route.snapshot.data['type'] as 'weekdays' | 'months' | undefined;
+    const type = this.route.snapshot.data['type'] as 'weekdays' | 'months' | 'alphabet' | undefined;
     this.exerciseType.set(type ?? 'weekdays');
 
     this.refreshStats();
@@ -66,7 +66,11 @@ export class SequenceExerciseComponent implements OnInit, OnDestroy {
   }
 
   private typeString(): string {
-    return this.exerciseType() === 'weekdays' ? 'deutsch-wochentage' : 'deutsch-monate';
+    switch (this.exerciseType()) {
+      case 'weekdays': return 'deutsch-wochentage';
+      case 'months': return 'deutsch-monate';
+      case 'alphabet': return 'deutsch-alphabet';
+    }
   }
 
   private nextQuestion(): void {

@@ -171,11 +171,18 @@ Gleiches Muster wie Rechtschreibung (`DeutschRechtschreibungComponent`), aber:
 - **UI responsive**: Optionen in 2x2-Grid (Landscape/Tablet), 1 Spalte (Portrait klein)
 - **Wiederverwendung**: Gleiches Styling wie Rechtschreibung (Streak, Milestone, Confetti, Stats-Badges, Back-Button)
 - **Services**: `SequenceService` als reine TypeScript-Klasse ohne Supabase-Dependenz
+- **Alphabet-Erweiterung**: Drittes Set (A–Z, 26 Items) mit `itemLabel()`-Helfer statt lokaler `if/switch` — sauber integrierbar ohne Code-Duplizierung
+- **Position-Format**: `ofPhrase` variiert pro Set: `"der Woche"` / `"des Jahres"` / `"im Alphabet"`
 
 ## Änderungen an bestehenden Dateien
 | Datei | Änderung |
 |---|---|
-| `src/app/app.routes.ts` | 2 neue Routes (wochentage, monate) |
-| `src/app/components/vocab-category-overview/vocab-category-overview.html` | 4 Lern-Karten (Rechtschreibung, Hangman, Wochentage, Monate) + Admin-Link "Wortlisten verwalten" im Hero |
-| `src/app/components/vocab-category-overview/vocab-category-overview.scss` | .weekdays-card, .months-card, .hero-admin-link; entfernt: .manage-card |
-| `e2e/navigation.spec.ts` | 2 neue Navigations-Tests; "verwalten"-Test aktualisiert auf neuen Link-Text |
+| `src/app/app.routes.ts` | 3 neue Routes (wochentage, monate, alphabet) |
+| `src/app/components/vocab-category-overview/vocab-category-overview.html` | 4 Lern-Karten (Rechtschreibung, Hangman, Wochentage, Monate, Alphabet) + Admin-Gear ⚙️ in Titelzeile |
+| `src/app/components/vocab-category-overview/vocab-category-overview.scss` | .weekdays-card, .months-card, .alphabet-card, .admin-gear; entfernt: .manage-card, .hero-admin-link |
+| `src/app/services/sequence.service.ts` | ALPHABET-Konstante + itemsFor() + itemLabel() + alphabet in generateQuestion |
+| `e2e/navigation.spec.ts` | 3 neue Navigations-Tests; "verwalten"-Test aktualisiert auf aria-label |
+
+**Committed**: `b72c771` — `feat: MC-Wissensfragen für Wochentage und Monate unter /deutsch`  
+**Follow-up**: `feat: Alphabet als drittes MC-Wissensfragen-Set unter /deutsch/alphabet`  
+**CI**: ✅ Build + Deploy erfolgreich (40s)

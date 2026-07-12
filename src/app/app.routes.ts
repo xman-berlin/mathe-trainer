@@ -55,6 +55,7 @@ export const routes: Routes = [
   { path: 'deutsch/verwalten', component: VocabManagementComponent, canActivate: [authGuard] },
   { path: 'deutsch/wochentage', component: SequenceExerciseComponent, data: { type: 'weekdays' }, canActivate: [authGuard] },
   { path: 'deutsch/monate', component: SequenceExerciseComponent, data: { type: 'months' }, canActivate: [authGuard] },
+  { path: 'deutsch/alphabet', component: SequenceExerciseComponent, data: { type: 'alphabet' }, canActivate: [authGuard] },
   // Backward compatibility redirects
   { path: 'vokabeln', redirectTo: '/deutsch', pathMatch: 'full' },
   { path: 'vokabeln/uebung', redirectTo: '/deutsch/rechtschreibung', pathMatch: 'full' },

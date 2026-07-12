@@ -9,7 +9,11 @@
 
     <main class="exercise-main">
       <h1 class="exercise-title">
-        {{ exerciseType() === 'weekdays' ? '📅 Wochentage' : '🗓️ Monate' }}
+        @switch (exerciseType()) {
+          @case ('weekdays') { 📅 Wochentage }
+          @case ('months') { 🗓️ Monate }
+          @case ('alphabet') { 🔤 Alphabet }
+        }
       </h1>
 
       <div class="question-area">

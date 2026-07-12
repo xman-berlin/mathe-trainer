@@ -12,7 +12,7 @@ describe('SequenceExerciseComponent', () => {
   let mockSequenceService: jasmine.SpyObj<SequenceService>;
   let mockStatsService: { recordResult: jasmine.Spy; statsByType: () => Record<string, unknown> };
 
-  function createComponent(type?: 'weekdays' | 'months'): void {
+  function createComponent(type?: 'weekdays' | 'months' | 'alphabet'): void {
     fixture = TestBed.createComponent(SequenceExerciseComponent);
     component = fixture.componentInstance;
 
@@ -127,6 +127,18 @@ describe('SequenceExerciseComponent', () => {
     component.selectAnswer(0);
 
     expect(mockStatsService.recordResult).toHaveBeenCalledWith(true, 'deutsch-monate');
+  });
+
+  it('should use correct stats type for alphabet', () => {
+    createComponent('alphabet');
+    component.selectAnswer(0);
+
+    expect(mockStatsService.recordResult).toHaveBeenCalledWith(true, 'deutsch-alphabet');
+  });
+
+  it('should set exercise type from route data for alphabet', () => {
+    createComponent('alphabet');
+    expect(component.exerciseType()).toBe('alphabet');
   });
 
   it('should disable buttons after selection', () => {

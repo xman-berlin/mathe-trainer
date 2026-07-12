@@ -38,6 +38,35 @@ const MONTHS: SequenceItem[] = [
   { id: 12, name: 'Dezember', description: 'Weihnachten! Der zwölfte und letzte Monat des Jahres.' },
 ];
 
+const ALPHABET: SequenceItem[] = [
+  { id: 1, name: 'A', description: 'Der erste Buchstabe im Alphabet und ein Vokal.' },
+  { id: 2, name: 'B', description: 'Der zweite Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 3, name: 'C', description: 'Der dritte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 4, name: 'D', description: 'Der vierte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 5, name: 'E', description: 'Der fünfte Buchstabe im Alphabet und ein Vokal.' },
+  { id: 6, name: 'F', description: 'Der sechste Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 7, name: 'G', description: 'Der siebte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 8, name: 'H', description: 'Der achte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 9, name: 'I', description: 'Der neunte Buchstabe im Alphabet und ein Vokal.' },
+  { id: 10, name: 'J', description: 'Der zehnte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 11, name: 'K', description: 'Der elfte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 12, name: 'L', description: 'Der zwölfte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 13, name: 'M', description: 'Der dreizehnte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 14, name: 'N', description: 'Der vierzehnte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 15, name: 'O', description: 'Der fünfzehnte Buchstabe im Alphabet und ein Vokal.' },
+  { id: 16, name: 'P', description: 'Der sechzehnte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 17, name: 'Q', description: 'Der siebzehnte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 18, name: 'R', description: 'Der achtzehnte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 19, name: 'S', description: 'Der neunzehnte Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 20, name: 'T', description: 'Der zwanzigste Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 21, name: 'U', description: 'Der einundzwanzigste Buchstabe im Alphabet und ein Vokal.' },
+  { id: 22, name: 'V', description: 'Der zweiundzwanzigste Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 23, name: 'W', description: 'Der dreiundzwanzigste Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 24, name: 'X', description: 'Der vierundzwanzigste Buchstabe im Alphabet und ein Konsonant.' },
+  { id: 25, name: 'Y', description: 'Der fünfundzwanzigste Buchstabe im Alphabet. Mal Vokal, mal Konsonant.' },
+  { id: 26, name: 'Z', description: 'Der sechsundzwanzigste und letzte Buchstabe im Alphabet. Ein Konsonant.' },
+];
+
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -64,6 +93,19 @@ function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function itemsFor(type: 'weekdays' | 'months' | 'alphabet'): SequenceItem[] {
+  switch (type) {
+    case 'weekdays': return WEEKDAYS;
+    case 'months': return MONTHS;
+    case 'alphabet': return ALPHABET;
+  }
+}
+
+function itemLabel(items: SequenceItem[], lower = false): string {
+  const label = items === WEEKDAYS ? 'Wochentag' : items === MONTHS ? 'Monat' : 'Buchstabe';
+  return lower ? label.toLowerCase() : label;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SequenceService {
 
@@ -75,8 +117,12 @@ export class SequenceService {
     return MONTHS;
   }
 
-  generateQuestion(type: 'weekdays' | 'months'): Question {
-    const items = type === 'weekdays' ? WEEKDAYS : MONTHS;
+  getAlphabet(): SequenceItem[] {
+    return ALPHABET;
+  }
+
+  generateQuestion(type: 'weekdays' | 'months' | 'alphabet'): Question {
+    const items = itemsFor(type);
     const questionType = randomInt(1, 4);
 
     switch (questionType) {
@@ -92,7 +138,7 @@ export class SequenceService {
     const idx = randomInt(0, items.length - 1);
     const correct = items[idx];
     const direction: 'nach' | 'vor' = Math.random() < 0.5 ? 'nach' : 'vor';
-    const label = items === WEEKDAYS ? 'Wochentag' : 'Monat';
+    const label = itemLabel(items);
 
     if (direction === 'nach') {
       if (idx === 0) {
@@ -113,10 +159,9 @@ export class SequenceService {
 
   private generatePosition(items: SequenceItem[]): Question {
     const correct = items[randomInt(0, items.length - 1)];
-    const isWeekday = items === WEEKDAYS;
-    const question = isWeekday
-      ? `Welcher Wochentag ist der ${correct.id}. Tag der Woche?`
-      : `Welcher Monat ist der ${correct.id}. Monat des Jahres?`;
+    const label = itemLabel(items);
+    const ofPhrase = items === ALPHABET ? 'im Alphabet' : items === MONTHS ? 'des Jahres' : 'der Woche';
+    const question = `Welcher ${label} ist der ${correct.id}. ${ofPhrase}?`;
 
     return { ...buildOptions(correct, items), question, questionType: 2 };
   }
@@ -133,7 +178,7 @@ export class SequenceService {
       return item.name;
     });
 
-    const label = items === WEEKDAYS ? 'Wochentag' : 'Monat';
+    const label = itemLabel(items);
     const question = `Welcher ${label} fehlt? ${parts.join(' → ')}`;
 
     return { ...buildOptions(correct, items), question, questionType: 3 };
@@ -141,7 +186,8 @@ export class SequenceService {
 
   private generateDescription(items: SequenceItem[]): Question {
     const correct = items[randomInt(0, items.length - 1)];
-    const question = `Um welchen ${items === WEEKDAYS ? 'Wochentag' : 'Monat'} handelt es sich? ${correct.description}`;
+    const label = itemLabel(items);
+    const question = `Um welchen ${label} handelt es sich? ${correct.description}`;
 
     return { ...buildOptions(correct, items), question, questionType: 4 };
   }

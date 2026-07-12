@@ -56,6 +56,44 @@ describe('SequenceService', () => {
     });
   });
 
+  it('should return 26 alphabet letters', () => {
+    const letters = service.getAlphabet();
+    expect(letters.length).toBe(26);
+    expect(letters[0].name).toBe('A');
+    expect(letters[25].name).toBe('Z');
+  });
+
+  describe('generateQuestion for alphabet', () => {
+    it('should generate a valid question with 4 options', () => {
+      const q = service.generateQuestion('alphabet');
+      expect(q.question).toBeTruthy();
+      expect(q.options.length).toBe(4);
+      expect(q.correctIndex).toBeGreaterThanOrEqual(0);
+      expect(q.correctIndex).toBeLessThan(4);
+    });
+
+    it('should use correct letter names in options', () => {
+      const validLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+      for (let i = 0; i < 20; i++) {
+        const q = service.generateQuestion('alphabet');
+        for (const opt of q.options) {
+          expect(validLetters).toContain(opt);
+        }
+      }
+    });
+
+    it('should generate all 4 question types over multiple calls', () => {
+      const types = new Set<number>();
+      for (let i = 0; i < 50; i++) {
+        types.add(service.generateQuestion('alphabet').questionType);
+      }
+      expect(types.has(1)).toBeTrue();
+      expect(types.has(2)).toBeTrue();
+      expect(types.has(3)).toBeTrue();
+      expect(types.has(4)).toBeTrue();
+    });
+  });
+
   describe('generateQuestion for months', () => {
     it('should generate a valid question with 4 options', () => {
       const q = service.generateQuestion('months');
@@ -101,20 +139,20 @@ describe('SequenceService', () => {
   });
 
   describe('position question type', () => {
-    it('should contain "Tag der Woche" for weekdays', () => {
+    it('should contain "der Woche" for weekdays', () => {
       for (let i = 0; i < 30; i++) {
         const q = service.generateQuestion('weekdays');
         if (q.questionType === 2) {
-          expect(q.question).toContain('Tag der Woche');
+          expect(q.question).toMatch(/\d\. der Woche/);
         }
       }
     });
 
-    it('should contain "Monat des Jahres" for months', () => {
+    it('should contain "des Jahres" for months', () => {
       for (let i = 0; i < 30; i++) {
         const q = service.generateQuestion('months');
         if (q.questionType === 2) {
-          expect(q.question).toContain('Monat des Jahres');
+          expect(q.question).toMatch(/\d\. des Jahres/);
         }
       }
     });

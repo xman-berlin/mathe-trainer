@@ -135,6 +135,15 @@ test.describe('Navigation', () => {
       await expect(page).toHaveURL(/\/deutsch\/monate$/);
       await expect(page.getByText('🗓️ Monate')).toBeVisible();
     });
+
+    test('should navigate from deutsch overview to alphabet', async ({ page }) => {
+      await page.getByRole('link', { name: 'Deutsch' }).click();
+      await expect(page).toHaveURL(/\/deutsch$/);
+
+      await page.getByRole('link', { name: 'Alphabet' }).click();
+      await expect(page).toHaveURL(/\/deutsch\/alphabet$/);
+      await expect(page.getByText('🔤 Alphabet')).toBeVisible();
+    });
   });
 
   test.describe('Erfolge', () => {
