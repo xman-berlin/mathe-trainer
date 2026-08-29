@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { bypassLogin, handleMigrationDialog } from './helpers';
 
 /**
@@ -172,6 +172,43 @@ test.describe('Navigation', () => {
       // Switch to Spiele
       await page.getByRole('button', { name: 'Spiele' }).click();
       await expect(page.getByRole('button', { name: 'Spiele' })).toHaveClass(/active/);
+    });
+  });
+
+  test.describe('Spiele', () => {
+    async function openGamesTab(page: Page) {
+      await page.getByRole('link', { name: 'Erfolge' }).click();
+      await expect(page).toHaveURL(/\/erfolge$/);
+      await page.getByRole('button', { name: 'Spiele' }).click();
+      await expect(page.getByRole('button', { name: 'Spiele' })).toHaveClass(/active/);
+    }
+
+    test('should navigate to flappy-fox', async ({ page }) => {
+      await openGamesTab(page);
+      await page.getByRole('link', { name: /Flappy Fox/ }).click();
+      await expect(page).toHaveURL(/\/spielen\/flappy-fox$/);
+      await expect(page.locator('.flappy-fox-container, canvas').first()).toBeVisible();
+    });
+
+    test('should navigate to dino-run', async ({ page }) => {
+      await openGamesTab(page);
+      await page.getByRole('link', { name: /Dino Run/ }).click();
+      await expect(page).toHaveURL(/\/spielen\/dino-run$/);
+      await expect(page.locator('.dino-run-container, canvas').first()).toBeVisible();
+    });
+
+    test('should navigate to breakout', async ({ page }) => {
+      await openGamesTab(page);
+      await page.getByRole('link', { name: /Breakout/ }).click();
+      await expect(page).toHaveURL(/\/spielen\/breakout$/);
+      await expect(page.locator('.breakout-container, canvas').first()).toBeVisible();
+    });
+
+    test('should navigate to balloon-pop', async ({ page }) => {
+      await openGamesTab(page);
+      await page.getByRole('link', { name: /Balloon Pop/ }).click();
+      await expect(page).toHaveURL(/\/spielen\/balloon-pop$/);
+      await expect(page.locator('.balloon-pop-container, canvas').first()).toBeVisible();
     });
   });
 });
