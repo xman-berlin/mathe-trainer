@@ -4,7 +4,6 @@ import { provideRouter } from '@angular/router';
 import { WordProblemExerciseComponent } from './word-problem-exercise.component';
 import { WordProblemService } from '../../services/word-problem.service';
 import { StatsService } from '../../services/stats.service';
-import { AchievementsService } from '../../services/achievements.service';
 
 describe('WordProblemExerciseComponent', () => {
   let component: WordProblemExerciseComponent;
@@ -35,10 +34,6 @@ describe('WordProblemExerciseComponent', () => {
             getBestStreak: jasmine.createSpy('getBestStreak').and.returnValue(5),
             updateBestStreak: jasmine.createSpy('updateBestStreak'),
           },
-        },
-        {
-          provide: AchievementsService,
-          useValue: {},
         },
       ],
     });

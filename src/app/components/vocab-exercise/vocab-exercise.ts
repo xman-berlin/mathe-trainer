@@ -101,6 +101,7 @@ export class DeutschRechtschreibungComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     speechSynthesis.cancel();
+    this.exerciseState.reset();
   }
 
   // ============================================================================
@@ -178,7 +179,7 @@ export class DeutschRechtschreibungComponent implements OnInit, OnDestroy {
       // Queue exhausted — rebuild with updated weights
       const userId = this.authService.currentUser()?.id;
       if (userId) {
-        this.deutschService.buildSession(userId).then((queue) => {
+        void Promise.resolve(this.deutschService.buildSession(userId)).then((queue) => {
           if (queue.length === 0) {
             this.sessionEmpty.set(true);
             return;

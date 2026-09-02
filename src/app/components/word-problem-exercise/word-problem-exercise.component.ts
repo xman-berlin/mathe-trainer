@@ -1,9 +1,9 @@
-import { Component, signal, computed, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { WordProblem, WordProblemType } from '../../models/word-problem.model';
 import { WordProblemService } from '../../services/word-problem.service';
 import { StatsService } from '../../services/stats.service';
-import { AchievementsService } from '../../services/achievements.service';
+import { ExerciseStateService } from '../../services/exercise-state.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
 import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component';
 
@@ -13,35 +13,34 @@ import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component
   imports: [RouterLink, KeypadComponent, StatsBadgeComponent],
   templateUrl: './word-problem-exercise.component.html',
   styleUrls: ['./word-problem-exercise.component.scss'],
+  providers: [ExerciseStateService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WordProblemExerciseComponent implements OnInit {
+export class WordProblemExerciseComponent implements OnInit, OnDestroy {
   currentProblem = signal<WordProblem | null>(null);
   userAnswer = signal('');
   feedback = signal<'idle' | 'correct' | 'incorrect'>('idle');
   showCorrectAnswer = signal(false);
 
-  // Streak tracking
-  streak = signal(0);
-  showMilestone = signal(false);
-  milestoneValue = signal(0);
-  private streakMilestones = [5, 10, 20, 30, 40, 50, 75, 100];
+  private wordProblemService = inject(WordProblemService);
+  private stats = inject(StatsService);
+  private exerciseState = inject(ExerciseStateService);
 
-  // Best streak loaded from StatsService
-  bestStreak = computed(() => this.stats.getBestStreak('word-problems'));
-
-  // Confetti
-  confettiPieces = Array.from({ length: 20 }, (_, i) => i);
-  confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
+  // Streak / milestone / confetti (delegated to ExerciseStateService)
+  readonly streak = this.exerciseState.streak;
+  readonly bestStreak = this.exerciseState.bestStreak;
+  readonly showMilestone = this.exerciseState.showMilestone;
+  readonly milestoneValue = this.exerciseState.milestoneValue;
+  readonly confettiPieces = this.exerciseState.confettiPieces;
+  get confettiX() {
+    return this.exerciseState.confettiX;
+  }
 
   selectedTypes = signal<Set<WordProblemType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
   currentType = signal<WordProblemType>('addition');
 
-  private wordProblemService = inject(WordProblemService);
-  private stats = inject(StatsService);
-  private achievements = inject(AchievementsService);
-
   constructor() {
+    this.exerciseState.setMilestones([5, 10, 20, 30, 40, 50, 75, 100]);
     this.generateProblem();
   }
 
@@ -50,8 +49,12 @@ export class WordProblemExerciseComponent implements OnInit {
     localStorage.removeItem('wordProblemCurrentStreak');
     localStorage.removeItem('wordProblemRange');
 
-    // Current streak always starts at 0 when entering the exercise
-    // Only the best streak is loaded from StatsService (persistent)
+    // Seed session best from persisted stats; current streak starts at 0
+    this.exerciseState.bestStreak.set(this.stats.getBestStreak('word-problems'));
+  }
+
+  ngOnDestroy(): void {
+    this.exerciseState.reset();
   }
 
   storyText = computed(() => this.currentProblem()?.storyText ?? '');
@@ -131,30 +134,16 @@ export class WordProblemExerciseComponent implements OnInit {
     const parsed = Number(userInputValue);
     const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer();
 
-    if (isCorrect) {
-      this.feedback.set('correct');
-      const newStreak = this.streak() + 1;
-      this.streak.set(newStreak);
-
-      // Update best streak in StatsService (will sync to server immediately)
-      this.stats.updateBestStreak('word-problems', newStreak);
-
-      // Check for milestone
-      if (this.streakMilestones.includes(newStreak)) {
-        this.milestoneValue.set(newStreak);
-        this.confettiX = Array.from({ length: 20 }, () => Math.random() * 100);
-        this.showMilestone.set(true);
-        setTimeout(() => this.showMilestone.set(false), 2000);
-      }
-
-      setTimeout(() => this.generateProblem(), 600);
-    } else {
-      this.feedback.set('incorrect');
+    this.feedback.set(isCorrect ? 'correct' : 'incorrect');
+    if (!isCorrect) {
       this.showCorrectAnswer.set(true);
-      this.streak.set(0); // Reset streak on wrong answer
-      setTimeout(() => this.generateProblem(), 1200);
     }
 
+    this.exerciseState.handleResult(isCorrect, () => this.generateProblem());
     this.stats.recordResult(isCorrect, 'word-problems');
+
+    if (isCorrect) {
+      this.stats.updateBestStreak('word-problems', this.exerciseState.streak());
+    }
   }
 }

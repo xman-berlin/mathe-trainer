@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { SequenceExerciseComponent } from './sequence-exercise';
 import { SequenceService } from '../../services/sequence.service';
 import { StatsService } from '../../services/stats.service';
+import { ExerciseStateService } from '../../services/exercise-state.service';
 import type { Question } from '../../services/sequence.service';
 
 describe('SequenceExerciseComponent', () => {
@@ -11,6 +12,7 @@ describe('SequenceExerciseComponent', () => {
   let fixture: ComponentFixture<SequenceExerciseComponent>;
   let mockSequenceService: jasmine.SpyObj<SequenceService>;
   let mockStatsService: { recordResult: jasmine.Spy; statsByType: () => Record<string, unknown> };
+  let mockExerciseState: jasmine.SpyObj<ExerciseStateService>;
 
   function createComponent(type?: 'weekdays' | 'months' | 'alphabet'): void {
     fixture = TestBed.createComponent(SequenceExerciseComponent);
@@ -37,6 +39,18 @@ describe('SequenceExerciseComponent', () => {
       options: ['Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'],
       correctIndex: 0,
     });
+    mockExerciseState = jasmine.createSpyObj(
+      'ExerciseStateService',
+      ['handleResult', 'reset', 'setMilestones'],
+      {
+        streak: signal(0),
+        bestStreak: signal(0),
+        showMilestone: signal(false),
+        milestoneValue: signal(0),
+        confettiPieces: [],
+        confettiX: [],
+      }
+    );
 
     TestBed.configureTestingModule({
       imports: [SequenceExerciseComponent],
@@ -46,7 +60,15 @@ describe('SequenceExerciseComponent', () => {
         { provide: SequenceService, useValue: mockSequenceService },
         { provide: StatsService, useValue: mockStatsService },
       ],
+    }).overrideComponent(SequenceExerciseComponent, {
+      set: {
+        providers: [{ provide: ExerciseStateService, useValue: mockExerciseState }],
+      },
     });
+  });
+
+  afterEach(() => {
+    fixture?.destroy();
   });
 
   it('should create', () => {

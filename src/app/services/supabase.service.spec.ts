@@ -10,6 +10,47 @@ import { SupabaseService } from './supabase.service';
 describe('SupabaseService', () => {
   let service: SupabaseService;
 
+  /**
+   * Replace the real Supabase client with a thenable query chain that rejects.
+   * Avoids live network calls (flaky / hanging under Node 24 + Chrome Headless in CI).
+   */
+  function installRejectingClient(
+    target: SupabaseService,
+    error: Error = new Error('network')
+  ): void {
+    const rejected = Promise.reject(error);
+    rejected.catch(() => undefined);
+
+    const chain: Record<string, unknown> = {};
+    const returnChain = () => chain;
+    for (const method of [
+      'select',
+      'eq',
+      'neq',
+      'order',
+      'single',
+      'maybeSingle',
+      'insert',
+      'upsert',
+      'update',
+      'delete',
+      'contains',
+      'in',
+      'limit',
+    ]) {
+      chain[method] = returnChain;
+    }
+    Object.assign(chain, {
+      then: rejected.then.bind(rejected),
+      catch: rejected.catch.bind(rejected),
+      finally: rejected.finally.bind(rejected),
+    });
+
+    (target as unknown as { supabase: { from: jasmine.Spy } }).supabase = {
+      from: jasmine.createSpy('from').and.returnValue(chain),
+    };
+  }
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [provideZonelessChangeDetection(), SupabaseService],
@@ -143,21 +184,27 @@ describe('SupabaseService', () => {
   // ─── Error fallback patterns ────────────────────────────────
 
   describe('error fallback patterns', () => {
+    beforeEach(() => {
+      installRejectingClient(service);
+      spyOn(console, 'error');
+    });
+
     it('getPersonalBests should return empty array on error', async () => {
-      // The method catches errors and returns []
-      // We verify by calling with an invalid setup (no actual DB)
       const result = await service.getPersonalBests('nonexistent-user');
       expect(Array.isArray(result)).toBeTrue();
+      expect(result.length).toBe(0);
     });
 
     it('getLifetimeStats should return empty object on error', async () => {
       const result = await service.getLifetimeStats('nonexistent-user');
-      expect(result.stats_by_type).toBeDefined();
+      expect(result.stats_by_type).toEqual({});
+      expect(result.best_streaks_by_type).toEqual({});
     });
 
     it('updateLastActive should not throw', async () => {
       await expectAsync(service.updateLastActive('any-user')).not.toBeRejected();
     });
+
     it('should have updateUserGoals method', () => {
       expect(typeof service.updateUserGoals).toBe('function');
     });
@@ -166,17 +213,17 @@ describe('SupabaseService', () => {
   // ─── updateUserGoals ────────────────────────────────────────
 
   describe('updateUserGoals', () => {
-    it('should not succeed silently (network not available in tests)', async () => {
-      // No real DB — the call will reject; we just confirm the method runs and rejects
-      await expectAsync(
-        service.updateUserGoals('any-user', 20, 20, 20)
-      ).toBeRejected();
+    beforeEach(() => {
+      installRejectingClient(service);
+      spyOn(console, 'error');
     });
 
-    it('should accept optional mathNumberRange param without throwing a JS error', async () => {
-      await expectAsync(
-        service.updateUserGoals('any-user', 20, 20, 20, 300)
-      ).toBeRejected();
+    it('should reject when the client reports an error', async () => {
+      await expectAsync(service.updateUserGoals('any-user', 20, 20, 20)).toBeRejected();
+    });
+
+    it('should accept optional mathNumberRange param and still reject on client error', async () => {
+      await expectAsync(service.updateUserGoals('any-user', 20, 20, 20, 300)).toBeRejected();
     });
   });
 });

@@ -1,9 +1,10 @@
-import { Component, signal, computed, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InteractiveClockDisplayComponent } from '../interactive-clock-display/interactive-clock-display';
 import { StatsService } from '../../services/stats.service';
 import { ExerciseStateService } from '../../services/exercise-state.service';
+import { ClockService } from '../../services/clock';
 import { createStatsAggregator } from '../../utils/stats-aggregator';
 
 export type ClockExerciseType = 'full' | 'half' | 'quarter' | 'fiveMin' | 'fiveMinAfter' | 'fiveMinBefore' | 'fiveMinHalf';
@@ -28,9 +29,10 @@ export interface SetClockProblem {
   providers: [ExerciseStateService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetClockExerciseComponent implements OnInit {
+export class SetClockExerciseComponent implements OnInit, OnDestroy {
   private stats = inject(StatsService);
   private exerciseState = inject(ExerciseStateService);
+  private clockService = inject(ClockService);
 
   // Streak tracking (delegated to ExerciseStateService)
   readonly streak = this.exerciseState.streak;
@@ -103,6 +105,10 @@ export class SetClockExerciseComponent implements OnInit {
      this.generateProblem();
    }
 
+   ngOnDestroy(): void {
+     this.exerciseState.reset();
+   }
+
    // Type selector methods
   toggleType(type: ClockExerciseType): void {
     const current = new Set(this.selectedTypes());
@@ -143,29 +149,11 @@ export class SetClockExerciseComponent implements OnInit {
   }
 
   getTypeLabel(type: ClockExerciseType): string {
-    const labels: Record<ClockExerciseType, string> = {
-      'full': 'Volle Stunden',
-      'half': 'Halbe Stunden',
-      'quarter': 'Viertelstunden',
-      'fiveMin': '5 Minuten',
-      'fiveMinAfter': 'Minuten nach',
-      'fiveMinBefore': 'Minuten vor',
-      'fiveMinHalf': 'Vor/Nach halb'
-    };
-    return labels[type];
+    return this.clockService.getTypeLabel(type);
   }
 
   getTypeIcon(type: ClockExerciseType): string {
-    const icons: Record<ClockExerciseType, string> = {
-      'full': '60',
-      'half': '30',
-      'quarter': '15',
-      'fiveMin': '05',
-      'fiveMinAfter': '→',
-      'fiveMinBefore': '←',
-      'fiveMinHalf': '½'
-    };
-    return icons[type];
+    return this.clockService.getTypeIcon(type);
   }
 
   // Display mode methods

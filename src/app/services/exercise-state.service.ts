@@ -25,6 +25,7 @@ export class ExerciseStateService {
 
   private milestones = [5, 10, 20, 30, 40, 50];
   private milestoneTimer: ReturnType<typeof setTimeout> | undefined;
+  private advanceTimer: ReturnType<typeof setTimeout> | undefined;
 
   /**
    * Configure which milestone thresholds trigger the popup.
@@ -56,10 +57,12 @@ export class ExerciseStateService {
         clearTimeout(this.milestoneTimer);
         this.milestoneTimer = setTimeout(() => this.showMilestone.set(false), 2000);
       }
-      setTimeout(onAdvance, correctDelay);
+      clearTimeout(this.advanceTimer);
+      this.advanceTimer = setTimeout(onAdvance, correctDelay);
     } else {
       this.streak.set(0);
-      setTimeout(onAdvance, incorrectDelay);
+      clearTimeout(this.advanceTimer);
+      this.advanceTimer = setTimeout(onAdvance, incorrectDelay);
     }
   }
 
@@ -70,5 +73,6 @@ export class ExerciseStateService {
     this.showMilestone.set(false);
     this.milestoneValue.set(0);
     clearTimeout(this.milestoneTimer);
+    clearTimeout(this.advanceTimer);
   }
 }
