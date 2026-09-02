@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { WordProblem, WordProblemType } from '../../models/word-problem.model';
 import { WordProblemService } from '../../services/word-problem.service';
@@ -16,7 +16,7 @@ import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component
   providers: [ExerciseStateService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WordProblemExerciseComponent implements OnInit {
+export class WordProblemExerciseComponent implements OnInit, OnDestroy {
   currentProblem = signal<WordProblem | null>(null);
   userAnswer = signal('');
   feedback = signal<'idle' | 'correct' | 'incorrect'>('idle');
@@ -51,6 +51,10 @@ export class WordProblemExerciseComponent implements OnInit {
 
     // Seed session best from persisted stats; current streak starts at 0
     this.exerciseState.bestStreak.set(this.stats.getBestStreak('word-problems'));
+  }
+
+  ngOnDestroy(): void {
+    this.exerciseState.reset();
   }
 
   storyText = computed(() => this.currentProblem()?.storyText ?? '');

@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   inject,
   signal,
   computed,
@@ -26,7 +27,7 @@ const MAX_WRONG = 6;
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ExerciseStateService],
 })
-export class DeutschHangmanComponent implements OnInit {
+export class DeutschHangmanComponent implements OnInit, OnDestroy {
   private deutschService = inject(DeutschService);
   protected statsService = inject(StatsService);
   private authService = inject(AuthService);
@@ -114,6 +115,10 @@ export class DeutschHangmanComponent implements OnInit {
 
     this.isLoading.set(false);
     this.showNextWord();
+  }
+
+  ngOnDestroy(): void {
+    this.exerciseState.reset();
   }
 
   // ============================================================================

@@ -114,6 +114,7 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
+    this.exerciseState.reset();
   }
 
   generateProblem(): void {

@@ -3,7 +3,6 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { StatsService } from '../../services/stats.service';
 import { ExerciseStateService } from '../../services/exercise-state.service';
 import { SequenceService } from '../../services/sequence.service';
-import type { Question } from '../../services/sequence.service';
 
 @Component({
   selector: 'app-sequence-exercise',
@@ -54,6 +53,7 @@ export class SequenceExerciseComponent implements OnInit, OnDestroy {
     if (this.statsInterval) {
       clearInterval(this.statsInterval);
     }
+    this.exerciseState.reset();
   }
 
   private refreshStats(): void {
@@ -74,7 +74,10 @@ export class SequenceExerciseComponent implements OnInit, OnDestroy {
   }
 
   private nextQuestion(): void {
-    const q: Question = this.sequenceService.generateQuestion(this.exerciseType());
+    const q = this.sequenceService.generateQuestion(this.exerciseType());
+    if (!q) {
+      return;
+    }
     this.question.set(q.question);
     this.options.set(q.options);
     this.correctIndex.set(q.correctIndex);

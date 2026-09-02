@@ -370,5 +370,6 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
+    this.exerciseState.reset();
   }
 }

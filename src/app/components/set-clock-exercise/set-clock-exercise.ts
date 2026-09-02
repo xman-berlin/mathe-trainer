@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InteractiveClockDisplayComponent } from '../interactive-clock-display/interactive-clock-display';
@@ -29,7 +29,7 @@ export interface SetClockProblem {
   providers: [ExerciseStateService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetClockExerciseComponent implements OnInit {
+export class SetClockExerciseComponent implements OnInit, OnDestroy {
   private stats = inject(StatsService);
   private exerciseState = inject(ExerciseStateService);
   private clockService = inject(ClockService);
@@ -103,6 +103,10 @@ export class SetClockExerciseComponent implements OnInit {
 
    ngOnInit(): void {
      this.generateProblem();
+   }
+
+   ngOnDestroy(): void {
+     this.exerciseState.reset();
    }
 
    // Type selector methods
