@@ -5,6 +5,7 @@ import { DeutschRechtschreibungComponent } from './vocab-exercise';
 import { DeutschService } from '../../services/vocab.service';
 import { StatsService } from '../../services/stats.service';
 import { AuthService } from '../../services/auth.service';
+import { ExerciseStateService } from '../../services/exercise-state.service';
 import type { VocabSessionWord } from '../../models/vocab.model';
 
 function makeWord(overrides: Partial<VocabSessionWord> = {}): VocabSessionWord {
@@ -29,6 +30,7 @@ describe('DeutschRechtschreibungComponent', () => {
   let mockAuthService: { currentUser: ReturnType<typeof signal<{ id: string } | null>> };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockStatsService: { recordResult: jasmine.Spy; statsByType: any };
+  let mockExerciseState: jasmine.SpyObj<ExerciseStateService>;
 
   function createComponent(): void {
     fixture = TestBed.createComponent(DeutschRechtschreibungComponent);
@@ -52,6 +54,21 @@ describe('DeutschRechtschreibungComponent', () => {
     mockDeutschService.loadUserData.and.returnValue(Promise.resolve());
     mockDeutschService.buildSession.and.returnValue(Promise.resolve([]));
 
+    // Stub ExerciseStateService so submitAnswer does not schedule real setTimeouts
+    // that would fire later and corrupt other suites (CI flake under Node 22/24).
+    mockExerciseState = jasmine.createSpyObj(
+      'ExerciseStateService',
+      ['handleResult', 'reset', 'setMilestones'],
+      {
+        streak: signal(0),
+        bestStreak: signal(0),
+        showMilestone: signal(false),
+        milestoneValue: signal(0),
+        confettiPieces: [],
+        confettiX: [],
+      }
+    );
+
     TestBed.configureTestingModule({
       imports: [DeutschRechtschreibungComponent],
       providers: [
@@ -61,7 +78,15 @@ describe('DeutschRechtschreibungComponent', () => {
         { provide: DeutschService, useValue: mockDeutschService },
         { provide: StatsService, useValue: mockStatsService },
       ],
+    }).overrideComponent(DeutschRechtschreibungComponent, {
+      set: {
+        providers: [{ provide: ExerciseStateService, useValue: mockExerciseState }],
+      },
     });
+  });
+
+  afterEach(() => {
+    fixture?.destroy();
   });
 
   // ─── Initial state ────────────────────────────────────────────────
