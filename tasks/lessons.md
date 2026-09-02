@@ -36,3 +36,9 @@ Only after ALL pass → commit → push → verify CI.
 **Mistake**: Rechenhaus-Plan in `tasks/rechenhaus.md` erstellt, ohne den Eintrag in `tasks/todo.md` hinzuzufügen.
 
 **Rule**: Jedes Mal wenn eine neue `tasks/<feature>.md` erstellt wird, sofort eine Zeile in `tasks/todo.md` ergänzen. Die todo.md ist der Index — sie ist wertlos wenn sie unvollständig ist.
+
+## 2026-09-02 — Dev-Server vor lokalem Test immer neu starten
+
+**Rule**: Vor lokalem Browser-Test (und damit vor commit-and-push): laufenden Dev-Server stoppen (`npx kill-port 4200`), Branch prüfen, `npm run start:poll` neu starten, erst nach User-OK committen/pushen. Ein alter Hintergrund-Server kann einen veralteten Branch/Build ausliefern.
+
+**Cursor rule**: `.cursor/rules/local-test-before-commit.mdc` (`alwaysApply: true`)

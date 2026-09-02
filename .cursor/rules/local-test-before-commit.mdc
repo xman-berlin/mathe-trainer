@@ -1,0 +1,16 @@
+---
+description: Stop and restart the Angular dev server before local testing prior to commit-and-push
+alwaysApply: true
+---
+
+# Local test before commit-and-push
+
+Before commit-and-push (or when the user wants to test feature changes in the browser):
+
+1. **Stop** any running Angular dev server on port 4200 (`npx kill-port 4200`).
+2. **Confirm** the current git branch is the one with the changes under test.
+3. **Start** a fresh server with `npm run start:poll` from the project root.
+4. Wait until `Local: http://localhost:4200/` appears, then tell the user to test.
+5. Only after the user confirms local testing is OK → run quality gates and commit/push.
+
+Do not skip the restart: an old background server may still serve a previous branch or stale build.
