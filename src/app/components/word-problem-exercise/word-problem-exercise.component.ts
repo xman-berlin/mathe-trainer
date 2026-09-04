@@ -1,22 +1,33 @@
 import { Component, signal, computed, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { WordProblem, WordProblemType } from '../../models/word-problem.model';
+import {
+  WordProblem,
+  WordProblemType,
+  isTwoStepProblem,
+} from '../../models/word-problem.model';
 import { WordProblemService } from '../../services/word-problem.service';
 import { StatsService } from '../../services/stats.service';
 import { ExerciseStateService } from '../../services/exercise-state.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
-import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component';
 
 @Component({
   standalone: true,
   selector: 'app-word-problem-exercise',
-  imports: [RouterLink, KeypadComponent, StatsBadgeComponent],
+  imports: [RouterLink, KeypadComponent],
   templateUrl: './word-problem-exercise.component.html',
-  styleUrls: ['./word-problem-exercise.component.scss'],
+  styleUrl: './word-problem-exercise.component.scss',
   providers: [ExerciseStateService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WordProblemExerciseComponent implements OnInit, OnDestroy {
+  readonly exerciseTypes: WordProblemType[] = [
+    'two-step',
+    'addition',
+    'subtraction',
+    'multiplication',
+    'division',
+  ];
+
   currentProblem = signal<WordProblem | null>(null);
   userAnswer = signal('');
   feedback = signal<'idle' | 'correct' | 'incorrect'>('idle');
@@ -26,7 +37,6 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
   private stats = inject(StatsService);
   private exerciseState = inject(ExerciseStateService);
 
-  // Streak / milestone / confetti (delegated to ExerciseStateService)
   readonly streak = this.exerciseState.streak;
   readonly bestStreak = this.exerciseState.bestStreak;
   readonly showMilestone = this.exerciseState.showMilestone;
@@ -36,8 +46,10 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
     return this.exerciseState.confettiX;
   }
 
-  selectedTypes = signal<Set<WordProblemType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
-  currentType = signal<WordProblemType>('addition');
+  selectedTypes = signal<Set<WordProblemType>>(
+    new Set(['two-step', 'addition', 'subtraction', 'multiplication', 'division'])
+  );
+  currentType = signal<WordProblemType>('two-step');
 
   constructor() {
     this.exerciseState.setMilestones([5, 10, 20, 30, 40, 50, 75, 100]);
@@ -45,11 +57,8 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Clean up old localStorage item (migration)
     localStorage.removeItem('wordProblemCurrentStreak');
     localStorage.removeItem('wordProblemRange');
-
-    // Seed session best from persisted stats; current streak starts at 0
     this.exerciseState.bestStreak.set(this.stats.getBestStreak('word-problems'));
   }
 
@@ -62,10 +71,13 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
   storyIcon = computed(() => {
     const problem = this.currentProblem();
     if (!problem) return '📝';
+    if (isTwoStepProblem(problem)) return problem.icon;
     return this.wordProblemService.getTemplateIcon(problem.templateId);
   });
 
   correctAnswer = computed(() => this.currentProblem()?.correctAnswer ?? 0);
+
+  isTwoStep = computed(() => isTwoStepProblem(this.currentProblem()));
 
   keypadDisabled = computed(() => this.feedback() !== 'idle');
 
@@ -79,12 +91,27 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
     return types['word-problems']?.incorrect ?? 0;
   });
 
+  wordProblemTotalCount = computed(
+    () => this.wordProblemCorrectCount() + this.wordProblemIncorrectCount()
+  );
+
   operatorSymbol(type: WordProblemType): string {
     switch (type) {
+      case 'two-step': return '2+';
       case 'addition': return '+';
       case 'subtraction': return '−';
       case 'multiplication': return '×';
       case 'division': return '÷';
+    }
+  }
+
+  typeLabel(type: WordProblemType): string {
+    switch (type) {
+      case 'two-step': return 'Zweistufig';
+      case 'addition': return 'Plus';
+      case 'subtraction': return 'Minus';
+      case 'multiplication': return 'Mal';
+      case 'division': return 'Geteilt';
     }
   }
 
@@ -100,7 +127,6 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
       if (newSet.size > 1) {
         newSet.delete(type);
         this.selectedTypes.set(newSet);
-        // Generate new problem if current type was deselected
         if (this.currentType() === type) {
           this.generateProblem();
         }
@@ -115,7 +141,6 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
     const types = Array.from(this.selectedTypes());
     const type = types[Math.floor(Math.random() * types.length)];
     const maxValue = this.stats.currentMathNumberRange();
-
     const problem = this.wordProblemService.generateProblem(type, 'bis100', maxValue);
     this.currentProblem.set(problem);
     this.currentType.set(type);
@@ -126,20 +151,26 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
   }
 
   submitAnswer() {
+    if (this.feedback() !== 'idle') return;
+    const problem = this.currentProblem();
+    if (!problem) return;
+
     const userInputValue = this.userAnswer();
     if (userInputValue === '') return;
-    // Prevent multiple submissions while showing feedback
-    if (this.feedback() !== 'idle') return;
 
     const parsed = Number(userInputValue);
-    const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer();
+    const isCorrect =
+      Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer();
+    this.applyResult(isCorrect);
+  }
 
+  private applyResult(isCorrect: boolean) {
     this.feedback.set(isCorrect ? 'correct' : 'incorrect');
     if (!isCorrect) {
       this.showCorrectAnswer.set(true);
     }
 
-    this.exerciseState.handleResult(isCorrect, () => this.generateProblem());
+    this.exerciseState.handleResult(isCorrect, () => this.generateProblem(), 800, 1200);
     this.stats.recordResult(isCorrect, 'word-problems');
 
     if (isCorrect) {

@@ -1,5 +1,19 @@
 import { Injectable } from '@angular/core';
-import { WordProblem, WordProblemType, NumberRange, StoryTemplate } from '../models/word-problem.model';
+import {
+  WordProblem,
+  WordProblemType,
+  NumberRange,
+  StoryTemplate,
+  TwoStepWordProblem,
+  OneStepWordProblem,
+  isTwoStepProblem,
+} from '../models/word-problem.model';
+import {
+  generateTwoStepProblem,
+  getWorksheetExamples,
+  gradeTwoStep,
+  TwoStepGradeResult,
+} from './two-step-word-problem';
 
 @Injectable({
   providedIn: 'root'
@@ -99,7 +113,18 @@ export class WordProblemService {
   private recentProblems: string[] = [];
   private readonly maxRecentProblems = 10;
 
+  generateProblem(type: 'two-step', range: NumberRange, maxValue?: number): TwoStepWordProblem;
+  generateProblem(
+    type: Exclude<WordProblemType, 'two-step'>,
+    range: NumberRange,
+    maxValue?: number
+  ): OneStepWordProblem;
+  generateProblem(type: WordProblemType, range: NumberRange, maxValue?: number): WordProblem;
   generateProblem(type: WordProblemType, range: NumberRange, maxValue?: number): WordProblem {
+    if (type === 'two-step') {
+      return generateTwoStepProblem(maxValue);
+    }
+
     // Select random template
     const availableTemplates = this.storyTemplates.filter(t => t.templates[type]);
     const template = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
@@ -133,6 +158,7 @@ export class WordProblemService {
     const correctAnswer = this.calculateAnswer(type, operandA, operandB);
 
     return {
+      kind: 'one-step',
       type,
       storyText,
       operandA,
@@ -143,7 +169,27 @@ export class WordProblemService {
     };
   }
 
-  private generateNumbers(type: WordProblemType, range: NumberRange, maxValue?: number): { a: number; b: number } {
+  generateTwoStepProblem(maxValue?: number): TwoStepWordProblem {
+    return generateTwoStepProblem(maxValue);
+  }
+
+  getWorksheetExamples(): TwoStepWordProblem[] {
+    return getWorksheetExamples();
+  }
+
+  gradeTwoStep(rechnung: string, antwort: string, problem: TwoStepWordProblem): TwoStepGradeResult {
+    return gradeTwoStep(rechnung, antwort, problem);
+  }
+
+  isTwoStep(problem: WordProblem | null | undefined): problem is TwoStepWordProblem {
+    return isTwoStepProblem(problem);
+  }
+
+  private generateNumbers(
+    type: Exclude<WordProblemType, 'two-step'>,
+    range: NumberRange,
+    maxValue?: number
+  ): { a: number; b: number } {
     switch (type) {
       case 'addition':
         return this.generateAddition(range, maxValue);
@@ -200,7 +246,7 @@ export class WordProblemService {
     return { a: b * quotient, b };
   }
 
-  private calculateAnswer(type: WordProblemType, a: number, b: number): number {
+  private calculateAnswer(type: Exclude<WordProblemType, 'two-step'>, a: number, b: number): number {
     switch (type) {
       case 'addition':
         return a + b;

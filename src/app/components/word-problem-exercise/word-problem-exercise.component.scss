@@ -1,17 +1,24 @@
-.word-problem-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+.word-problem-root {
+  width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  min-height: 100vh;
-  margin-top: 4rem;
+  background: #f9fafb;
 }
 
-/* Back Button */
+.word-problem-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 1rem;
+}
+
 .back-btn {
-  position: fixed;
+  position: absolute;
   top: 1rem;
   left: 1rem;
   padding: 0.5rem 1rem;
@@ -35,7 +42,31 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Type Selector */
+.exercise-content {
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  text-align: center;
+}
+
+.task-section,
+.answer-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
 .type-selector {
   display: flex;
   flex-wrap: wrap;
@@ -68,40 +99,18 @@
   opacity: 1;
 }
 
-/* Range Selector */
-.range-selector {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-}
-
-.range-btn {
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  border: 2px solid var(--gray-300);
-  background: var(--gray-100);
+.hint {
+  font-size: 0.95rem;
   color: var(--gray-600);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  font-style: italic;
+  text-align: center;
+  margin: 0;
 }
 
-.range-btn:hover {
-  border-color: var(--gray-400);
-  background: var(--gray-200);
-}
-
-.range-btn.active {
-  border-color: #8B5CF6;
-  background: rgba(139, 92, 246, 0.15);
-  color: #8B5CF6;
-}
-
-/* Story Display */
 .story-display {
   text-align: center;
-  padding: 2rem 1.5rem;
+  padding: 1.5rem 1.25rem;
+  width: 100%;
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -109,7 +118,7 @@
 
 .story-icon {
   font-size: 3rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .story-text {
@@ -121,11 +130,75 @@
   margin: 0 auto;
 }
 
-/* Input Section */
+.worksheet-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 460px;
+}
+
+.field-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gray-700);
+}
+
+.rechnung-input,
+.antwort-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 3px solid var(--gray-400);
+  border-radius: 12px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  background: white;
+  outline: none;
+}
+
+.rechnung-input:focus,
+.antwort-input:focus {
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+}
+
+.rechnung-input:disabled,
+.antwort-input:disabled {
+  background: var(--gray-100);
+  cursor: not-allowed;
+}
+
+.antwort-input {
+  resize: none;
+  min-height: 4.2rem;
+  font-weight: 500;
+}
+
+.submit-btn {
+  margin-top: 0.35rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(109, 40, 217, 0.25);
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .input-section {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
 .answer-input {
@@ -137,31 +210,20 @@
   border: 3px solid var(--gray-400);
   border-radius: 12px;
   outline: none;
-  transition: all 0.3s ease;
   font-variant-numeric: tabular-nums;
 }
 
-.answer-input:focus {
-  border-color: #8B5CF6;
-  box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.15);
-  background: color-mix(in srgb, #8B5CF6 3%, white);
-}
-
-.answer-input::placeholder {
-  color: var(--gray-400);
-}
-
-/* Feedback Area */
 .feedback-area {
   min-height: 2rem;
   text-align: center;
+  width: 100%;
 }
 
 .feedback-correct,
 .feedback-incorrect {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   border-radius: 8px;
   animation: slideDown 0.3s ease;
 }
@@ -187,7 +249,12 @@
   background: rgba(192, 57, 43, 0.1);
 }
 
-/* Streak Display */
+.sample-line {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: 0.35rem;
+}
+
 .streak-display {
   display: flex;
   gap: 2rem;
@@ -196,6 +263,16 @@
   padding: 0.8rem 1.5rem;
   border-radius: 12px;
   background: var(--gray-100);
+}
+
+.streak-display.has-streak {
+  background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+  color: white;
+}
+
+.streak-display.has-streak .streak-label,
+.streak-display.has-streak .streak-value {
+  color: white;
 }
 
 .streak-item {
@@ -217,15 +294,46 @@
   color: #8B5CF6;
 }
 
-/* Stats Badge Container */
-.stats-badge-container {
+.result-summary {
   display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
   justify-content: center;
-  margin-top: auto;
-  padding-top: 1rem;
+  align-items: center;
 }
 
-/* Milestone Popup */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.badge-correct {
+  background: rgba(39, 174, 96, 0.15);
+  color: #1e8449;
+}
+
+.badge-incorrect {
+  background: rgba(192, 57, 43, 0.15);
+  color: #a93226;
+}
+
+.badge-total {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--gray-900);
+}
+
+.summary-label {
+  font-size: 0.95rem;
+  color: var(--gray-700);
+  font-weight: 600;
+}
+
 .milestone-popup {
   position: fixed;
   top: 50%;
@@ -271,7 +379,6 @@
   }
 }
 
-/* Confetti */
 .confetti {
   position: fixed;
   top: -10px;
@@ -293,75 +400,86 @@
   100% { opacity: 0; top: 100vh; transform: rotate(720deg); }
 }
 
-/* Tablet Landscape Optimizations */
-@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+/* Landscape: match Uhrzeit exercises — left = task + streak + stats, right = input */
+@media (orientation: landscape) and (min-width: 700px) {
   .word-problem-container {
     max-width: 1200px;
+  }
+
+  .exercise-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto 1fr auto;
-    gap: 0.6rem 2rem;
-    margin-top: 2rem;
-    padding: 1rem 1.5rem;
-    min-height: auto;
+    gap: 1rem 2rem;
+    align-items: start;
+    margin-top: 1.5rem;
   }
 
-  .back-btn {
-    position: fixed;
-    top: 0.5rem;
-    left: 0.5rem;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
+  .page-title {
+    grid-column: 1 / -1;
+    font-size: 1.35rem;
   }
 
-  /* Story display on the left, spanning rows 1-4 */
-  .story-display {
+  .type-selector {
+    grid-column: 1 / -1;
+    justify-self: center;
+    gap: 0.75rem;
+  }
+
+  .type-btn {
+    padding: 0.6rem 0.9rem;
+    font-size: 1.2rem;
+    border-radius: 10px;
+  }
+
+  .task-section {
     grid-column: 1;
-    grid-row: 1 / 5;
-    padding: 1rem;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    min-width: 0;
+    padding: 0.5rem 1rem;
+  }
+
+  .story-display {
+    padding: 1.2rem 1rem;
   }
 
   .story-icon {
-    font-size: 2rem;
+    font-size: 2.4rem;
     margin-bottom: 0.5rem;
   }
 
   .story-text {
-    font-size: 1rem;
+    font-size: 1.1rem;
     line-height: 1.5;
+    max-width: none;
   }
 
-  /* Right column: combined selectors, input, keypad */
-  .type-selector {
+  .answer-section {
     grid-column: 2;
-    grid-row: 1;
-    gap: 0.3rem;
-    margin-bottom: 0;
+    grid-row: 3 / 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-width: 0;
+    justify-self: center;
   }
 
-  .type-btn {
-    padding: 0.5rem 1rem;
-    font-size: 1.2rem;
+  .worksheet-fields,
+  .input-section,
+  app-keypad,
+  .feedback-area {
+    width: 100%;
+    justify-self: center;
   }
 
-  .range-selector {
-    grid-column: 2;
-    grid-row: 2;
-    gap: 0.3rem;
-  }
-
-  .range-btn {
-    padding: 0.4rem 0.9rem;
-    font-size: 0.8rem;
-  }
-
-  .input-section {
-    grid-column: 2;
-    grid-row: 3;
-    margin: 0;
+  .worksheet-fields {
+    max-width: 420px;
   }
 
   .answer-input {
@@ -371,61 +489,101 @@
   }
 
   app-keypad {
-    grid-column: 2;
-    grid-row: 4;
     justify-self: center;
-    align-self: start;
   }
 
-  /* Feedback and Streak combined at bottom */
+  .streak-display,
+  .result-summary {
+    grid-column: 1;
+    justify-self: center;
+  }
+
+  .milestone-popup {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (orientation: landscape) and (min-width: 700px) and (max-height: 450px) {
+  .word-problem-container {
+    padding: 0.5rem;
+  }
+
+  .exercise-content {
+    margin-top: 0.25rem;
+    gap: 0.25rem 1rem;
+  }
+
+  .page-title {
+    font-size: 1.15rem;
+  }
+
+  .task-section {
+    padding: 0.25rem;
+    gap: 0.4rem;
+  }
+
+  .hint {
+    font-size: 0.75rem;
+  }
+
+  .story-display {
+    padding: 0.6rem 0.7rem;
+  }
+
+  .story-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .story-text {
+    font-size: 0.95rem;
+  }
+
+  .type-btn {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .answer-section {
+    gap: 0.3rem;
+  }
+
+  .rechnung-input,
+  .antwort-input {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .antwort-input {
+    min-height: 2.6rem;
+  }
+
+  .submit-btn {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .streak-display {
+    padding: 0.3rem 0.6rem;
+    gap: 1rem;
+  }
+
+  .result-summary {
+    margin-top: 0;
+    gap: 0.3rem;
+  }
+
   .feedback-area {
-    grid-column: 2;
-    grid-row: 5;
-    min-height: 1.2rem;
-    margin: 0;
+    min-height: 1rem;
   }
 
   .feedback-correct,
   .feedback-incorrect {
-    font-size: 0.9rem;
-    padding: 0.5rem 1rem;
-  }
-
-  .streak-display {
-    grid-column: 1;
-    grid-row: 5;
-    padding: 0.5rem 1rem;
-    gap: 1.5rem;
-  }
-
-  .streak-label {
-    font-size: 0.75rem;
-  }
-
-  .streak-value {
-    font-size: 1.2rem;
-  }
-
-  /* Stats badge - hide in landscape to save space */
-  .stats-badge-container {
-    display: none;
-  }
-
-  /* Milestone popup */
-  .milestone-content {
-    padding: 1rem 1.8rem;
-  }
-
-  .milestone-icon {
-    font-size: 1.8rem;
-  }
-
-  .milestone-text {
-    font-size: 1.3rem;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
   }
 }
 
-/* Portrait: Bottom back button for all portrait devices (mobile & tablet) */
 @media (orientation: portrait) {
   .back-btn {
     position: fixed;
@@ -442,49 +600,52 @@
     transform: scale(1.05);
   }
 
-  .word-problem-container {
+  .exercise-content {
     margin-top: 1rem;
-  }
-}
-
-/* Desktop */
-@media (min-width: 1025px) {
-  .word-problem-container {
-    margin-top: 5rem;
+    gap: 0.5rem;
   }
 
-  .story-icon {
-    font-size: 4rem;
-  }
-
-  .story-text {
-    font-size: 1.4rem;
-  }
-}
-
-/* Small Mobile */
-@media (max-width: 540px) {
-  .word-problem-container {
-    padding: 1.5rem 0.75rem;
-    gap: 1.2rem;
-  }
-
-  .story-display {
-    padding: 1.5rem 1rem;
-  }
-
-  .story-icon {
-    font-size: 2.5rem;
-  }
-
-  .story-text {
-    font-size: 1.1rem;
+  .type-selector {
+    gap: 0.4rem;
   }
 
   .type-btn {
-    padding: 0.6rem 1.2rem;
-    font-size: 1.3rem;
-    min-width: 3rem;
+    padding: 0.5rem 1rem;
+    font-size: 1.2rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .story-icon {
+    font-size: 3.5rem;
+  }
+
+  .story-text {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 540px) {
+  .word-problem-container {
+    padding: 0.75rem;
+  }
+
+  .story-display {
+    padding: 1.1rem 0.9rem;
+  }
+
+  .story-icon {
+    font-size: 2.4rem;
+  }
+
+  .story-text {
+    font-size: 1.05rem;
+  }
+
+  .type-btn {
+    padding: 0.5rem 0.9rem;
+    font-size: 1.2rem;
+    min-width: 2.8rem;
   }
 
   .answer-input {
