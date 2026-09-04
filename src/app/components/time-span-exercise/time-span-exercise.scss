@@ -52,6 +52,15 @@
   align-items: center;
 }
 
+.task-section,
+.answer-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
 .type-selector {
   display: flex;
   gap: 0.5rem;
@@ -454,29 +463,81 @@
   font-weight: 600;
 }
 
+/* Landscape: match Uhrzeit exercises — left = task + streak + stats, right = input */
 @media (orientation: landscape) and (min-width: 700px) {
   .time-span-exercise-container {
-    max-width: 1000px;
+    max-width: 1200px;
   }
 
   .exercise-content {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 1fr);
-    gap: 0.75rem 1.5rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 2rem;
     align-items: start;
     margin-top: 1.5rem;
   }
 
-  .type-selector,
-  .question {
+  /* Type selector across the top, like a shared toolbar */
+  .type-selector {
     grid-column: 1 / -1;
+    justify-self: center;
+    gap: 0.75rem;
+  }
+
+  .type-btn {
+    padding: 0.6rem 0.9rem;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+
+  .type-icon {
+    font-size: 1.3rem;
+  }
+
+  /* Task/question — Column 1, like clock-section */
+  .task-section {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    min-width: 0;
+    padding: 0.5rem 1rem;
+  }
+
+  .question {
+    justify-self: center;
+  }
+
+  .question h2 {
+    font-size: 1.4rem;
   }
 
   .span-row,
   .bus-card {
-    grid-column: 1 / -1;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     justify-self: center;
-    max-width: 560px;
+  }
+
+  .span-row {
+    flex-wrap: wrap;
+  }
+
+  /* Answer input — Column 2, spanning the task + streak + stats rows */
+  .answer-section {
+    grid-column: 2;
+    grid-row: 2 / 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-width: 0;
+    justify-self: center;
   }
 
   .duration-fields,
@@ -484,15 +545,151 @@
   .input-section,
   app-keypad,
   .feedback-area {
-    grid-column: 2;
-    justify-self: center;
     width: 100%;
+    justify-self: center;
   }
 
+  .input-section {
+    max-width: 400px;
+  }
+
+  .time-input {
+    font-size: 1.85rem;
+    padding: 0.8rem 1.1rem;
+  }
+
+  app-keypad {
+    justify-self: center;
+  }
+
+  .feedback-area {
+    justify-self: center;
+  }
+
+  /* Streak + stats stay under the task on the left */
   .streak-display,
   .result-summary {
     grid-column: 1;
     justify-self: center;
+  }
+
+  .milestone-popup {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Compact landscape: keep both columns usable on short screens */
+@media (orientation: landscape) and (min-width: 700px) and (max-height: 450px) {
+  .time-span-exercise-container {
+    padding: 0.5rem;
+  }
+
+  .exercise-content {
+    margin-top: 0.25rem;
+    gap: 0.25rem 1rem;
+  }
+
+  .task-section {
+    padding: 0.25rem;
+    gap: 0.4rem;
+  }
+
+  .question h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .hint {
+    font-size: 0.75rem;
+  }
+
+  .time-box {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.55rem;
+  }
+
+  .bus-card {
+    padding: 0.6rem 0.8rem;
+    gap: 0.6rem;
+  }
+
+  .type-selector {
+    gap: 0.4rem;
+  }
+
+  .type-btn {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+
+  .answer-section {
+    gap: 0.3rem;
+  }
+
+  .duration-field {
+    min-width: 5.5rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .field-value {
+    font-size: 1.3rem;
+  }
+
+  .time-input {
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    letter-spacing: 0.1rem;
+  }
+
+  .streak-display {
+    padding: 0.3rem 0.6rem;
+  }
+
+  .result-summary {
+    margin-top: 0;
+    gap: 0.3rem;
+  }
+
+  .feedback-area {
+    min-height: 1rem;
+  }
+
+  .feedback {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* Portrait: vertical stack, back button at bottom like other Uhrzeit exercises */
+@media (orientation: portrait) {
+  .back-btn {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    top: auto;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .back-btn:hover {
+    transform: scale(1.05);
+  }
+
+  .exercise-content {
+    margin-top: 1rem;
+    gap: 0.5rem;
+  }
+
+  .type-selector {
+    gap: 0.4rem;
+  }
+
+  .type-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
   }
 }
 
