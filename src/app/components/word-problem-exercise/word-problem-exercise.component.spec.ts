@@ -11,7 +11,7 @@ describe('WordProblemExerciseComponent', () => {
   let fixture: ComponentFixture<WordProblemExerciseComponent>;
   let wordProblemService: WordProblemService;
 
-  function showTwoStepWorksheet() {
+  function showTwoStepOnly() {
     resetTwoStepRotation();
     component.selectedTypes.set(new Set(['two-step']));
     component.generateProblem();
@@ -104,64 +104,52 @@ describe('WordProblemExerciseComponent', () => {
     expect(component.selectedTypes().has('subtraction')).toBeTrue();
   });
 
-  describe('two-step worksheet mode', () => {
+  describe('two-step mixed with keypad', () => {
     beforeEach(() => {
-      showTwoStepWorksheet();
+      showTwoStepOnly();
     });
 
-    it('should render the Bobbi worksheet template from the real generator', () => {
+    it('should render the Bobbi template with keypad answer input', () => {
       expect(component.storyText()).toContain(
         'Bobbi fährt mit seinen Eltern mit dem Bus. Eine Erwachsenenkarte kostet 17€.'
       );
       expect(component.correctAnswer()).toBe(45);
       expect(component.isTwoStep()).toBeTrue();
       expect(fixture.nativeElement.querySelector('.story-text').textContent).toContain('Bobbi');
-      expect(fixture.nativeElement.querySelector('.rechnung-input')).toBeTruthy();
-      expect(fixture.nativeElement.querySelector('.antwort-input')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('app-keypad')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.answer-input')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.rechnung-input')).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('.antwort-input')).toBeFalsy();
     });
 
-    it('should show Rechnung and Antwort fields for the generated worksheet', () => {
-      expect(component.isTwoStep()).toBeTrue();
-      expect(fixture.nativeElement.querySelector('.hint').textContent).toContain(
-        'Schreibe die Rechnung und eine Antwort'
-      );
-    });
-
-    it('should grade the Bobbi worksheet through the real service', () => {
-      const gradeSpy = spyOn(wordProblemService, 'gradeTwoStep').and.callThrough();
-      component.userRechnung.set('17 + 17 + 11 = 45');
-      component.userAntwort.set('Die Familie bezahlt 45€.');
+    it('should grade two-step by final number only', () => {
+      component.userAnswer.set('45');
       component.feedback.set('idle');
 
       component.submitAnswer();
 
-      expect(gradeSpy).toHaveBeenCalled();
       expect(component.feedback()).toBe('correct');
     });
 
-    it('should accept the Lilo ages worksheet on the next problem', () => {
+    it('should accept the Lilo ages problem on the next generate', () => {
       component.generateProblem();
       fixture.detectChanges();
 
       expect(component.storyText()).toContain('Lilo ist 12 Jahre alt');
       expect(component.correctAnswer()).toBe(38);
 
-      component.userRechnung.set('12 + 21 + 5 = 38');
-      component.userAntwort.set('Ale zusammen sind 38 Jähre.');
+      component.userAnswer.set('38');
       component.submitAnswer();
 
       expect(component.feedback()).toBe('correct');
     });
 
-    it('should not submit two-step when a field is empty', () => {
-      const gradeSpy = spyOn(wordProblemService, 'gradeTwoStep');
-      component.userRechnung.set('17 + 17 + 11 = 45');
-      component.userAntwort.set('');
+    it('should not submit when answer is empty', () => {
+      component.userAnswer.set('');
       component.feedback.set('idle');
 
       component.submitAnswer();
 
-      expect(gradeSpy).not.toHaveBeenCalled();
       expect(component.feedback()).toBe('idle');
     });
   });
@@ -171,11 +159,9 @@ describe('WordProblemExerciseComponent', () => {
       showOneStepType('addition');
     });
 
-    it('should show the numeric keypad instead of worksheet fields', () => {
+    it('should show the numeric keypad for classic stories', () => {
       expect(component.isTwoStep()).toBeFalse();
       expect(component.currentType()).toBe('addition');
-      expect(fixture.nativeElement.querySelector('.rechnung-input')).toBeFalsy();
-      expect(fixture.nativeElement.querySelector('.antwort-input')).toBeFalsy();
       expect(fixture.nativeElement.querySelector('app-keypad')).toBeTruthy();
       expect(fixture.nativeElement.querySelector('.answer-input')).toBeTruthy();
     });

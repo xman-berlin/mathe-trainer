@@ -28,6 +28,13 @@ async function activateOnlyType(page: Page, ariaLabel: string): Promise<void> {
   await expect(keepBtn).toHaveClass(/active/);
 }
 
+async function enterAnswerViaKeypad(page: Page, answer: number): Promise<void> {
+  for (const digit of String(answer)) {
+    await page.locator('.keypad button', { hasText: digit, exact: true }).click();
+  }
+  await page.locator('.btn-ok').click();
+}
+
 test.describe('Mathe Sachaufgaben', () => {
   test.beforeEach(async ({ page }) => {
     await bypassLogin(page);
@@ -49,6 +56,7 @@ test.describe('Mathe Sachaufgaben', () => {
       /active/
     );
     await expect(page.locator('.story-display')).toBeVisible();
+    await expect(page.locator('.keypad')).toBeVisible();
   });
 
   test('should not show range selector buttons (Zahlenraum is set on Mathe overview)', async ({
@@ -66,7 +74,7 @@ test.describe('Mathe Sachaufgaben', () => {
     await expect(page.locator('.story-icon')).toBeVisible();
   });
 
-  test('should start with the Bobbi bus-ticket worksheet when only two-step is active', async ({
+  test('should start with the Bobbi bus-ticket story when only two-step is active', async ({
     page,
   }) => {
     await page.goto('/mathe/sachaufgaben');
@@ -75,29 +83,16 @@ test.describe('Mathe Sachaufgaben', () => {
     await expect(page.locator('.story-text')).toContainText(
       'Bobbi fährt mit seinen Eltern mit dem Bus. Eine Erwachsenenkarte kostet 17€. Kinder bezahlen 6€ weniger. Wie viel muss die Familie bezahlen?'
     );
+    await expect(page.locator('.answer-input')).toBeVisible();
+    await expect(page.locator('.keypad')).toBeVisible();
   });
 
-  test('should show Rechnung and Antwort fields for two-step problems', async ({ page }) => {
-    await page.goto('/mathe/sachaufgaben');
-    await activateOnlyType(page, 'Zweistufig');
-
-    await expect(
-      page.getByText('Löse die Sachaufgaben. Schreibe die Rechnung und eine Antwort.')
-    ).toBeVisible();
-    await expect(page.locator('#rechnung-input')).toBeVisible();
-    await expect(page.locator('#antwort-input')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Überprüfen' })).toBeVisible();
-    await expect(page.locator('.keypad')).toHaveCount(0);
-  });
-
-  test('should answer a two-step word problem with Rechnung and Antwort', async ({ page }) => {
+  test('should answer a two-step word problem with the final number only', async ({ page }) => {
     await page.goto('/mathe/sachaufgaben');
     await activateOnlyType(page, 'Zweistufig');
 
     await expect(page.locator('.story-text')).toContainText('Bobbi');
-    await page.locator('#rechnung-input').fill('17 + 17 + 11 = 45');
-    await page.locator('#antwort-input').fill('Die Familie bezahlt 45€.');
-    await page.getByRole('button', { name: 'Überprüfen' }).click();
+    await enterAnswerViaKeypad(page, 45);
 
     await expect(page.locator('.feedback-correct')).toBeVisible({ timeout: 2000 });
   });
@@ -110,7 +105,6 @@ test.describe('Mathe Sachaufgaben', () => {
 
     await expect(page.locator('.answer-input')).toBeVisible();
     await expect(page.locator('.keypad')).toBeVisible();
-    await expect(page.locator('#rechnung-input')).toHaveCount(0);
 
     await page.locator('.keypad button', { hasText: '5' }).click();
     await page.locator('.btn-ok').click();

@@ -42,3 +42,9 @@ Only after ALL pass → commit → push → verify CI.
 **Rule**: Vor lokalem Browser-Test (und damit vor commit-and-push): laufenden Dev-Server stoppen (`npx kill-port 4200`), Branch prüfen, `npm run start:poll` neu starten, erst nach User-OK committen/pushen. Ein alter Hintergrund-Server kann einen veralteten Branch/Build ausliefern.
 
 **Cursor rule**: `.cursor/rules/local-test-before-commit.mdc` (`alwaysApply: true`)
+
+## 2026-09-04 — Two-step Sachaufgaben: final number only, not worksheet fields
+
+**Mistake**: First implementation asked for Rechnung + Antwortsatz on multi-step word problems.
+
+**Rule**: For Schlaufuchs Sachaufgaben, multi-step templates still require intermediate thinking in the story, but the child only enters the final numeric result via the shared keypad — same UX as classic one-step stories. Keep two-step templates in the same type mix (`2+` with `+ − × ÷`).

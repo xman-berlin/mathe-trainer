@@ -4,7 +4,6 @@ import {
   WordProblem,
   WordProblemType,
   isTwoStepProblem,
-  TwoStepWordProblem,
 } from '../../models/word-problem.model';
 import { WordProblemService } from '../../services/word-problem.service';
 import { StatsService } from '../../services/stats.service';
@@ -31,12 +30,8 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
 
   currentProblem = signal<WordProblem | null>(null);
   userAnswer = signal('');
-  userRechnung = signal('');
-  userAntwort = signal('');
   feedback = signal<'idle' | 'correct' | 'incorrect'>('idle');
   showCorrectAnswer = signal(false);
-  rechnungCorrect = signal(true);
-  antwortCorrect = signal(true);
 
   private wordProblemService = inject(WordProblemService);
   private stats = inject(StatsService);
@@ -84,21 +79,7 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
 
   isTwoStep = computed(() => isTwoStepProblem(this.currentProblem()));
 
-  sampleRechnung = computed(() => {
-    const problem = this.currentProblem();
-    return isTwoStepProblem(problem) ? problem.sampleRechnung : '';
-  });
-
-  sampleAntwort = computed(() => {
-    const problem = this.currentProblem();
-    return isTwoStepProblem(problem) ? problem.sampleAntwort : '';
-  });
-
   keypadDisabled = computed(() => this.feedback() !== 'idle');
-
-  canSubmitTwoStep = computed(
-    () => this.userRechnung().trim() !== '' && this.userAntwort().trim() !== '' && this.feedback() === 'idle'
-  );
 
   wordProblemCorrectCount = computed(() => {
     const types = this.stats.statsByType();
@@ -156,14 +137,6 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
     }
   }
 
-  onRechnungInput(event: Event) {
-    this.userRechnung.set((event.target as HTMLInputElement).value);
-  }
-
-  onAntwortInput(event: Event) {
-    this.userAntwort.set((event.target as HTMLTextAreaElement).value);
-  }
-
   generateProblem() {
     const types = Array.from(this.selectedTypes());
     const type = types[Math.floor(Math.random() * types.length)];
@@ -173,12 +146,8 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
     this.currentType.set(type);
 
     this.userAnswer.set('');
-    this.userRechnung.set('');
-    this.userAntwort.set('');
     this.feedback.set('idle');
     this.showCorrectAnswer.set(false);
-    this.rechnungCorrect.set(true);
-    this.antwortCorrect.set(true);
   }
 
   submitAnswer() {
@@ -186,38 +155,22 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
     const problem = this.currentProblem();
     if (!problem) return;
 
-    if (isTwoStepProblem(problem)) {
-      this.submitTwoStep(problem);
-      return;
-    }
-
     const userInputValue = this.userAnswer();
     if (userInputValue === '') return;
 
     const parsed = Number(userInputValue);
-    const isCorrect = Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer();
+    const isCorrect =
+      Number.isFinite(parsed) && Number.isInteger(parsed) && parsed === this.correctAnswer();
     this.applyResult(isCorrect);
   }
 
-  private submitTwoStep(problem: TwoStepWordProblem) {
-    const rechnung = this.userRechnung().trim();
-    const antwort = this.userAntwort().trim();
-    if (rechnung === '' || antwort === '') return;
-
-    const result = this.wordProblemService.gradeTwoStep(rechnung, antwort, problem);
-    this.rechnungCorrect.set(result.rechnungCorrect);
-    this.antwortCorrect.set(result.antwortCorrect);
-    this.applyResult(result.isCorrect, true);
-  }
-
-  private applyResult(isCorrect: boolean, twoStep = false) {
+  private applyResult(isCorrect: boolean) {
     this.feedback.set(isCorrect ? 'correct' : 'incorrect');
     if (!isCorrect) {
       this.showCorrectAnswer.set(true);
     }
 
-    const incorrectDelay = twoStep ? 2500 : 1200;
-    this.exerciseState.handleResult(isCorrect, () => this.generateProblem(), 800, incorrectDelay);
+    this.exerciseState.handleResult(isCorrect, () => this.generateProblem(), 800, 1200);
     this.stats.recordResult(isCorrect, 'word-problems');
 
     if (isCorrect) {

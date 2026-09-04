@@ -20,9 +20,6 @@
       </div>
 
       <div class="task-section">
-        @if (isTwoStep()) {
-          <p class="hint">Löse die Sachaufgaben. Schreibe die Rechnung und eine Antwort.</p>
-        }
         <div class="story-display">
           <div class="story-icon" aria-hidden="true">{{ storyIcon() }}</div>
           <div class="story-text">{{ storyText() }}</div>
@@ -30,61 +27,23 @@
       </div>
 
       <div class="answer-section">
-        @if (isTwoStep()) {
-          <div class="worksheet-fields">
-            <label class="field-label" for="rechnung-input">Rechnung:</label>
-            <input
-              id="rechnung-input"
-              class="rechnung-input"
-              type="text"
-              autocomplete="off"
-              spellcheck="false"
-              placeholder="z. B. 17 + 17 + 11 = 45"
-              [value]="userRechnung()"
-              [disabled]="feedback() !== 'idle'"
-              (input)="onRechnungInput($event)"
-              (keydown.enter)="submitAnswer()"
-            />
-
-            <label class="field-label" for="antwort-input">Antwort:</label>
-            <textarea
-              id="antwort-input"
-              class="antwort-input"
-              rows="2"
-              autocomplete="off"
-              placeholder="Schreibe einen Satz."
-              [value]="userAntwort()"
-              [disabled]="feedback() !== 'idle'"
-              (input)="onAntwortInput($event)"
-            ></textarea>
-
-            <button
-              type="button"
-              class="submit-btn"
-              [disabled]="!canSubmitTwoStep()"
-              (click)="submitAnswer()">
-              Überprüfen
-            </button>
-          </div>
-        } @else {
-          <div class="input-section">
-            <input
-              readonly
-              [value]="userAnswer()"
-              placeholder="?"
-              class="answer-input"
-              aria-label="Antwort"
-            />
-          </div>
-
-          <app-keypad
-            [value]="userAnswer"
-            [mode]="'numeric'"
-            [disabled]="keypadDisabled"
-            (valueChange)="userAnswer.set($event)"
-            (keypadSubmit)="submitAnswer()"
+        <div class="input-section">
+          <input
+            readonly
+            [value]="userAnswer()"
+            placeholder="?"
+            class="answer-input"
+            aria-label="Antwort"
           />
-        }
+        </div>
+
+        <app-keypad
+          [value]="userAnswer"
+          [mode]="'numeric'"
+          [disabled]="keypadDisabled"
+          (valueChange)="userAnswer.set($event)"
+          (keypadSubmit)="submitAnswer()"
+        />
 
         <div class="feedback-area">
           @if (feedback() === 'correct') {
@@ -92,17 +51,7 @@
           }
           @if (feedback() === 'incorrect' && showCorrectAnswer()) {
             <div class="feedback-incorrect">
-              @if (isTwoStep()) {
-                <div>✗ Noch nicht ganz richtig.</div>
-                @if (!rechnungCorrect()) {
-                  <div class="sample-line">Rechnung: {{ sampleRechnung() }}</div>
-                }
-                @if (!antwortCorrect()) {
-                  <div class="sample-line">Antwort: {{ sampleAntwort() }}</div>
-                }
-              } @else {
-                ✗ Die richtige Antwort ist: {{ correctAnswer() }}
-              }
+              ✗ Die richtige Antwort ist: {{ correctAnswer() }}
             </div>
           }
         </div>
