@@ -12,11 +12,11 @@ async function activateOnlyType(page: Page, type: 'zeitspanne' | 'verspaetung'):
   const keepBtn = page.locator('.type-selector').getByRole('button', { name: keepName });
   const otherBtn = page.locator('.type-selector').getByRole('button', { name: otherName });
 
-  if (await otherBtn.evaluate((el) => el.classList.contains('active'))) {
-    await otherBtn.click();
-  }
   if (!(await keepBtn.evaluate((el) => el.classList.contains('active')))) {
     await keepBtn.click();
+  }
+  if (await otherBtn.evaluate((el) => el.classList.contains('active'))) {
+    await otherBtn.click();
   }
 
   await expect(keepBtn).toHaveClass(/active/);
