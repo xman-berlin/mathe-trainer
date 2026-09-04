@@ -6,25 +6,26 @@ import { bypassLogin } from './helpers';
  * (the last remaining type cannot be turned off).
  */
 async function activateOnlyType(page: Page, ariaLabel: string): Promise<void> {
+  const keepBtn = page.locator('.type-selector').getByRole('button', { name: ariaLabel });
+  if (!(await keepBtn.evaluate((el) => el.classList.contains('active')))) {
+    await keepBtn.click();
+  }
+
   const buttons = page.locator('.type-selector .type-btn');
   const count = await buttons.count();
-
   for (let i = 0; i < count; i++) {
     const btn = buttons.nth(i);
     const label = await btn.getAttribute('aria-label');
-    const active = await btn.evaluate((el) => el.classList.contains('active'));
     if (label === ariaLabel) {
-      if (!active) {
-        await btn.click();
-      }
-    } else if (active) {
+      continue;
+    }
+    const active = await btn.evaluate((el) => el.classList.contains('active'));
+    if (active) {
       await btn.click();
     }
   }
 
-  await expect(page.locator('.type-selector').getByRole('button', { name: ariaLabel })).toHaveClass(
-    /active/
-  );
+  await expect(keepBtn).toHaveClass(/active/);
 }
 
 test.describe('Mathe Sachaufgaben', () => {
