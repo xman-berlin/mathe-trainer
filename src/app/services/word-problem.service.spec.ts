@@ -137,6 +137,25 @@ describe('WordProblemService', () => {
       expect(problem).toBeTruthy();
       expect(problem.correctAnswer).toBeGreaterThan(0);
     });
+
+    it('should generate a two-step problem with Rechnung metadata', () => {
+      const problem = service.generateProblem('two-step', 'bis100', 100);
+      expect(problem.kind).toBe('two-step');
+      expect(problem.type).toBe('two-step');
+      expect(problem.correctAnswer).toBeGreaterThan(0);
+      expect(problem.sampleRechnung).toContain(String(problem.correctAnswer));
+      expect(problem.sampleAntwort).toContain(String(problem.correctAnswer));
+    });
+
+    it('should grade the bus-ticket worksheet example through the service', () => {
+      const [bus] = service.getWorksheetExamples();
+      const result = service.gradeTwoStep(
+        '17 € + 17 € + 11 € = 45 €',
+        'Die Familie bezahlt 45€.',
+        bus
+      );
+      expect(result.isCorrect).toBeTrue();
+    });
   });
 
   // ─── getTemplateIcon ────────────────────────────────────────

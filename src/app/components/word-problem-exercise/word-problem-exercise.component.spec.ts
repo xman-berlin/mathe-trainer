@@ -18,11 +18,20 @@ describe('WordProblemExerciseComponent', () => {
           provide: WordProblemService,
           useValue: {
             generateProblem: jasmine.createSpy('generateProblem').and.returnValue({
+              kind: 'one-step',
+              type: 'addition',
               storyText: 'Test story',
               correctAnswer: 10,
               templateId: 'test',
+              operandA: 4,
+              operandB: 6,
             }),
             getTemplateIcon: jasmine.createSpy('getTemplateIcon').and.returnValue('🍎'),
+            gradeTwoStep: jasmine.createSpy('gradeTwoStep').and.returnValue({
+              rechnungCorrect: true,
+              antwortCorrect: true,
+              isCorrect: true,
+            }),
           },
         },
         {
@@ -64,6 +73,7 @@ describe('WordProblemExerciseComponent', () => {
   });
 
   it('should return operator symbol', () => {
+    expect(component.operatorSymbol('two-step')).toBe('2+');
     expect(component.operatorSymbol('addition')).toBe('+');
     expect(component.operatorSymbol('subtraction')).toBe('−');
     expect(component.operatorSymbol('multiplication')).toBe('×');
@@ -93,6 +103,72 @@ describe('WordProblemExerciseComponent', () => {
     component.selectedTypes.set(new Set(['addition']));
     component.toggleType('subtraction');
     expect(component.selectedTypes().has('subtraction')).toBeTrue();
+  });
+
+  describe('two-step worksheet mode', () => {
+    const busProblem = {
+      kind: 'two-step' as const,
+      type: 'two-step' as const,
+      theme: 'money-family' as const,
+      storyText:
+        'Bobbi fährt mit seinen Eltern mit dem Bus. Eine Erwachsenenkarte kostet 17€. Kinder bezahlen 6€ weniger. Wie viel muss die Familie bezahlen?',
+      icon: '🚌',
+      templateId: 'money-family-tickets',
+      givenNumbers: [17, 6],
+      intermediateValues: [11],
+      expectedAddends: [17, 17, 11],
+      correctAnswer: 45,
+      unit: 'euro' as const,
+      sampleRechnung: '17 € + 17 € + 11 € = 45 €',
+      sampleAntwort: 'Die Familie bezahlt 45€.',
+      answerKeywords: ['familie', 'eltern', 'bezal', 'zahl'],
+      numberRange: 'bis100' as const,
+    };
+
+    it('should show Rechnung and Antwort fields for two-step problems', () => {
+      component.currentProblem.set(busProblem);
+      fixture.detectChanges();
+
+      expect(component.isTwoStep()).toBeTrue();
+      const rechnung = fixture.nativeElement.querySelector('.rechnung-input');
+      const antwort = fixture.nativeElement.querySelector('.antwort-input');
+      expect(rechnung).toBeTruthy();
+      expect(antwort).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.hint').textContent).toContain(
+        'Schreibe die Rechnung und eine Antwort'
+      );
+    });
+
+    it('should grade both fields on submit', () => {
+      const mockWordProblemService = TestBed.inject(WordProblemService) as jasmine.SpyObj<WordProblemService>;
+      component.currentProblem.set(busProblem);
+      component.userRechnung.set('17 + 17 + 11 = 45');
+      component.userAntwort.set('Die Familie bezahlt 45€.');
+      component.feedback.set('idle');
+
+      component.submitAnswer();
+
+      expect(mockWordProblemService.gradeTwoStep).toHaveBeenCalledWith(
+        '17 + 17 + 11 = 45',
+        'Die Familie bezahlt 45€.',
+        busProblem
+      );
+      expect(component.feedback()).toBe('correct');
+    });
+
+    it('should not submit two-step when a field is empty', () => {
+      const mockWordProblemService = TestBed.inject(WordProblemService) as jasmine.SpyObj<WordProblemService>;
+      (mockWordProblemService.gradeTwoStep as jasmine.Spy).calls.reset();
+      component.currentProblem.set(busProblem);
+      component.userRechnung.set('17 + 17 + 11 = 45');
+      component.userAntwort.set('');
+      component.feedback.set('idle');
+
+      component.submitAnswer();
+
+      expect(mockWordProblemService.gradeTwoStep).not.toHaveBeenCalled();
+      expect(component.feedback()).toBe('idle');
+    });
   });
 
   // ─── mathNumberRange integration ────────────────────────────

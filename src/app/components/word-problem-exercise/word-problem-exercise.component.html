@@ -1,96 +1,140 @@
-<div class="word-problem-container">
-  <a routerLink="/mathe" class="back-btn">← Zurück</a>
+<div class="word-problem-root">
+  <div class="word-problem-container">
+    <a routerLink="/mathe" class="back-btn">← Zurück</a>
 
-  <!-- Rechenart-Auswahl -->
-  <div class="type-selector">
-    <button
-      [class.active]="isTypeSelected('addition')"
-      (click)="toggleType('addition')"
-      class="type-btn">
-      +
-    </button>
-    <button
-      [class.active]="isTypeSelected('subtraction')"
-      (click)="toggleType('subtraction')"
-      class="type-btn">
-      −
-    </button>
-    <button
-      [class.active]="isTypeSelected('multiplication')"
-      (click)="toggleType('multiplication')"
-      class="type-btn">
-      ×
-    </button>
-    <button
-      [class.active]="isTypeSelected('division')"
-      (click)="toggleType('division')"
-      class="type-btn">
-      ÷
-    </button>
-  </div>
-
-  <!-- Story-Anzeige -->
-  <div class="story-display">
-    <div class="story-icon">{{ storyIcon() }}</div>
-    <div class="story-text">{{ storyText() }}</div>
-  </div>
-
-  <!-- Eingabe -->
-  <div class="input-section">
-    <input readonly [value]="userAnswer()" placeholder="?" class="answer-input" />
-  </div>
-
-  <!-- Keypad -->
-  <app-keypad
-    [value]="userAnswer"
-    [mode]="'numeric'"
-    [disabled]="keypadDisabled"
-    (valueChange)="userAnswer.set($event)"
-    (keypadSubmit)="submitAnswer()"
-  />
-
-  <!-- Feedback -->
-  <div class="feedback-area">
-    @if (feedback() === 'correct') {
-      <div class="feedback-correct">✓ Richtig!</div>
-    }
-    @if (feedback() === 'incorrect' && showCorrectAnswer()) {
-      <div class="feedback-incorrect">
-        ✗ Die richtige Antwort ist: {{ correctAnswer() }}
+    <div class="exercise-content">
+      <div class="type-selector">
+        @for (type of exerciseTypes; track type) {
+          <button
+            type="button"
+            class="type-btn"
+            [class.active]="isTypeSelected(type)"
+            [attr.aria-label]="typeLabel(type)"
+            [attr.aria-pressed]="isTypeSelected(type)"
+            (click)="toggleType(type)">
+            {{ operatorSymbol(type) }}
+          </button>
+        }
       </div>
-    }
-  </div>
 
-  <!-- Streak -->
-  <div class="streak-display">
-    <div class="streak-item">
-      <span class="streak-label">Serie:</span>
-      <span class="streak-value">{{ streak() }}</span>
-    </div>
-    <div class="streak-item">
-      <span class="streak-label">Beste:</span>
-      <span class="streak-value">{{ bestStreak() }}</span>
-    </div>
-  </div>
-
-  <!-- Statistik -->
-  <div class="stats-badge-container">
-    <app-stats-badge
-      [correctCount]="wordProblemCorrectCount"
-      [incorrectCount]="wordProblemIncorrectCount"
-      [showTotal]="true" />
-  </div>
-
-  <!-- Meilenstein-Popup -->
-  @if (showMilestone()) {
-    <div class="milestone-popup">
-      <div class="milestone-content">
-        <div class="milestone-icon">🎉</div>
-        <div class="milestone-text">{{ milestoneValue() }} in Folge!</div>
+      <div class="task-section">
+        @if (isTwoStep()) {
+          <p class="hint">Löse die Sachaufgaben. Schreibe die Rechnung und eine Antwort.</p>
+        }
+        <div class="story-display">
+          <div class="story-icon" aria-hidden="true">{{ storyIcon() }}</div>
+          <div class="story-text">{{ storyText() }}</div>
+        </div>
       </div>
-      @for (piece of confettiPieces; track piece) {
-        <div class="confetti" [style.left.%]="confettiX[piece]"></div>
+
+      <div class="answer-section">
+        @if (isTwoStep()) {
+          <div class="worksheet-fields">
+            <label class="field-label" for="rechnung-input">Rechnung:</label>
+            <input
+              id="rechnung-input"
+              class="rechnung-input"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="z. B. 17 + 17 + 11 = 45"
+              [value]="userRechnung()"
+              [disabled]="feedback() !== 'idle'"
+              (input)="onRechnungInput($event)"
+              (keydown.enter)="submitAnswer()"
+            />
+
+            <label class="field-label" for="antwort-input">Antwort:</label>
+            <textarea
+              id="antwort-input"
+              class="antwort-input"
+              rows="2"
+              autocomplete="off"
+              placeholder="Schreibe einen Satz."
+              [value]="userAntwort()"
+              [disabled]="feedback() !== 'idle'"
+              (input)="onAntwortInput($event)"
+            ></textarea>
+
+            <button
+              type="button"
+              class="submit-btn"
+              [disabled]="!canSubmitTwoStep()"
+              (click)="submitAnswer()">
+              Überprüfen
+            </button>
+          </div>
+        } @else {
+          <div class="input-section">
+            <input
+              readonly
+              [value]="userAnswer()"
+              placeholder="?"
+              class="answer-input"
+              aria-label="Antwort"
+            />
+          </div>
+
+          <app-keypad
+            [value]="userAnswer"
+            [mode]="'numeric'"
+            [disabled]="keypadDisabled"
+            (valueChange)="userAnswer.set($event)"
+            (keypadSubmit)="submitAnswer()"
+          />
+        }
+
+        <div class="feedback-area">
+          @if (feedback() === 'correct') {
+            <div class="feedback-correct">✓ Richtig!</div>
+          }
+          @if (feedback() === 'incorrect' && showCorrectAnswer()) {
+            <div class="feedback-incorrect">
+              @if (isTwoStep()) {
+                <div>✗ Noch nicht ganz richtig.</div>
+                @if (!rechnungCorrect()) {
+                  <div class="sample-line">Rechnung: {{ sampleRechnung() }}</div>
+                }
+                @if (!antwortCorrect()) {
+                  <div class="sample-line">Antwort: {{ sampleAntwort() }}</div>
+                }
+              } @else {
+                ✗ Die richtige Antwort ist: {{ correctAnswer() }}
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="streak-display" [class.has-streak]="streak() > 0">
+        <div class="streak-item">
+          <span class="streak-label">Serie:</span>
+          <span class="streak-value">{{ streak() }}</span>
+        </div>
+        <div class="streak-item">
+          <span class="streak-label">Beste:</span>
+          <span class="streak-value">{{ bestStreak() }}</span>
+        </div>
+      </div>
+
+      <div class="result-summary">
+        <span class="badge badge-correct">✓ {{ wordProblemCorrectCount() }}</span>
+        <span class="badge badge-incorrect">✗ {{ wordProblemIncorrectCount() }}</span>
+        <span class="badge badge-total">Σ {{ wordProblemTotalCount() }}</span>
+        <span class="summary-label">Heute</span>
+      </div>
+
+      @if (showMilestone()) {
+        <div class="milestone-popup">
+          <div class="milestone-content">
+            <div class="milestone-icon">🎉</div>
+            <div class="milestone-text">{{ milestoneValue() }} in Folge!</div>
+          </div>
+          @for (piece of confettiPieces; track piece) {
+            <div class="confetti" [style.left.%]="confettiX[piece]"></div>
+          }
+        </div>
       }
     </div>
-  }
+  </div>
 </div>
