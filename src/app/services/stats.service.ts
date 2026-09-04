@@ -57,7 +57,7 @@ export class StatsService {
   // Math exercise types
   private readonly mathTypes = ['addition', 'subtraction', 'multiplication', 'division', 'word-problems'];
   // Clock exercise types
-  private readonly clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
+  private readonly clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf', 'clock-zeitspanne', 'clock-verspaetung'];
   // Vocab exercise types start with 'vocab-'
 
   readonly statsByType = this.byType.asReadonly();

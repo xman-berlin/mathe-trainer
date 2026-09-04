@@ -7,7 +7,7 @@ import { DifficultyService } from '../../services/difficulty.service';
 import type { DifficultyOperationType } from '../../models/user.model';
 
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'word-problems';
-type ClockExerciseType = 'clock-full' | 'clock-half' | 'clock-quarter' | 'clock-fiveMin' | 'clock-setClock-full' | 'clock-setClock-half' | 'clock-setClock-quarter' | 'clock-setClock-fiveMin' | 'clock-setClock-fiveMinAfter' | 'clock-setClock-fiveMinBefore' | 'clock-setClock-fiveMinHalf';
+type ClockExerciseType = 'clock-full' | 'clock-half' | 'clock-quarter' | 'clock-fiveMin' | 'clock-setClock-full' | 'clock-setClock-half' | 'clock-setClock-quarter' | 'clock-setClock-fiveMin' | 'clock-setClock-fiveMinAfter' | 'clock-setClock-fiveMinBefore' | 'clock-setClock-fiveMinHalf' | 'clock-zeitspanne' | 'clock-verspaetung';
 type MedalLevel = 'none' | 'bronze' | 'silver' | 'gold';
 
 @Component({
@@ -54,6 +54,8 @@ export class AchievementsComponent implements OnInit {
     { key: 'clock-setClock-fiveMinAfter', label: 'Zeiger: Minuten nach', icon: '→' },
     { key: 'clock-setClock-fiveMinBefore', label: 'Zeiger: Minuten vor', icon: '←' },
     { key: 'clock-setClock-fiveMinHalf', label: 'Zeiger: Vor/Nach halb', icon: '½' },
+    { key: 'clock-zeitspanne', label: 'Zeitspannen', icon: '⏳' },
+    { key: 'clock-verspaetung', label: 'Verspätung', icon: '🚌' },
   ];
 
   ngOnInit(): void {

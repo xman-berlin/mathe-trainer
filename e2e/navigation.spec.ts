@@ -82,6 +82,15 @@ test.describe('Navigation', () => {
       await expect(page).toHaveURL(/\/uhrzeit\/zeiger-setzen$/);
       await expect(page.locator('.set-clock-exercise-root')).toBeVisible();
     });
+
+    test('should navigate from uhrzeit overview to zeitpunkte und zeitspannen', async ({ page }) => {
+      await page.getByRole('link', { name: 'Uhrzeit lernen' }).click();
+      await expect(page).toHaveURL(/\/uhrzeit$/);
+
+      await page.getByRole('link', { name: 'Zeitpunkte & Zeitspannen' }).click();
+      await expect(page).toHaveURL(/\/uhrzeit\/zeitpunkte-zeitspannen$/);
+      await expect(page.locator('.time-span-exercise-root')).toBeVisible();
+    });
   });
 
   test.describe('Deutsch', () => {

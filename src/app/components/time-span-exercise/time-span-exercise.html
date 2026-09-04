@@ -1,0 +1,141 @@
+<div class="time-span-exercise-root">
+  <div class="time-span-exercise-container">
+    <a routerLink="/uhrzeit" class="back-btn">← Zurück</a>
+
+    <div class="exercise-content">
+      <div class="type-selector">
+        @for (type of exerciseTypes; track type) {
+          <button
+            type="button"
+            class="type-btn"
+            [class.active]="isTypeSelected(type)"
+            [class.locked]="lockedTypes().has(type)"
+            [title]="lockedTypes().has(type) ? 'Du hast diese Aufgabenart gemeistert – sie bleibt immer aktiv!' : ''"
+            (click)="toggleType(type)">
+            <span class="type-icon">{{ getTypeIcon(type) }}</span>
+            <span class="type-label">{{ getTypeLabel(type) }}</span>
+            @if (lockedTypes().has(type)) {
+              <span class="lock-icon">🔒</span>
+            }
+          </button>
+        }
+      </div>
+
+      @if (currentProblem(); as problem) {
+        @if (problem.kind === 'zeitspanne') {
+          <div class="question">
+            <h2>Wie viele Minuten sind vergangen?</h2>
+            <p class="hint">Schreibe die Zeitspanne in Stunden und Minuten.</p>
+          </div>
+
+          <div class="span-row">
+            <div class="time-box">{{ startTimeLabel() }}</div>
+            <div class="span-arrow">
+              <div class="span-answer" [class.filled]="formattedUserDuration()">
+                {{ formattedUserDuration() || '…' }}
+              </div>
+              <div class="arrow-line" aria-hidden="true"></div>
+            </div>
+            <div class="time-box">{{ endTimeLabel() }}</div>
+          </div>
+
+          <div class="duration-fields">
+            <button
+              type="button"
+              class="duration-field"
+              [class.active]="durationField() === 'hours'"
+              [disabled]="showFeedback()"
+              (click)="selectDurationField('hours')"
+              aria-label="Stunden eingeben">
+              <span class="field-value">{{ durationHours() || '—' }}</span>
+              <span class="field-unit">h</span>
+            </button>
+            <button
+              type="button"
+              class="duration-field"
+              [class.active]="durationField() === 'minutes'"
+              [disabled]="showFeedback()"
+              (click)="selectDurationField('minutes')"
+              aria-label="Minuten eingeben">
+              <span class="field-value">{{ durationMinutes() || '—' }}</span>
+              <span class="field-unit">min</span>
+            </button>
+          </div>
+        } @else {
+          <div class="question">
+            <h2>Oh nein, Verspätung!</h2>
+            <p class="hint">Wann fährt der Bus ab?</p>
+          </div>
+
+          <div class="bus-card">
+            <div class="bus-sign" aria-hidden="true">H</div>
+            <div class="bus-details">
+              <div class="bus-destination">Ziel: {{ problem.destination }}</div>
+              <div class="bus-plan">Plan: {{ scheduledTimeLabel() }}</div>
+              <div class="bus-delay">{{ problem.delayMinutes }} Minuten später</div>
+            </div>
+          </div>
+
+          <p class="departure-prompt">Abfahrt nach {{ problem.destination }} um:</p>
+          <div class="input-section">
+            <input
+              type="text"
+              class="time-input"
+              [value]="userAnswer()"
+              readonly
+              placeholder="HH:MM"
+              maxlength="5"
+              [disabled]="showFeedback()"
+              aria-label="Neue Abfahrtszeit"
+            />
+          </div>
+        }
+
+        <app-keypad
+          [mode]="keypadMode()"
+          [value]="keypadValue"
+          [disabled]="keypadDisabled"
+          (valueChange)="onKeypadValueChange($event)"
+          (keypadSubmit)="submitAnswer()"
+        />
+
+        <div class="feedback-area">
+          @if (showFeedback() && isCorrect()) {
+            <div class="feedback correct">✓ Richtig!</div>
+          }
+          @if (showFeedback() && !isCorrect()) {
+            <div class="feedback incorrect">
+              ✗ Falsch. Richtige Antwort: {{ correctAnswerLabel() }}
+            </div>
+          }
+        </div>
+
+        <div class="streak-display" [class.has-streak]="streak() > 0">
+          <span class="streak-icon">🔥</span>
+          <span class="streak-count">{{ streak() }}</span>
+          @if (bestStreak() > 0 && bestStreak() > streak()) {
+            <span class="best-streak">Rekord: {{ bestStreak() }}</span>
+          }
+        </div>
+
+        @if (showMilestone()) {
+          <div class="confetti-container">
+            @for (i of confettiPieces; track i) {
+              <div class="confetti" [style.--delay]="i * 0.1 + 's'" [style.--x]="confettiX[i]"></div>
+            }
+          </div>
+          <div class="milestone-popup">
+            🎉 {{ milestoneValue() }}er Serie! 🎉
+          </div>
+        }
+
+        <div class="result-summary">
+          <span class="badge badge-correct">✓ {{ typeCorrectCount() }}</span>
+          <span class="badge badge-incorrect">✗ {{ typeIncorrectCount() }}</span>
+          <span class="badge badge-total">Σ {{ typeTotalCount() }}</span>
+          <span class="summary-label">Heute</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

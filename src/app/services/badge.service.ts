@@ -283,7 +283,7 @@ export class BadgeService {
       requiredProgress: 50,
       coinReward: 75,
       checkFunction: (data: BadgeCheckData) => {
-        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
+        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf', 'clock-zeitspanne', 'clock-verspaetung'];
         const total = clockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
         return total >= 50;
       },
@@ -297,7 +297,7 @@ export class BadgeService {
       requiredProgress: 200,
       coinReward: 200,
       checkFunction: (data: BadgeCheckData) => {
-        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
+        const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf', 'clock-zeitspanne', 'clock-verspaetung'];
         const total = clockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
         return total >= 200;
       },
@@ -618,7 +618,7 @@ export class BadgeService {
     } else if (badgeId.startsWith('multiplication-')) {
       current = data.masteredReihen.length;
     } else if (badgeId.startsWith('clock-')) {
-      const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];
+      const clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf', 'clock-zeitspanne', 'clock-verspaetung'];
       current = clockTypes.reduce((sum, type) => sum + (data.lifetimeStats[type] || 0), 0);
     } else if (badgeId.startsWith('set-clock-')) {
       const setClockTypes = ['clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf'];

@@ -73,6 +73,11 @@
           <h3>Zeiger setzen</h3>
           <p>Setze die Uhrzeiger auf die richtige Zeit</p>
         </a>
+        <a [routerLink]="basePath() + '/zeitpunkte-zeitspannen'" class="action-card time-span-card">
+          <div class="card-icon">⏳</div>
+          <h3>Zeitpunkte &amp; Zeitspannen</h3>
+          <p>Zeitspannen rechnen und Verspätungen</p>
+        </a>
       }
 
       @if (category() === 'math') {
