@@ -6,6 +6,7 @@ import {
   gradeAntwort,
   gradeRechnung,
   gradeTwoStep,
+  resetTwoStepRotation,
 } from './two-step-word-problem';
 
 describe('two-step word problems', () => {
@@ -136,6 +137,19 @@ describe('two-step word problems', () => {
   });
 
   describe('generateTwoStepProblem', () => {
+    beforeEach(() => {
+      resetTwoStepRotation();
+    });
+
+    it('should start with the worksheet templates', () => {
+      const first = generateTwoStepProblem(100);
+      const second = generateTwoStepProblem(100);
+      expect(first.storyText).toContain('Bobbi fährt mit seinen Eltern mit dem Bus');
+      expect(first.correctAnswer).toBe(45);
+      expect(second.storyText).toContain('Lilo ist 12 Jahre alt');
+      expect(second.correctAnswer).toBe(38);
+    });
+
     it('should generate valid two-step problems in a Grundschule range', () => {
       for (let i = 0; i < 30; i++) {
         const problem = generateTwoStepProblem(100);
@@ -150,6 +164,24 @@ describe('two-step word problems', () => {
         expect(problem.sampleAntwort).toContain(String(problem.correctAnswer));
         expect(problem.answerKeywords.length).toBeGreaterThan(0);
       }
+    });
+
+    it('should produce every two-step template family', () => {
+      const templateIds = new Set<string>();
+      const themes = new Set<string>();
+      for (let i = 0; i < 14; i++) {
+        const problem = generateTwoStepProblem(100);
+        templateIds.add(problem.templateId.replace(/-Sticker|-Murmel|-Apfel|-Keks/, ''));
+        themes.add(problem.theme);
+      }
+      expect(themes.has('money-family')).toBeTrue();
+      expect(themes.has('relative-ages')).toBeTrue();
+      expect(themes.has('relative-amounts')).toBeTrue();
+      expect(templateIds.has('money-family-tickets')).toBeTrue();
+      expect(templateIds.has('relative-ages')).toBeTrue();
+      expect(templateIds.has('relative-amounts')).toBeTrue();
+      expect(templateIds.has('pocket-money')).toBeTrue();
+      expect(templateIds.has('shopping-pair')).toBeTrue();
     });
 
     it('should keep totals within maxValue when possible', () => {

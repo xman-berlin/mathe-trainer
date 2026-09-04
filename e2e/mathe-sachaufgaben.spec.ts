@@ -33,6 +33,14 @@ test.describe('Mathe Sachaufgaben', () => {
     await expect(page.locator('.story-icon')).toBeVisible();
   });
 
+  test('should start with the Bobbi bus-ticket worksheet template', async ({ page }) => {
+    await page.goto('/mathe/sachaufgaben');
+
+    await expect(page.locator('.story-text')).toContainText(
+      'Bobbi fährt mit seinen Eltern mit dem Bus. Eine Erwachsenenkarte kostet 17€. Kinder bezahlen 6€ weniger. Wie viel muss die Familie bezahlen?'
+    );
+  });
+
   test('should show Rechnung and Antwort fields for two-step problems', async ({ page }) => {
     await page.goto('/mathe/sachaufgaben');
 
@@ -46,11 +54,12 @@ test.describe('Mathe Sachaufgaben', () => {
     await page.goto('/mathe/sachaufgaben');
 
     await expect(page.locator('.story-text')).toBeVisible();
+    await expect(page.locator('.story-text')).toContainText('Bobbi');
     await page.locator('#rechnung-input').fill('17 + 17 + 11 = 45');
     await page.locator('#antwort-input').fill('Die Familie bezahlt 45€.');
     await page.getByRole('button', { name: 'Überprüfen' }).click();
 
-    await expect(page.locator('.feedback-correct, .feedback-incorrect')).toBeVisible({ timeout: 2000 });
+    await expect(page.locator('.feedback-correct')).toBeVisible({ timeout: 2000 });
   });
 
   test('should still allow classic one-step numeric answers', async ({ page }) => {

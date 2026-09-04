@@ -329,7 +329,16 @@ function generateShoppingPair(maxTotal: number): TwoStepWordProblem | null {
   return null;
 }
 
-const GENERATORS = [
+function fromWorksheet(index: number) {
+  return (maxTotal: number): TwoStepWordProblem | null => {
+    const example = getWorksheetExamples()[index];
+    return example.correctAnswer <= maxTotal ? example : null;
+  };
+}
+
+const GENERATORS: ((maxTotal: number) => TwoStepWordProblem | null)[] = [
+  fromWorksheet(0),
+  fromWorksheet(1),
   generateMoneyFamily,
   generateRelativeAges,
   generateRelativeAmounts,
@@ -337,13 +346,22 @@ const GENERATORS = [
   generateShoppingPair,
 ];
 
+let rotation = 0;
+
+/** Reset generator rotation (for tests). */
+export function resetTwoStepRotation(): void {
+  rotation = 0;
+}
+
 export function generateTwoStepProblem(maxValue?: number): TwoStepWordProblem {
   const maxTotal = Math.max(20, maxValue ?? 100);
-  const order = [...GENERATORS].sort(() => Math.random() - 0.5);
+  const count = GENERATORS.length;
 
-  for (const generate of order) {
+  for (let offset = 0; offset < count; offset++) {
+    const generate = GENERATORS[(rotation + offset) % count];
     const problem = generate(maxTotal);
-    if (problem) {
+    if (problem && problem.correctAnswer <= maxTotal) {
+      rotation = (rotation + offset + 1) % count;
       return { ...problem, numberRange: rangeFromMax(maxValue) };
     }
   }

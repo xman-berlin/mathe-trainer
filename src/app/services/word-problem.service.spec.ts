@@ -1,6 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { WordProblemService } from './word-problem.service';
+import { resetTwoStepRotation } from './two-step-word-problem';
 
 describe('WordProblemService', () => {
   let service: WordProblemService;
@@ -139,12 +140,14 @@ describe('WordProblemService', () => {
     });
 
     it('should generate a two-step problem with Rechnung metadata', () => {
+      resetTwoStepRotation();
       const problem = service.generateProblem('two-step', 'bis100', 100);
       expect(problem.kind).toBe('two-step');
       expect(problem.type).toBe('two-step');
-      expect(problem.correctAnswer).toBeGreaterThan(0);
-      expect(problem.sampleRechnung).toContain(String(problem.correctAnswer));
-      expect(problem.sampleAntwort).toContain(String(problem.correctAnswer));
+      expect(problem.storyText).toContain('Bobbi');
+      expect(problem.correctAnswer).toBe(45);
+      expect(problem.sampleRechnung).toContain('45');
+      expect(problem.sampleAntwort).toContain('45');
     });
 
     it('should grade the bus-ticket worksheet example through the service', () => {
