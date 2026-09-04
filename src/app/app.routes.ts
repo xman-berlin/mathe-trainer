@@ -83,6 +83,14 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'uhrzeit/zeitpunkte-zeitspannen',
+    loadComponent: () =>
+      import('./components/time-span-exercise/time-span-exercise').then(
+        (m) => m.TimeSpanExerciseComponent
+      ),
+    canActivate: [authGuard],
+  },
   { path: 'uhrzeit/erfolge', redirectTo: '/erfolge?tab=clock', pathMatch: 'full' },
 
   // Game routes

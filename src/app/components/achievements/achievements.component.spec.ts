@@ -78,9 +78,11 @@ describe('AchievementsComponent', () => {
   });
 
   it('should have clock exercise types', () => {
-    expect(component.clockExerciseTypes.length).toBe(11);
+    expect(component.clockExerciseTypes.length).toBe(13);
     expect(component.clockExerciseTypes.map(t => t.key)).toContain('clock-full');
     expect(component.clockExerciseTypes.map(t => t.key)).toContain('clock-setClock-fiveMinAfter');
+    expect(component.clockExerciseTypes.map(t => t.key)).toContain('clock-zeitspanne');
+    expect(component.clockExerciseTypes.map(t => t.key)).toContain('clock-verspaetung');
   });
 
   it('should return progress text', () => {
