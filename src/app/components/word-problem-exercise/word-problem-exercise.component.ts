@@ -51,7 +51,9 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
     return this.exerciseState.confettiX;
   }
 
-  selectedTypes = signal<Set<WordProblemType>>(new Set(['two-step']));
+  selectedTypes = signal<Set<WordProblemType>>(
+    new Set(['two-step', 'addition', 'subtraction', 'multiplication', 'division'])
+  );
   currentType = signal<WordProblemType>('two-step');
 
   constructor() {
@@ -166,7 +168,6 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
     const types = Array.from(this.selectedTypes());
     const type = types[Math.floor(Math.random() * types.length)];
     const maxValue = this.stats.currentMathNumberRange();
-
     const problem = this.wordProblemService.generateProblem(type, 'bis100', maxValue);
     this.currentProblem.set(problem);
     this.currentType.set(type);

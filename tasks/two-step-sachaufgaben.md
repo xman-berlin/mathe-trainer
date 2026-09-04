@@ -10,6 +10,7 @@ The child enters both a calculation (Rechnung) and a German answer sentence (Ant
 - [x] Generators: money/family tickets, relative ages/amounts, similar two-step templates
 - [x] Grading: strict numeric result, lenient Antwortsatz, accept Rechnung variants
 - [x] Exercise UI: Rechnung + Antwort fields, German copy, stats/streak
+- [x] Keep classic one-step stories (`+ − × ÷`) in the same mix as two-step (`2+`)
 - [x] Landscape layout: LEFT task + streak + stats, RIGHT solution input (Zeitspannen pattern)
 - [x] Browser-test the implemented feature manually
 - [x] Write unit tests (worksheet examples + grading)

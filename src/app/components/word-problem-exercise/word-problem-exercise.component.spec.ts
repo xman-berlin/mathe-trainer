@@ -11,6 +11,19 @@ describe('WordProblemExerciseComponent', () => {
   let fixture: ComponentFixture<WordProblemExerciseComponent>;
   let wordProblemService: WordProblemService;
 
+  function showTwoStepWorksheet() {
+    resetTwoStepRotation();
+    component.selectedTypes.set(new Set(['two-step']));
+    component.generateProblem();
+    fixture.detectChanges();
+  }
+
+  function showOneStepType(type: 'addition' | 'subtraction' | 'multiplication' | 'division') {
+    component.selectedTypes.set(new Set([type]));
+    component.generateProblem();
+    fixture.detectChanges();
+  }
+
   beforeEach(() => {
     resetTwoStepRotation();
 
@@ -42,15 +55,12 @@ describe('WordProblemExerciseComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render the Bobbi worksheet template from the real generator', () => {
-    expect(component.storyText()).toContain(
-      'Bobbi fährt mit seinen Eltern mit dem Bus. Eine Erwachsenenkarte kostet 17€.'
-    );
-    expect(component.correctAnswer()).toBe(45);
-    expect(component.isTwoStep()).toBeTrue();
-    expect(fixture.nativeElement.querySelector('.story-text').textContent).toContain('Bobbi');
-    expect(fixture.nativeElement.querySelector('.rechnung-input')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('.antwort-input')).toBeTruthy();
+  it('should select two-step and classic operations together by default', () => {
+    expect(component.isTypeSelected('two-step')).toBeTrue();
+    expect(component.isTypeSelected('addition')).toBeTrue();
+    expect(component.isTypeSelected('subtraction')).toBeTrue();
+    expect(component.isTypeSelected('multiplication')).toBeTrue();
+    expect(component.isTypeSelected('division')).toBeTrue();
   });
 
   it('should compute keypad disabled when feedback is not idle', () => {
@@ -95,6 +105,21 @@ describe('WordProblemExerciseComponent', () => {
   });
 
   describe('two-step worksheet mode', () => {
+    beforeEach(() => {
+      showTwoStepWorksheet();
+    });
+
+    it('should render the Bobbi worksheet template from the real generator', () => {
+      expect(component.storyText()).toContain(
+        'Bobbi fährt mit seinen Eltern mit dem Bus. Eine Erwachsenenkarte kostet 17€.'
+      );
+      expect(component.correctAnswer()).toBe(45);
+      expect(component.isTwoStep()).toBeTrue();
+      expect(fixture.nativeElement.querySelector('.story-text').textContent).toContain('Bobbi');
+      expect(fixture.nativeElement.querySelector('.rechnung-input')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.antwort-input')).toBeTruthy();
+    });
+
     it('should show Rechnung and Antwort fields for the generated worksheet', () => {
       expect(component.isTwoStep()).toBeTrue();
       expect(fixture.nativeElement.querySelector('.hint').textContent).toContain(
@@ -138,6 +163,30 @@ describe('WordProblemExerciseComponent', () => {
 
       expect(gradeSpy).not.toHaveBeenCalled();
       expect(component.feedback()).toBe('idle');
+    });
+  });
+
+  describe('classic one-step mode', () => {
+    beforeEach(() => {
+      showOneStepType('addition');
+    });
+
+    it('should show the numeric keypad instead of worksheet fields', () => {
+      expect(component.isTwoStep()).toBeFalse();
+      expect(component.currentType()).toBe('addition');
+      expect(fixture.nativeElement.querySelector('.rechnung-input')).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('.antwort-input')).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('app-keypad')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.answer-input')).toBeTruthy();
+    });
+
+    it('should grade a numeric one-step answer', () => {
+      component.userAnswer.set(String(component.correctAnswer()));
+      component.feedback.set('idle');
+
+      component.submitAnswer();
+
+      expect(component.feedback()).toBe('correct');
     });
   });
 
