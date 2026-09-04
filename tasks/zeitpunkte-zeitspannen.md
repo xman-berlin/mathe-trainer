@@ -9,7 +9,7 @@ Train duration (Zeitspannen) and delayed departure (Verspätung) like a German G
 - [x] Wire route, Uhrzeit overview card, stats, achievements, badges
 - [x] Unit tests for duration and delay logic
 - [x] E2E navigation + exercise flow
-- [ ] Browser-test the implemented feature manually
-- [ ] Write unit tests for component logic
-- [ ] Write e2e tests for the user-facing flow
-- [ ] Run the full test suite and verify ALL tests still pass
+- [x] Browser-test the implemented feature manually
+- [x] Write unit tests for component logic
+- [x] Write e2e tests for the user-facing flow
+- [x] Run the full test suite and verify ALL tests still pass
