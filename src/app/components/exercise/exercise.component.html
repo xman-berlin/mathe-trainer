@@ -1,6 +1,10 @@
 <div class="exercise-root">
   <div class="exercise-container">
-    <a routerLink="/mathe" class="back-home-btn">← Zurück</a>
+    <a
+      [routerLink]="practicePlan.isGuiding() ? '/' : '/mathe'"
+      class="back-home-btn"
+      (click)="practicePlan.pause()"
+    >← Zurück</a>
     <div class="main-area">
 
       @if (timeTrialActive()) {
@@ -25,6 +29,7 @@
         </div>
       }
 
+      @if (!practicePlan.typesLocked()) {
       <div class="type-selector">
         <button
           type="button"
@@ -79,8 +84,11 @@
           }
         </button>
       </div>
+      } @else if (practicePlan.isGuiding()) {
+        <p class="plan-progress-banner">{{ practicePlan.progressLabel() }}</p>
+      }
 
-      @if (mode() === 'practice' && (isTypeSelected('multiplication') || isTypeSelected('division'))) {
+      @if (!practicePlan.typesLocked() && mode() === 'practice' && (isTypeSelected('multiplication') || isTypeSelected('division'))) {
         <div class="multiplier-selector">
           <span class="multiplier-label">Reihe:</span>
           <button

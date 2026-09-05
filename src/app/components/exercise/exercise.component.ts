@@ -7,6 +7,7 @@ import { ProblemGeneratorService, OperationType } from '../../services/problem-g
 import { DifficultyService } from '../../services/difficulty.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
 import { ExerciseStateService } from '../../services/exercise-state.service';
+import { PracticePlanService } from '../../services/practice-plan.service';
 import { createStatsAggregator } from '../../utils/stats-aggregator';
 
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
@@ -96,6 +97,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   private problemGenerator = inject(ProblemGeneratorService);
   private difficultyService = inject(DifficultyService);
   private route = inject(ActivatedRoute);
+  protected practicePlan = inject(PracticePlanService);
 
   ngOnInit(): void {
     // Set mode from route data
@@ -107,6 +109,11 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
       if (mode === 'timeTrial') {
         this.selectedTypes.set(new Set(['addition']));
       }
+    }
+
+    if (this.practicePlan.typesLocked()) {
+      this.selectedTypes.set(new Set(['addition', 'subtraction', 'multiplication', 'division']));
+      this.selectedNumbers.set(new Set());
     }
   }
 
@@ -194,6 +201,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   toggleType(type: ExerciseType) {
+    if (this.practicePlan.typesLocked()) return;
     const current = this.selectedTypes();
     const newSet = new Set(current);
 
@@ -301,6 +309,9 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
 
       this.stats.recordResult(isCorrect, this.currentType());
       this.difficultyService.recordResult(this.currentType() as OperationType, isCorrect);
+      if (isCorrect) {
+        this.practicePlan.recordCorrect('math');
+      }
 
       // Track multiplication mastery
       if (this.currentType() === 'multiplication') {

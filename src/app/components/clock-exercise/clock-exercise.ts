@@ -7,6 +7,7 @@ import { StatsService } from '../../services/stats.service';
 import { TimedChallengeService } from '../../services/timed-challenge.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
 import { ExerciseStateService } from '../../services/exercise-state.service';
+import { PracticePlanService } from '../../services/practice-plan.service';
 import { createStatsAggregator } from '../../utils/stats-aggregator';
 
 @Component({
@@ -23,6 +24,7 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
   private stats = inject(StatsService);
   private timedChallengeService = inject(TimedChallengeService);
   private route = inject(ActivatedRoute);
+  protected practicePlan = inject(PracticePlanService);
 
   // State
   selectedTypes = signal<Set<ClockExerciseType>>(new Set(['full', 'half', 'quarter', 'fiveMin']));
@@ -108,6 +110,10 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
         this.selectedTypes.set(new Set([firstType]));
       }
     }
+
+    if (this.practicePlan.typesLocked()) {
+      this.selectedTypes.set(new Set(['full', 'half', 'quarter', 'fiveMin']));
+    }
   }
 
   ngOnDestroy(): void {
@@ -156,6 +162,7 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
   }
 
   toggleType(type: ClockExerciseType): void {
+    if (this.practicePlan.typesLocked()) return;
     if (this.mode() === 'timeTrial') {
       // Time trial mode: only one type can be selected
       this.selectedTypes.set(new Set([type]));
@@ -236,6 +243,9 @@ export class ClockExerciseComponent implements OnInit, OnDestroy {
       // Record stats with type prefix "clock-"
       const exerciseType = `clock-${this.currentType()}`;
       this.stats.recordResult(correct, exerciseType);
+      if (correct) {
+        this.practicePlan.recordCorrect('clock');
+      }
 
       this.exerciseState.handleResult(correct, () => this.generateProblem(), 1000, 2000);
     }

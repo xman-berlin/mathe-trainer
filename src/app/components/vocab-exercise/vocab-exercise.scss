@@ -26,6 +26,14 @@
   margin: 0;
 }
 
+.plan-progress-banner {
+  margin: 0;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--bright-blue, #3382bf);
+}
+
 .word-prompt {
   display: flex;
   flex-direction: column;

@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
 import { CoinsService } from '../../services/coins.service';
+import { PracticePlanService } from '../../services/practice-plan.service';
 import { UserProfileComponent } from '../user-profile/user-profile.component';
 import { StreakDisplayComponent } from '../streak-display/streak-display.component';
 
@@ -17,6 +18,7 @@ import { StreakDisplayComponent } from '../streak-display/streak-display.compone
 export class CategoryHomeComponent {
   protected stats = inject(StatsService);
   protected coins = inject(CoinsService);
+  protected practicePlan = inject(PracticePlanService);
 
   showGoalEditor = signal(false);
   showClockGoalEditor = signal(false);
@@ -147,5 +149,17 @@ export class CategoryHomeComponent {
 
   cancelDeutschGoalEdit(): void {
     this.showDeutschGoalEditor.set(false);
+  }
+
+  startPracticePlan(): void {
+    this.practicePlan.startFromDailyGoals();
+  }
+
+  resumePracticePlan(): void {
+    this.practicePlan.resume();
+  }
+
+  cancelPracticePlan(): void {
+    this.practicePlan.cancel();
   }
 }

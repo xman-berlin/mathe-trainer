@@ -9,14 +9,26 @@
       <div class="empty-icon">📚</div>
       <h2>Keine Wörter verfügbar</h2>
       <p>Es wurden dir noch keine Wortlisten zugewiesen.</p>
-      <a routerLink="/deutsch" class="back-btn">Zurück zur Übersicht</a>
+      <a
+        [routerLink]="practicePlan.isGuiding() ? '/' : '/deutsch'"
+        class="back-btn"
+        (click)="practicePlan.pause()"
+      >Zurück zur Übersicht</a>
     </div>
   } @else {
-    <a routerLink="/deutsch" class="back-home-btn">← Zurück</a>
+    <a
+      [routerLink]="practicePlan.isGuiding() ? '/' : '/deutsch'"
+      class="back-home-btn"
+      (click)="practicePlan.pause()"
+    >← Zurück</a>
 
     <!-- Exercise card -->
     <main class="exercise-main">
       <h1 class="language-title">📖 Rechtschreibung</h1>
+
+      @if (practicePlan.isGuiding()) {
+        <p class="plan-progress-banner">{{ practicePlan.progressLabel() }}</p>
+      }
 
       <div class="word-prompt">
         <p class="prompt-label">Schreibe das Wort:</p>

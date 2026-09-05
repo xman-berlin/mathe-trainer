@@ -5,7 +5,11 @@
       <p>Lade Übung…</p>
     </div>
   } @else {
-    <a routerLink="/deutsch" class="back-home-btn">← Zurück</a>
+    <a
+      [routerLink]="practicePlan.isGuiding() ? '/' : '/deutsch'"
+      class="back-home-btn"
+      (click)="practicePlan.pause()"
+    >← Zurück</a>
 
     <main class="exercise-main">
       <h1 class="exercise-title">
@@ -15,6 +19,10 @@
           @case ('alphabet') { 🔤 Alphabet }
         }
       </h1>
+
+      @if (practicePlan.isGuiding()) {
+        <p class="plan-progress-banner">{{ practicePlan.progressLabel() }}</p>
+      }
 
       <div class="question-area">
         <p class="question-text">{{ question() }}</p>

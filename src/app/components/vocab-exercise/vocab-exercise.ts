@@ -12,6 +12,7 @@ import { DeutschService } from '../../services/vocab.service';
 import { StatsService } from '../../services/stats.service';
 import { AuthService } from '../../services/auth.service';
 import { ExerciseStateService } from '../../services/exercise-state.service';
+import { PracticePlanService } from '../../services/practice-plan.service';
 import { LetterKeypadComponent } from '../shared/letter-keypad/letter-keypad.component';
 import type { VocabSessionWord } from '../../models/vocab.model';
 
@@ -32,6 +33,7 @@ export class DeutschRechtschreibungComponent implements OnInit, OnDestroy {
   protected statsService = inject(StatsService);
   private authService = inject(AuthService);
   protected exerciseState = inject(ExerciseStateService);
+  protected practicePlan = inject(PracticePlanService);
 
   // --- State ---
   readonly userAnswer = signal('');
@@ -158,6 +160,9 @@ export class DeutschRechtschreibungComponent implements OnInit, OnDestroy {
 
     // Record stats
     this.statsService.recordResult(isCorrect, EXERCISE_TYPE);
+    if (isCorrect) {
+      this.practicePlan.recordCorrect('deutsch');
+    }
 
     // Update word weight optimistically (non-blocking)
     const userId = this.authService.currentUser()?.id;
