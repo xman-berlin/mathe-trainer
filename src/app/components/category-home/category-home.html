@@ -14,7 +14,34 @@
   <section class="content-area">
     <!-- Kategorien zuerst -->
     <div class="categories-section">
-      <h2>Wähle eine Kategorie</h2>
+      @if (practicePlan.isActive()) {
+        <div class="plan-heading">
+          <h2>Übungsplan läuft</h2>
+          <p class="plan-progress">{{ practicePlan.progressLabel() }}</p>
+          <div class="plan-actions">
+            <button type="button" class="plan-start-btn" (click)="resumePracticePlan()">
+              Weiterüben
+            </button>
+            <button type="button" class="plan-cancel-btn" (click)="cancelPracticePlan()">
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="plan-heading">
+          <h2>
+            Wähle eine Kategorie
+            <span class="plan-or">oder</span>
+            <button type="button" class="plan-start-btn" (click)="startPracticePlan()">
+              Übung starten
+            </button>
+          </h2>
+          <p class="plan-hint">
+            Mathe {{ stats.currentGoal() }} · Deutsch {{ stats.currentDeutschGoal() }} ·
+            Wochentage/Monate/Alphabet je 5 · Uhrzeit {{ stats.currentClockGoal() }}
+          </p>
+        </div>
+      }
       <div class="category-cards">
         <a routerLink="/mathe" class="category-card mathe-card">
           <div class="card-icon">📐</div>

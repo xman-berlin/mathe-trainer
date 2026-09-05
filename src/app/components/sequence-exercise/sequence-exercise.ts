@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, ChangeDetectionStrategy }
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { StatsService } from '../../services/stats.service';
 import { ExerciseStateService } from '../../services/exercise-state.service';
+import { PracticePlanService } from '../../services/practice-plan.service';
 import { SequenceService } from '../../services/sequence.service';
 
 @Component({
@@ -18,6 +19,7 @@ export class SequenceExerciseComponent implements OnInit, OnDestroy {
   private sequenceService = inject(SequenceService);
   protected statsService = inject(StatsService);
   protected exerciseState = inject(ExerciseStateService);
+  protected practicePlan = inject(PracticePlanService);
 
   readonly exerciseType = signal<'weekdays' | 'months' | 'alphabet'>('weekdays');
   readonly question = signal('');
@@ -97,6 +99,15 @@ export class SequenceExerciseComponent implements OnInit, OnDestroy {
     this.feedback.set(isCorrect ? 'correct' : 'incorrect');
 
     this.statsService.recordResult(isCorrect, this.typeString());
+    if (isCorrect) {
+      const blockId =
+        this.exerciseType() === 'weekdays'
+          ? 'weekdays'
+          : this.exerciseType() === 'months'
+            ? 'months'
+            : 'alphabet';
+      this.practicePlan.recordCorrect(blockId);
+    }
 
     this.exerciseState.handleResult(isCorrect, () => this.advance(), 1000, 2000);
   }

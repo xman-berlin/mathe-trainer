@@ -1,6 +1,10 @@
 <div class="clock-exercise-root">
   <div class="clock-exercise-container">
-    <a routerLink="/uhrzeit" class="back-btn">← Zurück</a>
+    <a
+      [routerLink]="practicePlan.isGuiding() ? '/' : '/uhrzeit'"
+      class="back-btn"
+      (click)="practicePlan.pause()"
+    >← Zurück</a>
 
     <div class="exercise-content">
       @if (mode() === 'timeTrial' && !timeTrialActive()) {
@@ -43,6 +47,7 @@
       @if (mode() === 'practice' || timeTrialActive()) {
         <!-- Type Selector (for practice mode) -->
         @if (mode() === 'practice') {
+          @if (!practicePlan.typesLocked()) {
           <div class="type-selector">
             @for (type of exerciseTypes; track type) {
               <button
@@ -59,6 +64,9 @@
               </button>
             }
           </div>
+          } @else if (practicePlan.isGuiding()) {
+            <p class="plan-progress-banner">{{ practicePlan.progressLabel() }}</p>
+          }
         }
 
         @if (currentProblem()) {

@@ -11,6 +11,7 @@ Schlaufuchs is a web-based application that helps elementary school students imp
 ### ✨ Features
 
 - **Math Exercises**: Addition, Subtraction, Multiplication, Division, Word Problems (including multi-step stories mixed with classic one-step templates; answer via keypad)
+- **Guided Practice Plan**: From the home page, „Übung starten“ runs Mathe → Deutsch → Wochentage/Monate/Alphabet → Uhrzeit using daily goals (sequence blocks fixed at 5); type selectors locked during Mathe/Uhrzeit; pause/resume via Zurück and „Weiterüben“
 - **Time Learning**: Analog and digital clock exercises with detailed minute tick marks on the interactive clock face; Zeiger-Setzen now includes 7 exercise types (full hour, half, quarter, 5-min, minutes-after, minutes-before, vor/nach-halb) with auto-positioned hour hand for the three new types; type selection persists across sessions
 - **Deutsch / Rechtschreibung**: German spelling exercises — TTS speaks a word, pupils type it on a QWERTZ keyboard; full streak, daily stats, and goal tracking; smart session phases prioritise the active vocab list until mastered (weight cap 5)
 - **Deutsch / Wochentage + Monate + Alphabet**: Multiple-Choice Wissensfragen zu Reihenfolge und Position der Wochentage, Monate und Buchstaben (A–Z) — 4 Fragetypen (Vorher/Nachher, Position, Lücke, Beschreibung)

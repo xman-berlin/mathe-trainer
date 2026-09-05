@@ -39,6 +39,14 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.plan-progress-banner {
+  margin: 0 0 1rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--bright-blue, #3382bf);
+}
+
 /* Type Selector Toggle Buttons */
 .type-selector {
   display: flex;
