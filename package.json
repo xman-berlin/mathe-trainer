@@ -36,7 +36,7 @@
     "@angular/forms": "^20.3.30",
     "@angular/platform-browser": "^20.3.30",
     "@angular/router": "^20.3.30",
-    "@supabase/supabase-js": "^2.93.3",
+    "@supabase/supabase-js": "^2.115.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
