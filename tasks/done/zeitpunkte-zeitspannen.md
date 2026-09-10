@@ -13,3 +13,11 @@ Train duration (Zeitspannen) and delayed departure (Verspätung) like a German G
 - [x] Write unit tests for component logic
 - [x] Write e2e tests for the user-facing flow
 - [x] Run the full test suite and verify ALL tests still pass
+
+## Review
+
+**Completed:** 2026-09-10 (close-out; feature already shipped earlier)
+
+**Implemented:** `TimeSpanExerciseComponent` at `/uhrzeit/zeitpunkte-zeitspannen` with Zeitspannen + Verspätung, `DurationService`, stats/badges, unit + E2E coverage.
+
+**Deviations:** None noted at close-out.
