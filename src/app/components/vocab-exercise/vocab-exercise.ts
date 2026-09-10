@@ -46,6 +46,7 @@ export class DeutschRechtschreibungComponent implements OnInit, OnDestroy {
   // --- Session ---
   private queue: VocabSessionWord[] = [];
   private currentIndex = 0;
+  private lastWordId: string | null = null;
 
   readonly currentWord = signal<VocabSessionWord | null>(null);
 
@@ -112,9 +113,35 @@ export class DeutschRechtschreibungComponent implements OnInit, OnDestroy {
 
   private showCurrentWord(): void {
     if (this.currentIndex >= this.queue.length) {
-      this.currentIndex = 0;
+      const userId = this.authService.currentUser()?.id;
+      if (userId) {
+        void Promise.resolve(this.deutschService.buildSession(userId)).then((queue) => {
+          if (queue.length === 0) {
+            this.sessionEmpty.set(true);
+            return;
+          }
+          this.queue = queue;
+          this.currentIndex = 0;
+          this.showCurrentWord();
+        });
+        return;
+      }
+      this.sessionEmpty.set(true);
+      return;
     }
-    const word = this.queue[this.currentIndex];
+
+    let attempts = 0;
+    let word: VocabSessionWord;
+    do {
+      if (this.currentIndex >= this.queue.length) {
+        this.currentIndex = 0;
+      }
+      word = this.queue[this.currentIndex];
+      this.currentIndex++;
+      attempts++;
+    } while (word.wordId === this.lastWordId && attempts < this.queue.length);
+
+    this.lastWordId = word.wordId;
     this.currentWord.set(word);
     this.userAnswer.set('');
     this.feedback.set(null);
@@ -175,29 +202,6 @@ export class DeutschRechtschreibungComponent implements OnInit, OnDestroy {
     }
 
     // Use ExerciseStateService for streak/milestones, then advance
-    this.exerciseState.handleResult(isCorrect, () => this.advance(), 1000, 2000);
-  }
-
-  private advance(): void {
-    this.currentIndex++;
-    if (this.currentIndex >= this.queue.length) {
-      // Queue exhausted — rebuild with updated weights
-      const userId = this.authService.currentUser()?.id;
-      if (userId) {
-        void Promise.resolve(this.deutschService.buildSession(userId)).then((queue) => {
-          if (queue.length === 0) {
-            this.sessionEmpty.set(true);
-            return;
-          }
-          this.queue = queue;
-          this.currentIndex = 0;
-          this.showCurrentWord();
-        });
-        return;
-      }
-      this.sessionEmpty.set(true);
-      return;
-    }
-    this.showCurrentWord();
+    this.exerciseState.handleResult(isCorrect, () => this.showCurrentWord(), 1000, 2000);
   }
 }

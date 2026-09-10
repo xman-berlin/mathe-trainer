@@ -4,6 +4,8 @@ import type { VocabAssignment, VocabSessionWord } from '../models/vocab.model';
 
 const DEFAULT_WORD_WEIGHT = 3;
 const MAX_WORD_WEIGHT = 5;
+/** Ensure Phase 1 does not collapse to a handful of hard words. */
+const MIN_PHASE1_UNIQUE_WORDS = 8;
 
 @Injectable({ providedIn: 'root' })
 export class DeutschService {
@@ -50,9 +52,11 @@ export class DeutschService {
   /**
    * Build a weighted session queue using a two-phase strategy:
    *
-   * Phase 1 — Active list only:
+   * Phase 1 — Active list focus:
    *   Any word in the most-recently-assigned list has stored weight > 1.
-   *   Session contains only those words, weights capped at MAX_WORD_WEIGHT.
+   *   Prefer words that still need drilling (weight > 1). If fewer than
+   *   MIN_PHASE1_UNIQUE_WORDS unique drilling words remain, fill with
+   *   mastered active-list words (weight 1) so the pool does not collapse.
    *
    * Phase 2 — All lists:
    *   All active-list words are at weight 1.
@@ -81,11 +85,27 @@ export class DeutschService {
     const sessionWords: VocabSessionWord[] = [];
 
     if (isPhase1) {
-      // Only active list, only words that still need drilling (weight > 1)
+      const fillers: VocabSessionWord[] = [];
+
       for (const w of activeWords) {
         const weight = Math.min(MAX_WORD_WEIGHT, progressMap[w.id] ?? DEFAULT_WORD_WEIGHT);
-        if (weight <= 1) continue;
-        sessionWords.push({ wordId: w.id, word: w.word, listId: w.list_id, weight });
+        const entry: VocabSessionWord = {
+          wordId: w.id,
+          word: w.word,
+          listId: w.list_id,
+          weight: weight <= 1 ? 1 : weight,
+        };
+        if (weight > 1) {
+          sessionWords.push(entry);
+        } else {
+          fillers.push(entry);
+        }
+      }
+
+      // Keep hard words prioritized, but ensure enough unique variety
+      for (const filler of fillers) {
+        if (sessionWords.length >= MIN_PHASE1_UNIQUE_WORDS) break;
+        sessionWords.push(filler);
       }
     } else {
       // All lists — active list words at weight 1, older lists capped at MAX_WORD_WEIGHT
@@ -105,7 +125,7 @@ export class DeutschService {
   }
 
   /**
-   * Repeat each word proportional to its weight, then shuffle.
+   * Repeat each word proportional to its weight, shuffle, then break adjacent duplicates.
    */
   private buildWeightedQueue(words: VocabSessionWord[]): VocabSessionWord[] {
     const queue: VocabSessionWord[] = [];
@@ -119,7 +139,21 @@ export class DeutschService {
       const j = Math.floor(Math.random() * (i + 1));
       [queue[i], queue[j]] = [queue[j], queue[i]];
     }
+    this.separateAdjacentDuplicates(queue);
     return queue;
+  }
+
+  /** Prefer swapping a later different word when two identical IDs sit next to each other. */
+  private separateAdjacentDuplicates(queue: VocabSessionWord[]): void {
+    for (let i = 1; i < queue.length; i++) {
+      if (queue[i].wordId !== queue[i - 1].wordId) continue;
+      for (let j = i + 1; j < queue.length; j++) {
+        if (queue[j].wordId !== queue[i - 1].wordId) {
+          [queue[i], queue[j]] = [queue[j], queue[i]];
+          break;
+        }
+      }
+    }
   }
 
   // ============================================================================

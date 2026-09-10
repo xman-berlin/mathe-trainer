@@ -214,9 +214,8 @@ describe('DeutschRechtschreibungComponent', () => {
     component.userAnswer.set('Hund');
     component.submitAnswer();
 
-    // Manually call advance (what ExerciseStateService.handleResult does after setTimeout)
-    // Private method access via bracket notation — works at runtime in Karma/ESBuild
-    (component as unknown as { advance: () => void }).advance();
+    // Manually call showCurrentWord (what ExerciseStateService.handleResult does after setTimeout)
+    (component as unknown as { showCurrentWord: () => void }).showCurrentWord();
 
     expect(component.currentWord()?.wordId).toBe('w2');
   });
@@ -236,8 +235,8 @@ describe('DeutschRechtschreibungComponent', () => {
     component.userAnswer.set('Hund');
     component.submitAnswer();
 
-    // Advance past the last word (triggers rebuild inside advance())
-    (component as unknown as { advance: () => void }).advance();
+    // Advance past the last word (triggers rebuild inside showCurrentWord())
+    (component as unknown as { showCurrentWord: () => void }).showCurrentWord();
 
     // buildSession should have been called twice (initial + rebuild)
     expect(mockDeutschService.buildSession).toHaveBeenCalledTimes(2);
@@ -255,7 +254,7 @@ describe('DeutschRechtschreibungComponent', () => {
 
     component.userAnswer.set('Hund');
     component.submitAnswer();
-    (component as unknown as { advance: () => void }).advance();
+    (component as unknown as { showCurrentWord: () => void }).showCurrentWord();
 
     await flushMicrotasks();
     expect(component.sessionEmpty()).toBeTrue();

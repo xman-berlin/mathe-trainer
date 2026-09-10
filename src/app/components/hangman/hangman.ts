@@ -126,7 +126,11 @@ export class DeutschHangmanComponent implements OnInit, OnDestroy {
   // ============================================================================
 
   private showNextWord(): void {
-    // Find next word that's not the same as the last one
+    if (this.currentIndex >= this.queue.length) {
+      void this.rebuildQueueAndContinue();
+      return;
+    }
+
     let attempts = 0;
     let word: VocabSessionWord;
     do {
@@ -144,6 +148,28 @@ export class DeutschHangmanComponent implements OnInit, OnDestroy {
     this.wrongGuesses.set(0);
     this.feedback.set(null);
     this.keypadDisabled.set(false);
+  }
+
+  private async rebuildQueueAndContinue(): Promise<void> {
+    const userId = this.authService.currentUser()?.id;
+    if (!userId) {
+      this.sessionEmpty.set(true);
+      return;
+    }
+
+    try {
+      this.queue = await this.deutschService.buildSession(userId);
+    } catch {
+      this.queue = [];
+    }
+
+    if (this.queue.length === 0) {
+      this.sessionEmpty.set(true);
+      return;
+    }
+
+    this.currentIndex = 0;
+    this.showNextWord();
   }
 
   // ============================================================================
