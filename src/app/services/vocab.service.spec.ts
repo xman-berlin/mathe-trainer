@@ -169,7 +169,7 @@ describe('DeutschService', () => {
       expect(w2Entries.length).toBe(3);
     });
 
-    it('Phase 1: excludes words at weight 1 from session', async () => {
+    it('Phase 1: prefers drilling words but fills mastered words up to unique floor', async () => {
       mockSupabase.getVocabAssignmentsForUser.and.resolveTo([
         makeAssignment({ id: 'a1', list_id: 'list-1', assigned_at: '2025-01-02T00:00:00Z' }),
       ]);
@@ -185,13 +185,53 @@ describe('DeutschService', () => {
       await service.loadUserData('user-1');
       const session = await service.buildSession('user-1');
 
-      // w1 at weight 1 → excluded
+      // Only 1 drilling word (< floor 8) → mastered w1 is filled back in once
       const w1Entries = session.filter((w) => w.wordId === 'w1');
-      expect(w1Entries.length).toBe(0);
+      expect(w1Entries.length).toBe(1);
 
       // w2 at weight 3 → appears 3 times
       const w2Entries = session.filter((w) => w.wordId === 'w2');
       expect(w2Entries.length).toBe(3);
+    });
+
+    it('Phase 1: does not pull weight-1 fillers when enough drilling words remain', async () => {
+      const words = Array.from({ length: 10 }, (_, i) =>
+        makeWord({ id: `w${i}`, word: `Wort${i}` })
+      );
+      const progress = words.map((w, i) =>
+        makeProgress({ word_id: w.id, weight: i < 8 ? 3 : 1 })
+      );
+
+      mockSupabase.getVocabAssignmentsForUser.and.resolveTo([makeAssignment()]);
+      mockSupabase.getWordProgressForUser.and.resolveTo(progress);
+      mockSupabase.getVocabListWords.and.resolveTo(words);
+
+      await service.loadUserData('user-1');
+      const session = await service.buildSession('user-1');
+
+      const uniqueIds = new Set(session.map((w) => w.wordId));
+      expect(uniqueIds.size).toBe(8);
+      expect(uniqueIds.has('w8')).toBeFalse();
+      expect(uniqueIds.has('w9')).toBeFalse();
+    });
+
+    it('should avoid adjacent duplicate wordIds when alternatives exist', async () => {
+      mockSupabase.getVocabAssignmentsForUser.and.resolveTo([makeAssignment()]);
+      mockSupabase.getWordProgressForUser.and.resolveTo([]);
+      mockSupabase.getVocabListWords.and.resolveTo([
+        makeWord({ id: 'w1', word: 'Hund' }),
+        makeWord({ id: 'w2', word: 'Katze' }),
+      ]);
+
+      await service.loadUserData('user-1');
+
+      // Run several times — shuffle is random, spacing must hold whenever possible
+      for (let run = 0; run < 20; run++) {
+        const session = await service.buildSession('user-1');
+        for (let i = 1; i < session.length; i++) {
+          expect(session[i].wordId).not.toBe(session[i - 1].wordId);
+        }
+      }
     });
 
     it('Phase 1: includes only active list when any active word weight > 1', async () => {
