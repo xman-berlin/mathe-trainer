@@ -36,7 +36,7 @@
           class="type-toggle"
           [class.active]="isTypeSelected('addition')"
           [class.locked]="mode() === 'practice' && lockedTypes().has('addition')"
-          [title]="mode() === 'practice' && lockedTypes().has('addition') ? 'Erreiche Bronze, um diese Rechenart abzuw\u00e4hlen!' : ''"
+          [title]="mode() === 'practice' && lockedTypes().has('addition') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
           (click)="toggleType('addition')">
           <span class="type-icon">+</span>
           <span class="type-label">Addition</span>
@@ -49,7 +49,7 @@
           class="type-toggle"
           [class.active]="isTypeSelected('subtraction')"
           [class.locked]="mode() === 'practice' && lockedTypes().has('subtraction')"
-          [title]="mode() === 'practice' && lockedTypes().has('subtraction') ? 'Erreiche Bronze, um diese Rechenart abzuw\u00e4hlen!' : ''"
+          [title]="mode() === 'practice' && lockedTypes().has('subtraction') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
           (click)="toggleType('subtraction')">
           <span class="type-icon">−</span>
           <span class="type-label">Subtraktion</span>
@@ -62,7 +62,7 @@
           class="type-toggle"
           [class.active]="isTypeSelected('multiplication')"
           [class.locked]="mode() === 'practice' && lockedTypes().has('multiplication')"
-          [title]="mode() === 'practice' && lockedTypes().has('multiplication') ? 'Erreiche Bronze, um diese Rechenart abzuw\u00e4hlen!' : ''"
+          [title]="mode() === 'practice' && lockedTypes().has('multiplication') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
           (click)="toggleType('multiplication')">
           <span class="type-icon">×</span>
           <span class="type-label">Multiplikation</span>
@@ -75,7 +75,7 @@
           class="type-toggle"
           [class.active]="isTypeSelected('division')"
           [class.locked]="mode() === 'practice' && lockedTypes().has('division')"
-          [title]="mode() === 'practice' && lockedTypes().has('division') ? 'Erreiche Bronze, um diese Rechenart abzuw\u00e4hlen!' : ''"
+          [title]="mode() === 'practice' && lockedTypes().has('division') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
           (click)="toggleType('division')">
           <span class="type-icon">÷</span>
           <span class="type-label">Division</span>
