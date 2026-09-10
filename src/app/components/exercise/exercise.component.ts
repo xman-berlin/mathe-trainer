@@ -61,6 +61,23 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
       const tier = this.difficultyService.getTierForLevel(ev.level);
       this._showLevelNotification(tier.emoji, tier.name, 'down');
     });
+
+    effect(() => {
+      const locked = this.lockedTypes();
+      if (locked.size === 0 || this.mode() !== 'practice') return;
+      const current = this.selectedTypes();
+      let changed = false;
+      const next = new Set(current);
+      for (const type of locked) {
+        if (!next.has(type)) {
+          next.add(type);
+          changed = true;
+        }
+      }
+      if (changed) {
+        this.selectedTypes.set(next);
+      }
+    });
   }
 
   private _showLevelNotification(emoji: string, name: string, direction: 'up' | 'down'): void {
@@ -162,7 +179,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     const lifetime = this.stats.lifetimeStatsByType();
     return new Set<ExerciseType>(
       (['addition', 'subtraction', 'multiplication', 'division'] as ExerciseType[])
-        .filter(t => (lifetime[t] ?? 0) < 100)
+        .filter(t => (lifetime[t] ?? 0) >= 100)
     );
   });
 
