@@ -1,0 +1,15 @@
+---
+description: After commit-and-push, always close out task files (review, done/, todo.md)
+alwaysApply: true
+---
+
+# Task cleanup after commit-and-push
+
+When a feature/fix with a `tasks/<feature>.md` plan is committed and pushed (and after merge/deploy if that was requested), finish paperwork in the **same session** before stopping:
+
+1. Complete a `## Review` section on the task file (what shipped, deviations, date).
+2. Move `tasks/<feature>.md` → `tasks/done/<feature>.md`.
+3. Remove the feature row from `tasks/todo.md`.
+4. Commit and push the cleanup (`chore:` / `docs:` is fine).
+
+Do not leave active-task leftovers for a later “what's next?” pass.
