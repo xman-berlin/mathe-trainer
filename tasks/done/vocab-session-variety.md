@@ -37,3 +37,13 @@ Keep spaced-repetition bias for hard words, but prevent the session from collaps
 - [x] Hangman queue rebuild on exhaustion
 - [x] Browser-test Rechtschreibung + Hangman locally
 - [x] Full suite (`lint`, `build`, `test`, e2e if touched)
+
+## Review
+
+**Completed:** 2026-09-10
+
+**Implemented:** Phase-1 unique floor (8), adjacent queue spacing, Rechtschreibung consecutive skip, Hangman rebuild on queue exhaustion.
+
+**Deviations:** None material; wrong-answer weight delta left at +2 by design.
+
+**Shipped:** PR #43 merged to main and deployed.

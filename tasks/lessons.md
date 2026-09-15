@@ -48,3 +48,15 @@ Only after ALL pass → commit → push → verify CI.
 **Mistake**: First implementation asked for Rechnung + Antwortsatz on multi-step word problems.
 
 **Rule**: For Schlaufuchs Sachaufgaben, multi-step templates still require intermediate thinking in the story, but the child only enters the final numeric result via the shared keypad — same UX as classic one-step stories. Keep two-step templates in the same type mix (`2+` with `+ − × ÷`).
+
+## 2026-09-10 — After commit-and-push: always finish task cleanup
+
+**Mistake**: Vocab-session-variety and related fixes were committed, pushed, merged, and deployed, but the task file stayed in `tasks/` and `tasks/todo.md` was not updated.
+
+**Rule**: Immediately after a successful commit-and-push (and merge/deploy when that is part of the request), close out the feature paperwork in the same session:
+1. Add/complete `## Review` on the task file
+2. Move `tasks/<feature>.md` → `tasks/done/<feature>.md`
+3. Remove the feature row from `tasks/todo.md`
+4. Commit and push that cleanup (small `chore:` / `docs:` commit is fine)
+
+Do not leave “what's next?” suggestions that include cleanup that should already have been done.
