@@ -94,14 +94,17 @@ test.describe('Navigation', () => {
   });
 
   test.describe('Deutsch', () => {
+    // Use card class — accessible name "Deutsch" also matches Englisch ("…Deutsch tippen")
+    const deutschHomeCard = (page: Page) => page.locator('a.category-card.vokabeln-card');
+
     test('should navigate from home to deutsch overview', async ({ page }) => {
-      await page.getByRole('link', { name: 'Deutsch' }).click();
+      await deutschHomeCard(page).click();
       await expect(page).toHaveURL(/\/deutsch$/);
       await expect(page.getByRole('heading', { name: 'Deutsch' })).toBeVisible();
     });
 
     test('should navigate from deutsch overview to rechtschreibung', async ({ page }) => {
-      await page.getByRole('link', { name: 'Deutsch' }).click();
+      await deutschHomeCard(page).click();
       await expect(page).toHaveURL(/\/deutsch$/);
 
       await page.getByRole('link', { name: 'Rechtschreibung' }).click();
@@ -110,7 +113,7 @@ test.describe('Navigation', () => {
     });
 
     test('should navigate from deutsch overview to hangman', async ({ page }) => {
-      await page.getByRole('link', { name: 'Deutsch' }).click();
+      await deutschHomeCard(page).click();
       await expect(page).toHaveURL(/\/deutsch$/);
 
       await page.getByRole('link', { name: 'Wörter Raten' }).click();
@@ -119,7 +122,7 @@ test.describe('Navigation', () => {
     });
 
     test('should navigate from deutsch overview to verwalten', async ({ page }) => {
-      await page.getByRole('link', { name: 'Deutsch' }).click();
+      await deutschHomeCard(page).click();
       await expect(page).toHaveURL(/\/deutsch$/);
 
       await page.getByRole('link', { name: 'Wortlisten verwalten' }).click();
@@ -128,7 +131,7 @@ test.describe('Navigation', () => {
     });
 
     test('should navigate from deutsch overview to wochentage', async ({ page }) => {
-      await page.getByRole('link', { name: 'Deutsch' }).click();
+      await deutschHomeCard(page).click();
       await expect(page).toHaveURL(/\/deutsch$/);
 
       await page.getByRole('link', { name: 'Wochentage' }).click();
@@ -137,7 +140,7 @@ test.describe('Navigation', () => {
     });
 
     test('should navigate from deutsch overview to monate', async ({ page }) => {
-      await page.getByRole('link', { name: 'Deutsch' }).click();
+      await deutschHomeCard(page).click();
       await expect(page).toHaveURL(/\/deutsch$/);
 
       await page.getByRole('link', { name: 'Monate' }).click();
@@ -146,7 +149,7 @@ test.describe('Navigation', () => {
     });
 
     test('should navigate from deutsch overview to alphabet', async ({ page }) => {
-      await page.getByRole('link', { name: 'Deutsch' }).click();
+      await deutschHomeCard(page).click();
       await expect(page).toHaveURL(/\/deutsch$/);
 
       await page.getByRole('link', { name: 'Alphabet' }).click();
@@ -156,14 +159,16 @@ test.describe('Navigation', () => {
   });
 
   test.describe('Englisch', () => {
+    const englischHomeCard = (page: Page) => page.locator('a.category-card.englisch-card');
+
     test('should navigate from home to englisch overview', async ({ page }) => {
-      await page.getByRole('link', { name: 'Englisch' }).click();
+      await englischHomeCard(page).click();
       await expect(page).toHaveURL(/\/englisch$/);
       await expect(page.getByRole('heading', { name: 'Englisch' })).toBeVisible();
     });
 
     test('should navigate from englisch overview to uebung', async ({ page }) => {
-      await page.getByRole('link', { name: 'Englisch' }).click();
+      await englischHomeCard(page).click();
       await expect(page).toHaveURL(/\/englisch$/);
 
       await page.getByRole('link', { name: 'Übersetzung' }).click();
@@ -172,7 +177,7 @@ test.describe('Navigation', () => {
     });
 
     test('should navigate from englisch overview to verwalten', async ({ page }) => {
-      await page.getByRole('link', { name: 'Englisch' }).click();
+      await englischHomeCard(page).click();
       await expect(page).toHaveURL(/\/englisch$/);
 
       await page.getByRole('link', { name: 'Wortlisten verwalten' }).click();
