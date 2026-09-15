@@ -5,3 +5,4 @@
 | Adaptive Übungsauswahl | `tasks/adaptive-uebungsauswahl.md` | App wählt Übungstypen anhand Schwächen des Kindes |
 | Rechenhaus-Übung | `tasks/rechenhaus.md` | Zahlenzerlegung mit Rechenhaus, zählt zu Subtraktion |
 | Alphabet-Übungen | `tasks/alphabet-uebungen.md` | ABC-Sortierung, Vorher/Nachher, Lücken-Alphabet (Hinweis: `/deutsch/alphabet` ist bereits Sequence-MC) |
+| Übungsplan konfigurieren | `tasks/uebungsplan-konfiguration.md` | Freie Plan-Schritte pro User; Katalog aus Kategorie-Kacheln |
