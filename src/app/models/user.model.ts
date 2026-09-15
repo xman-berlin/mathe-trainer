@@ -10,6 +10,7 @@ export interface User {
   math_daily_goal: number;
   clock_daily_goal: number;
   vocab_daily_goal: number;
+  englisch_daily_goal?: number;
   difficulty_levels?: DifficultyLevels;
   math_number_range?: number;
 }

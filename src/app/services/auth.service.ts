@@ -97,6 +97,10 @@ export class AuthService {
       const vocabService = this.injector.get(DeutschService);
       vocabService.clearUserData();
 
+      const { EnglischService } = await import('./englisch.service');
+      const englischService = this.injector.get(EnglischService);
+      englischService.clearUserData();
+
       const { DifficultyService } = await import('./difficulty.service');
       const difficultyService = this.injector.get(DifficultyService);
       difficultyService.clearUser();
@@ -214,6 +218,11 @@ export class AuthService {
       const { DeutschService } = await import('./vocab.service');
       const vocabService = this.injector.get(DeutschService);
       await vocabService.loadUserData(userId);
+
+      // Load Englisch category data
+      const { EnglischService } = await import('./englisch.service');
+      const englischService = this.injector.get(EnglischService);
+      await englischService.loadUserData(userId);
 
       // Load difficulty levels
       const { DifficultyService } = await import('./difficulty.service');

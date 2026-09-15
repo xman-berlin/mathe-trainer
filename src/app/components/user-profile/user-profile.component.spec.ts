@@ -4,8 +4,6 @@ import { Router } from '@angular/router';
 import { UserProfileComponent } from './user-profile.component';
 import { AuthService } from '../../services/auth.service';
 import { AvatarService } from '../../services/avatar.service';
-import { DailyStreakService } from '../../services/daily-streak.service';
-import { STREAK_MILESTONES } from '../../models/daily-streak.model';
 import type { User } from '../../models/user.model';
 
 function makeUser(overrides: Partial<User> = {}): User {
@@ -39,20 +37,6 @@ describe('UserProfileComponent', () => {
     const mockAvatarService = jasmine.createSpyObj('AvatarService', ['generateAvatarUrl']);
     mockAvatarService.generateAvatarUrl.and.returnValue('https://example.com/avatar.svg');
 
-    const currentStreakSignal = signal(0);
-    const longestStreakSignal = signal(0);
-    const achievedMilestonesSignal = signal<number[]>([]);
-
-    const mockStreakService = {
-      currentStreak: currentStreakSignal.asReadonly(),
-      longestStreak: longestStreakSignal.asReadonly(),
-      achievedMilestones: achievedMilestonesSignal.asReadonly(),
-      MILESTONES: STREAK_MILESTONES,
-      getNextMilestone: jasmine.createSpy('getNextMilestone'),
-      getDaysToNextMilestone: jasmine.createSpy('getDaysToNextMilestone'),
-      isAtMilestone: jasmine.createSpy('isAtMilestone'),
-    };
-
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
@@ -60,7 +44,6 @@ describe('UserProfileComponent', () => {
         provideZonelessChangeDetection(),
         { provide: AuthService, useValue: mockAuthService },
         { provide: AvatarService, useValue: mockAvatarService },
-        { provide: DailyStreakService, useValue: mockStreakService },
         { provide: Router, useValue: mockRouter },
       ],
     });
@@ -68,7 +51,6 @@ describe('UserProfileComponent', () => {
     fixture = TestBed.createComponent(UserProfileComponent);
     component = fixture.componentInstance;
 
-    // Set up a logged-in user
     currentUserSignal.set(makeUser());
     fixture.detectChanges();
   });
@@ -87,6 +69,12 @@ describe('UserProfileComponent', () => {
     const img = el.querySelector('.user-avatar') as HTMLImageElement;
     expect(img).toBeTruthy();
     expect(img.src).toContain('avatar.svg');
+  });
+
+  it('should not show streak in hero profile', () => {
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.streak-badge')).toBeNull();
+    expect(el.textContent).not.toContain('Tag');
   });
 
   it('should call logout and navigate on switchUser', async () => {

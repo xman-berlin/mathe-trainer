@@ -1,61 +1,51 @@
-<div class="streak-display" [class.no-streak]="currentStreak() === 0">
-    <div class="streak-header">
-      <div class="streak-flame">🔥</div>
-      <div class="streak-info">
-        @if (currentStreak() > 0) {
-          <div class="streak-count">
-            {{ currentStreak() }} Tag{{ currentStreak() === 1 ? '' : 'e' }}
-          </div>
-          <div class="streak-label">Tägliche Streak!</div>
+<a
+  routerLink="/erfolge"
+  class="streak-display"
+  [class.no-streak]="currentStreak() === 0"
+  aria-label="Streak und Erfolge"
+>
+  <div class="streak-row">
+    <span class="streak-flame" aria-hidden="true">🔥</span>
+
+    <div class="streak-info">
+      @if (currentStreak() > 0) {
+        <span class="streak-count">{{ currentStreak() }} Tag{{ currentStreak() === 1 ? '' : 'e' }}</span>
+        @if (nextMilestone()) {
+          <span class="streak-meta">
+            → {{ nextMilestone() }} {{ getMilestoneEmoji(nextMilestone()!) }}
+            (noch {{ daysToNextMilestone() }})
+          </span>
         } @else {
-          <div class="streak-count">Keine Streak</div>
-          <div class="streak-label">Löse eine Aufgabe um zu starten!</div>
+          <span class="streak-meta">Max erreicht 👑</span>
         }
-      </div>
-      @if (longestStreak() > currentStreak() && longestStreak() > 0) {
-        <div class="longest-streak">
-          <div class="longest-label">Rekord:</div>
-          <div class="longest-count">{{ longestStreak() }}</div>
-        </div>
+      } @else {
+        <span class="streak-count">Keine Streak</span>
+        <span class="streak-meta">Starte mit einer Aufgabe</span>
       }
     </div>
 
-    @if (currentStreak() > 0 && nextMilestone()) {
-      <div class="streak-progress">
-        <div class="progress-header">
-          <span>Nächster Meilenstein: {{ nextMilestone() }} Tage {{ getMilestoneEmoji(nextMilestone()!) }}</span>
-          <span class="days-remaining">
-            Noch {{ daysToNextMilestone() }} Tag{{ daysToNextMilestone() === 1 ? '' : 'e' }}
-          </span>
-        </div>
-        <div class="progress-bar">
-          <div
-            class="progress-fill"
-            [style.width.%]="progressPercentage()"
-            [class.milestone]="isAtMilestone()"
-          ></div>
-        </div>
-      </div>
-    } @else if (currentStreak() > 0) {
-      <div class="max-milestone">
-        <span class="trophy">👑</span>
-        <span>Maximale Streak erreicht!</span>
-      </div>
+    @if (longestStreak() > currentStreak() && longestStreak() > 0) {
+      <span class="longest-chip" title="Rekord">Rekord {{ longestStreak() }}</span>
     }
 
-    @if (currentStreak() > 0) {
-      <div class="milestone-badges">
-      @for (milestone of milestones; track milestone) {
-        <div
-          class="milestone-badge"
-          [class.achieved]="isMilestoneAchieved(milestone)"
-          [class.current]="currentStreak() === milestone"
-          [title]="milestone + ' Tage'"
-        >
-          <div class="badge-emoji">{{ getMilestoneEmoji(milestone) }}</div>
-          <div class="badge-count">{{ milestone }}</div>
-        </div>
-      }
-      </div>
-    }
-</div>
+    <span class="coins-chip" aria-hidden="true">
+      <span class="coin-icon">💰</span>
+      <span class="coin-amount">{{ coins.balance() }}</span>
+    </span>
+
+    <span class="erfolge-cta">
+      <span aria-hidden="true">🏆</span>
+      Erfolge
+    </span>
+  </div>
+
+  @if (currentStreak() > 0 && nextMilestone()) {
+    <div class="progress-bar" role="presentation">
+      <div
+        class="progress-fill"
+        [style.width.%]="progressPercentage()"
+        [class.milestone]="isAtMilestone()"
+      ></div>
+    </div>
+  }
+</a>

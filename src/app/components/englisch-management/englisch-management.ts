@@ -8,47 +8,46 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DeutschService } from '../../services/vocab.service';
+import { EnglischService } from '../../services/englisch.service';
 import { SupabaseService } from '../../services/supabase.service';
 import { AuthService } from '../../services/auth.service';
 import type { VocabList, VocabWord } from '../../models/vocab.model';
 import type { User } from '../../models/user.model';
 
 @Component({
-  selector: 'app-vocab-management',
+  selector: 'app-englisch-management',
   standalone: true,
   imports: [RouterLink, FormsModule],
-  templateUrl: './vocab-management.html',
-  styleUrls: ['./vocab-management.scss'],
+  templateUrl: './englisch-management.html',
+  styleUrl: '../vocab-management/vocab-management.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VocabManagementComponent implements OnInit {
-  private deutschService = inject(DeutschService);
+export class EnglischManagementComponent implements OnInit {
+  private englischService = inject(EnglischService);
   private supabase = inject(SupabaseService);
   protected auth = inject(AuthService);
 
-  // ---- Lists ----
   readonly lists = signal<VocabList[]>([]);
   readonly selectedListId = signal<string | null>(null);
-  readonly selectedList = computed(() =>
-    this.lists().find(l => l.id === this.selectedListId()) ?? null
+  readonly selectedList = computed(
+    () => this.lists().find((l) => l.id === this.selectedListId()) ?? null
   );
 
-  // New/rename list
   readonly newListName = signal('');
   readonly renamingListId = signal<string | null>(null);
   readonly renameListValue = signal('');
 
-  // ---- Words ----
   readonly words = signal<VocabWord[]>([]);
-  readonly newWord = signal('');
+  readonly newPromptEn = signal('');
+  readonly newAnswerDe = signal('');
+  readonly newContextEn = signal('');
   readonly editingWordId = signal<string | null>(null);
-  readonly editingWordValue = signal('');
+  readonly editingPromptEn = signal('');
+  readonly editingAnswerDe = signal('');
+  readonly editingContextEn = signal('');
 
-  // ---- Users ----
   readonly allUsers = signal<User[]>([]);
   readonly assignedUserIds = signal<Set<string>>(new Set());
-
   readonly isLoading = signal(false);
 
   async ngOnInit(): Promise<void> {
@@ -62,13 +61,14 @@ export class VocabManagementComponent implements OnInit {
   }
 
   private async loadLists(): Promise<void> {
-    const result = await this.supabase.getVocabLists(null);
+    const languageId = await this.englischService.ensureLanguage();
+    if (!languageId) {
+      this.lists.set([]);
+      return;
+    }
+    const result = await this.supabase.getVocabLists(languageId);
     this.lists.set(result);
   }
-
-  // ============================================================================
-  // LISTS
-  // ============================================================================
 
   async selectList(list: VocabList): Promise<void> {
     this.selectedListId.set(list.id);
@@ -83,20 +83,20 @@ export class VocabManagementComponent implements OnInit {
 
   private async loadAssignmentsForList(listId: string): Promise<void> {
     const assignments = await Promise.all(
-      this.allUsers().map(async user => {
+      this.allUsers().map(async (user) => {
         const userAssignments = await this.supabase.getVocabAssignmentsForUser(user.id);
-        return { userId: user.id, assigned: userAssignments.some(a => a.list_id === listId) };
+        return { userId: user.id, assigned: userAssignments.some((a) => a.list_id === listId) };
       })
     );
-    const assignedIds = new Set(
-      assignments.filter(a => a.assigned).map(a => a.userId)
-    );
+    const assignedIds = new Set(assignments.filter((a) => a.assigned).map((a) => a.userId));
     this.assignedUserIds.set(assignedIds);
   }
 
   async createList(): Promise<void> {
+    const languageId = await this.englischService.ensureLanguage();
+    if (!languageId) return;
     const name = this.newListName().trim() || 'Neue Liste';
-    await this.supabase.createVocabList(name);
+    await this.supabase.createVocabList(name, languageId);
     this.newListName.set('');
     await this.loadLists();
   }
@@ -131,38 +131,49 @@ export class VocabManagementComponent implements OnInit {
     await this.loadLists();
   }
 
-  // ============================================================================
-  // WORDS
-  // ============================================================================
-
   async addWord(): Promise<void> {
     const listId = this.selectedListId();
-    const word = this.newWord().trim();
-    if (!listId || !word) return;
+    const promptEn = this.newPromptEn().trim();
+    const answerDe = this.newAnswerDe().trim();
+    const contextEn = this.newContextEn().trim();
+    if (!listId || !promptEn || !answerDe) return;
 
-    await this.supabase.addVocabWord(listId, word);
-    this.newWord.set('');
+    await this.supabase.addEnglischWordPair(listId, {
+      promptEn,
+      answerDe,
+      contextEn: contextEn || null,
+    });
+    this.newPromptEn.set('');
+    this.newAnswerDe.set('');
+    this.newContextEn.set('');
     await this.loadWordsForList(listId);
 
-    // If list has no name yet, use first word
     const list = this.selectedList();
     if (list && list.name === 'Neue Liste') {
-      await this.supabase.updateVocabList(listId, word);
+      await this.supabase.updateVocabList(listId, promptEn);
       await this.loadLists();
     }
   }
 
   startEditWord(word: VocabWord): void {
     this.editingWordId.set(word.id);
-    this.editingWordValue.set(word.word ?? '');
+    this.editingPromptEn.set(word.prompt_en ?? word.word ?? '');
+    this.editingAnswerDe.set(word.answer_de ?? '');
+    this.editingContextEn.set(word.context_en ?? '');
   }
 
   async saveEditWord(): Promise<void> {
     const id = this.editingWordId();
     if (!id) return;
-    const word = this.editingWordValue().trim();
-    if (word) {
-      await this.supabase.updateVocabWord(id, word);
+    const promptEn = this.editingPromptEn().trim();
+    const answerDe = this.editingAnswerDe().trim();
+    const contextEn = this.editingContextEn().trim();
+    if (promptEn && answerDe) {
+      await this.supabase.updateEnglischWordPair(id, {
+        promptEn,
+        answerDe,
+        contextEn: contextEn || null,
+      });
       const listId = this.selectedListId();
       if (listId) await this.loadWordsForList(listId);
     }
@@ -178,10 +189,6 @@ export class VocabManagementComponent implements OnInit {
     const listId = this.selectedListId();
     if (listId) await this.loadWordsForList(listId);
   }
-
-  // ============================================================================
-  // USER ASSIGNMENTS
-  // ============================================================================
 
   async toggleAssignment(userId: string): Promise<void> {
     const listId = this.selectedListId();

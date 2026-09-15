@@ -76,6 +76,23 @@ describe('DeutschService', () => {
       expect(service.assignments()[0].list_id).toBe('list-1');
     });
 
+    it('should exclude Englisch assignments', async () => {
+      const assignments = [
+        makeAssignment({ list: { id: 'list-1', name: 'DE', language_id: null } }),
+        makeAssignment({
+          id: 'assign-en',
+          list_id: 'list-en',
+          list: { id: 'list-en', name: 'EN', language_id: 'lang-en' },
+        }),
+      ];
+      mockSupabase.getVocabAssignmentsForUser.and.resolveTo(assignments);
+      mockSupabase.getWordProgressForUser.and.resolveTo([]);
+
+      await service.loadUserData('user-1');
+      expect(service.assignments().length).toBe(1);
+      expect(service.assignments()[0].list_id).toBe('list-1');
+    });
+
     it('should handle supabase error gracefully', async () => {
       mockSupabase.getVocabAssignmentsForUser.and.rejectWith(new Error('network'));
       mockSupabase.getWordProgressForUser.and.resolveTo([]);

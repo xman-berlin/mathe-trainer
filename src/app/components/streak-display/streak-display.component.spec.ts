@@ -1,7 +1,9 @@
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { StreakDisplayComponent } from './streak-display.component';
 import { DailyStreakService } from '../../services/daily-streak.service';
+import { CoinsService } from '../../services/coins.service';
 import { STREAK_MILESTONES } from '../../models/daily-streak.model';
 
 describe('StreakDisplayComponent', () => {
@@ -26,10 +28,16 @@ describe('StreakDisplayComponent', () => {
       isAtMilestone: jasmine.createSpy('isAtMilestone').and.returnValue(false),
     };
 
+    const mockCoinsService = {
+      balance: signal(42).asReadonly(),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
+        provideRouter([]),
         { provide: DailyStreakService, useValue: mockStreakService },
+        { provide: CoinsService, useValue: mockCoinsService },
       ],
     });
 
@@ -55,21 +63,12 @@ describe('StreakDisplayComponent', () => {
     expect(el.textContent).toContain('Tage');
   });
 
-  it('should show milestone badges when streak > 0', () => {
+  it('should show compact next-milestone hint when streak > 0', () => {
     currentStreakSignal.set(3);
     fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;
-    const badges = el.querySelectorAll('.milestone-badge');
-    expect(badges.length).toBe(STREAK_MILESTONES.length);
-  });
-
-  it('should mark achieved milestones', () => {
-    currentStreakSignal.set(10);
-    achievedMilestonesSignal.set([7]);
-    fixture.detectChanges();
-    const el: HTMLElement = fixture.nativeElement;
-    const achievedBadges = el.querySelectorAll('.milestone-badge.achieved');
-    expect(achievedBadges.length).toBe(1);
+    expect(el.textContent).toContain('→ 7');
+    expect(el.querySelector('.progress-bar')).toBeTruthy();
   });
 
   it('should return correct milestone emoji', () => {
@@ -79,5 +78,20 @@ describe('StreakDisplayComponent', () => {
     expect(component.getMilestoneEmoji(50)).toBe('⭐');
     expect(component.getMilestoneEmoji(100)).toBe('🏆');
     expect(component.getMilestoneEmoji(365)).toBe('👑');
+  });
+
+  it('should link to Erfolge and show coins', () => {
+    const el: HTMLElement = fixture.nativeElement;
+    const link = el.querySelector('a.streak-display') as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe('/erfolge');
+    expect(el.textContent).toContain('42');
+    expect(el.textContent).toContain('Erfolge');
+  });
+
+  it('should not render milestone badge gallery', () => {
+    currentStreakSignal.set(3);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelectorAll('.milestone-badge').length).toBe(0);
   });
 });

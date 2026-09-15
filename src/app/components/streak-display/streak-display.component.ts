@@ -1,20 +1,23 @@
 import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DailyStreakService } from '../../services/daily-streak.service';
+import { CoinsService } from '../../services/coins.service';
 
 /**
  * Shared component for displaying daily practice streaks
- * Shows current streak, longest streak, and progress to next milestone
+ * Shows current streak, longest streak, coins, and links to Erfolge
  */
 @Component({
   standalone: true,
   selector: 'app-streak-display',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './streak-display.component.html',
   styleUrl: './streak-display.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StreakDisplayComponent {
   protected streakService = inject(DailyStreakService);
+  protected coins = inject(CoinsService);
 
   // Computed values
   currentStreak = this.streakService.currentStreak;

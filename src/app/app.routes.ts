@@ -178,6 +178,30 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
 
+  // Englisch routes
+  {
+    path: 'englisch',
+    loadComponent: () =>
+      import('./components/englisch-category-overview/englisch-category-overview').then(
+        (m) => m.EnglischCategoryOverviewComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'englisch/uebung',
+    loadComponent: () =>
+      import('./components/englisch-uebung/englisch-uebung').then((m) => m.EnglischUebungComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'englisch/verwalten',
+    loadComponent: () =>
+      import('./components/englisch-management/englisch-management').then(
+        (m) => m.EnglischManagementComponent
+      ),
+    canActivate: [authGuard],
+  },
+
   // Backward compatibility redirects
   { path: 'vokabeln', redirectTo: '/deutsch', pathMatch: 'full' },
   { path: 'vokabeln/uebung', redirectTo: '/deutsch/rechtschreibung', pathMatch: 'full' },

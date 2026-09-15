@@ -91,14 +91,19 @@
           </div>
         </a>
 
-        <a routerLink="/erfolge" class="category-card erfolge-card">
-          <div class="card-icon">🏆</div>
-          <h3>Erfolge</h3>
-          <p>Badges, Medaillen & Rekorde</p>
-          <div class="card-stats card-coins-display">
-            <span class="coins-label">Coins:</span>
-            <span class="coin-icon">💰</span>
-            <span class="coin-amount">{{ coins.balance() }}</span>
+        <a routerLink="/englisch" class="category-card englisch-card">
+          <div class="card-icon">🇬🇧</div>
+          <h3>Englisch</h3>
+          <p>Englisch sehen und hören, Deutsch tippen</p>
+          <div class="card-stats">
+            <div class="stats-badges">
+              <span class="stat-correct">✓ {{ stats.englischCorrectCount() }}</span>
+              <span class="stat-incorrect">✗ {{ englischIncorrectCount() }}</span>
+            </div>
+            <div class="stats-goal">Ziel: {{ stats.englischCorrectCount() }}/{{ stats.currentEnglischGoal() }}</div>
+            <div class="stats-progress-bar">
+              <div class="stats-progress-fill" [style.width.%]="stats.englischGoalProgressPercent()"></div>
+            </div>
           </div>
         </a>
       </div>

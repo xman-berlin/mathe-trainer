@@ -11,6 +11,7 @@ export interface DailyStats {
   math_daily_goal: number;
   clock_daily_goal: number;
   vocab_daily_goal?: number;
+  englisch_daily_goal?: number;
   created_at?: string;
   updated_at?: string;
 }
