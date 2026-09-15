@@ -18,6 +18,7 @@ interface DailyStats {
   dailyGoal?: number; // Optional for backward compatibility
   clockDailyGoal?: number; // Optional for backward compatibility
   vocabDailyGoal?: number;
+  englischDailyGoal?: number;
 }
 
 interface LifetimeStats {
@@ -44,12 +45,14 @@ export class StatsService {
   private mathGoalBonusAwarded = signal(false);
   private clockGoalBonusAwarded = signal(false);
   private deutschGoalBonusAwarded = signal(false);
+  private englischGoalBonusAwarded = signal(false);
 
   private date = signal(this.today());
   private byType = signal<Record<string, ExerciseTypeStats>>({});
   private dailyGoal = signal(20); // Default goal for math
   private clockDailyGoal = signal(20); // Default goal for clock
   private vocabDailyGoal = signal(20); // Default goal for Deutsch category
+  private englischDailyGoal = signal(10); // Default goal for Englisch category
   private mathNumberRange = signal(100); // Default number range for math exercises
   private lifetimeByType = signal<Record<string, number>>({});
   private bestStreaksByTypeSignal = signal<Record<string, number>>({});
@@ -144,6 +147,35 @@ export class StatsService {
   );
   readonly isDeutschGoalReached = computed(() => this.deutschCorrectCount() >= this.vocabDailyGoal());
 
+  // Englisch-specific stats (exercise type: 'englisch-uebersetzung')
+  readonly englischCorrectCount = computed(() => {
+    const types = this.byType();
+    let total = 0;
+    for (const [type, stats] of Object.entries(types)) {
+      if (type.startsWith('englisch-')) {
+        total += stats.correct ?? 0;
+      }
+    }
+    return total;
+  });
+
+  readonly englischIncorrectCount = computed(() => {
+    const types = this.byType();
+    let total = 0;
+    for (const [type, stats] of Object.entries(types)) {
+      if (type.startsWith('englisch-')) {
+        total += stats.incorrect ?? 0;
+      }
+    }
+    return total;
+  });
+
+  readonly currentEnglischGoal = this.englischDailyGoal.asReadonly();
+  readonly englischGoalProgressPercent = computed(() =>
+    Math.min(100, Math.round((this.englischCorrectCount() / this.englischDailyGoal()) * 100))
+  );
+  readonly isEnglischGoalReached = computed(() => this.englischCorrectCount() >= this.englischDailyGoal());
+
   constructor() {
     this.load();
     this.loadLifetime();
@@ -222,6 +254,14 @@ export class StatsService {
     this.syncGoalsToServer();
   }
 
+  setEnglischDailyGoal(count: number): void {
+    if (count < 1) count = 1;
+    if (count > 100) count = 100;
+    this.englischDailyGoal.set(count);
+    this.persist();
+    this.syncGoalsToServer();
+  }
+
   setMathNumberRange(value: number): void {
     if (value < 100) value = 100;
     this.mathNumberRange.set(value);
@@ -240,7 +280,8 @@ export class StatsService {
     this.mathGoalBonusAwarded.set(false);
     this.clockGoalBonusAwarded.set(false);
     this.deutschGoalBonusAwarded.set(false);
-    // Note: goal signals (dailyGoal, clockDailyGoal, vocabDailyGoal) are preserved
+    this.englischGoalBonusAwarded.set(false);
+    // Note: goal signals (dailyGoal, clockDailyGoal, vocabDailyGoal, englischDailyGoal) are preserved
     // across days — they are user preferences, not daily counters.
     this.persist();
   }
@@ -293,6 +334,9 @@ export class StatsService {
         if (parsed.vocabDailyGoal) {
           this.vocabDailyGoal.set(parsed.vocabDailyGoal);
         }
+        if (parsed.englischDailyGoal) {
+          this.englischDailyGoal.set(parsed.englischDailyGoal);
+        }
       } else {
         // Old format detected, reset to start fresh with new structure
         this.resetToday();
@@ -309,6 +353,7 @@ export class StatsService {
       dailyGoal: this.dailyGoal(),
       clockDailyGoal: this.clockDailyGoal(),
       vocabDailyGoal: this.vocabDailyGoal(),
+      englischDailyGoal: this.englischDailyGoal(),
     };
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(payload));
@@ -402,6 +447,7 @@ export class StatsService {
     this.dailyGoal.set(20);
     this.clockDailyGoal.set(20);
     this.vocabDailyGoal.set(20);
+    this.englischDailyGoal.set(10);
     this.mathNumberRange.set(100);
     this.lifetimeByType.set({});
     this.bestStreaksByTypeSignal.set({});
@@ -452,6 +498,7 @@ export class StatsService {
       if (user.math_daily_goal) this.dailyGoal.set(user.math_daily_goal);
       if (user.clock_daily_goal) this.clockDailyGoal.set(user.clock_daily_goal);
       if (user.vocab_daily_goal) this.vocabDailyGoal.set(user.vocab_daily_goal);
+      if (user.englisch_daily_goal) this.englischDailyGoal.set(user.englisch_daily_goal);
       if (user.math_number_range && user.math_number_range >= 100) {
         this.mathNumberRange.set(user.math_number_range);
         try { localStorage.setItem(this.numberRangeStorageKey, String(user.math_number_range)); } catch { /* ignore */ }
@@ -523,6 +570,7 @@ export class StatsService {
         math_daily_goal: this.dailyGoal(),
         clock_daily_goal: this.clockDailyGoal(),
         vocab_daily_goal: this.vocabDailyGoal(),
+        englisch_daily_goal: this.englischDailyGoal(),
       };
 
       // Upsert daily stats
@@ -548,12 +596,20 @@ export class StatsService {
     }
     try {
       const userId = this.auth.currentUser()!.id;
-      await this.supabase.updateUserGoals(userId, this.dailyGoal(), this.clockDailyGoal(), this.vocabDailyGoal(), this.mathNumberRange());
+      await this.supabase.updateUserGoals(
+        userId,
+        this.dailyGoal(),
+        this.clockDailyGoal(),
+        this.vocabDailyGoal(),
+        this.mathNumberRange(),
+        this.englischDailyGoal()
+      );
       // Keep the cached user in sync so that a page refresh loads the latest values
       this.auth.updateCurrentUserCache({
         math_daily_goal: this.dailyGoal(),
         clock_daily_goal: this.clockDailyGoal(),
         vocab_daily_goal: this.vocabDailyGoal(),
+        englisch_daily_goal: this.englischDailyGoal(),
         math_number_range: this.mathNumberRange(),
       });
     } catch {
@@ -608,6 +664,7 @@ export class StatsService {
     const isMathType = this.mathTypes.includes(exerciseType);
     const isClockType = this.clockTypes.includes(exerciseType);
     const isDeutschType = exerciseType.startsWith('deutsch-');
+    const isEnglischType = exerciseType.startsWith('englisch-');
 
     // Check math goal bonus
     if (isMathType && this.isGoalReached() && !this.mathGoalBonusAwarded()) {
@@ -639,6 +696,17 @@ export class StatsService {
         this.deutschGoalBonusAwarded.set(true);
       } catch (error) {
         console.error('Failed to award Deutsch goal bonus:', error);
+      }
+    }
+
+    // Check Englisch goal bonus
+    if (isEnglischType && this.isEnglischGoalReached() && !this.englischGoalBonusAwarded()) {
+      try {
+        const userId = this.auth.currentUser()!.id;
+        await this.coinsService.awardCoins(userId, 10, 'daily_goal', 'englisch');
+        this.englischGoalBonusAwarded.set(true);
+      } catch (error) {
+        console.error('Failed to award Englisch goal bonus:', error);
       }
     }
   }

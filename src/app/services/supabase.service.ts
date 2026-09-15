@@ -17,6 +17,7 @@ import type { UserBadge } from '../models/badge.model';
 import type { CoinBalance, CoinTransaction } from '../models/coin.model';
 import type { GameScore } from '../models/game.model';
 import type {
+  VocabLanguage,
   VocabList,
   VocabWord,
   VocabAssignment,
@@ -120,7 +121,8 @@ export class SupabaseService {
     mathDailyGoal: number,
     clockDailyGoal: number,
     vocabDailyGoal: number,
-    mathNumberRange?: number
+    mathNumberRange?: number,
+    englischDailyGoal?: number
   ): Promise<void> {
     try {
       const update: Record<string, unknown> = {
@@ -129,6 +131,7 @@ export class SupabaseService {
         vocab_daily_goal: vocabDailyGoal,
       };
       if (mathNumberRange !== undefined) update['math_number_range'] = mathNumberRange;
+      if (englischDailyGoal !== undefined) update['englisch_daily_goal'] = englischDailyGoal;
       const { error } = await this.supabase
         .from('users')
         .update(update)
@@ -229,6 +232,9 @@ export class SupabaseService {
           math_daily_goal: stats.math_daily_goal,
           clock_daily_goal: stats.clock_daily_goal,
           ...(stats.vocab_daily_goal !== undefined ? { vocab_daily_goal: stats.vocab_daily_goal } : {}),
+          ...(stats.englisch_daily_goal !== undefined
+            ? { englisch_daily_goal: stats.englisch_daily_goal }
+            : {}),
         },
         { onConflict: 'user_id,date' }
       );
@@ -529,6 +535,7 @@ export class SupabaseService {
       math_daily_goal: 20,
       clock_daily_goal: 20,
       vocab_daily_goal: 10,
+      englisch_daily_goal: 10,
     };
   }
 
@@ -791,12 +798,33 @@ export class SupabaseService {
   // VOCAB LIST METHODS
   // ============================================================================
 
-  async getVocabLists(): Promise<VocabList[]> {
+  async getVocabLanguageByName(name: string): Promise<VocabLanguage | null> {
     try {
       const { data, error } = await this.supabase
-        .from('vocab_lists')
+        .from('vocab_languages')
         .select('*')
-        .order('created_at');
+        .eq('name', name)
+        .maybeSingle();
+      if (error) throw error;
+      return (data as VocabLanguage) || null;
+    } catch (error) {
+      console.error('Error fetching vocab language:', error);
+      return null;
+    }
+  }
+
+  /**
+   * @param languageId - specific language UUID; `null` = Deutsch legacy lists (language_id IS NULL)
+   */
+  async getVocabLists(languageId?: string | null): Promise<VocabList[]> {
+    try {
+      let query = this.supabase.from('vocab_lists').select('*').order('created_at');
+      if (languageId === null) {
+        query = query.is('language_id', null);
+      } else if (languageId !== undefined) {
+        query = query.eq('language_id', languageId);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return (data as VocabList[]) || [];
     } catch (error) {
@@ -805,10 +833,14 @@ export class SupabaseService {
     }
   }
 
-  async createVocabList(name: string): Promise<VocabList> {
+  async createVocabList(name: string, languageId?: string | null): Promise<VocabList> {
+    const payload: { name: string; language_id?: string } = { name };
+    if (languageId) {
+      payload.language_id = languageId;
+    }
     const { data, error } = await this.supabase
       .from('vocab_lists')
-      .insert({ name })
+      .insert(payload)
       .select()
       .single();
     if (error) throw error;
@@ -860,10 +892,45 @@ export class SupabaseService {
     return data as VocabWord;
   }
 
+  async addEnglischWordPair(
+    listId: string,
+    pair: { promptEn: string; answerDe: string; contextEn?: string | null }
+  ): Promise<VocabWord> {
+    const { data, error } = await this.supabase
+      .from('vocab_list_words')
+      .insert({
+        list_id: listId,
+        word: pair.promptEn,
+        prompt_en: pair.promptEn,
+        answer_de: pair.answerDe,
+        context_en: pair.contextEn ?? null,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data as VocabWord;
+  }
+
   async updateVocabWord(wordId: string, word: string): Promise<void> {
     const { error } = await this.supabase
       .from('vocab_list_words')
       .update({ word })
+      .eq('id', wordId);
+    if (error) throw error;
+  }
+
+  async updateEnglischWordPair(
+    wordId: string,
+    pair: { promptEn: string; answerDe: string; contextEn?: string | null }
+  ): Promise<void> {
+    const { error } = await this.supabase
+      .from('vocab_list_words')
+      .update({
+        word: pair.promptEn,
+        prompt_en: pair.promptEn,
+        answer_de: pair.answerDe,
+        context_en: pair.contextEn ?? null,
+      })
       .eq('id', wordId);
     if (error) throw error;
   }

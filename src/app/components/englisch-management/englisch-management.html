@@ -1,0 +1,158 @@
+<div class="vocab-management-page">
+  <header class="mgmt-header">
+    <a routerLink="/englisch" class="back-link">← Englisch</a>
+    <h1>Wortlisten verwalten</h1>
+  </header>
+
+  <div class="mgmt-body">
+    <aside class="left-panel">
+      <section class="panel-section">
+        <h2>Listen</h2>
+        <ul class="item-list">
+          @for (list of lists(); track list.id) {
+            <li
+              class="item-row"
+              [class.selected]="list.id === selectedListId()"
+              tabindex="0"
+              role="button"
+              (click)="selectList(list)"
+              (keydown.enter)="selectList(list)"
+              (keydown.space)="selectList(list)"
+            >
+              @if (renamingListId() === list.id) {
+                <input
+                  type="text"
+                  class="text-input inline-input"
+                  [ngModel]="renameListValue()"
+                  (ngModelChange)="renameListValue.set($event)"
+                  (click)="$event.stopPropagation()"
+                />
+                <button class="success-btn small-btn" (click)="$event.stopPropagation(); saveRenameList()">✓</button>
+                <button class="secondary-btn small-btn" (click)="$event.stopPropagation(); cancelRenameList()">✕</button>
+              } @else {
+                <span class="item-name">{{ list.name }}</span>
+                <button class="secondary-btn small-btn" (click)="$event.stopPropagation(); startRenameList(list)">✎</button>
+                <button class="danger-btn small-btn" (click)="$event.stopPropagation(); deleteList(list)">✕</button>
+              }
+            </li>
+          }
+          @if (lists().length === 0) {
+            <li class="empty-hint">Noch keine Listen</li>
+          }
+        </ul>
+
+        <div class="add-form">
+          <input
+            type="text"
+            placeholder="Listenname (optional)"
+            [ngModel]="newListName()"
+            (ngModelChange)="newListName.set($event)"
+            class="text-input"
+          />
+          <button class="primary-btn" (click)="createList()">+ Liste hinzufügen</button>
+        </div>
+      </section>
+    </aside>
+
+    <main class="right-panel">
+      @if (!selectedListId()) {
+        <div class="select-hint">
+          <p>← Wähle eine Liste aus</p>
+        </div>
+      } @else {
+        <section class="panel-section">
+          <h2>Wortpaare — {{ selectedList()?.name }}</h2>
+
+          <div class="add-form">
+            <input
+              type="text"
+              placeholder="Englisch (z. B. dog)"
+              [ngModel]="newPromptEn()"
+              (ngModelChange)="newPromptEn.set($event)"
+              class="text-input"
+            />
+            <input
+              type="text"
+              placeholder="Deutsch (z. B. Hund)"
+              [ngModel]="newAnswerDe()"
+              (ngModelChange)="newAnswerDe.set($event)"
+              class="text-input"
+              (keydown.enter)="addWord()"
+            />
+            <input
+              type="text"
+              placeholder="Kontext EN (optional)"
+              [ngModel]="newContextEn()"
+              (ngModelChange)="newContextEn.set($event)"
+              class="text-input"
+            />
+            <button class="primary-btn" (click)="addWord()">+ Hinzufügen</button>
+          </div>
+
+          <ul class="word-list">
+            @for (word of words(); track word.id) {
+              <li class="word-row">
+                @if (editingWordId() === word.id) {
+                  <input
+                    type="text"
+                    class="text-input inline-input"
+                    [ngModel]="editingPromptEn()"
+                    (ngModelChange)="editingPromptEn.set($event)"
+                    placeholder="Englisch"
+                  />
+                  <input
+                    type="text"
+                    class="text-input inline-input"
+                    [ngModel]="editingAnswerDe()"
+                    (ngModelChange)="editingAnswerDe.set($event)"
+                    placeholder="Deutsch"
+                    (keydown.enter)="saveEditWord()"
+                  />
+                  <input
+                    type="text"
+                    class="text-input inline-input"
+                    [ngModel]="editingContextEn()"
+                    (ngModelChange)="editingContextEn.set($event)"
+                    placeholder="Kontext"
+                  />
+                  <button class="success-btn small-btn" (click)="saveEditWord()">✓</button>
+                  <button class="secondary-btn small-btn" (click)="cancelEditWord()">✕</button>
+                } @else {
+                  <span class="word-text">
+                    {{ word.prompt_en || word.word }} → {{ word.answer_de }}
+                    @if (word.context_en) {
+                      <small class="pair-context"> ({{ word.context_en }})</small>
+                    }
+                  </span>
+                  <button class="secondary-btn small-btn" (click)="startEditWord(word)">✎</button>
+                  <button class="danger-btn small-btn" (click)="deleteWord(word)">✕</button>
+                }
+              </li>
+            }
+            @if (words().length === 0) {
+              <li class="empty-hint">Noch keine Wortpaare in dieser Liste</li>
+            }
+          </ul>
+        </section>
+
+        <section class="panel-section">
+          <h2>Zugewiesen an</h2>
+          <ul class="user-list">
+            @for (user of allUsers(); track user.id) {
+              <li class="user-row">
+                <label class="user-label">
+                  <input
+                    type="checkbox"
+                    [checked]="isAssigned(user.id)"
+                    (change)="toggleAssignment(user.id)"
+                  />
+                  {{ user.username }}
+                </label>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    </main>
+  </div>
+</div>

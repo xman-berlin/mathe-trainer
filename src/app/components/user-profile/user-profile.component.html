@@ -8,17 +8,6 @@
 
     <div class="user-info">
       <div class="username">{{ user()!.username }}</div>
-
-      @if (currentStreak() > 0) {
-        <div class="streak-badge" [class.milestone]="isAtMilestone()">
-          🔥 {{ currentStreak() }} Tag{{ currentStreak() === 1 ? '' : 'e' }}
-          @if (longestStreak() > currentStreak()) {
-            <span class="best-streak" title="Längste Streak">
-              (Rekord: {{ longestStreak() }})
-            </span>
-          }
-        </div>
-      }
     </div>
 
     <button

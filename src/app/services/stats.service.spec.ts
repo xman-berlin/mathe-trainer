@@ -273,6 +273,11 @@ describe('StatsService', () => {
       service.setDeutschDailyGoal(15);
       expect(service.currentDeutschGoal()).toBe(15);
     });
+
+    it('should set Englisch daily goal', () => {
+      service.setEnglischDailyGoal(12);
+      expect(service.currentEnglischGoal()).toBe(12);
+    });
   });
 
   // ─── Medal System ───────────────────────────────────────────
@@ -378,7 +383,14 @@ describe('StatsService', () => {
       });
       service.setMathNumberRange(250);
       await Promise.resolve(); // flush microtask
-      expect(mockSupabase.updateUserGoals).toHaveBeenCalledWith('user-1', jasmine.any(Number), jasmine.any(Number), jasmine.any(Number), 250);
+      expect(mockSupabase.updateUserGoals).toHaveBeenCalledWith(
+        'user-1',
+        jasmine.any(Number),
+        jasmine.any(Number),
+        jasmine.any(Number),
+        250,
+        jasmine.any(Number)
+      );
     });
 
     it('load: should pick up valid value from localStorage', () => {

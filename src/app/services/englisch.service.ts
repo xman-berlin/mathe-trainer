@@ -1,36 +1,48 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
-import type { VocabAssignment, VocabSessionWord } from '../models/vocab.model';
+import type { VocabAssignment, VocabSessionWord, VocabWord } from '../models/vocab.model';
 
 const DEFAULT_WORD_WEIGHT = 3;
 const MAX_WORD_WEIGHT = 5;
-/** Ensure Phase 1 does not collapse to a handful of hard words. */
 const MIN_PHASE1_UNIQUE_WORDS = 8;
+const ENGLISCH_LANGUAGE_NAME = 'Englisch';
 
 @Injectable({ providedIn: 'root' })
-export class DeutschService {
+export class EnglischService {
   private supabase = inject(SupabaseService);
 
-  // Public signals
   readonly assignments = signal<VocabAssignment[]>([]);
+  readonly languageId = signal<string | null>(null);
+  readonly speechLang = signal('en-GB');
 
-  // Internal: word progress map keyed by word_id
   private wordProgressMap = signal<Record<string, number>>({});
 
-  // ============================================================================
-  // USER DATA LIFECYCLE
-  // ============================================================================
+  async ensureLanguage(): Promise<string | null> {
+    const existing = this.languageId();
+    if (existing) return existing;
+
+    const lang = await this.supabase.getVocabLanguageByName(ENGLISCH_LANGUAGE_NAME);
+    if (!lang) {
+      console.error('[EnglischService] Englisch language row missing — run migration');
+      return null;
+    }
+    this.languageId.set(lang.id);
+    this.speechLang.set(lang.speech_lang || 'en-GB');
+    return lang.id;
+  }
 
   async loadUserData(userId: string): Promise<void> {
     try {
+      const languageId = await this.ensureLanguage();
       const [assignments, progress] = await Promise.all([
         this.supabase.getVocabAssignmentsForUser(userId),
         this.supabase.getWordProgressForUser(userId),
       ]);
 
-      // Deutsch lists have null language_id (legacy); exclude Englisch lists
-      const deutschAssignments = assignments.filter((a) => !a.list?.language_id);
-      this.assignments.set(deutschAssignments);
+      const englischAssignments = assignments.filter(
+        (a) => !!languageId && a.list?.language_id === languageId
+      );
+      this.assignments.set(englischAssignments);
 
       const progressMap: Record<string, number> = {};
       for (const p of progress) {
@@ -38,7 +50,7 @@ export class DeutschService {
       }
       this.wordProgressMap.set(progressMap);
     } catch (error) {
-      console.error('[DeutschService] Failed to load user data:', error);
+      console.error('[EnglischService] Failed to load user data:', error);
     }
   }
 
@@ -47,23 +59,21 @@ export class DeutschService {
     this.wordProgressMap.set({});
   }
 
-  // ============================================================================
-  // SESSION BUILDING
-  // ============================================================================
+  private toSessionWord(w: VocabWord, weight: number): VocabSessionWord | null {
+    const promptEn = (w.prompt_en ?? w.word ?? '').trim();
+    const answerDe = (w.answer_de ?? '').trim();
+    if (!promptEn || !answerDe) return null;
+    return {
+      wordId: w.id,
+      word: promptEn,
+      listId: w.list_id,
+      weight,
+      promptEn,
+      answerDe,
+      contextEn: w.context_en ?? null,
+    };
+  }
 
-  /**
-   * Build a weighted session queue using a two-phase strategy:
-   *
-   * Phase 1 — Active list focus:
-   *   Any word in the most-recently-assigned list has stored weight > 1.
-   *   Prefer words that still need drilling (weight > 1). If fewer than
-   *   MIN_PHASE1_UNIQUE_WORDS unique drilling words remain, fill with
-   *   mastered active-list words (weight 1) so the pool does not collapse.
-   *
-   * Phase 2 — All lists:
-   *   All active-list words are at weight 1.
-   *   Session contains words from every assigned list, weights capped at MAX_WORD_WEIGHT.
-   */
   async buildSession(_userId: string): Promise<VocabSessionWord[]> {
     const sortedAssignments = [...this.assignments()].sort((a, b) => {
       const dateA = a.assigned_at ? new Date(a.assigned_at).getTime() : 0;
@@ -74,12 +84,9 @@ export class DeutschService {
     if (sortedAssignments.length === 0) return [];
 
     const progressMap = this.wordProgressMap();
-
-    // Always load active list words first
     const activeListId = sortedAssignments[0].list_id;
     const activeWords = await this.supabase.getVocabListWords(activeListId);
 
-    // Phase 1 condition: any active word still needs drilling
     const isPhase1 = activeWords.some(
       (w) => (progressMap[w.id] ?? DEFAULT_WORD_WEIGHT) > 1
     );
@@ -91,12 +98,8 @@ export class DeutschService {
 
       for (const w of activeWords) {
         const weight = Math.min(MAX_WORD_WEIGHT, progressMap[w.id] ?? DEFAULT_WORD_WEIGHT);
-        const entry: VocabSessionWord = {
-          wordId: w.id,
-          word: w.word ?? '',
-          listId: w.list_id,
-          weight: weight <= 1 ? 1 : weight,
-        };
+        const entry = this.toSessionWord(w, weight <= 1 ? 1 : weight);
+        if (!entry) continue;
         if (weight > 1) {
           sessionWords.push(entry);
         } else {
@@ -104,21 +107,21 @@ export class DeutschService {
         }
       }
 
-      // Keep hard words prioritized, but ensure enough unique variety
       for (const filler of fillers) {
         if (sessionWords.length >= MIN_PHASE1_UNIQUE_WORDS) break;
         sessionWords.push(filler);
       }
     } else {
-      // All lists — active list words at weight 1, older lists capped at MAX_WORD_WEIGHT
       for (const w of activeWords) {
-        sessionWords.push({ wordId: w.id, word: w.word ?? '', listId: w.list_id, weight: 1 });
+        const entry = this.toSessionWord(w, 1);
+        if (entry) sessionWords.push(entry);
       }
       for (let i = 1; i < sortedAssignments.length; i++) {
         const words = await this.supabase.getVocabListWords(sortedAssignments[i].list_id);
         for (const w of words) {
           const weight = Math.min(MAX_WORD_WEIGHT, progressMap[w.id] ?? DEFAULT_WORD_WEIGHT);
-          sessionWords.push({ wordId: w.id, word: w.word ?? '', listId: w.list_id, weight });
+          const entry = this.toSessionWord(w, weight);
+          if (entry) sessionWords.push(entry);
         }
       }
     }
@@ -126,9 +129,6 @@ export class DeutschService {
     return this.buildWeightedQueue(sessionWords);
   }
 
-  /**
-   * Repeat each word proportional to its weight, shuffle, then break adjacent duplicates.
-   */
   private buildWeightedQueue(words: VocabSessionWord[]): VocabSessionWord[] {
     const queue: VocabSessionWord[] = [];
     for (const word of words) {
@@ -136,7 +136,6 @@ export class DeutschService {
         queue.push(word);
       }
     }
-    // Fisher-Yates shuffle
     for (let i = queue.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [queue[i], queue[j]] = [queue[j], queue[i]];
@@ -145,7 +144,6 @@ export class DeutschService {
     return queue;
   }
 
-  /** Prefer swapping a later different word when two identical IDs sit next to each other. */
   private separateAdjacentDuplicates(queue: VocabSessionWord[]): void {
     for (let i = 1; i < queue.length; i++) {
       if (queue[i].wordId !== queue[i - 1].wordId) continue;
@@ -158,24 +156,17 @@ export class DeutschService {
     }
   }
 
-  // ============================================================================
-  // WEIGHT UPDATES
-  // ============================================================================
-
   async updateWordWeight(userId: string, wordId: string, correct: boolean): Promise<void> {
     const map = this.wordProgressMap();
     const current = map[wordId] ?? DEFAULT_WORD_WEIGHT;
-
     const newWeight = Math.min(MAX_WORD_WEIGHT, correct ? Math.max(1, current - 1) : current + 2);
 
-    // Optimistic local update
     this.wordProgressMap.set({ ...map, [wordId]: newWeight });
 
-    // Persist to server
     try {
       await this.supabase.upsertWordProgress(userId, wordId, newWeight);
     } catch (error) {
-      console.error('[DeutschService] Failed to update word weight:', error);
+      console.error('[EnglischService] Failed to update word weight:', error);
     }
   }
 }
