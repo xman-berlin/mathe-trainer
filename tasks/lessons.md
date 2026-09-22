@@ -60,3 +60,9 @@ Only after ALL pass → commit → push → verify CI.
 4. Commit and push that cleanup (small `chore:` / `docs:` commit is fine)
 
 Do not leave “what's next?” suggestions that include cleanup that should already have been done.
+
+## 2026-09-22 — Adaptive +/− levels vs Zahlenraum setting
+
+**Mistake**: Löwe/Drache generators produced 1000er tasks, but `generateProblem` filtered them out when `mathNumberRange` was still 100 — only ≤100 reviews survived, so Drache never showed 1000er problems.
+
+**Rule**: For addition/subtraction, effective max must be at least the level's Zahlenraum (`minZahlenraumForAddSub`). Level 5–6 require 100–1000. Review mix for those levels must draw from 1–4 (≤100), not from other 1000er patterns.
