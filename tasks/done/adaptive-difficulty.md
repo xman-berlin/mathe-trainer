@@ -35,8 +35,8 @@ z.B. `Stufe 3 / 6 — 🐺 Wolf`
 | 2 | 🦊 Fuchs | 1–100 | kein |
 | 3 | 🐺 Wolf | 1–100 | 10er (Ergebnis bleibt im Zahlenraum) |
 | 4 | 🦅 Adler | 1–100 | >10er (Ergebnis bleibt im Zahlenraum) |
-| 5 | 🦁 Löwe | 1–1000 | 10er |
-| 6 | 🐉 Drache | 1–1000 | >10er |
+| 5 | 🦁 Löwe | 100–1000 | nur Hunderter (…00) |
+| 6 | 🐉 Drache | 100–1000 | Zehner+Hunderter (Einer = 0) |
 
 Default: Stufe 3 (🐺 Wolf)
 
