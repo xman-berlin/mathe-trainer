@@ -12,25 +12,39 @@ async function getComp(page: Page) {
 }
 
 /** Set lastLevelUp on DifficultyService, then wait for Angular's effect scheduler */
-async function triggerLevelUp(page: Page, level = 4) {
-  await page.evaluate((lvl) => {
-    const el = document.querySelector('app-exercise')!;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const comp = (window as any).ng?.getComponent?.(el);
-    comp.difficultyService.lastLevelUp.set({ type: 'addition', level: lvl });
-  }, level);
+async function triggerLevelUp(page: Page, level = 4, fromLevel = level - 1) {
+  await page.evaluate(
+    ({ lvl, from }) => {
+      const el = document.querySelector('app-exercise')!;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const comp = (window as any).ng?.getComponent?.(el);
+      comp.difficultyService.lastLevelUp.set({
+        type: 'addition',
+        fromLevel: from,
+        level: lvl,
+      });
+    },
+    { lvl: level, from: fromLevel }
+  );
   // Allow Angular zoneless scheduler to flush effects
   await page.waitForTimeout(200);
 }
 
 /** Set lastLevelDown on DifficultyService, then wait for Angular's effect scheduler */
-async function triggerLevelDown(page: Page, level = 2) {
-  await page.evaluate((lvl) => {
-    const el = document.querySelector('app-exercise')!;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const comp = (window as any).ng?.getComponent?.(el);
-    comp.difficultyService.lastLevelDown.set({ type: 'addition', level: lvl });
-  }, level);
+async function triggerLevelDown(page: Page, level = 2, fromLevel = level + 1) {
+  await page.evaluate(
+    ({ lvl, from }) => {
+      const el = document.querySelector('app-exercise')!;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const comp = (window as any).ng?.getComponent?.(el);
+      comp.difficultyService.lastLevelDown.set({
+        type: 'addition',
+        fromLevel: from,
+        level: lvl,
+      });
+    },
+    { lvl: level, from: fromLevel }
+  );
   await page.waitForTimeout(200);
 }
 
@@ -93,7 +107,7 @@ test.describe('Schwierigkeitsstufe Benachrichtigungen', () => {
     await triggerLevelUp(page, 4);
 
     await expect(page.locator('.level-change-popup.level-up')).toBeVisible();
-    await expect(page.locator('.level-change-popup.level-up')).toContainText('Neue Stufe');
+    await expect(page.locator('.level-change-popup.level-up')).toContainText('Aufgestiegen');
   });
 
   test('Level-Up Popup zeigt Tier-Emoji und Namen korrekt an', async ({ page }) => {
@@ -157,7 +171,7 @@ test.describe('Schwierigkeitsstufe Benachrichtigungen', () => {
     await triggerLevelDown(page, 2);
 
     await expect(page.locator('.level-change-popup.level-down')).toBeVisible();
-    await expect(page.locator('.level-change-popup.level-down')).toContainText('Stufe gesenkt');
+    await expect(page.locator('.level-change-popup.level-down')).toContainText('Stufe angepasst');
   });
 
   test('Level-Down Popup zeigt Tier-Emoji und Namen korrekt an', async ({ page }) => {
