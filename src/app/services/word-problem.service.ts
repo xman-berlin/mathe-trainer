@@ -121,8 +121,12 @@ export class WordProblemService {
   ): OneStepWordProblem;
   generateProblem(type: WordProblemType, range: NumberRange, maxValue?: number): WordProblem;
   generateProblem(type: WordProblemType, range: NumberRange, maxValue?: number): WordProblem {
+    // Keypad allows max 3 digits — never ask for answers ≥ 1000
+    const cappedMax =
+      maxValue === undefined ? undefined : Math.min(maxValue, 999);
+
     if (type === 'two-step') {
-      return generateTwoStepProblem(maxValue);
+      return generateTwoStepProblem(cappedMax);
     }
 
     // Select random template
@@ -135,7 +139,7 @@ export class WordProblemService {
     const maxAttempts = 50;
 
     do {
-      const numbers = this.generateNumbers(type, range, maxValue);
+      const numbers = this.generateNumbers(type, range, cappedMax);
       operandA = numbers.a;
       operandB = numbers.b;
       attempt++;

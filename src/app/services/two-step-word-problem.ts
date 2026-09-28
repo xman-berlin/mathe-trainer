@@ -354,7 +354,7 @@ export function resetTwoStepRotation(): void {
 }
 
 export function generateTwoStepProblem(maxValue?: number): TwoStepWordProblem {
-  const maxTotal = Math.max(20, maxValue ?? 100);
+  const maxTotal = Math.max(20, Math.min(maxValue ?? 100, 999));
   const count = GENERATORS.length;
 
   for (let offset = 0; offset < count; offset++) {

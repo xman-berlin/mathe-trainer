@@ -23,7 +23,7 @@ export const MAX_LEVELS: Record<DifficultyOperationType, number> = {
   addition: 6,
   subtraction: 6,
   multiplication: 6,
-  division: 4,
+  division: 6,
 };
 
 export const DEFAULT_LEVELS: Record<DifficultyOperationType, number> = {

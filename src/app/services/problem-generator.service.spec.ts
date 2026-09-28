@@ -57,23 +57,37 @@ describe('ProblemGeneratorService', () => {
       for (let i = 0; i < 10; i++) {
         levels.push(service.pickEffectiveLevel(4, false, 'default'));
       }
-      // Calls 5 and 10 are reviews
+      // Calls 5 and 10 are reviews — at most 2 below → levels 2–3
+      expect(levels[4]).toBeGreaterThanOrEqual(2);
       expect(levels[4]).toBeLessThan(4);
+      expect(levels[9]).toBeGreaterThanOrEqual(2);
       expect(levels[9]).toBeLessThan(4);
       // Other calls stay at current
       expect(levels.filter((l) => l === 4).length).toBe(8);
     });
 
-    it('addSub at Löwe/Drache reviews only levels 1–4 (100er Bereich)', () => {
+    it('review pool is at most 2 levels below (e.g. Drache → 4–5)', () => {
       for (let i = 0; i < 50; i++) {
-        const effective = service.pickEffectiveLevel(6, false, 'addSub');
+        const effective = service.pickEffectiveLevel(6, false, 'default');
         expect(effective).toBeGreaterThanOrEqual(1);
         expect(effective).toBeLessThanOrEqual(6);
-        // On review slots, must be ≤ 4
         if ((i + 1) % 5 === 0) {
-          expect(effective).toBeLessThanOrEqual(4);
+          expect(effective).toBeGreaterThanOrEqual(4);
+          expect(effective).toBeLessThanOrEqual(5);
         } else {
           expect(effective).toBe(6);
+        }
+      }
+    });
+
+    it('addSub uses the same ±2 review window', () => {
+      for (let i = 0; i < 25; i++) {
+        const effective = service.pickEffectiveLevel(5, false, 'addSub');
+        if ((i + 1) % 5 === 0) {
+          expect(effective).toBeGreaterThanOrEqual(3);
+          expect(effective).toBeLessThanOrEqual(4);
+        } else {
+          expect(effective).toBe(5);
         }
       }
     });
@@ -126,44 +140,38 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('level 5 Löwe: hundreds only, operands in 100–1000, result ≤ 1000', () => {
+    it('level 5 Löwe: hundreds only, operands ≥ 100, result ≤ 999', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateAddition(5, EXACT);
         expect(p.operandA % 100).toBe(0);
         expect(p.operandB % 100).toBe(0);
         expect(p.operandA).toBeGreaterThanOrEqual(100);
         expect(p.operandB).toBeGreaterThanOrEqual(100);
-        expect(p.answer).toBeLessThanOrEqual(1000);
+        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
         expect(p.answer).toBeGreaterThanOrEqual(200);
         expect(p.answer).toBe(p.operandA + p.operandB);
       }
     });
 
-    it('level 6 Drache: ones digit 0, operands in 100–1000, result ≤ 1000', () => {
+    it('level 6 Drache: ones digit 0, operands ≥ 100, result ≤ 999', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateAddition(6, EXACT);
         expect(p.operandA % 10).toBe(0);
         expect(p.operandB % 10).toBe(0);
         expect(p.operandA).toBeGreaterThanOrEqual(100);
         expect(p.operandB).toBeGreaterThanOrEqual(100);
-        expect(p.operandA).toBeLessThanOrEqual(1000);
-        expect(p.operandB).toBeLessThanOrEqual(1000);
-        expect(p.answer).toBeLessThanOrEqual(1000);
+        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
         expect(p.answer).toBe(p.operandA + p.operandB);
       }
     });
 
-    it('mix at level 6: every 5th is ≤ 100 (100er review)', () => {
+    it('mix at level 6: answers stay enterable (≤ 999)', () => {
       service.resetMixCounters();
-      let sawHundredsReview = false;
       for (let i = 0; i < 20; i++) {
         const p = service.generateAddition(6);
-        expect(p.answer).toBeLessThanOrEqual(1000);
-        if (p.answer <= 100 && p.operandA <= 100 && p.operandB <= 100) {
-          sawHundredsReview = true;
-        }
+        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
+        expect(p.answer).toBe(p.operandA + p.operandB);
       }
-      expect(sawHundredsReview).toBeTrue();
     });
   });
 
@@ -212,29 +220,41 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('level 5 Löwe: hundreds only, operands/result in 100–1000', () => {
+    it('level 5 Löwe: reine Hunderter ODER ohne Unterschreitung (100–999)', () => {
+      let sawHundreds = false;
+      let sawNoBorrow = false;
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateSubtraction(5, EXACT);
-        expect(p.operandA % 100).toBe(0);
-        expect(p.operandB % 100).toBe(0);
-        expect(p.operandA).toBeGreaterThanOrEqual(200);
-        expect(p.operandA).toBeLessThanOrEqual(1000);
-        expect(p.operandB).toBeGreaterThanOrEqual(100);
-        expect(p.answer).toBeGreaterThanOrEqual(100);
+        expect(p.operandA).toBeGreaterThanOrEqual(100);
+        expect(p.operandA).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
+        expect(p.operandB).toBeGreaterThanOrEqual(1);
         expect(p.answer).toBe(p.operandA - p.operandB);
+        expect(p.answer).toBeGreaterThanOrEqual(0);
+        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
+
+        const pureHundreds = p.operandA % 100 === 0 && p.operandB % 100 === 0;
+        const noOnesBorrow = p.operandA % 10 >= p.operandB % 10;
+        const noTensBorrow =
+          Math.floor(p.operandA / 10) % 10 >= Math.floor(p.operandB / 10) % 10;
+        if (pureHundreds) sawHundreds = true;
+        if (noOnesBorrow && noTensBorrow) sawNoBorrow = true;
+        expect(pureHundreds || (noOnesBorrow && noTensBorrow)).toBeTrue();
       }
+      expect(sawHundreds || sawNoBorrow).toBeTrue();
     });
 
-    it('level 6 Drache: ones digit 0, operands/result in 100–1000', () => {
+    it('level 6 Drache: Zehner- oder Hunderterunterschreitung', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateSubtraction(6, EXACT);
         expect(p.operandA % 10).toBe(0);
         expect(p.operandB % 10).toBe(0);
-        expect(p.operandA).toBeGreaterThanOrEqual(100);
-        expect(p.operandB).toBeGreaterThanOrEqual(100);
-        expect(p.operandA).toBeLessThanOrEqual(1000);
-        expect(p.answer).toBeGreaterThanOrEqual(100);
+        expect(p.operandA).toBeGreaterThan(p.operandB);
         expect(p.answer).toBe(p.operandA - p.operandB);
+        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
+        // Tens borrow (Unterschreitung): ones already 0, tens digit of a < tens of b
+        const aTens = Math.floor(p.operandA / 10) % 10;
+        const bTens = Math.floor(p.operandB / 10) % 10;
+        expect(aTens).toBeLessThan(bTens);
       }
     });
 
@@ -277,43 +297,81 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('level 3: a 1–10, b 11–20', () => {
+    it('level 3: both factors 2–10 (kleines Einmaleins)', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateMultiplication(3, EXACT);
+        expect(p.operandA).toBeGreaterThanOrEqual(2);
         expect(p.operandA).toBeLessThanOrEqual(10);
-        expect(p.operandB).toBeGreaterThanOrEqual(11);
-        expect(p.operandB).toBeLessThanOrEqual(20);
+        expect(p.operandB).toBeGreaterThanOrEqual(2);
+        expect(p.operandB).toBeLessThanOrEqual(10);
+        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_MULT_PRODUCT_SMALL);
       }
     });
 
-    it('level 4: both factors 11–20', () => {
+    it('level 4 Zehner: one factor 1–10, other a ten 10–50', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateMultiplication(4, EXACT);
-        expect(p.operandA).toBeGreaterThanOrEqual(11);
-        expect(p.operandA).toBeLessThanOrEqual(20);
-        expect(p.operandB).toBeGreaterThanOrEqual(11);
-        expect(p.operandB).toBeLessThanOrEqual(20);
+        const factors = [p.operandA, p.operandB].sort((x, y) => x - y);
+        expect(factors[0]).toBeGreaterThanOrEqual(1);
+        expect(factors[0]).toBeLessThanOrEqual(10);
+        expect(factors[1] % 10).toBe(0);
+        expect(factors[1]).toBeGreaterThanOrEqual(10);
+        expect(factors[1]).toBeLessThanOrEqual(50);
+        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_MULT_PRODUCT_ZEHNER);
       }
     });
 
-    it('level 5: a 1–10, b 1–100', () => {
+    it('level 5 Zehner: one factor 1–10, other a ten 10–90', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateMultiplication(5, EXACT);
-        expect(p.operandA).toBeLessThanOrEqual(10);
-        expect(p.operandB).toBeLessThanOrEqual(100);
+        const factors = [p.operandA, p.operandB].sort((x, y) => x - y);
+        expect(factors[0]).toBeGreaterThanOrEqual(1);
+        expect(factors[0]).toBeLessThanOrEqual(10);
+        expect(factors[1] % 10).toBe(0);
+        expect(factors[1]).toBeGreaterThanOrEqual(10);
+        expect(factors[1]).toBeLessThanOrEqual(90);
+        expect(p.answer).toBe(p.operandA * p.operandB);
+        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_MULT_PRODUCT_ZEHNER);
       }
     });
 
-    it('level 6: both factors 11–100', () => {
+    it('level 6 Zehner: one factor 2–10, other a ten 20–90', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateMultiplication(6, EXACT);
-        expect(p.operandA).toBeGreaterThanOrEqual(11);
-        expect(p.operandA).toBeLessThanOrEqual(100);
-        expect(p.operandB).toBeGreaterThanOrEqual(11);
-        expect(p.operandB).toBeLessThanOrEqual(100);
+        const small = Math.min(p.operandA, p.operandB);
+        const tens = Math.max(p.operandA, p.operandB);
+        expect(small).toBeGreaterThanOrEqual(2);
+        expect(small).toBeLessThanOrEqual(10);
+        expect(tens % 10).toBe(0);
+        expect(tens).toBeGreaterThanOrEqual(20);
+        expect(tens).toBeLessThanOrEqual(90);
+        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_MULT_PRODUCT_ZEHNER);
       }
     });
 
+    it('levels 1–3 stay in kleines Einmaleins (product ≤ 100)', () => {
+      for (let level = 1; level <= 3; level++) {
+        for (let i = 0; i < RUNS; i++) {
+          const p = service.generateMultiplication(level, EXACT);
+          expect(p.operandA).toBeLessThanOrEqual(10);
+          expect(p.operandB).toBeLessThanOrEqual(10);
+          expect(p.answer).toBeLessThanOrEqual(100);
+        }
+      }
+    });
+
+    it('Drache mix (±2) is Zehner-Einmaleins only (levels 4–5)', () => {
+      service.resetMixCounters();
+      for (let i = 0; i < 50; i++) {
+        const p = service.generateMultiplication(6);
+        const small = Math.min(p.operandA, p.operandB);
+        const large = Math.max(p.operandA, p.operandB);
+        expect(small).toBeLessThanOrEqual(10);
+        expect(large % 10).toBe(0);
+        expect(large).toBeGreaterThanOrEqual(10);
+        expect(p.answer).toBeLessThanOrEqual(999);
+      }
+    });
     it('legacy: should respect Set<number> for operandB', () => {
       const allowed = new Set([2, 4, 6]);
       for (let i = 0; i < RUNS; i++) {
@@ -339,37 +397,75 @@ describe('ProblemGeneratorService', () => {
       expect(p.operandA).toBe(p.operandB * p.answer);
     });
 
-    it('level 1: dividend ≤ 25, divisor 1–5', () => {
+    it('level 1 Maus: divisor & quotient 1–5, dividend ≤ 25', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateDivision(1, EXACT);
-        expect(p.operandA).toBeLessThanOrEqual(25);
+        expect(p.operandB).toBeGreaterThanOrEqual(1);
         expect(p.operandB).toBeLessThanOrEqual(5);
         expect(p.answer).toBeGreaterThanOrEqual(1);
+        expect(p.answer).toBeLessThanOrEqual(5);
+        expect(p.operandA).toBe(p.operandB * p.answer);
+        expect(p.operandA).toBeLessThanOrEqual(25);
       }
     });
 
-    it('level 2: dividend ≤ 100, divisor 1–10', () => {
+    it('level 2 Fuchs: divisor & quotient 1–10, dividend ≤ 100', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateDivision(2, EXACT);
-        expect(p.operandA).toBeLessThanOrEqual(100);
         expect(p.operandB).toBeLessThanOrEqual(10);
-        expect(p.answer).toBeGreaterThanOrEqual(1);
+        expect(p.answer).toBeLessThanOrEqual(10);
+        expect(p.operandA).toBeLessThanOrEqual(100);
+        expect(p.operandA).toBe(p.operandB * p.answer);
       }
     });
 
-    it('level 3: dividend ≤ 200, divisor 1–10', () => {
+    it('level 3 Wolf: divisor & quotient 2–10, dividend ≤ 100', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateDivision(3, EXACT);
-        expect(p.operandA).toBeLessThanOrEqual(200);
+        expect(p.operandB).toBeGreaterThanOrEqual(2);
         expect(p.operandB).toBeLessThanOrEqual(10);
+        expect(p.answer).toBeGreaterThanOrEqual(2);
+        expect(p.answer).toBeLessThanOrEqual(10);
+        expect(p.operandA).toBeLessThanOrEqual(100);
       }
     });
 
-    it('level 4: dividend ≤ 1000, divisor 1–10', () => {
+    it('level 4 Adler: Zehner-Quotient 10–50, divisor 1–10, dividend …0', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateDivision(4, EXACT);
-        expect(p.operandA).toBeLessThanOrEqual(1000);
+        expect(p.operandB).toBeGreaterThanOrEqual(1);
         expect(p.operandB).toBeLessThanOrEqual(10);
+        expect(p.answer % 10).toBe(0);
+        expect(p.answer).toBeGreaterThanOrEqual(10);
+        expect(p.answer).toBeLessThanOrEqual(50);
+        expect(p.operandA % 10).toBe(0);
+        expect(p.operandA).toBe(p.operandB * p.answer);
+        expect(p.operandA).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
+      }
+    });
+
+    it('level 5 Löwe: Zehner-Quotient 10–90, divisor 1–10', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateDivision(5, EXACT);
+        expect(p.operandB).toBeLessThanOrEqual(10);
+        expect(p.answer % 10).toBe(0);
+        expect(p.answer).toBeGreaterThanOrEqual(10);
+        expect(p.answer).toBeLessThanOrEqual(90);
+        expect(p.operandA % 10).toBe(0);
+        expect(p.operandA).toBe(p.operandB * p.answer);
+      }
+    });
+
+    it('level 6 Drache: Zehner-Quotient 20–90, divisor 2–10', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateDivision(6, EXACT);
+        expect(p.operandB).toBeGreaterThanOrEqual(2);
+        expect(p.operandB).toBeLessThanOrEqual(10);
+        expect(p.answer % 10).toBe(0);
+        expect(p.answer).toBeGreaterThanOrEqual(20);
+        expect(p.answer).toBeLessThanOrEqual(90);
+        expect(p.operandA).toBe(p.operandB * p.answer);
+        expect(p.operandA).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
       }
     });
 
@@ -461,20 +557,36 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('maxValue: works for multiplication', () => {
+    it('maxValue: works for multiplication (kleines Einmaleins)', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateProblem(['multiplication'], undefined, { multiplication: 2 }, 50);
-        expect(p.operandA).toBeLessThanOrEqual(50);
-        expect(p.operandB).toBeLessThanOrEqual(50);
+        expect(p.operandA).toBeLessThanOrEqual(10);
+        expect(p.operandB).toBeLessThanOrEqual(10);
+        expect(p.answer).toBeLessThanOrEqual(100); // level 2 raises cap to 100
       }
     });
 
     it('maxValue: works for division', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateProblem(['division'], undefined, { division: 2 }, 50);
-        expect(p.operandA).toBeLessThanOrEqual(50);
-        expect(p.operandB).toBeLessThanOrEqual(50);
+        expect(p.operandA).toBeLessThanOrEqual(100);
+        expect(p.operandB).toBeLessThanOrEqual(10);
+        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
       }
+    });
+
+    it('Zehner-Einmaleins works even with large Zahlenraum', () => {
+      let foundZehner = false;
+      for (let i = 0; i < 40; i++) {
+        const p = service.generateProblem(['multiplication'], undefined, { multiplication: 6 }, 1000);
+        const large = Math.max(p.operandA, p.operandB);
+        if (large >= 20 && large % 10 === 0) {
+          foundZehner = true;
+          expect(p.answer).toBeLessThanOrEqual(999);
+          break;
+        }
+      }
+      expect(foundZehner).toBeTrue();
     });
 
     it('maxValue: fallback returns valid problem when constraint is impossible', () => {

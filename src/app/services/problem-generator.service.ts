@@ -24,30 +24,40 @@ export interface GenerateOptions {
  *
  * Level definitions:
  *
- * Addition / Subtraction (6 levels):
+ * Addition (6 levels):
  *   1 — 1–10,   no carry
  *   2 — 1–100,  no carry
- *   3 — 1–100,  10er carry  (single decade crossing, result ≤ 100)
- *   4 — 1–100,  >10er carry (multi-decade crossing, result ≤ 100)
- *   5 — 100–1000, hundreds only (…00)
- *   6 — 100–1000, tens+hundreds (ones = 0)
+ *   3 — 1–100,  10er carry
+ *   4 — 1–100,  >10er carry
+ *   5 — 100–999, hundreds only (…00)
+ *   6 — 100–999, tens+hundreds (ones = 0), result ≤ 999
  *
- * Multiplication (6 levels):
- *   1 — 1–5  × 1–5
- *   2 — 1–10 × 1–10
- *   3 — 1–10 × 11–20
- *   4 — 11–20 × 11–20
- *   5 — 1–10 × 1–100
- *   6 — 11–100 × 11–100
+ * Subtraction (6 levels) — Klasse 3 for 1000er:
+ *   1–4 — same Zahlenraum as addition (1–10 / 1–100)
+ *   5 — reine Hunderter + ohne Unterschreitung (z. B. 800−300, 670−40)
+ *   6 — mit Zehner-/Hunderterunterschreitung (z. B. 420−50, 530−160)
  *
- * Division (4 levels, always whole number, no remainder):
- *   1 — dividend ≤ 25,   divisor 1–5
- *   2 — dividend ≤ 100,  divisor 1–10
- *   3 — dividend ≤ 200,  divisor 1–10
- *   4 — dividend ≤ 1000, divisor 1–10
+ * Multiplication (6 levels) — Klasse 3 progression:
+ *   Festigung kleines Einmaleins (product ≤ 100):
+ *     1 — 1–5  × 1–5
+ *     2 — 1–10 × 1–10
+ *     3 — 2–10 × 2–10
+ *   Zehner-Einmaleins (one factor 1–10, other a ten 10…90, product ≤ 999):
+ *     4 — 1–10 × {10,20,30,40,50}
+ *     5 — 1–10 × {10,20,…,90}
+ *     6 — 2–10 × {20,30,…,90}
  *
- * Mix (default): 80% current level, 20% random level from 1 … current−1.
- * Lower-level results stay within the current level's Zahlenraum.
+ * Division (6 levels, always whole number, no remainder) — Klasse 3:
+ *   Festigung kleines Einsdurcheins (dividend & quotient ≤ 100):
+ *     1 — divisor 1–5,  quotient 1–5
+ *     2 — divisor 1–10, quotient 1–10
+ *     3 — divisor 2–10, quotient 2–10
+ *   Division mit Zehnerzahlen (dividend = Zehnerzahl, divisor einstellig):
+ *     4 — divisor 1–10, quotient {10…50}  (z. B. 240 ÷ 6 = 40)
+ *     5 — divisor 1–10, quotient {10…90}  (z. B. 560 ÷ 8 = 70)
+ *     6 — divisor 2–10, quotient {20…90}
+ *
+ * Mix (default): 80% current level, 20% review from at most 2 levels below.
  */
 @Injectable({
   providedIn: 'root',
@@ -55,6 +65,22 @@ export interface GenerateOptions {
 export class ProblemGeneratorService {
   /** Probability of using the current level (vs. a random lower one). */
   static readonly CURRENT_LEVEL_WEIGHT = 0.8;
+
+  /**
+   * Max enterable answer (numeric keypad / input maxlength is 3 digits).
+   * All generated answers must stay ≤ this value.
+   */
+  static readonly MAX_ANSWER = 999;
+
+  /** Kleines Einmaleins: factors 1–10, product ≤ 100. */
+  static readonly MAX_MULT_FACTOR = 10;
+  static readonly MAX_MULT_PRODUCT_SMALL = 100;
+
+  /** Zehner-Einmaleins: product ≤ 999 (keypad). */
+  static readonly MAX_MULT_PRODUCT_ZEHNER = 999;
+
+  /** @deprecated use MAX_MULT_PRODUCT_SMALL — kept as alias for older specs */
+  static readonly MAX_MULT_PRODUCT = 100;
 
   /** Per-key counters so every 5th task is a lower-level review (exact 20%). */
   private readonly mixCounters = new Map<string, number>();
@@ -68,9 +94,8 @@ export class ProblemGeneratorService {
 
   /**
    * 80% → requested level; 20% → lower-level review (every 5th call).
-   * For addition/subtraction at Löwe/Drache (level ≥ 5), the review pool is
-   * levels 1–4 only (Zahlenraum ≤ 100), so Zehnerübertrag im Hunderterraum
-   * keeps being practiced.
+   * Review pool is at most **2 levels below** the current level
+   * (e.g. Drache → Adler or Löwe, never Maus/Fuchs).
    * Level 1 always stays 1.
    */
   pickEffectiveLevel(
@@ -92,12 +117,8 @@ export class ProblemGeneratorService {
       return clamped;
     }
 
-    // Löwe/Drache (+/−): review only the 100er Zahlenraum (levels 1–4)
-    if (kind === 'addSub' && clamped >= 5) {
-      return this.randomInt(1, 4);
-    }
-
-    return this.randomInt(1, clamped - 1);
+    const minReview = Math.max(1, clamped - 2);
+    return this.randomInt(minReview, clamped - 1);
   }
 
   /** Test helper: reset mix counters. */
@@ -159,33 +180,33 @@ export class ProblemGeneratorService {
         break;
       }
       case 5: {
-        // Löwe: hundreds only (…00), operands 100–900, result 200–1000
-        a = this.randomInt(1, 9) * 100;
-        b = this.randomInt(1, Math.floor((1000 - a) / 100)) * 100;
+        // Löwe: hundreds only (…00), operands ≥ 100, result ≤ 999
+        a = this.randomInt(1, 8) * 100; // 100…800 (room for b ≥ 100)
+        b = this.randomInt(1, Math.floor((ProblemGeneratorService.MAX_ANSWER - a) / 100)) * 100;
         break;
       }
       case 6:
       default: {
-        // Drache: 100–1000, ones = 0, prefer tens carry, result ≤ 1000
-        b = this.randomInt(10, 90) * 10; // 100…900
+        // Drache: ≥ 100, ones = 0, prefer tens carry, result ≤ 999
+        b = this.randomInt(10, 89) * 10; // 100…890
         const bTensDigit = Math.floor(b / 10) % 10;
+        const maxSum = ProblemGeneratorService.MAX_ANSWER;
         if (bTensDigit > 0) {
           const aTensDigit = this.randomInt(10 - bTensDigit, 9);
-          const maxHundreds = Math.floor((1000 - b - aTensDigit * 10) / 100);
+          const maxHundreds = Math.floor((maxSum - b - aTensDigit * 10) / 100);
           if (maxHundreds >= 1) {
             a = this.randomInt(1, maxHundreds) * 100 + aTensDigit * 10;
           } else {
-            a = this.randomInt(10, Math.floor((1000 - b) / 10)) * 10;
+            a = this.randomInt(10, Math.floor((maxSum - b) / 10)) * 10;
           }
         } else {
-          a = this.randomInt(10, Math.floor((1000 - b) / 10)) * 10; // ≥ 100
+          a = this.randomInt(10, Math.floor((maxSum - b) / 10)) * 10; // ≥ 100
         }
         if (a < 100) a = 100;
-        if (a + b > 1000) a = Math.floor((1000 - b) / 10) * 10;
+        if (a + b > maxSum) a = Math.floor((maxSum - b) / 10) * 10;
         if (a < 100) {
-          // b too large — shrink b
           b = 100;
-          a = this.randomInt(10, 90) * 10;
+          a = this.randomInt(10, Math.floor(maxSum / 10) - 10) * 10;
         }
         break;
       }
@@ -237,36 +258,23 @@ export class ProblemGeneratorService {
         break;
       }
       case 5: {
-        // Löwe: hundreds only (…00), operands/result in 100–1000
-        a = this.randomInt(2, 10) * 100; // 200…1000
-        b = this.randomInt(1, a / 100 - 1) * 100; // 100…a−100
+        // Löwe: reine Hunderter (800−300) ODER ohne Unterschreitung (670−40)
+        if (Math.random() < 0.5) {
+          a = this.randomInt(2, 9) * 100;
+          b = this.randomInt(1, a / 100 - 1) * 100;
+        } else {
+          ({ a, b } = this.generateSubtractionNoBorrowThousand());
+        }
         break;
       }
       case 6:
       default: {
-        // Drache: 100–1000, ones = 0, prefer tens borrow, result ≥ 100
-        b = this.randomInt(10, 80) * 10; // 100…800
-        const bTensDigit = Math.floor(b / 10) % 10;
-        if (bTensDigit > 0) {
-          const aTensDigit = this.randomInt(0, bTensDigit - 1);
-          const candidates: number[] = [];
-          for (let h = 1; h <= 10; h++) {
-            const candidate = h * 100 + aTensDigit * 10;
-            if (candidate <= 1000 && candidate - b >= 100) {
-              candidates.push(candidate);
-            }
-          }
-          a =
-            candidates.length > 0
-              ? candidates[this.randomInt(0, candidates.length - 1)]
-              : Math.min(1000, b + 100);
+        // Drache: Zehnerunterschreitung (420−50) ODER Hunderterunterschreitung (530−160)
+        if (Math.random() < 0.5) {
+          ({ a, b } = this.generateSubtractionTensBorrowThousand());
         } else {
-          const minA = b + 100;
-          a = this.randomInt(Math.ceil(minA / 10), 100) * 10;
+          ({ a, b } = this.generateSubtractionHundredsBorrowThousand());
         }
-        if (a > 1000) a = 1000;
-        if (a - b < 100) a = Math.min(1000, b + 100);
-        if (b < 100) b = 100;
         break;
       }
     }
@@ -275,20 +283,72 @@ export class ProblemGeneratorService {
     return { operandA: a, operandB: b, answer, operation: 'subtraction', symbol: '−', text: `${a} − ${b} = ?` };
   }
 
+  /** 670 − 40 style: no ones/tens borrow, numbers in 100–999. */
+  private generateSubtractionNoBorrowThousand(): { a: number; b: number } {
+    const aHundreds = this.randomInt(1, 9);
+    const aTens = this.randomInt(1, 9);
+    const aOnes = this.randomInt(0, 9);
+    const bHundreds = this.randomInt(0, aHundreds);
+    const bTens = this.randomInt(0, aTens);
+    const bOnes = this.randomInt(0, aOnes);
+    let a = aHundreds * 100 + aTens * 10 + aOnes;
+    let b = bHundreds * 100 + bTens * 10 + bOnes;
+    if (b < 1) b = this.randomTens(10, aTens * 10);
+    if (a <= b) a = Math.min(ProblemGeneratorService.MAX_ANSWER, b + 10);
+    return { a, b };
+  }
+
+  /** 420 − 50 style: ones = 0, tens digit of a < tens of b (Zehnerunterschreitung). */
+  private generateSubtractionTensBorrowThousand(): { a: number; b: number } {
+    const bTensDigit = this.randomInt(1, 9);
+    const aTensDigit = this.randomInt(0, bTensDigit - 1);
+    const aHundreds = this.randomInt(1, 9);
+    let a = aHundreds * 100 + aTensDigit * 10;
+    const b = bTensDigit * 10; // 10…90
+    // Ensure a > b (need enough hundreds if tens can't cover)
+    if (a <= b) {
+      a = Math.min(ProblemGeneratorService.MAX_ANSWER, (aHundreds + 1) * 100 + aTensDigit * 10);
+    }
+    if (a - b < 1) a = b + 10;
+    return { a, b };
+  }
+
+  /** 530 − 160 style: b ≥ 100, force tens borrow (Hunderterunterschreitung). */
+  private generateSubtractionHundredsBorrowThousand(): { a: number; b: number } {
+    const bHundreds = this.randomInt(1, 7);
+    const bTensDigit = this.randomInt(1, 9);
+    const aTensDigit = this.randomInt(0, bTensDigit - 1);
+    const aHundreds = this.randomInt(bHundreds + 1, 9);
+    const a = aHundreds * 100 + aTensDigit * 10;
+    const b = bHundreds * 100 + bTensDigit * 10;
+    return { a, b };
+  }
+
   // ─── Multiplication ───────────────────────────────────────────────────────
+
+  /** Random tens number from minTens…maxTens (inclusive, steps of 10). */
+  private randomTens(minTens: number, maxTens: number): number {
+    const min = Math.ceil(minTens / 10);
+    const max = Math.floor(maxTens / 10);
+    return this.randomInt(min, Math.max(min, max)) * 10;
+  }
 
   generateMultiplication(levelOrAllowed: number | Set<number> = 2, options?: GenerateOptions): Problem {
     let a: number;
     let b: number;
 
-    // Legacy path: Set<number> passed (BalloonPop, old callers)
+    // Legacy path: Set<number> passed (BalloonPop, old callers) — kleines Einmaleins
     if (levelOrAllowed instanceof Set) {
       const numbers = Array.from(levelOrAllowed);
-      a = this.randomInt(1, 10);
-      b = numbers.length > 0 ? numbers[Math.floor(Math.random() * numbers.length)] : this.randomInt(1, 10);
+      a = this.randomInt(1, ProblemGeneratorService.MAX_MULT_FACTOR);
+      b =
+        numbers.length > 0
+          ? numbers[Math.floor(Math.random() * numbers.length)]
+          : this.randomInt(1, ProblemGeneratorService.MAX_MULT_FACTOR);
     } else {
       const level = this.pickEffectiveLevel(levelOrAllowed, options?.exact === true);
       switch (level) {
+        // ── Festigung kleines Einmaleins (Klasse 2 / Jahresbeginn) ──
         case 1:
           a = this.randomInt(1, 5);
           b = this.randomInt(1, 5);
@@ -298,22 +358,32 @@ export class ProblemGeneratorService {
           b = this.randomInt(1, 10);
           break;
         case 3:
-          a = this.randomInt(1, 10);
-          b = this.randomInt(11, 20);
+          a = this.randomInt(2, 10);
+          b = this.randomInt(2, 10);
           break;
+        // ── Zehner-Einmaleins (bis 1000, Ergebnis ≤ 999) ──
         case 4:
-          a = this.randomInt(11, 20);
-          b = this.randomInt(11, 20);
+          // e.g. 4 × 20, 5 × 50
+          a = this.randomInt(1, 10);
+          b = this.randomTens(10, 50);
           break;
         case 5:
+          // e.g. 7 × 80 = 560
           a = this.randomInt(1, 10);
-          b = this.randomInt(1, 100);
+          b = this.randomTens(10, 90);
           break;
         case 6:
         default:
-          a = this.randomInt(11, 100);
-          b = this.randomInt(11, 100);
+          // Harder Zehner: no ×1, tens from 20
+          a = this.randomInt(2, 10);
+          b = this.randomTens(20, 90);
           break;
+      }
+      // Randomly swap so children also see 20 × 4, not only 4 × 20
+      if (level >= 4 && Math.random() < 0.5) {
+        const tmp = a;
+        a = b;
+        b = tmp;
       }
     }
 
@@ -330,48 +400,72 @@ export class ProblemGeneratorService {
   // ─── Division ─────────────────────────────────────────────────────────────
 
   generateDivision(levelOrAllowed: number | Set<number> = 2, options?: GenerateOptions): Problem {
-    let b: number;
-    let maxQuotient: number;
+    let divisor: number;
+    let quotient: number;
 
-    // Legacy path: Set<number> passed
+    // Legacy path: Set<number> passed (allowed divisors) — kleines Einsdurcheins
     if (levelOrAllowed instanceof Set) {
       const numbers = Array.from(levelOrAllowed);
-      b = numbers.length > 0 ? numbers[Math.floor(Math.random() * numbers.length)] : this.randomInt(1, 10);
-      maxQuotient = 10;
+      divisor =
+        numbers.length > 0
+          ? numbers[Math.floor(Math.random() * numbers.length)]
+          : this.randomInt(1, 10);
+      quotient = this.randomInt(1, 10);
     } else {
       const level = this.pickEffectiveLevel(levelOrAllowed, options?.exact === true);
       switch (level) {
+        // ── Festigung kleines Einsdurcheins (Dividenden & Ergebnisse ≤ 100) ──
         case 1:
-          b = this.randomInt(1, 5);
-          maxQuotient = Math.floor(25 / b);
+          divisor = this.randomInt(1, 5);
+          quotient = this.randomInt(1, 5);
           break;
         case 2:
-          b = this.randomInt(1, 10);
-          maxQuotient = Math.min(10, Math.floor(100 / b));
+          divisor = this.randomInt(1, 10);
+          quotient = this.randomInt(1, 10);
           break;
         case 3:
-          b = this.randomInt(1, 10);
-          maxQuotient = Math.floor(200 / b);
+          divisor = this.randomInt(2, 10);
+          quotient = this.randomInt(2, 10);
           break;
+        // ── Division mit Zehnerzahlen (ohne Rest) ──
         case 4:
+          // z. B. 240 ÷ 6 = 40
+          divisor = this.randomInt(1, 10);
+          quotient = this.randomTens(10, 50);
+          break;
+        case 5:
+          // z. B. 560 ÷ 8 = 70
+          divisor = this.randomInt(1, 10);
+          quotient = this.randomTens(10, 90);
+          break;
+        case 6:
         default:
-          b = this.randomInt(1, 10);
-          maxQuotient = Math.floor(1000 / b);
+          divisor = this.randomInt(2, 10);
+          quotient = this.randomTens(20, 90);
           break;
       }
     }
 
-    const quotient = this.randomInt(1, Math.max(1, maxQuotient));
-    const a = b * quotient;
+    const dividend = divisor * quotient;
 
     return {
-      operandA: a,
-      operandB: b,
+      operandA: dividend,
+      operandB: divisor,
       answer: quotient,
       operation: 'division',
       symbol: '÷',
-      text: `${a} ÷ ${b} = ?`,
+      text: `${dividend} ÷ ${divisor} = ?`,
     };
+  }
+
+  /**
+   * Product/dividend cap so ×/÷ level patterns fit the Zahlenraum setting.
+   * Levels 1–3 ≤ 100 (kleines Einmaleins / Einsdurcheins); 4–6 ≤ 999 (Zehner).
+   */
+  minZahlenraumForMultDiv(level: number, _operation: 'multiplication' | 'division'): number {
+    return level <= 3
+      ? ProblemGeneratorService.MAX_MULT_PRODUCT_SMALL
+      : ProblemGeneratorService.MAX_MULT_PRODUCT_ZEHNER;
   }
 
   /**
@@ -410,13 +504,22 @@ export class ProblemGeneratorService {
             ? (levels?.multiplication ?? 2)
             : (levels?.division ?? 2);
 
-    // +/−: difficulty level wins over a smaller Zahlenraum setting (e.g. 100 while on Drache)
+    // Difficulty level wins over a smaller Zahlenraum for +/−/÷/× (Zehner).
     const effectiveMax =
       maxValue === undefined
-        ? undefined
+        ? type === 'multiplication'
+          ? this.minZahlenraumForMultDiv(levelForType, 'multiplication')
+          : undefined
         : type === 'addition' || type === 'subtraction'
           ? Math.max(maxValue, this.minZahlenraumForAddSub(levelForType))
-          : maxValue;
+          : type === 'multiplication'
+            ? Math.max(
+                Math.min(maxValue, ProblemGeneratorService.MAX_MULT_PRODUCT_ZEHNER),
+                this.minZahlenraumForMultDiv(levelForType, 'multiplication')
+              )
+            : type === 'division'
+              ? Math.max(maxValue, this.minZahlenraumForMultDiv(levelForType, 'division'))
+              : maxValue;
 
     const generate = (): Problem => {
       switch (type) {
@@ -425,23 +528,17 @@ export class ProblemGeneratorService {
         case 'subtraction':
           return this.generateSubtraction(levels?.subtraction ?? 3);
         case 'multiplication': {
-          // Within Zahlenraum ≤ 100: restrict to small times table (1–10 × 1–10, level 2)
           const multLevel =
             allowedNumbers && allowedNumbers.size > 0
               ? allowedNumbers
-              : effectiveMax && effectiveMax <= 100
-                ? Math.min(levels?.multiplication ?? 2, 2)
-                : (levels?.multiplication ?? 2);
+              : (levels?.multiplication ?? 2);
           return this.generateMultiplication(multLevel);
         }
         case 'division': {
-          // Within Zahlenraum ≤ 100: restrict divisor range so dividend stays in range (level 2)
           const divLevel =
             allowedNumbers && allowedNumbers.size > 0
               ? allowedNumbers
-              : effectiveMax && effectiveMax <= 100
-                ? Math.min(levels?.division ?? 2, 2)
-                : (levels?.division ?? 2);
+              : (levels?.division ?? 2);
           return this.generateDivision(divLevel);
         }
       }
@@ -451,14 +548,17 @@ export class ProblemGeneratorService {
       return generate();
     }
 
-    // Retry loop: for multiplication/division cap the result (answer), for others cap operands
+    // Retry loop: cap operands by Zahlenraum; always keep answer enterable (≤ 999)
     for (let attempt = 0; attempt < 50; attempt++) {
       const problem = generate();
+      const answerOk = problem.answer <= ProblemGeneratorService.MAX_ANSWER;
       const withinRange =
         problem.operation === 'multiplication'
           ? problem.answer <= effectiveMax
-          : problem.operandA <= effectiveMax && problem.operandB <= effectiveMax;
-      if (withinRange) {
+          : problem.operation === 'division'
+            ? problem.operandA <= effectiveMax
+            : problem.operandA <= effectiveMax && problem.operandB <= effectiveMax;
+      if (withinRange && answerOk) {
         return problem;
       }
     }

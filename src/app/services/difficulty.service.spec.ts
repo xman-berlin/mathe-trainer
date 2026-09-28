@@ -39,7 +39,7 @@ describe('DifficultyService', () => {
     expect(service.getMaxLevel('addition')).toBe(6);
     expect(service.getMaxLevel('subtraction')).toBe(6);
     expect(service.getMaxLevel('multiplication')).toBe(6);
-    expect(service.getMaxLevel('division')).toBe(4);
+    expect(service.getMaxLevel('division')).toBe(6);
   });
 
   it('should return tier name and emoji for default level', () => {
@@ -73,7 +73,7 @@ describe('DifficultyService', () => {
     expect(service.getLevel('addition')).toBe(MAX_LEVELS['addition']);
   });
 
-  it('should not exceed max level for division (4)', () => {
+  it('should not exceed max level for division (6)', () => {
     for (let round = 0; round < MAX_LEVELS['division'] + 2; round++) {
       for (let i = 0; i < 5; i++) service.recordResult('division', true);
     }

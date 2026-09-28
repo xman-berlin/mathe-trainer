@@ -18,7 +18,7 @@ in Supabase. The current level is shown in the Erfolge / medal card for each typ
 | 5 | Löwe | 🦁 |
 | 6 | Drache | 🐉 |
 
-Division hat nur 4 Stufen: Maus → Fuchs → Wolf → Adler.
+Division hat jetzt ebenfalls 6 Stufen (wie +/−/×): Maus → … → Drache.
 
 Name + Emoji werden in den Erfolgen neben der Stufenzahl angezeigt:
 z.B. `Stufe 3 / 6 — 🐺 Wolf`
@@ -29,42 +29,53 @@ z.B. `Stufe 3 / 6 — 🐺 Wolf`
 
 ### Addition & Subtraction (6 levels)
 
-| Stufe | Name | Zahlenraum | Übertrag |
-|-------|------|-----------|---------|
-| 1 | 🐭 Maus | 1–10 | kein |
-| 2 | 🦊 Fuchs | 1–100 | kein |
-| 3 | 🐺 Wolf | 1–100 | 10er (Ergebnis bleibt im Zahlenraum) |
-| 4 | 🦅 Adler | 1–100 | >10er (Ergebnis bleibt im Zahlenraum) |
-| 5 | 🦁 Löwe | 100–1000 | nur Hunderter (…00) |
-| 6 | 🐉 Drache | 100–1000 | Zehner+Hunderter (Einer = 0) |
+| Stufe | Name | Zahlenraum | Addition | Subtraktion |
+|-------|------|-----------|----------|-------------|
+| 1 | 🐭 Maus | 1–10 | kein Übertrag | kein Borgen |
+| 2 | 🦊 Fuchs | 1–100 | kein Übertrag | kein Borgen |
+| 3 | 🐺 Wolf | 1–100 | 10er-Übertrag | 10er-Borgen |
+| 4 | 🦅 Adler | 1–100 | >10er-Übertrag | >10er-Borgen |
+| 5 | 🦁 Löwe | 100–999 | reine Hunderter | reine Hunderter (800−300) **oder** ohne Unterschreitung (670−40) |
+| 6 | 🐉 Drache | 100–999 | Zehner+Hunderter (Einer=0) | Zehnerunterschreitung (420−50) **oder** Hunderterunterschreitung (530−160) |
 
 Default: Stufe 3 (🐺 Wolf)
 
 Constraints:
-- Subtraction: result always ≥ 1
-- Carries/borrows must stay within the number range of the level
+- Subtraction: result always ≥ 0 (typically ≥ 1)
+- Answers always ≤ 999 (3-digit keypad)
+- Carries/borrows stay within the number range of the level
 
 ### Multiplikation (6 Stufen)
 
-| Stufe | Name | Faktoren |
-|-------|------|---------|
-| 1 | 🐭 Maus | 1–5 × 1–5 |
-| 2 | 🦊 Fuchs | 1–10 × 1–10 |
-| 3 | 🐺 Wolf | 1–10 × 11–20 |
-| 4 | 🦅 Adler | 11–20 × 11–20 |
-| 5 | 🦁 Löwe | 1–10 × 1–100 |
-| 6 | 🐉 Drache | 11–100 × 11–100 |
+Klasse-3-Progression: zuerst Festigung des **kleinen Einmaleins**, dann **Zehner-Einmaleins**.
+
+| Stufe | Name | Inhalt |
+|-------|------|--------|
+| 1 | 🐭 Maus | Kleines Einmaleins: 1–5 × 1–5 |
+| 2 | 🦊 Fuchs | Kleines Einmaleins: 1–10 × 1–10 |
+| 3 | 🐺 Wolf | Kleines Einmaleins: 2–10 × 2–10 |
+| 4 | 🦅 Adler | Zehner-Einmaleins: 1–10 × 10…50 |
+| 5 | 🦁 Löwe | Zehner-Einmaleins: 1–10 × 10…90 (z. B. 7 × 80 = 560) |
+| 6 | 🐉 Drache | Zehner-Einmaleins: 2–10 × 20…90 |
+
+Ergebnis immer eintippbar (≤ 999). Faktoren bei Zehner-Aufgaben werden zufällig getauscht (4 × 20 und 20 × 4).
 
 Default: Stufe 2 (🦊 Fuchs)
 
-### Division (4 Stufen, kein Rest)
+### Division (6 Stufen, kein Rest)
 
-| Stufe | Name | Dividenden | Divisor |
-|-------|------|-----------|---------|
-| 1 | 🐭 Maus | ≤25 | 1–5 |
-| 2 | 🦊 Fuchs | ≤100 | 1–10 |
-| 3 | 🐺 Wolf | ≤200 | 1–10 |
-| 4 | 🦅 Adler | ≤1000 | 1–10 |
+Klasse-3-Progression analog zur Multiplikation: zuerst **kleines Einsdurcheins**, dann **Division mit Zehnerzahlen**.
+
+| Stufe | Name | Inhalt |
+|-------|------|--------|
+| 1 | 🐭 Maus | Kleines Einsdurcheins: Divisor & Quotient 1–5 |
+| 2 | 🦊 Fuchs | Kleines Einsdurcheins: Divisor & Quotient 1–10 |
+| 3 | 🐺 Wolf | Kleines Einsdurcheins: Divisor & Quotient 2–10 |
+| 4 | 🦅 Adler | Zehner-Division: Divisor 1–10, Quotient 10…50 (z. B. 240 ÷ 6 = 40) |
+| 5 | 🦁 Löwe | Zehner-Division: Divisor 1–10, Quotient 10…90 (z. B. 560 ÷ 8 = 70) |
+| 6 | 🐉 Drache | Zehner-Division: Divisor 2–10, Quotient 20…90 |
+
+Dividenden und Ergebnisse bei Stufe 1–3 ≤ 100; bei Stufe 4–6 Dividend = Zehnerzahl, Quotient ≤ 999.
 
 Default: Stufe 2 (🦊 Fuchs)
 

@@ -66,3 +66,15 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 **Mistake**: Löwe/Drache generators produced 1000er tasks, but `generateProblem` filtered them out when `mathNumberRange` was still 100 — only ≤100 reviews survived, so Drache never showed 1000er problems.
 
 **Rule**: For addition/subtraction, effective max must be at least the level's Zahlenraum (`minZahlenraumForAddSub`). Level 5–6 require 100–1000. Review mix for those levels must draw from 1–4 (≤100), not from other 1000er patterns.
+
+## 2026-09-28 — Subtraction Löwe/Drache ≠ Addition patterns
+
+**Mistake**: Assumed +/− share the same Löwe/Drache patterns (hundreds-only / ones=0). Klasse-3 curriculum for Subtraktion is different: reine Hunderter + ohne Unterschreitung, then Zehner-/Hunderterunterschreitung.
+
+**Rule**: Keep addition and subtraction generators separate at levels 5–6; mirror curriculum language (Unterschreitung), not addition carry patterns.
+
+## 2026-09-28 — Division mirrors Multiplication (6 tiers)
+
+**Mistake**: Division stayed at 4 ad-hoc dividend caps (≤25/100/200/1000) while Multiplication followed Klasse-3 Einmaleins → Zehner.
+
+**Rule**: Division uses the same 6-tier shape: kleines Einsdurcheins (1–3, dividend ≤ 100), then Zehner-Division ohne Rest (4–6, single-digit divisor, tens quotient). Keep `MAX_LEVELS.division = 6`.
