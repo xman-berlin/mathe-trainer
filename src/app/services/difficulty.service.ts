@@ -34,10 +34,19 @@ export const DEFAULT_LEVELS: Record<DifficultyOperationType, number> = {
 };
 
 // Level up after this many correct answers in a row
-const STREAK_UP = 5;
+export const DIFFICULTY_STREAK_UP = 5;
+const STREAK_UP = DIFFICULTY_STREAK_UP;
 // Level down when this many of the last N answers are wrong
 const WRONG_THRESHOLD = 3;
 const RECENT_WINDOW = 5;
+
+export interface DifficultyLevelChangeEvent {
+  type: DifficultyOperationType;
+  /** Level before the change */
+  fromLevel: number;
+  /** Level after the change */
+  level: number;
+}
 
 // ─── Service ────────────────────────────────────────────────────────────────
 
@@ -58,8 +67,8 @@ export class DifficultyService {
   readonly divisionLevel = computed(() => this.getLevel('division'));
 
   // Level-change events — set transiently so components can react via effect()
-  readonly lastLevelUp = signal<{ type: DifficultyOperationType; level: number } | null>(null);
-  readonly lastLevelDown = signal<{ type: DifficultyOperationType; level: number } | null>(null);
+  readonly lastLevelUp = signal<DifficultyLevelChangeEvent | null>(null);
+  readonly lastLevelDown = signal<DifficultyLevelChangeEvent | null>(null);
 
   clearLastLevelUp(): void { this.lastLevelUp.set(null); }
   clearLastLevelDown(): void { this.lastLevelDown.set(null); }
@@ -137,7 +146,7 @@ export class DifficultyService {
       this._updateType(type, nextState);
       this._schedulePersist();
       if (level > prevLevel) {
-        this.lastLevelUp.set({ type, level });
+        this.lastLevelUp.set({ type, fromLevel: prevLevel, level });
       }
       return;
     }
@@ -151,7 +160,7 @@ export class DifficultyService {
       this._updateType(type, nextState);
       this._schedulePersist();
       if (level < prevLevel) {
-        this.lastLevelDown.set({ type, level });
+        this.lastLevelDown.set({ type, fromLevel: prevLevel, level });
       }
       return;
     }

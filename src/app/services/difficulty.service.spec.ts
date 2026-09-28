@@ -170,6 +170,7 @@ describe('DifficultyService', () => {
     const ev = service.lastLevelUp();
     expect(ev).not.toBeNull();
     expect(ev!.type).toBe('addition');
+    expect(ev!.fromLevel).toBe(DEFAULT_LEVELS['addition']);
     expect(ev!.level).toBe(DEFAULT_LEVELS['addition'] + 1);
   });
 
@@ -198,6 +199,7 @@ describe('DifficultyService', () => {
     const ev = service.lastLevelDown();
     expect(ev).not.toBeNull();
     expect(ev!.type).toBe('addition');
+    expect(ev!.fromLevel).toBe(DEFAULT_LEVELS['addition']);
     expect(ev!.level).toBe(DEFAULT_LEVELS['addition'] - 1);
   });
 

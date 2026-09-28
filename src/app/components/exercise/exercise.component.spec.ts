@@ -208,13 +208,27 @@ describe('ExerciseComponent', () => {
     expect(localStorage.removeItem).toHaveBeenCalledWith('schlaufuchs-pending-math-problem');
   });
 
+  it('should expose difficulty chip data for current type', () => {
+    component.currentType.set('addition');
+    expect(component.currentDifficultyTier().name).toBeTruthy();
+    expect(component.currentDifficultyLevel()).toBeGreaterThanOrEqual(1);
+    expect(component.levelProgressDots().length).toBe(5);
+  });
+
+  it('should flash chip on level-up', () => {
+    const difficultyService = TestBed.inject(DifficultyService);
+    difficultyService.lastLevelUp.set({ type: 'addition', fromLevel: 3, level: 4 });
+    TestBed.flushEffects();
+    expect(component.levelFlash()).toBe('up');
+  });
+
   // ─── Level-change popup (regression: must not re-fire after being consumed) ─
 
   it('should show level-up popup when lastLevelUp is set', () => {
     const difficultyService = TestBed.inject(DifficultyService);
     expect(component.showLevelUp()).toBeFalse();
 
-    difficultyService.lastLevelUp.set({ type: 'addition', level: 4 });
+    difficultyService.lastLevelUp.set({ type: 'addition', fromLevel: 3, level: 4 });
     TestBed.flushEffects();
 
     expect(component.showLevelUp()).toBeTrue();
@@ -227,7 +241,7 @@ describe('ExerciseComponent', () => {
     const difficultyService = TestBed.inject(DifficultyService);
     expect(component.showLevelUp()).toBeFalse();
 
-    difficultyService.lastLevelDown.set({ type: 'addition', level: 2 });
+    difficultyService.lastLevelDown.set({ type: 'addition', fromLevel: 3, level: 2 });
     TestBed.flushEffects();
 
     expect(component.showLevelUp()).toBeTrue();
@@ -239,7 +253,7 @@ describe('ExerciseComponent', () => {
     const difficultyService = TestBed.inject(DifficultyService);
 
     // Trigger and consume level-up event
-    difficultyService.lastLevelUp.set({ type: 'addition', level: 4 });
+    difficultyService.lastLevelUp.set({ type: 'addition', fromLevel: 3, level: 4 });
     TestBed.flushEffects();
     expect(difficultyService.lastLevelUp()).toBeNull(); // consumed
 
@@ -258,7 +272,7 @@ describe('ExerciseComponent', () => {
   it('should NOT re-show level-down popup after event is consumed and another result is recorded', () => {
     const difficultyService = TestBed.inject(DifficultyService);
 
-    difficultyService.lastLevelDown.set({ type: 'subtraction', level: 2 });
+    difficultyService.lastLevelDown.set({ type: 'subtraction', fromLevel: 3, level: 2 });
     TestBed.flushEffects();
     expect(difficultyService.lastLevelDown()).toBeNull();
 
@@ -276,11 +290,13 @@ describe('ExerciseComponent', () => {
   it('popup should display correct tier emoji and name on level-up', () => {
     const difficultyService = TestBed.inject(DifficultyService);
 
-    difficultyService.lastLevelUp.set({ type: 'addition', level: 3 });
+    difficultyService.lastLevelUp.set({ type: 'addition', fromLevel: 2, level: 3 });
     TestBed.flushEffects();
 
     const info = component.levelUpInfo();
     expect(info).not.toBeNull();
+    expect(info!.fromEmoji).toBe('🦊');
+    expect(info!.fromName).toBe('Fuchs');
     expect(info!.emoji).toBe('🐺'); // level 3 = Wolf
     expect(info!.name).toBe('Wolf');
     expect(info!.direction).toBe('up');
@@ -289,11 +305,13 @@ describe('ExerciseComponent', () => {
   it('popup should display correct tier emoji and name on level-down', () => {
     const difficultyService = TestBed.inject(DifficultyService);
 
-    difficultyService.lastLevelDown.set({ type: 'addition', level: 2 });
+    difficultyService.lastLevelDown.set({ type: 'addition', fromLevel: 3, level: 2 });
     TestBed.flushEffects();
 
     const info = component.levelUpInfo();
     expect(info).not.toBeNull();
+    expect(info!.fromEmoji).toBe('🐺');
+    expect(info!.fromName).toBe('Wolf');
     expect(info!.emoji).toBe('🦊'); // level 2 = Fuchs
     expect(info!.name).toBe('Fuchs');
     expect(info!.direction).toBe('down');
@@ -303,7 +321,7 @@ describe('ExerciseComponent', () => {
     const difficultyService = TestBed.inject(DifficultyService);
 
     // First event
-    difficultyService.lastLevelUp.set({ type: 'addition', level: 4 });
+    difficultyService.lastLevelUp.set({ type: 'addition', fromLevel: 3, level: 4 });
     TestBed.flushEffects();
     expect(component.showLevelUp()).toBeTrue();
     expect(difficultyService.lastLevelUp()).toBeNull();
@@ -311,7 +329,7 @@ describe('ExerciseComponent', () => {
     component.showLevelUp.set(false);
 
     // Second independent event (different type)
-    difficultyService.lastLevelUp.set({ type: 'subtraction', level: 4 });
+    difficultyService.lastLevelUp.set({ type: 'subtraction', fromLevel: 3, level: 4 });
     TestBed.flushEffects();
     expect(component.showLevelUp()).toBeTrue();
     expect(difficultyService.lastLevelUp()).toBeNull();

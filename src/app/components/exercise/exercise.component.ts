@@ -4,7 +4,8 @@ import { StatsService } from '../../services/stats.service';
 import { AchievementsService } from '../../services/achievements.service';
 import { TimedChallengeService } from '../../services/timed-challenge.service';
 import { ProblemGeneratorService, OperationType } from '../../services/problem-generator.service';
-import { DifficultyService } from '../../services/difficulty.service';
+import { DifficultyService, DIFFICULTY_STREAK_UP } from '../../services/difficulty.service';
+import type { DifficultyOperationType } from '../../models/user.model';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
 import { ExerciseStateService } from '../../services/exercise-state.service';
 import { PracticePlanService } from '../../services/practice-plan.service';
@@ -40,8 +41,19 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
 
   // Level-change notifications
   readonly showLevelUp = signal(false);
-  readonly levelUpInfo = signal<{ emoji: string; name: string; direction: 'up' | 'down' } | null>(null);
+  readonly levelUpInfo = signal<{
+    fromEmoji: string;
+    fromName: string;
+    emoji: string;
+    name: string;
+    direction: 'up' | 'down';
+  } | null>(null);
   private levelUpTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Brief chip flash after level change: 'up' | 'down' | null */
+  readonly levelFlash = signal<'up' | 'down' | null>(null);
+  private levelFlashTimer: ReturnType<typeof setTimeout> | null = null;
+
+  readonly streakUpNeeded = DIFFICULTY_STREAK_UP;
 
   constructor() {
     this.exerciseState.setMilestones([5, 10, 20, 30, 40, 50, 75, 100]);
@@ -50,16 +62,18 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
       const ev = this.difficultyService.lastLevelUp();
       if (!ev) return;
       this.difficultyService.clearLastLevelUp();
-      const tier = this.difficultyService.getTierForLevel(ev.level);
-      this._showLevelNotification(tier.emoji, tier.name, 'up');
+      const from = this.difficultyService.getTierForLevel(ev.fromLevel);
+      const to = this.difficultyService.getTierForLevel(ev.level);
+      this._showLevelNotification(from.emoji, from.name, to.emoji, to.name, 'up');
     });
 
     effect(() => {
       const ev = this.difficultyService.lastLevelDown();
       if (!ev) return;
       this.difficultyService.clearLastLevelDown();
-      const tier = this.difficultyService.getTierForLevel(ev.level);
-      this._showLevelNotification(tier.emoji, tier.name, 'down');
+      const from = this.difficultyService.getTierForLevel(ev.fromLevel);
+      const to = this.difficultyService.getTierForLevel(ev.level);
+      this._showLevelNotification(from.emoji, from.name, to.emoji, to.name, 'down');
     });
 
     effect(() => {
@@ -80,11 +94,21 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     });
   }
 
-  private _showLevelNotification(emoji: string, name: string, direction: 'up' | 'down'): void {
+  private _showLevelNotification(
+    fromEmoji: string,
+    fromName: string,
+    emoji: string,
+    name: string,
+    direction: 'up' | 'down'
+  ): void {
     if (this.levelUpTimer) clearTimeout(this.levelUpTimer);
-    this.levelUpInfo.set({ emoji, name, direction });
+    this.levelUpInfo.set({ fromEmoji, fromName, emoji, name, direction });
     this.showLevelUp.set(true);
-    this.levelUpTimer = setTimeout(() => this.showLevelUp.set(false), 2500);
+    this.levelUpTimer = setTimeout(() => this.showLevelUp.set(false), 2800);
+
+    if (this.levelFlashTimer) clearTimeout(this.levelFlashTimer);
+    this.levelFlash.set(direction);
+    this.levelFlashTimer = setTimeout(() => this.levelFlash.set(null), 900);
   }
 
   selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
@@ -183,6 +207,32 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   });
 
   keypadDisabled = computed(() => this.feedback() !== 'idle');
+
+  /** Difficulty chip for the current problem's operation (practice mode). */
+  currentDifficultyTier = computed(() =>
+    this.difficultyService.getTier(this.currentType() as DifficultyOperationType)
+  );
+  currentDifficultyLevel = computed(() =>
+    this.difficultyService.getLevel(this.currentType() as DifficultyOperationType)
+  );
+  currentDifficultyMax = computed(() =>
+    this.difficultyService.getMaxLevel(this.currentType() as DifficultyOperationType)
+  );
+  currentDifficultyStreak = computed(() =>
+    this.difficultyService.getState(this.currentType() as DifficultyOperationType).streak
+  );
+  isMaxDifficulty = computed(
+    () => this.currentDifficultyLevel() >= this.currentDifficultyMax()
+  );
+  nextDifficultyTier = computed(() => {
+    const next = this.currentDifficultyLevel() + 1;
+    if (next > this.currentDifficultyMax()) return null;
+    return this.difficultyService.getTierForLevel(next);
+  });
+  levelProgressDots = computed(() => {
+    const filled = Math.min(this.currentDifficultyStreak(), this.streakUpNeeded);
+    return Array.from({ length: this.streakUpNeeded }, (_, i) => i < filled);
+  });
 
   private statsAgg = createStatsAggregator(this.stats, this.selectedTypes);
   typeCorrectCount = this.statsAgg.correct;
@@ -436,6 +486,8 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
+    if (this.levelUpTimer) clearTimeout(this.levelUpTimer);
+    if (this.levelFlashTimer) clearTimeout(this.levelFlashTimer);
     this.exerciseState.reset();
   }
 }

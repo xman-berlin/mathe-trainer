@@ -36,9 +36,11 @@
           class="type-toggle"
           [class.active]="isTypeSelected('addition')"
           [class.locked]="mode() === 'practice' && lockedTypes().has('addition')"
+          [attr.aria-label]="'Addition'"
+          [attr.aria-pressed]="isTypeSelected('addition')"
           [title]="mode() === 'practice' && lockedTypes().has('addition') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
           (click)="toggleType('addition')">
-          <span class="type-icon">+</span>
+          <span class="type-icon" aria-hidden="true">+</span>
           <span class="type-label">Addition</span>
           @if (mode() === 'practice' && lockedTypes().has('addition')) {
             <span class="lock-icon">🔒</span>
@@ -49,9 +51,11 @@
           class="type-toggle"
           [class.active]="isTypeSelected('subtraction')"
           [class.locked]="mode() === 'practice' && lockedTypes().has('subtraction')"
+          [attr.aria-label]="'Subtraktion'"
+          [attr.aria-pressed]="isTypeSelected('subtraction')"
           [title]="mode() === 'practice' && lockedTypes().has('subtraction') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
           (click)="toggleType('subtraction')">
-          <span class="type-icon">−</span>
+          <span class="type-icon" aria-hidden="true">−</span>
           <span class="type-label">Subtraktion</span>
           @if (mode() === 'practice' && lockedTypes().has('subtraction')) {
             <span class="lock-icon">🔒</span>
@@ -62,9 +66,11 @@
           class="type-toggle"
           [class.active]="isTypeSelected('multiplication')"
           [class.locked]="mode() === 'practice' && lockedTypes().has('multiplication')"
+          [attr.aria-label]="'Multiplikation'"
+          [attr.aria-pressed]="isTypeSelected('multiplication')"
           [title]="mode() === 'practice' && lockedTypes().has('multiplication') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
           (click)="toggleType('multiplication')">
-          <span class="type-icon">×</span>
+          <span class="type-icon" aria-hidden="true">×</span>
           <span class="type-label">Multiplikation</span>
           @if (mode() === 'practice' && lockedTypes().has('multiplication')) {
             <span class="lock-icon">🔒</span>
@@ -75,9 +81,11 @@
           class="type-toggle"
           [class.active]="isTypeSelected('division')"
           [class.locked]="mode() === 'practice' && lockedTypes().has('division')"
+          [attr.aria-label]="'Division'"
+          [attr.aria-pressed]="isTypeSelected('division')"
           [title]="mode() === 'practice' && lockedTypes().has('division') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
           (click)="toggleType('division')">
-          <span class="type-icon">÷</span>
+          <span class="type-icon" aria-hidden="true">÷</span>
           <span class="type-label">Division</span>
           @if (mode() === 'practice' && lockedTypes().has('division')) {
             <span class="lock-icon">🔒</span>
@@ -88,7 +96,11 @@
         <p class="plan-progress-banner">{{ practicePlan.progressLabel() }}</p>
       }
 
-      @if (!practicePlan.typesLocked() && mode() === 'practice' && (isTypeSelected('multiplication') || isTypeSelected('division'))) {
+      @if (
+        !practicePlan.typesLocked() &&
+        mode() === 'practice' &&
+        (currentType() === 'multiplication' || currentType() === 'division')
+      ) {
         <div class="multiplier-selector">
           <span class="multiplier-label">Reihe:</span>
           <button
@@ -110,61 +122,107 @@
         </div>
       }
 
-      <div class="problem-display">
-        <div class="operand-display">{{ operandA() }}</div>
-        <div class="operator">{{ operatorSymbol() }}</div>
-        <div class="operand-display">{{ operandB() }}</div>
-        <div class="equals">=</div>
-        <div class="question-mark">?</div>
-      </div>
+      <div class="task-section">
+        <div class="problem-display">
+          <div class="operand-display">{{ operandA() }}</div>
+          <div class="operator">{{ operatorSymbol() }}</div>
+          <div class="operand-display">{{ operandB() }}</div>
+          <div class="equals">=</div>
+          <div class="question-mark">?</div>
+        </div>
 
-      <div class="input-section">
-        <input
-          #answerInput
-          type="text"
-          inputmode="none"
-          readonly
-          [value]="userAnswer()"
-          (keydown.enter)="submitAnswer()"
-          aria-label="Ergebnis eingeben"
-          autocomplete="off"
-          class="answer-input"
-          placeholder="0"
-          tabindex="0"
-          maxlength="3"
-        />
-      </div>
-
-      <app-keypad
-        mode="numeric"
-        [value]="userAnswer"
-        [disabled]="keypadDisabled"
-        (valueChange)="userAnswer.set($event)"
-        (keypadSubmit)="submitAnswer()"
-      />
-
-      <div class="feedback-area">
-        @if (feedback() === 'correct') {
-          <div class="feedback correct">&#x2713; Richtig!</div>
-        }
-        @if (feedback() === 'incorrect') {
-          <div class="feedback incorrect">
-            &#x2717; Falsch. @if (showCorrectAnswer()) {
-              <span>Richtige Antwort: {{ correctAnswer() }}</span>
+        @if (mode() === 'practice') {
+          <div
+            class="difficulty-chip"
+            [class.flash-up]="levelFlash() === 'up'"
+            [class.flash-down]="levelFlash() === 'down'"
+            aria-live="polite"
+          >
+            <div class="difficulty-chip-main">
+              <span class="difficulty-emoji">{{ currentDifficultyTier().emoji }}</span>
+              <span class="difficulty-name">{{ currentDifficultyTier().name }}</span>
+              <span class="difficulty-level">Stufe {{ currentDifficultyLevel() }}/{{ currentDifficultyMax() }}</span>
+            </div>
+            @if (!isMaxDifficulty()) {
+              <div class="difficulty-progress" aria-label="Fortschritt zur nächsten Stufe">
+                @for (filled of levelProgressDots(); track $index) {
+                  <span class="progress-dot" [class.filled]="filled"></span>
+                }
+              </div>
+              @if (nextDifficultyTier(); as next) {
+                <p class="difficulty-hint">
+                  @if (currentDifficultyStreak() === 0) {
+                    {{ streakUpNeeded }} richtig bis {{ next.emoji }} {{ next.name }}
+                  } @else {
+                    Noch {{ streakUpNeeded - currentDifficultyStreak() }} richtig bis {{ next.emoji }} {{ next.name }}
+                  }
+                </p>
+              }
+            } @else {
+              <p class="difficulty-hint max">Höchste Stufe erreicht!</p>
             }
+          </div>
+        }
+
+        @if (mode() === 'practice') {
+          <div class="streak-display" [class.has-streak]="streak() > 0">
+            <span class="streak-icon">&#x1F525;</span>
+            <span class="streak-count">{{ streak() }}</span>
+            @if (bestStreak() > 0 && bestStreak() > streak()) {
+              <span class="best-streak">Rekord: {{ bestStreak() }}</span>
+            }
+          </div>
+        }
+
+        @if (mode() === 'practice') {
+          <div class="result-summary">
+            <span class="badge badge-correct">&#x2713; {{ typeCorrectCount() }}</span>
+            <span class="badge badge-incorrect">&#x2717; {{ typeIncorrectCount() }}</span>
+            <span class="badge badge-total">&#x3a3; {{ typeTotalCount() }}</span>
+            <span class="summary-label">Heute</span>
           </div>
         }
       </div>
 
-      @if (mode() === 'practice') {
-        <div class="streak-display" [class.has-streak]="streak() > 0">
-          <span class="streak-icon">&#x1F525;</span>
-          <span class="streak-count">{{ streak() }}</span>
-          @if (bestStreak() > 0 && bestStreak() > streak()) {
-            <span class="best-streak">Rekord: {{ bestStreak() }}</span>
+      <div class="answer-section">
+        <div class="input-section">
+          <input
+            #answerInput
+            type="text"
+            inputmode="none"
+            readonly
+            [value]="userAnswer()"
+            (keydown.enter)="submitAnswer()"
+            aria-label="Ergebnis eingeben"
+            autocomplete="off"
+            class="answer-input"
+            placeholder="0"
+            tabindex="0"
+            maxlength="3"
+          />
+        </div>
+
+        <app-keypad
+          mode="numeric"
+          [value]="userAnswer"
+          [disabled]="keypadDisabled"
+          (valueChange)="userAnswer.set($event)"
+          (keypadSubmit)="submitAnswer()"
+        />
+
+        <div class="feedback-area">
+          @if (feedback() === 'correct') {
+            <div class="feedback correct">&#x2713; Richtig!</div>
+          }
+          @if (feedback() === 'incorrect') {
+            <div class="feedback incorrect">
+              &#x2717; Falsch. @if (showCorrectAnswer()) {
+                <span>Richtige Antwort: {{ correctAnswer() }}</span>
+              }
+            </div>
           }
         </div>
-      }
+      </div>
 
       @if (showMilestone()) {
         <div class="confetti-container">
@@ -180,19 +238,12 @@
       @if (showLevelUp() && levelUpInfo()) {
         <div class="level-change-popup" [class.level-up]="levelUpInfo()!.direction === 'up'" [class.level-down]="levelUpInfo()!.direction === 'down'">
           @if (levelUpInfo()!.direction === 'up') {
-            &#x1F4AA; Neue Stufe: {{ levelUpInfo()!.emoji }} {{ levelUpInfo()!.name }}!
+            &#x1F4AA; Aufgestiegen! {{ levelUpInfo()!.fromEmoji }} {{ levelUpInfo()!.fromName }}
+            → {{ levelUpInfo()!.emoji }} {{ levelUpInfo()!.name }}
           } @else {
-            &#x1F625; Stufe gesenkt: {{ levelUpInfo()!.emoji }} {{ levelUpInfo()!.name }}
+            Stufe angepasst: {{ levelUpInfo()!.fromEmoji }} {{ levelUpInfo()!.fromName }}
+            → {{ levelUpInfo()!.emoji }} {{ levelUpInfo()!.name }}
           }
-        </div>
-      }
-
-      @if (mode() === 'practice') {
-        <div class="result-summary">
-          <span class="badge badge-correct">&#x2713; {{ typeCorrectCount() }}</span>
-          <span class="badge badge-incorrect">&#x2717; {{ typeIncorrectCount() }}</span>
-          <span class="badge badge-total">&#x3a3; {{ typeTotalCount() }}</span>
-          <span class="summary-label">Heute</span>
         </div>
       }
     </div>
@@ -251,4 +302,3 @@
     </div>
    </div>
 }
-
