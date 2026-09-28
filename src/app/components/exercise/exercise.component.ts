@@ -8,6 +8,7 @@ import { DifficultyService } from '../../services/difficulty.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
 import { ExerciseStateService } from '../../services/exercise-state.service';
 import { PracticePlanService } from '../../services/practice-plan.service';
+import { PendingMathProblemService } from '../../services/pending-math-problem.service';
 import { createStatsAggregator } from '../../utils/stats-aggregator';
 
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
@@ -44,7 +45,6 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
 
   constructor() {
     this.exerciseState.setMilestones([5, 10, 20, 30, 40, 50, 75, 100]);
-    this.generateProblem();
 
     effect(() => {
       const ev = this.difficultyService.lastLevelUp();
@@ -113,6 +113,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   private timedChallengeService = inject(TimedChallengeService);
   private problemGenerator = inject(ProblemGeneratorService);
   private difficultyService = inject(DifficultyService);
+  private pendingProblem = inject(PendingMathProblemService);
   private route = inject(ActivatedRoute);
   protected practicePlan = inject(PracticePlanService);
 
@@ -132,6 +133,33 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
       this.selectedTypes.set(new Set(['addition', 'subtraction', 'multiplication', 'division']));
       this.selectedNumbers.set(new Set());
     }
+
+    // Practice: resume unsolved problem; time trial always starts fresh
+    if (this.mode() === 'practice' && this.restorePendingProblem()) {
+      return;
+    }
+    this.generateProblem();
+  }
+
+  /** Restore pending practice problem from localStorage. Returns true if restored. */
+  private restorePendingProblem(): boolean {
+    const pending = this.pendingProblem.load();
+    if (!pending) return false;
+
+    const type = pending.operation as ExerciseType;
+    if (!this.selectedTypes().has(type)) {
+      const next = new Set(this.selectedTypes());
+      next.add(type);
+      this.selectedTypes.set(next);
+    }
+
+    this.currentType.set(type);
+    this.operandA.set(pending.operandA);
+    this.operandB.set(pending.operandB);
+    this.userAnswer.set('');
+    this.feedback.set('idle');
+    this.showCorrectAnswer.set(false);
+    return true;
   }
 
   operatorSymbol = computed(() => {
@@ -285,6 +313,14 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     this.feedback.set('idle');
     this.showCorrectAnswer.set(false);
 
+    if (this.mode() === 'practice') {
+      this.pendingProblem.save({
+        operation: problem.operation,
+        operandA: problem.operandA,
+        operandB: problem.operandB,
+      });
+    }
+
     if (this.isInitialized) {
       setTimeout(() => this.focusInput(), 150);
     }
@@ -319,7 +355,9 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
         }
       }, delay);
     } else {
-      // Practice mode
+      // Practice mode — clear pending so leave-during-feedback does not re-ask the same task
+      this.pendingProblem.clear();
+
       this.feedback.set(isCorrect ? 'correct' : 'incorrect');
       if (!isCorrect) this.showCorrectAnswer.set(true);
       this.exerciseState.handleResult(isCorrect, () => this.generateProblem());

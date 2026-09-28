@@ -11,6 +11,7 @@ import { TimedChallengeService } from '../../services/timed-challenge.service';
 import { ProblemGeneratorService } from '../../services/problem-generator.service';
 import { DifficultyService } from '../../services/difficulty.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { PracticePlanService } from '../../services/practice-plan.service';
 
 describe('ExerciseComponent', () => {
   let component: ExerciseComponent;
@@ -18,6 +19,10 @@ describe('ExerciseComponent', () => {
   let mockSupabase: jasmine.SpyObj<SupabaseService>;
 
   beforeEach(() => {
+    spyOn(localStorage, 'getItem').and.returnValue(null);
+    spyOn(localStorage, 'setItem');
+    spyOn(localStorage, 'removeItem');
+
     mockSupabase = jasmine.createSpyObj('SupabaseService', [
       'getDifficultyLevels',
       'updateDifficultyLevels',
@@ -71,6 +76,16 @@ describe('ExerciseComponent', () => {
               operandA: 5,
               operandB: 3,
             }),
+          },
+        },
+        {
+          provide: PracticePlanService,
+          useValue: {
+            typesLocked: signal(false).asReadonly(),
+            isGuiding: signal(false).asReadonly(),
+            progressLabel: signal('').asReadonly(),
+            pause: jasmine.createSpy('pause'),
+            recordCorrect: jasmine.createSpy('recordCorrect'),
           },
         },
       ],
@@ -156,6 +171,41 @@ describe('ExerciseComponent', () => {
 
     component.feedback.set('correct');
     expect(component.keypadDisabled()).toBeTrue();
+  });
+
+  it('should persist generated practice problem', () => {
+    expect(localStorage.setItem).toHaveBeenCalledWith(
+      'schlaufuchs-pending-math-problem',
+      jasmine.stringMatching(/"operation":"addition"/)
+    );
+  });
+
+  it('should restore pending practice problem instead of generating', () => {
+    (localStorage.getItem as jasmine.Spy).and.callFake((key: string) => {
+      if (key === 'schlaufuchs-pending-math-problem') {
+        return JSON.stringify({ operation: 'subtraction', operandA: 42, operandB: 17 });
+      }
+      return null;
+    });
+    const generator = TestBed.inject(ProblemGeneratorService);
+    (generator.generateProblem as jasmine.Spy).calls.reset();
+
+    const restored = TestBed.createComponent(ExerciseComponent);
+    restored.detectChanges();
+
+    expect(restored.componentInstance.currentType()).toBe('subtraction');
+    expect(restored.componentInstance.operandA()).toBe(42);
+    expect(restored.componentInstance.operandB()).toBe(17);
+    expect(generator.generateProblem).not.toHaveBeenCalled();
+  });
+
+  it('should clear pending problem on submit', () => {
+    component.userAnswer.set('8');
+    component.currentType.set('addition');
+    component.operandA.set(5);
+    component.operandB.set(3);
+    component.submitAnswer();
+    expect(localStorage.removeItem).toHaveBeenCalledWith('schlaufuchs-pending-math-problem');
   });
 
   // ─── Level-change popup (regression: must not re-fire after being consumed) ─

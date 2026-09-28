@@ -78,3 +78,7 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 **Mistake**: Division stayed at 4 ad-hoc dividend caps (≤25/100/200/1000) while Multiplication followed Klasse-3 Einmaleins → Zehner.
 
 **Rule**: Division uses the same 6-tier shape: kleines Einsdurcheins (1–3, dividend ≤ 100), then Zehner-Division ohne Rest (4–6, single-digit divisor, tens quotient). Keep `MAX_LEVELS.division = 6`.
+
+## 2026-09-28 — Persist unsolved Math practice problem
+
+**Rule**: Practice-mode Mathe (`/mathe/uebung`) must resume the same unsolved problem after leave/re-enter (localStorage via `PendingMathProblemService`). Clear on submit; save on each new generate. Time trial stays ephemeral.
