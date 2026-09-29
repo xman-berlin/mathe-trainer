@@ -167,7 +167,7 @@
 
 .action-card {
   background: white;
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--gray-300, #d1d5db);
   border-radius: 16px;
   padding: 2rem;
   text-align: center;
@@ -181,10 +181,11 @@
 .action-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  border-color: var(--gray-400, #9ca3af);
 }
 
+/* Soft wash only — border stays neutral until goal done (green). */
 .practice-card {
-  border-color: var(--bright-blue);
   background: linear-gradient(135deg, rgba(51, 130, 191, 0.03) 0%, white 100%);
 }
 
@@ -193,43 +194,45 @@
 }
 
 .hangman-card {
-  border-color: #ef6c00;
   background: linear-gradient(135deg, rgba(239, 108, 0, 0.03) 0%, white 100%);
 }
 
 .hangman-card:hover {
-  border-color: #ef6c00;
   background: linear-gradient(135deg, rgba(239, 108, 0, 0.08) 0%, white 100%);
 }
 
 .weekdays-card {
-  border-color: #7c3aed;
   background: linear-gradient(135deg, rgba(124, 58, 237, 0.03) 0%, white 100%);
 }
 
 .weekdays-card:hover {
-  border-color: #7c3aed;
   background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, white 100%);
 }
 
 .months-card {
-  border-color: #0891b2;
   background: linear-gradient(135deg, rgba(8, 145, 178, 0.03) 0%, white 100%);
 }
 
 .months-card:hover {
-  border-color: #0891b2;
   background: linear-gradient(135deg, rgba(8, 145, 178, 0.08) 0%, white 100%);
 }
 
 .alphabet-card {
-  border-color: #d97706;
   background: linear-gradient(135deg, rgba(217, 119, 6, 0.03) 0%, white 100%);
 }
 
 .alphabet-card:hover {
-  border-color: #d97706;
   background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, white 100%);
+}
+
+.action-card--goal-done {
+  border-color: #22c55e;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.12), white 60%);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+}
+
+.action-card--goal-done:hover {
+  border-color: #16a34a;
 }
 
 .card-icon {
@@ -441,6 +444,58 @@
   border-radius: 8px;
   margin: 1rem 0;
   box-sizing: border-box;
+}
+
+.goal-tile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.goal-tile-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.goal-tile-row input {
+  width: 5rem;
+  margin: 0;
+  text-align: center;
+}
+
+.tile-goal {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.tile-goal--done {
+  color: #15803d;
+}
+
+.tile-goal-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .modal-actions {

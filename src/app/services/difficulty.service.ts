@@ -20,8 +20,8 @@ export const DIFFICULTY_TIERS: DifficultyTier[] = [
 ];
 
 export const MAX_LEVELS: Record<DifficultyOperationType, number> = {
-  addition: 6,
-  subtraction: 6,
+  addition: 5, // Drache (6) temporarily disabled for +/−
+  subtraction: 5,
   multiplication: 6,
   division: 6,
 };
@@ -79,7 +79,7 @@ export class DifficultyService {
     this.currentUserId = userId;
     const remote = await this.supabase.getDifficultyLevels(userId);
     if (remote && Object.keys(remote).length > 0) {
-      this._levels.set(remote);
+      this._levels.set(this.clampLevels(remote));
     } else {
       this._levels.set({});
     }
@@ -97,17 +97,23 @@ export class DifficultyService {
   // ─── Getters ───────────────────────────────────────────────────
 
   getLevel(type: DifficultyOperationType): number {
-    return this._levels()[type]?.level ?? DEFAULT_LEVELS[type];
+    const raw = this._levels()[type]?.level ?? DEFAULT_LEVELS[type];
+    return Math.min(raw, MAX_LEVELS[type]);
   }
 
   getState(type: DifficultyOperationType): DifficultyState {
-    return (
-      this._levels()[type] ?? {
+    const stored = this._levels()[type];
+    if (!stored) {
+      return {
         level: DEFAULT_LEVELS[type],
         streak: 0,
         recentResults: [],
-      }
-    );
+      };
+    }
+    return {
+      ...stored,
+      level: Math.min(stored.level, MAX_LEVELS[type]),
+    };
   }
 
   getTier(type: DifficultyOperationType): DifficultyTier {
@@ -170,6 +176,20 @@ export class DifficultyService {
   }
 
   // ─── Internal helpers ──────────────────────────────────────────
+
+  /** Cap stored levels to current MAX_LEVELS (e.g. +/− Drache disabled). */
+  private clampLevels(levels: DifficultyLevels): DifficultyLevels {
+    const next: DifficultyLevels = {};
+    for (const key of Object.keys(levels) as DifficultyOperationType[]) {
+      const state = levels[key];
+      if (!state) continue;
+      next[key] = {
+        ...state,
+        level: Math.min(state.level, MAX_LEVELS[key]),
+      };
+    }
+    return next;
+  }
 
   private _updateType(type: DifficultyOperationType, state: DifficultyState): void {
     this._levels.update((current) => ({ ...current, [type]: state }));

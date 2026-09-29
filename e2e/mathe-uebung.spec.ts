@@ -64,11 +64,11 @@ test.describe('Mathe Übung', () => {
   test('should show multiplier selector for multiplication', async ({ page }) => {
     await page.goto('/mathe/uebung');
 
-    // Select multiplication
-    const multBtn = page.locator('.type-toggle', { hasText: '×' });
-    await multBtn.click();
+    // Leave only multiplication selected (toggle deselects when already active)
+    await page.locator('.type-toggle', { hasText: '+' }).click();
+    await page.locator('.type-toggle', { hasText: '−' }).click();
+    await page.locator('.type-toggle', { hasText: '÷' }).click();
 
-    // Multiplier selector should appear
     await expect(page.locator('.multiplier-selector')).toBeVisible();
     await expect(page.locator('.multiplier-btn').first()).toBeVisible();
   });

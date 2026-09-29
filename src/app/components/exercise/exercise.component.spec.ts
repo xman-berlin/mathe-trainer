@@ -199,6 +199,27 @@ describe('ExerciseComponent', () => {
     expect(generator.generateProblem).not.toHaveBeenCalled();
   });
 
+  it('should discard stale pending Drache-style addition when at Löwe', () => {
+    const difficultyService = TestBed.inject(DifficultyService);
+    spyOn(difficultyService, 'getLevel').and.callFake((type: string) =>
+      type === 'addition' || type === 'subtraction' ? 5 : 2
+    );
+    (localStorage.getItem as jasmine.Spy).and.callFake((key: string) => {
+      if (key === 'schlaufuchs-pending-math-problem') {
+        return JSON.stringify({ operation: 'addition', operandA: 160, operandB: 760 });
+      }
+      return null;
+    });
+    const generator = TestBed.inject(ProblemGeneratorService);
+    (generator.generateProblem as jasmine.Spy).calls.reset();
+
+    const restored = TestBed.createComponent(ExerciseComponent);
+    restored.detectChanges();
+
+    expect(generator.generateProblem).toHaveBeenCalled();
+    expect(localStorage.removeItem).toHaveBeenCalledWith('schlaufuchs-pending-math-problem');
+  });
+
   it('should clear pending problem on submit', () => {
     component.userAnswer.set('8');
     component.currentType.set('addition');

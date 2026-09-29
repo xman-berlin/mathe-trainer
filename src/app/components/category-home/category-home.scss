@@ -66,65 +66,11 @@
   font-size: 1.5rem;
   color: var(--gray-900);
   margin-bottom: 0.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem 0.75rem;
 }
 
 .plan-heading {
   text-align: center;
   margin-bottom: 1rem;
-}
-
-.plan-or {
-  font-weight: 500;
-  color: var(--gray-600);
-}
-
-.plan-start-btn,
-.plan-cancel-btn {
-  border: none;
-  border-radius: 999px;
-  padding: 0.4rem 1rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.plan-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-top: 0.5rem;
-}
-
-.plan-start-btn {
-  background: var(--bright-blue, #3382bf);
-  color: #fff;
-}
-
-.plan-start-btn:hover {
-  filter: brightness(1.05);
-}
-
-.plan-cancel-btn {
-  background: transparent;
-  color: var(--gray-700);
-  border: 1px solid var(--gray-400);
-}
-
-.plan-actions .plan-cancel-btn {
-  margin-top: 0;
-}
-
-.plan-hint,
-.plan-progress {
-  margin: 0.25rem 0 0;
-  font-size: 0.9rem;
-  color: var(--gray-600);
 }
 
 .category-cards {
@@ -139,7 +85,7 @@
   display: flex;
   flex-direction: column;
   background: white;
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--gray-300, #d1d5db);
   border-radius: 12px;
   padding: 1rem 0.75rem;
   text-align: center;
@@ -152,46 +98,40 @@
 .category-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: var(--gray-400, #9ca3af);
 }
 
+/* Category identity via soft wash only — border stays neutral until goal done (green). */
 .mathe-card {
-  border-color: var(--bright-blue);
-  background: linear-gradient(135deg, rgba(51, 130, 191, 0.03) 0%, white 100%);
+  background: linear-gradient(135deg, rgba(51, 130, 191, 0.05) 0%, white 100%);
 }
 
 .mathe-card:hover {
-  border-color: var(--bright-blue);
-  background: linear-gradient(135deg, rgba(51, 130, 191, 0.08) 0%, white 100%);
+  background: linear-gradient(135deg, rgba(51, 130, 191, 0.1) 0%, white 100%);
 }
 
 .uhrzeit-card {
-  border-color: #a78bfa;
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.03) 0%, white 100%);
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.05) 0%, white 100%);
 }
 
 .uhrzeit-card:hover {
-  border-color: #a78bfa;
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.08) 0%, white 100%);
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, white 100%);
 }
 
 .vokabeln-card {
-  border-color: #34d399;
-  background: linear-gradient(135deg, rgba(52, 211, 153, 0.03) 0%, white 100%);
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.05) 0%, white 100%);
 }
 
 .vokabeln-card:hover {
-  border-color: #34d399;
-  background: linear-gradient(135deg, rgba(52, 211, 153, 0.08) 0%, white 100%);
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.1) 0%, white 100%);
 }
 
 .englisch-card {
-  border-color: #60a5fa;
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.03) 0%, white 100%);
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.05) 0%, white 100%);
 }
 
 .englisch-card:hover {
-  border-color: #60a5fa;
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, white 100%);
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, white 100%);
 }
 
 .card-icon {
@@ -416,6 +356,74 @@
   text-align: center;
   font-weight: 600;
   font-size: 0.8rem;
+}
+
+.category-card--goal-done {
+  border-color: #22c55e;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.12), white 60%);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+  overflow: visible;
+}
+
+.category-card--goal-done:hover {
+  border-color: #16a34a;
+}
+
+.category-card--goal-done .card-stats {
+  flex-wrap: wrap;
+  overflow: visible;
+  min-height: 0;
+  row-gap: 0.45rem;
+}
+
+.goal-done-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  flex: 1 0 100%;
+  width: 100%;
+  animation: goal-done-pop 0.25s ease-out;
+}
+
+.goal-done-check {
+  display: block;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.goal-done-check circle {
+  fill: #22c55e;
+  stroke: #16a34a;
+  stroke-width: 2;
+}
+
+.goal-done-check path {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.goal-done-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #15803d;
+  line-height: 1.2;
+}
+
+@keyframes goal-done-pop {
+  from {
+    transform: scale(0.85);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 footer {

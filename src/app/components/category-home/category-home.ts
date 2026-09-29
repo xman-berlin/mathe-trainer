@@ -1,174 +1,45 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
-import { PracticePlanService } from '../../services/practice-plan.service';
 import { UserProfileComponent } from '../user-profile/user-profile.component';
 import { StreakDisplayComponent } from '../streak-display/streak-display.component';
 
 @Component({
   standalone: true,
   selector: 'app-category-home',
-  imports: [RouterLink, FormsModule, UserProfileComponent, StreakDisplayComponent],
+  imports: [RouterLink, UserProfileComponent, StreakDisplayComponent],
   templateUrl: './category-home.html',
   styleUrl: './category-home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoryHomeComponent {
   protected stats = inject(StatsService);
-  protected practicePlan = inject(PracticePlanService);
 
-  showGoalEditor = signal(false);
-  showClockGoalEditor = signal(false);
-  showDeutschGoalEditor = signal(false);
-  editGoalValue = 20;
+  readonly mathCorrectCount = computed(() => this.stats.mathCorrectCount());
+  readonly mathIncorrectCount = computed(() => this.stats.mathIncorrectCount());
+  readonly mathGoalProgressCorrect = computed(() => this.stats.categoryCorrectSum('math'));
+  readonly mathGoalTotal = computed(() => this.stats.categoryGoalSum('math'));
+  readonly mathGoalProgressPercent = computed(() => this.stats.goalProgressPercent());
+  readonly isMathGoalReached = computed(() => this.stats.isGoalReached());
 
-  exerciseTypes = ['addition', 'subtraction', 'multiplication', 'division'];
-  clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf', 'clock-zeitspanne', 'clock-verspaetung'];
+  readonly clockCorrectCount = computed(() => this.stats.clockCorrectCount());
+  readonly clockIncorrectCount = computed(() => this.stats.clockIncorrectCount());
+  readonly clockGoalProgressCorrect = computed(() => this.stats.categoryCorrectSum('clock'));
+  readonly clockGoalTotal = computed(() => this.stats.categoryGoalSum('clock'));
+  readonly clockGoalProgressPercent = computed(() => this.stats.clockGoalProgressPercent());
+  readonly isClockGoalReached = computed(() => this.stats.isClockGoalReached());
 
-  // Computed stats for MATH exercises only
-  readonly mathCorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const type of this.exerciseTypes) {
-      total += types[type]?.correct ?? 0;
-    }
-    return total;
-  });
+  readonly deutschCorrectCount = computed(() => this.stats.deutschCorrectCount());
+  readonly deutschIncorrectCount = computed(() => this.stats.deutschIncorrectCount());
+  readonly deutschGoalProgressCorrect = computed(() => this.stats.categoryCorrectSum('deutsch'));
+  readonly deutschGoalTotal = computed(() => this.stats.categoryGoalSum('deutsch'));
+  readonly deutschGoalProgressPercent = computed(() => this.stats.deutschGoalProgressPercent());
+  readonly isDeutschGoalReached = computed(() => this.stats.isDeutschGoalReached());
 
-  readonly mathIncorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const type of this.exerciseTypes) {
-      total += types[type]?.incorrect ?? 0;
-    }
-    return total;
-  });
-
-  readonly mathTotalCount = computed(() => this.mathCorrectCount() + this.mathIncorrectCount());
-
-  // Computed stats for CLOCK exercises only
-  readonly clockCorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const type of this.clockTypes) {
-      total += types[type]?.correct ?? 0;
-    }
-    return total;
-  });
-
-  readonly clockIncorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const type of this.clockTypes) {
-      total += types[type]?.incorrect ?? 0;
-    }
-    return total;
-  });
-
-  readonly clockTotalCount = computed(() => this.clockCorrectCount() + this.clockIncorrectCount());
-
-  // Goal progress for MATH only
-  readonly mathGoalProgressPercent = computed(() =>
-    Math.min(100, Math.round((this.mathCorrectCount() / this.stats.currentGoal()) * 100))
-  );
-  readonly isMathGoalReached = computed(() => this.mathCorrectCount() >= this.stats.currentGoal());
-
-  // Goal progress for CLOCK only
-  readonly clockGoalProgressPercent = computed(() =>
-    Math.min(100, Math.round((this.clockCorrectCount() / this.stats.currentClockGoal()) * 100))
-  );
-  readonly isClockGoalReached = computed(() => this.clockCorrectCount() >= this.stats.currentClockGoal());
-
-  // Deutsch incorrect count
-  readonly deutschIncorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const [type, stats] of Object.entries(types)) {
-      if (type.startsWith('deutsch-')) {
-        total += stats.incorrect ?? 0;
-      }
-    }
-    return total;
-  });
-
-  readonly englischIncorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const [type, stats] of Object.entries(types)) {
-      if (type.startsWith('englisch-')) {
-        total += stats.incorrect ?? 0;
-      }
-    }
-    return total;
-  });
-
-  getTypeStats(type: string) {
-    const types = this.stats.statsByType();
-    return types[type] || { correct: 0, incorrect: 0 };
-  }
-
-  getExerciseLabel(type: string): string {
-    const labels: Record<string, string> = {
-      'addition': '➕ Addition',
-      'subtraction': '➖ Subtraktion',
-      'multiplication': '✕ Multiplikation',
-      'division': '÷ Division'
-    };
-    return labels[type] || type;
-  }
-
-  editGoal(): void {
-    this.editGoalValue = this.stats.currentGoal();
-    this.showGoalEditor.set(true);
-  }
-
-  saveGoal(): void {
-    this.stats.setDailyGoal(this.editGoalValue);
-    this.showGoalEditor.set(false);
-  }
-
-  cancelGoalEdit(): void {
-    this.showGoalEditor.set(false);
-  }
-
-  editClockGoal(): void {
-    this.editGoalValue = this.stats.currentClockGoal();
-    this.showClockGoalEditor.set(true);
-  }
-
-  saveClockGoal(): void {
-    this.stats.setClockDailyGoal(this.editGoalValue);
-    this.showClockGoalEditor.set(false);
-  }
-
-  cancelClockGoalEdit(): void {
-    this.showClockGoalEditor.set(false);
-  }
-
-  editDeutschGoal(): void {
-    this.editGoalValue = this.stats.currentDeutschGoal();
-    this.showDeutschGoalEditor.set(true);
-  }
-
-  saveDeutschGoal(): void {
-    this.stats.setDeutschDailyGoal(this.editGoalValue);
-    this.showDeutschGoalEditor.set(false);
-  }
-
-  cancelDeutschGoalEdit(): void {
-    this.showDeutschGoalEditor.set(false);
-  }
-
-  startPracticePlan(): void {
-    this.practicePlan.startFromDailyGoals();
-  }
-
-  resumePracticePlan(): void {
-    this.practicePlan.resume();
-  }
-
-  cancelPracticePlan(): void {
-    this.practicePlan.cancel();
-  }
+  readonly englischCorrectCount = computed(() => this.stats.englischCorrectCount());
+  readonly englischIncorrectCount = computed(() => this.stats.englischIncorrectCount());
+  readonly englischGoalProgressCorrect = computed(() => this.stats.categoryCorrectSum('englisch'));
+  readonly englischGoalTotal = computed(() => this.stats.categoryGoalSum('englisch'));
+  readonly englischGoalProgressPercent = computed(() => this.stats.englischGoalProgressPercent());
+  readonly isEnglischGoalReached = computed(() => this.stats.isEnglischGoalReached());
 }

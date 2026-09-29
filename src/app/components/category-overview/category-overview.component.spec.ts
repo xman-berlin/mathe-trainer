@@ -15,6 +15,17 @@ describe('CategoryOverviewComponent', () => {
     currentGoal: signal(20).asReadonly(),
     currentClockGoal: signal(20).asReadonly(),
     currentMathNumberRange: signal(100).asReadonly(),
+    categoryCorrectSum: jasmine.createSpy('categoryCorrectSum').and.returnValue(0),
+    categoryGoalSum: jasmine.createSpy('categoryGoalSum').and.returnValue(20),
+    correctFor: jasmine.createSpy('correctFor').and.returnValue(0),
+    goalFor: jasmine.createSpy('goalFor').and.callFake((id: string) => {
+      if (id === 'math-uebung') return 15;
+      if (id === 'math-sachaufgaben') return 5;
+      return 5;
+    }),
+    isExerciseGoalReached: jasmine.createSpy('isExerciseGoalReached').and.returnValue(false),
+    setGoalsForCategory: jasmine.createSpy('setGoalsForCategory'),
+    setMathNumberRange: jasmine.createSpy('setMathNumberRange'),
   };
 
   beforeEach(() => {
@@ -128,19 +139,14 @@ describe('CategoryOverviewComponent', () => {
     });
 
     it('saveRange: valid input calls setMathNumberRange and closes editor', () => {
-      const setRangeSpy = jasmine.createSpy('setMathNumberRange');
-      (mockStatsService as Record<string, unknown>)['setMathNumberRange'] = setRangeSpy;
-
       component.editRangeInput.set(250);
       component.saveRange();
 
-      expect(setRangeSpy).toHaveBeenCalledWith(250);
+      expect(mockStatsService.setMathNumberRange).toHaveBeenCalledWith(250);
       expect(component.showRangeEditor()).toBeFalse();
     });
 
     it('saveRange: invalid input sets editRangeError and keeps editor open', () => {
-      (mockStatsService as Record<string, unknown>)['setMathNumberRange'] = jasmine.createSpy();
-
       component.openRangeEditor();
       component.editRangeInput.set(50); // below 100 — invalid
       component.saveRange();

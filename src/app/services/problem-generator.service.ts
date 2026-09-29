@@ -24,18 +24,16 @@ export interface GenerateOptions {
  *
  * Level definitions:
  *
- * Addition (6 levels):
+ * Addition (5 levels active; Drache reserved/disabled):
  *   1 — 1–10,   no carry
  *   2 — 1–100,  no carry
  *   3 — 1–100,  10er carry
  *   4 — 1–100,  >10er carry
- *   5 — 100–999, hundreds only (…00)
- *   6 — 100–999, tens+hundreds (ones = 0), result ≤ 999
+ *   5 — reine Hunderter (…00), operands ≥ 100, result ≤ 999
  *
- * Subtraction (6 levels) — Klasse 3 for 1000er:
+ * Subtraction (5 levels active; Drache reserved/disabled):
  *   1–4 — same Zahlenraum as addition (1–10 / 1–100)
- *   5 — reine Hunderter + ohne Unterschreitung (z. B. 800−300, 670−40)
- *   6 — mit Zehner-/Hunderterunterschreitung (z. B. 420−50, 530−160)
+ *   5 — reine Hunderter (z. B. 800−300)
  *
  * Multiplication (6 levels) — Klasse 3 progression:
  *   Festigung kleines Einmaleins (product ≤ 100):
@@ -179,35 +177,12 @@ export class ProblemGeneratorService {
         if (a < 1) a = 1;
         break;
       }
-      case 5: {
-        // Löwe: hundreds only (…00), operands ≥ 100, result ≤ 999
-        a = this.randomInt(1, 8) * 100; // 100…800 (room for b ≥ 100)
-        b = this.randomInt(1, Math.floor((ProblemGeneratorService.MAX_ANSWER - a) / 100)) * 100;
-        break;
-      }
+      case 5:
       case 6:
       default: {
-        // Drache: ≥ 100, ones = 0, prefer tens carry, result ≤ 999
-        b = this.randomInt(10, 89) * 10; // 100…890
-        const bTensDigit = Math.floor(b / 10) % 10;
-        const maxSum = ProblemGeneratorService.MAX_ANSWER;
-        if (bTensDigit > 0) {
-          const aTensDigit = this.randomInt(10 - bTensDigit, 9);
-          const maxHundreds = Math.floor((maxSum - b - aTensDigit * 10) / 100);
-          if (maxHundreds >= 1) {
-            a = this.randomInt(1, maxHundreds) * 100 + aTensDigit * 10;
-          } else {
-            a = this.randomInt(10, Math.floor((maxSum - b) / 10)) * 10;
-          }
-        } else {
-          a = this.randomInt(10, Math.floor((maxSum - b) / 10)) * 10; // ≥ 100
-        }
-        if (a < 100) a = 100;
-        if (a + b > maxSum) a = Math.floor((maxSum - b) / 10) * 10;
-        if (a < 100) {
-          b = 100;
-          a = this.randomInt(10, Math.floor(maxSum / 10) - 10) * 10;
-        }
+        // Löwe (max for +/−): reine Hunderter; case 6 kept as alias while Drache is disabled
+        a = this.randomInt(1, 8) * 100; // 100…800 (room for b ≥ 100)
+        b = this.randomInt(1, Math.floor((ProblemGeneratorService.MAX_ANSWER - a) / 100)) * 100;
         break;
       }
     }
@@ -257,71 +232,18 @@ export class ProblemGeneratorService {
         if (a - b < 1) a = b + 1;
         break;
       }
-      case 5: {
-        // Löwe: reine Hunderter (800−300) ODER ohne Unterschreitung (670−40)
-        if (Math.random() < 0.5) {
-          a = this.randomInt(2, 9) * 100;
-          b = this.randomInt(1, a / 100 - 1) * 100;
-        } else {
-          ({ a, b } = this.generateSubtractionNoBorrowThousand());
-        }
-        break;
-      }
+      case 5:
       case 6:
       default: {
-        // Drache: Zehnerunterschreitung (420−50) ODER Hunderterunterschreitung (530−160)
-        if (Math.random() < 0.5) {
-          ({ a, b } = this.generateSubtractionTensBorrowThousand());
-        } else {
-          ({ a, b } = this.generateSubtractionHundredsBorrowThousand());
-        }
+        // Löwe (max for +/−): reine Hunderter only; case 6 alias while Drache is disabled
+        a = this.randomInt(2, 9) * 100;
+        b = this.randomInt(1, a / 100 - 1) * 100;
         break;
       }
     }
 
     const answer = a - b;
     return { operandA: a, operandB: b, answer, operation: 'subtraction', symbol: '−', text: `${a} − ${b} = ?` };
-  }
-
-  /** 670 − 40 style: no ones/tens borrow, numbers in 100–999. */
-  private generateSubtractionNoBorrowThousand(): { a: number; b: number } {
-    const aHundreds = this.randomInt(1, 9);
-    const aTens = this.randomInt(1, 9);
-    const aOnes = this.randomInt(0, 9);
-    const bHundreds = this.randomInt(0, aHundreds);
-    const bTens = this.randomInt(0, aTens);
-    const bOnes = this.randomInt(0, aOnes);
-    let a = aHundreds * 100 + aTens * 10 + aOnes;
-    let b = bHundreds * 100 + bTens * 10 + bOnes;
-    if (b < 1) b = this.randomTens(10, aTens * 10);
-    if (a <= b) a = Math.min(ProblemGeneratorService.MAX_ANSWER, b + 10);
-    return { a, b };
-  }
-
-  /** 420 − 50 style: ones = 0, tens digit of a < tens of b (Zehnerunterschreitung). */
-  private generateSubtractionTensBorrowThousand(): { a: number; b: number } {
-    const bTensDigit = this.randomInt(1, 9);
-    const aTensDigit = this.randomInt(0, bTensDigit - 1);
-    const aHundreds = this.randomInt(1, 9);
-    let a = aHundreds * 100 + aTensDigit * 10;
-    const b = bTensDigit * 10; // 10…90
-    // Ensure a > b (need enough hundreds if tens can't cover)
-    if (a <= b) {
-      a = Math.min(ProblemGeneratorService.MAX_ANSWER, (aHundreds + 1) * 100 + aTensDigit * 10);
-    }
-    if (a - b < 1) a = b + 10;
-    return { a, b };
-  }
-
-  /** 530 − 160 style: b ≥ 100, force tens borrow (Hunderterunterschreitung). */
-  private generateSubtractionHundredsBorrowThousand(): { a: number; b: number } {
-    const bHundreds = this.randomInt(1, 7);
-    const bTensDigit = this.randomInt(1, 9);
-    const aTensDigit = this.randomInt(0, bTensDigit - 1);
-    const aHundreds = this.randomInt(bHundreds + 1, 9);
-    const a = aHundreds * 100 + aTensDigit * 10;
-    const b = bHundreds * 100 + bTensDigit * 10;
-    return { a, b };
   }
 
   // ─── Multiplication ───────────────────────────────────────────────────────
@@ -470,7 +392,7 @@ export class ProblemGeneratorService {
 
   /**
    * Minimum Zahlenraum required so addition/subtraction level patterns can appear.
-   * Löwe/Drache need 1000 even if the user setting is still 100.
+   * Löwe (level 5) needs 1000 even if the user setting is still 100.
    */
   minZahlenraumForAddSub(level: number): number {
     if (level <= 1) return 10;
@@ -483,7 +405,7 @@ export class ProblemGeneratorService {
    * levels: per-type level map — defaults to level 2/3 if not provided.
    * allowedNumbers: legacy Set<number> filter for ×/÷ (kept for BalloonPop compatibility).
    * maxValue: optional cap on operands (inclusive). For +/−, raised to at least the
-   *           level's Zahlenraum (so Löwe/Drache are not blocked by a stale "bis 100" setting).
+   *           level's Zahlenraum (so Löwe is not blocked by a stale "bis 100" setting).
    *           Problems outside the effective cap are re-generated (up to 50 retries,
    *           then level 1 is used as fallback).
    */

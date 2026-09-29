@@ -140,7 +140,7 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('level 5 Löwe: hundreds only, operands ≥ 100, result ≤ 999', () => {
+    it('level 5 Löwe: reine Hunderter only, operands ≥ 100, result ≤ 999', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateAddition(5, EXACT);
         expect(p.operandA % 100).toBe(0);
@@ -153,22 +153,21 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('level 6 Drache: ones digit 0, operands ≥ 100, result ≤ 999', () => {
+    it('level 6 alias (Drache disabled): same as reine Hunderter', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateAddition(6, EXACT);
-        expect(p.operandA % 10).toBe(0);
-        expect(p.operandB % 10).toBe(0);
+        expect(p.operandA % 100).toBe(0);
+        expect(p.operandB % 100).toBe(0);
         expect(p.operandA).toBeGreaterThanOrEqual(100);
         expect(p.operandB).toBeGreaterThanOrEqual(100);
-        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
         expect(p.answer).toBe(p.operandA + p.operandB);
       }
     });
 
-    it('mix at level 6: answers stay enterable (≤ 999)', () => {
+    it('mix at level 5: answers stay enterable (≤ 999)', () => {
       service.resetMixCounters();
       for (let i = 0; i < 20; i++) {
-        const p = service.generateAddition(6);
+        const p = service.generateAddition(5);
         expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
         expect(p.answer).toBe(p.operandA + p.operandB);
       }
@@ -220,47 +219,31 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('level 5 Löwe: reine Hunderter ODER ohne Unterschreitung (100–999)', () => {
-      let sawHundreds = false;
-      let sawNoBorrow = false;
+    it('level 5 Löwe: reine Hunderter only (100–900)', () => {
       for (let i = 0; i < RUNS; i++) {
         const p = service.generateSubtraction(5, EXACT);
-        expect(p.operandA).toBeGreaterThanOrEqual(100);
-        expect(p.operandA).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
-        expect(p.operandB).toBeGreaterThanOrEqual(1);
-        expect(p.answer).toBe(p.operandA - p.operandB);
-        expect(p.answer).toBeGreaterThanOrEqual(0);
-        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
-
-        const pureHundreds = p.operandA % 100 === 0 && p.operandB % 100 === 0;
-        const noOnesBorrow = p.operandA % 10 >= p.operandB % 10;
-        const noTensBorrow =
-          Math.floor(p.operandA / 10) % 10 >= Math.floor(p.operandB / 10) % 10;
-        if (pureHundreds) sawHundreds = true;
-        if (noOnesBorrow && noTensBorrow) sawNoBorrow = true;
-        expect(pureHundreds || (noOnesBorrow && noTensBorrow)).toBeTrue();
-      }
-      expect(sawHundreds || sawNoBorrow).toBeTrue();
-    });
-
-    it('level 6 Drache: Zehner- oder Hunderterunterschreitung', () => {
-      for (let i = 0; i < RUNS; i++) {
-        const p = service.generateSubtraction(6, EXACT);
-        expect(p.operandA % 10).toBe(0);
-        expect(p.operandB % 10).toBe(0);
+        expect(p.operandA % 100).toBe(0);
+        expect(p.operandB % 100).toBe(0);
+        expect(p.operandA).toBeGreaterThanOrEqual(200);
+        expect(p.operandB).toBeGreaterThanOrEqual(100);
         expect(p.operandA).toBeGreaterThan(p.operandB);
         expect(p.answer).toBe(p.operandA - p.operandB);
-        expect(p.answer).toBeLessThanOrEqual(ProblemGeneratorService.MAX_ANSWER);
-        // Tens borrow (Unterschreitung): ones already 0, tens digit of a < tens of b
-        const aTens = Math.floor(p.operandA / 10) % 10;
-        const bTens = Math.floor(p.operandB / 10) % 10;
-        expect(aTens).toBeLessThan(bTens);
+        expect(p.answer % 100).toBe(0);
       }
     });
 
-    it('mix at level 6: result always ≥ 0 and operands sane', () => {
+    it('level 6 alias (Drache disabled): same as reine Hunderter', () => {
       for (let i = 0; i < RUNS; i++) {
-        const p = service.generateSubtraction(6);
+        const p = service.generateSubtraction(6, EXACT);
+        expect(p.operandA % 100).toBe(0);
+        expect(p.operandB % 100).toBe(0);
+        expect(p.answer).toBe(p.operandA - p.operandB);
+      }
+    });
+
+    it('mix at level 5: result always ≥ 0 and operands sane', () => {
+      for (let i = 0; i < RUNS; i++) {
+        const p = service.generateSubtraction(5);
         expect(p.answer).toBeGreaterThanOrEqual(0);
         expect(p.answer).toBe(p.operandA - p.operandB);
       }
@@ -528,11 +511,11 @@ describe('ProblemGeneratorService', () => {
       }
     });
 
-    it('maxValue 100 must not block Drache addition (level raises Zahlenraum to 1000)', () => {
+    it('maxValue 100 must not block Löwe addition (level raises Zahlenraum to 1000)', () => {
       service.resetMixCounters();
       let foundThousand = false;
       for (let i = 0; i < 20; i++) {
-        const p = service.generateProblem(['addition'], undefined, { addition: 6 }, 100);
+        const p = service.generateProblem(['addition'], undefined, { addition: 5 }, 100);
         if (p.operandA > 100 || p.operandB > 100 || p.answer > 100) {
           foundThousand = true;
           break;

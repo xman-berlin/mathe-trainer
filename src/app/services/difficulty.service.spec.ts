@@ -36,8 +36,8 @@ describe('DifficultyService', () => {
   });
 
   it('should return correct max levels', () => {
-    expect(service.getMaxLevel('addition')).toBe(6);
-    expect(service.getMaxLevel('subtraction')).toBe(6);
+    expect(service.getMaxLevel('addition')).toBe(5);
+    expect(service.getMaxLevel('subtraction')).toBe(5);
     expect(service.getMaxLevel('multiplication')).toBe(6);
     expect(service.getMaxLevel('division')).toBe(6);
   });
@@ -151,12 +151,12 @@ describe('DifficultyService', () => {
 
   // ─── clearUser ────────────────────────────────────────────────────────────
 
-  it('should reset to defaults after clearUser', async () => {
+  it('should clamp stored addition level 6 down to max 5 on load', async () => {
     mockSupabase.getDifficultyLevels.and.resolveTo({
       addition: { level: 6, streak: 0, recentResults: [] },
     });
     await service.loadForUser('user-1');
-    expect(service.getLevel('addition')).toBe(6);
+    expect(service.getLevel('addition')).toBe(5);
 
     service.clearUser();
     expect(service.getLevel('addition')).toBe(DEFAULT_LEVELS['addition']);

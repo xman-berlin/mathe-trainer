@@ -148,30 +148,36 @@ describe('StatsService', () => {
       expect(service.mathCorrectCount()).toBe(0);
     });
 
-    it('should compute goalProgressPercent', () => {
+    it('should compute goalProgressPercent with per-tile cap', () => {
       for (let i = 0; i < 10; i++) {
         service.recordResult(true, 'addition');
       }
-      // Default goal is 20, so 10/20 = 50%
+      // 10 toward math-uebung (15) + 0 sachaufgaben → 10/20 = 50%
       expect(service.goalProgressPercent()).toBe(50);
     });
 
-    it('should cap goalProgressPercent at 100', () => {
+    it('should not let Übung overflow fill Sachaufgaben progress', () => {
       for (let i = 0; i < 30; i++) {
         service.recordResult(true, 'addition');
       }
-      expect(service.goalProgressPercent()).toBe(100);
+      // capped: 15/15 uebung + 0/5 sach → 15/20 = 75%
+      expect(service.categoryCorrectSum('math')).toBe(15);
+      expect(service.goalProgressPercent()).toBe(75);
+      expect(service.isGoalReached()).toBeFalse();
     });
 
-    it('should detect when goal is reached', () => {
-      for (let i = 0; i < 20; i++) {
+    it('should detect when all tile goals are reached', () => {
+      for (let i = 0; i < 15; i++) {
         service.recordResult(true, 'addition');
+      }
+      for (let i = 0; i < 5; i++) {
+        service.recordResult(true, 'word-problems');
       }
       expect(service.isGoalReached()).toBeTrue();
     });
 
-    it('should not detect goal reached when below', () => {
-      for (let i = 0; i < 19; i++) {
+    it('should not detect goal reached when only one tile is done', () => {
+      for (let i = 0; i < 20; i++) {
         service.recordResult(true, 'addition');
       }
       expect(service.isGoalReached()).toBeFalse();
@@ -204,11 +210,24 @@ describe('StatsService', () => {
       expect(service.clockIncorrectCount()).toBe(3);
     });
 
-    it('should detect clock goal reached', () => {
+    it('should detect clock goal reached only when all tiles are done', () => {
+      for (let i = 0; i < 10; i++) {
+        service.recordResult(true, 'clock-full');
+      }
+      for (let i = 0; i < 5; i++) {
+        service.recordResult(true, 'clock-setClock-full');
+      }
+      for (let i = 0; i < 5; i++) {
+        service.recordResult(true, 'clock-zeitspanne');
+      }
+      expect(service.isClockGoalReached()).toBeTrue();
+    });
+
+    it('should not reach clock goal with only Übung overflow', () => {
       for (let i = 0; i < 20; i++) {
         service.recordResult(true, 'clock-full');
       }
-      expect(service.isClockGoalReached()).toBeTrue();
+      expect(service.isClockGoalReached()).toBeFalse();
     });
   });
 
@@ -238,9 +257,18 @@ describe('StatsService', () => {
       expect(service.deutschIncorrectCount()).toBe(3);
     });
 
-    it('should detect deutsch goal reached', () => {
-      for (let i = 0; i < 20; i++) {
+    it('should detect deutsch goal reached only when all tiles are done', () => {
+      for (let i = 0; i < 10; i++) {
         service.recordResult(true, 'deutsch-rechtschreibung');
+      }
+      for (let i = 0; i < 5; i++) {
+        service.recordResult(true, 'deutsch-wochentage');
+      }
+      for (let i = 0; i < 5; i++) {
+        service.recordResult(true, 'deutsch-monate');
+      }
+      for (let i = 0; i < 5; i++) {
+        service.recordResult(true, 'deutsch-alphabet');
       }
       expect(service.isDeutschGoalReached()).toBeTrue();
     });
@@ -249,34 +277,67 @@ describe('StatsService', () => {
   // ─── Daily Goal ─────────────────────────────────────────────
 
   describe('daily goals', () => {
-    it('should set math daily goal', () => {
+    it('should use catalog defaults as category roll-up', () => {
+      expect(service.currentGoal()).toBe(20); // 15 + 5
+      expect(service.currentClockGoal()).toBe(20); // 10 + 5 + 5
+      expect(service.currentDeutschGoal()).toBe(25); // 10 + 5 + 5 + 5
+      expect(service.currentEnglischGoal()).toBe(20);
+    });
+
+    it('should set per-exercise goals', () => {
+      service.setExerciseGoal('math-uebung', 12);
+      service.setExerciseGoal('math-sachaufgaben', 3);
+      expect(service.goalFor('math-uebung')).toBe(12);
+      expect(service.goalFor('math-sachaufgaben')).toBe(3);
+      expect(service.currentGoal()).toBe(15);
+    });
+
+    it('should clamp per-exercise goal min to 1', () => {
+      service.setExerciseGoal('math-uebung', 0);
+      expect(service.goalFor('math-uebung')).toBe(1);
+    });
+
+    it('should clamp per-exercise goal max to 100', () => {
+      service.setExerciseGoal('math-uebung', 200);
+      expect(service.goalFor('math-uebung')).toBe(100);
+    });
+
+    it('should set category goals via legacy distribute API', () => {
       service.setDailyGoal(50);
       expect(service.currentGoal()).toBe(50);
     });
 
-    it('should clamp math goal min to 1', () => {
+    it('should clamp legacy math goal to at least one per tile', () => {
       service.setDailyGoal(0);
-      expect(service.currentGoal()).toBe(1);
+      expect(service.currentGoal()).toBe(2); // math-uebung + math-sachaufgaben
     });
 
-    it('should clamp math goal max to 100', () => {
+    it('should clamp legacy math goal max to 100', () => {
       service.setDailyGoal(200);
       expect(service.currentGoal()).toBe(100);
     });
 
-    it('should set clock daily goal', () => {
+    it('should set clock daily goal via legacy API', () => {
       service.setClockDailyGoal(30);
       expect(service.currentClockGoal()).toBe(30);
     });
 
-    it('should set deutsch daily goal', () => {
+    it('should set deutsch daily goal via legacy API', () => {
       service.setDeutschDailyGoal(15);
       expect(service.currentDeutschGoal()).toBe(15);
     });
 
-    it('should set Englisch daily goal', () => {
+    it('should set Englisch daily goal via legacy API', () => {
       service.setEnglischDailyGoal(12);
       expect(service.currentEnglischGoal()).toBe(12);
+    });
+
+    it('should exclude hangman from deutsch goal progress', () => {
+      for (let i = 0; i < 25; i++) {
+        service.recordResult(true, 'deutsch-hangman');
+      }
+      expect(service.categoryCorrectSum('deutsch')).toBe(0);
+      expect(service.isDeutschGoalReached()).toBeFalse();
     });
   });
 
@@ -389,7 +450,8 @@ describe('StatsService', () => {
         jasmine.any(Number),
         jasmine.any(Number),
         250,
-        jasmine.any(Number)
+        jasmine.any(Number),
+        jasmine.any(Object)
       );
     });
 

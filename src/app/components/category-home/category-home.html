@@ -12,38 +12,16 @@
   </div>
 
   <section class="content-area">
-    <!-- Kategorien zuerst -->
     <div class="categories-section">
-      @if (practicePlan.isActive()) {
-        <div class="plan-heading">
-          <h2>Übungsplan läuft</h2>
-          <p class="plan-progress">{{ practicePlan.progressLabel() }}</p>
-          <div class="plan-actions">
-            <button type="button" class="plan-start-btn" (click)="resumePracticePlan()">
-              Weiterüben
-            </button>
-            <button type="button" class="plan-cancel-btn" (click)="cancelPracticePlan()">
-              Abbrechen
-            </button>
-          </div>
-        </div>
-      } @else {
-        <div class="plan-heading">
-          <h2>
-            Wähle eine Kategorie
-            <span class="plan-or">oder</span>
-            <button type="button" class="plan-start-btn" (click)="startPracticePlan()">
-              Übung starten
-            </button>
-          </h2>
-          <p class="plan-hint">
-            Mathe {{ stats.currentGoal() }} · Deutsch {{ stats.currentDeutschGoal() }} ·
-            Wochentage/Monate/Alphabet je 5 · Uhrzeit {{ stats.currentClockGoal() }}
-          </p>
-        </div>
-      }
+      <div class="plan-heading">
+        <h2>Wähle eine Kategorie</h2>
+      </div>
       <div class="category-cards">
-        <a routerLink="/mathe" class="category-card mathe-card">
+        <a
+          routerLink="/mathe"
+          class="category-card mathe-card"
+          [class.category-card--goal-done]="isMathGoalReached()"
+        >
           <div class="card-icon">📐</div>
           <h3>Mathe</h3>
           <p>Addition, Subtraktion, Multiplikation & Division</p>
@@ -52,14 +30,35 @@
               <span class="stat-correct">✓ {{ mathCorrectCount() }}</span>
               <span class="stat-incorrect">✗ {{ mathIncorrectCount() }}</span>
             </div>
-            <div class="stats-goal">Ziel: {{ mathCorrectCount() }}/{{ stats.currentGoal() }}</div>
-            <div class="stats-progress-bar">
-              <div class="stats-progress-fill" [style.width.%]="mathGoalProgressPercent()"></div>
-            </div>
+            <div class="stats-goal">Ziel: {{ mathGoalProgressCorrect() }}/{{ mathGoalTotal() }}</div>
+            @if (isMathGoalReached()) {
+              <div class="goal-done-block" aria-label="Tagesziel erreicht">
+                <svg class="goal-done-check" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+                  <circle cx="26" cy="26" r="24" fill="#22c55e" stroke="#16a34a" stroke-width="2" />
+                  <path
+                    d="M14 27 l8 8 16-18"
+                    fill="none"
+                    stroke="#fff"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span class="goal-done-label">Geschafft!</span>
+              </div>
+            } @else {
+              <div class="stats-progress-bar">
+                <div class="stats-progress-fill" [style.width.%]="mathGoalProgressPercent()"></div>
+              </div>
+            }
           </div>
         </a>
 
-        <a routerLink="/uhrzeit" class="category-card uhrzeit-card">
+        <a
+          routerLink="/uhrzeit"
+          class="category-card uhrzeit-card"
+          [class.category-card--goal-done]="isClockGoalReached()"
+        >
           <div class="card-icon">🕐</div>
           <h3>Uhrzeit lernen</h3>
           <p>Lerne die Uhr zu lesen</p>
@@ -68,48 +67,114 @@
               <span class="stat-correct">✓ {{ clockCorrectCount() }}</span>
               <span class="stat-incorrect">✗ {{ clockIncorrectCount() }}</span>
             </div>
-            <div class="stats-goal">Ziel: {{ clockCorrectCount() }}/{{ stats.currentClockGoal() }}</div>
-            <div class="stats-progress-bar">
-              <div class="stats-progress-fill" [style.width.%]="clockGoalProgressPercent()"></div>
-            </div>
+            <div class="stats-goal">Ziel: {{ clockGoalProgressCorrect() }}/{{ clockGoalTotal() }}</div>
+            @if (isClockGoalReached()) {
+              <div class="goal-done-block" aria-label="Tagesziel erreicht">
+                <svg class="goal-done-check" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+                  <circle cx="26" cy="26" r="24" fill="#22c55e" stroke="#16a34a" stroke-width="2" />
+                  <path
+                    d="M14 27 l8 8 16-18"
+                    fill="none"
+                    stroke="#fff"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span class="goal-done-label">Geschafft!</span>
+              </div>
+            } @else {
+              <div class="stats-progress-bar">
+                <div class="stats-progress-fill" [style.width.%]="clockGoalProgressPercent()"></div>
+              </div>
+            }
           </div>
         </a>
 
-        <a routerLink="/deutsch" class="category-card vokabeln-card">
+        <a
+          routerLink="/deutsch"
+          class="category-card vokabeln-card"
+          [class.category-card--goal-done]="isDeutschGoalReached()"
+        >
           <div class="card-icon">📖</div>
           <h3>Deutsch</h3>
           <p>Wörter hören und richtig schreiben</p>
           <div class="card-stats">
             <div class="stats-badges">
-              <span class="stat-correct">✓ {{ stats.deutschCorrectCount() }}</span>
+              <span class="stat-correct">✓ {{ deutschCorrectCount() }}</span>
               <span class="stat-incorrect">✗ {{ deutschIncorrectCount() }}</span>
             </div>
-            <div class="stats-goal">Ziel: {{ stats.deutschCorrectCount() }}/{{ stats.currentDeutschGoal() }}</div>
-            <div class="stats-progress-bar">
-              <div class="stats-progress-fill" [style.width.%]="stats.deutschGoalProgressPercent()"></div>
-            </div>
+            <div class="stats-goal">Ziel: {{ deutschGoalProgressCorrect() }}/{{ deutschGoalTotal() }}</div>
+            @if (isDeutschGoalReached()) {
+              <div class="goal-done-block" aria-label="Tagesziel erreicht">
+                <svg class="goal-done-check" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+                  <circle cx="26" cy="26" r="24" fill="#22c55e" stroke="#16a34a" stroke-width="2" />
+                  <path
+                    d="M14 27 l8 8 16-18"
+                    fill="none"
+                    stroke="#fff"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span class="goal-done-label">Geschafft!</span>
+              </div>
+            } @else {
+              <div class="stats-progress-bar">
+                <div
+                  class="stats-progress-fill"
+                  [style.width.%]="deutschGoalProgressPercent()"
+                ></div>
+              </div>
+            }
           </div>
         </a>
 
-        <a routerLink="/englisch" class="category-card englisch-card">
+        <a
+          routerLink="/englisch"
+          class="category-card englisch-card"
+          [class.category-card--goal-done]="isEnglischGoalReached()"
+        >
           <div class="card-icon">🇬🇧</div>
           <h3>Englisch</h3>
           <p>Englisch sehen und hören, Deutsch tippen</p>
           <div class="card-stats">
             <div class="stats-badges">
-              <span class="stat-correct">✓ {{ stats.englischCorrectCount() }}</span>
+              <span class="stat-correct">✓ {{ englischCorrectCount() }}</span>
               <span class="stat-incorrect">✗ {{ englischIncorrectCount() }}</span>
             </div>
-            <div class="stats-goal">Ziel: {{ stats.englischCorrectCount() }}/{{ stats.currentEnglischGoal() }}</div>
-            <div class="stats-progress-bar">
-              <div class="stats-progress-fill" [style.width.%]="stats.englischGoalProgressPercent()"></div>
+            <div class="stats-goal">
+              Ziel: {{ englischGoalProgressCorrect() }}/{{ englischGoalTotal() }}
             </div>
+            @if (isEnglischGoalReached()) {
+              <div class="goal-done-block" aria-label="Tagesziel erreicht">
+                <svg class="goal-done-check" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+                  <circle cx="26" cy="26" r="24" fill="#22c55e" stroke="#16a34a" stroke-width="2" />
+                  <path
+                    d="M14 27 l8 8 16-18"
+                    fill="none"
+                    stroke="#fff"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span class="goal-done-label">Geschafft!</span>
+              </div>
+            } @else {
+              <div class="stats-progress-bar">
+                <div
+                  class="stats-progress-fill"
+                  [style.width.%]="englischGoalProgressPercent()"
+                ></div>
+              </div>
+            }
           </div>
         </a>
       </div>
     </div>
 
-    <!-- Daily Streak Display -->
     <app-streak-display />
   </section>
 
@@ -117,45 +182,3 @@
     <p>&copy; 2026 Schlaufuchs. Alle Rechte vorbehalten.</p>
   </footer>
 </div>
-
-@if (showGoalEditor()) {
-  <div class="modal-overlay" (click)="cancelGoalEdit()" (keydown.escape)="cancelGoalEdit()" role="dialog" aria-modal="true" tabindex="-1">
-    <div class="goal-editor-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="document">
-      <h3>Mathe Tagesziel festlegen</h3>
-      <p>Wie viele Mathe-Aufgaben möchtest du heute richtig lösen?</p>
-      <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
-      <div class="modal-actions">
-        <button class="primary-btn" (click)="saveGoal()">Speichern</button>
-        <button class="secondary-btn" (click)="cancelGoalEdit()">Abbrechen</button>
-      </div>
-    </div>
-  </div>
-}
-
-@if (showClockGoalEditor()) {
-  <div class="modal-overlay" (click)="cancelClockGoalEdit()" (keydown.escape)="cancelClockGoalEdit()" role="dialog" aria-modal="true" tabindex="-1">
-    <div class="goal-editor-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="document">
-      <h3>Uhrzeit Tagesziel festlegen</h3>
-      <p>Wie viele Uhrzeit-Aufgaben möchtest du heute richtig lösen?</p>
-      <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
-      <div class="modal-actions">
-        <button class="primary-btn" (click)="saveClockGoal()">Speichern</button>
-        <button class="secondary-btn" (click)="cancelClockGoalEdit()">Abbrechen</button>
-      </div>
-    </div>
-  </div>
-}
-
-@if (showDeutschGoalEditor()) {
-  <div class="modal-overlay" (click)="cancelDeutschGoalEdit()" (keydown.escape)="cancelDeutschGoalEdit()" role="dialog" aria-modal="true" tabindex="-1">
-    <div class="goal-editor-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="document">
-      <h3>Deutsch Tagesziel festlegen</h3>
-      <p>Wie viele Wörter möchtest du heute richtig schreiben?</p>
-      <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
-      <div class="modal-actions">
-        <button class="primary-btn" (click)="saveDeutschGoal()">Speichern</button>
-        <button class="secondary-btn" (click)="cancelDeutschGoalEdit()">Abbrechen</button>
-      </div>
-    </div>
-  </div>
-}

@@ -4,6 +4,19 @@ import { AuthService } from './auth.service';
 import { DailyStreakService } from './daily-streak.service';
 import { CoinsService } from './coins.service';
 import { BadgeService } from './badge.service';
+import {
+  PracticeCategory,
+  catalogDefaults,
+  clampDailyGoal,
+  correctCountForCategory,
+  correctCountForTile,
+  cappedCorrectCountForCategory,
+  allTileGoalsReached,
+  findTileById,
+  mergeGoalsWithDefaults,
+  sumGoalsForCategory,
+  tilesForCategory,
+} from '../models/practice-exercise.catalog';
 
 interface ExerciseTypeStats {
   correct: number;
@@ -19,6 +32,7 @@ interface DailyStats {
   clockDailyGoal?: number; // Optional for backward compatibility
   vocabDailyGoal?: number;
   englischDailyGoal?: number;
+  goalsByExercise?: Record<string, number>;
 }
 
 interface LifetimeStats {
@@ -31,6 +45,7 @@ export class StatsService {
   private readonly storageKey = 'schlaufuchs-stats';
   private readonly lifetimeStorageKey = 'schlaufuchs-lifetime-stats';
   private readonly numberRangeStorageKey = 'schlaufuchs-number-range';
+  private readonly goalsStorageKey = 'schlaufuchs-daily-goals-by-exercise';
 
   // Server sync dependencies - not optional, circular dep resolved by lazy loading
   private supabase = inject(SupabaseService);
@@ -49,10 +64,7 @@ export class StatsService {
 
   private date = signal(this.today());
   private byType = signal<Record<string, ExerciseTypeStats>>({});
-  private dailyGoal = signal(20); // Default goal for math
-  private clockDailyGoal = signal(20); // Default goal for clock
-  private vocabDailyGoal = signal(20); // Default goal for Deutsch category
-  private englischDailyGoal = signal(10); // Default goal for Englisch category
+  private goalsByExercise = signal<Record<string, number>>(catalogDefaults());
   private mathNumberRange = signal(100); // Default number range for math exercises
   private lifetimeByType = signal<Record<string, number>>({});
   private bestStreaksByTypeSignal = signal<Record<string, number>>({});
@@ -61,10 +73,9 @@ export class StatsService {
   private readonly mathTypes = ['addition', 'subtraction', 'multiplication', 'division', 'word-problems'];
   // Clock exercise types
   private readonly clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf', 'clock-zeitspanne', 'clock-verspaetung'];
-  // Vocab exercise types start with 'vocab-'
 
   readonly statsByType = this.byType.asReadonly();
-  readonly currentGoal = this.dailyGoal.asReadonly();
+  readonly goalsByExerciseMap = this.goalsByExercise.asReadonly();
   readonly lifetimeStatsByType = this.lifetimeByType.asReadonly();
   readonly currentMathNumberRange = this.mathNumberRange.asReadonly();
 
@@ -87,10 +98,14 @@ export class StatsService {
     return total;
   });
 
-  readonly goalProgressPercent = computed(() =>
-    Math.min(100, Math.round((this.mathCorrectCount() / this.dailyGoal()) * 100))
-  );
-  readonly isGoalReached = computed(() => this.mathCorrectCount() >= this.dailyGoal());
+  /** Category roll-up goal (sum of per-tile goals) */
+  readonly currentGoal = computed(() => this.categoryGoalSum('math'));
+  readonly goalProgressPercent = computed(() => {
+    const goal = this.currentGoal();
+    if (goal <= 0) return 0;
+    return Math.min(100, Math.round((this.categoryCorrectSum('math') / goal) * 100));
+  });
+  readonly isGoalReached = computed(() => this.isCategoryGoalReached('math'));
 
   // Clock-specific stats
   readonly clockCorrectCount = computed(() => {
@@ -111,14 +126,16 @@ export class StatsService {
     return total;
   });
 
-  readonly currentClockGoal = this.clockDailyGoal.asReadonly();
-  readonly clockGoalProgressPercent = computed(() =>
-    Math.min(100, Math.round((this.clockCorrectCount() / this.clockDailyGoal()) * 100))
-  );
-  readonly isClockGoalReached = computed(() => this.clockCorrectCount() >= this.clockDailyGoal());
+  readonly currentClockGoal = computed(() => this.categoryGoalSum('clock'));
+  readonly clockGoalProgressPercent = computed(() => {
+    const goal = this.currentClockGoal();
+    if (goal <= 0) return 0;
+    return Math.min(100, Math.round((this.categoryCorrectSum('clock') / goal) * 100));
+  });
+  readonly isClockGoalReached = computed(() => this.isCategoryGoalReached('clock'));
   readonly bestStreaksByType = this.bestStreaksByTypeSignal.asReadonly();
 
-  // Deutsch-specific stats (exercise type: 'deutsch-rechtschreibung', future: 'deutsch-artikel')
+  // Deutsch-specific stats (includes hangman for badges; goals exclude hangman via catalog)
   readonly deutschCorrectCount = computed(() => {
     const types = this.byType();
     let total = 0;
@@ -141,11 +158,13 @@ export class StatsService {
     return total;
   });
 
-  readonly currentDeutschGoal = this.vocabDailyGoal.asReadonly();
-  readonly deutschGoalProgressPercent = computed(() =>
-    Math.min(100, Math.round((this.deutschCorrectCount() / this.vocabDailyGoal()) * 100))
-  );
-  readonly isDeutschGoalReached = computed(() => this.deutschCorrectCount() >= this.vocabDailyGoal());
+  readonly currentDeutschGoal = computed(() => this.categoryGoalSum('deutsch'));
+  readonly deutschGoalProgressPercent = computed(() => {
+    const goal = this.currentDeutschGoal();
+    if (goal <= 0) return 0;
+    return Math.min(100, Math.round((this.categoryCorrectSum('deutsch') / goal) * 100));
+  });
+  readonly isDeutschGoalReached = computed(() => this.isCategoryGoalReached('deutsch'));
 
   // Englisch-specific stats (exercise type: 'englisch-uebersetzung')
   readonly englischCorrectCount = computed(() => {
@@ -170,18 +189,82 @@ export class StatsService {
     return total;
   });
 
-  readonly currentEnglischGoal = this.englischDailyGoal.asReadonly();
-  readonly englischGoalProgressPercent = computed(() =>
-    Math.min(100, Math.round((this.englischCorrectCount() / this.englischDailyGoal()) * 100))
-  );
-  readonly isEnglischGoalReached = computed(() => this.englischCorrectCount() >= this.englischDailyGoal());
+  readonly currentEnglischGoal = computed(() => this.categoryGoalSum('englisch'));
+  readonly englischGoalProgressPercent = computed(() => {
+    const goal = this.currentEnglischGoal();
+    if (goal <= 0) return 0;
+    return Math.min(100, Math.round((this.categoryCorrectSum('englisch') / goal) * 100));
+  });
+  readonly isEnglischGoalReached = computed(() => this.isCategoryGoalReached('englisch'));
 
   constructor() {
     this.load();
     this.loadLifetime();
+    this.loadGoalsFromStorage();
 
     // Load from server if authenticated
     this.loadFromServerIfAuthenticated();
+  }
+
+  goalFor(exerciseId: string): number {
+    const tile = findTileById(exerciseId);
+    return this.goalsByExercise()[exerciseId] ?? tile?.defaultDailyGoal ?? 1;
+  }
+
+  correctFor(exerciseId: string): number {
+    const tile = findTileById(exerciseId);
+    if (!tile) return 0;
+    return correctCountForTile(this.byType(), tile);
+  }
+
+  isExerciseGoalReached(exerciseId: string): boolean {
+    return this.correctFor(exerciseId) >= this.goalFor(exerciseId);
+  }
+
+  categoryGoalSum(category: PracticeCategory): number {
+    return sumGoalsForCategory(this.goalsByExercise(), category);
+  }
+
+  /**
+   * Capped correct count for category progress (overflow on one tile does not
+   * fill another tile's share of the roll-up).
+   */
+  categoryCorrectSum(category: PracticeCategory): number {
+    return cappedCorrectCountForCategory(this.byType(), this.goalsByExercise(), category);
+  }
+
+  /** Raw uncapped correct across goal tiles (diagnostics / badges). */
+  categoryRawCorrectSum(category: PracticeCategory): number {
+    return correctCountForCategory(this.byType(), category);
+  }
+
+  isCategoryGoalReached(category: PracticeCategory): boolean {
+    return allTileGoalsReached(this.byType(), this.goalsByExercise(), category);
+  }
+
+  setExerciseGoal(exerciseId: string, count: number): void {
+    if (!findTileById(exerciseId)) return;
+    this.goalsByExercise.set({
+      ...this.goalsByExercise(),
+      [exerciseId]: clampDailyGoal(count),
+    });
+    this.persistGoals();
+    this.persist();
+    this.syncGoalsToServer();
+  }
+
+  /** Replace goals for one category (modal save). Other categories unchanged. */
+  setGoalsForCategory(category: PracticeCategory, values: Record<string, number>): void {
+    const next = { ...this.goalsByExercise() };
+    for (const tile of tilesForCategory(category)) {
+      if (values[tile.id] !== undefined) {
+        next[tile.id] = clampDailyGoal(values[tile.id]);
+      }
+    }
+    this.goalsByExercise.set(next);
+    this.persistGoals();
+    this.persist();
+    this.syncGoalsToServer();
   }
 
   recordResult(isCorrect: boolean, exerciseType = 'addition') {
@@ -230,36 +313,46 @@ export class StatsService {
     this.syncToServer();
   }
 
+  /**
+   * Legacy API: distribute a category total across that category's tiles
+   * proportional to catalog defaults (keeps sum ≈ count).
+   */
   setDailyGoal(count: number): void {
-    if (count < 1) count = 1;
-    if (count > 100) count = 100;
-    this.dailyGoal.set(count);
-    this.persist();
-    this.syncGoalsToServer();
+    this.distributeCategoryGoal('math', count);
   }
 
   setClockDailyGoal(count: number): void {
-    if (count < 1) count = 1;
-    if (count > 100) count = 100;
-    this.clockDailyGoal.set(count);
-    this.persist();
-    this.syncGoalsToServer();
+    this.distributeCategoryGoal('clock', count);
   }
 
   setDeutschDailyGoal(count: number): void {
-    if (count < 1) count = 1;
-    if (count > 100) count = 100;
-    this.vocabDailyGoal.set(count);
-    this.persist();
-    this.syncGoalsToServer();
+    this.distributeCategoryGoal('deutsch', count);
   }
 
   setEnglischDailyGoal(count: number): void {
-    if (count < 1) count = 1;
-    if (count > 100) count = 100;
-    this.englischDailyGoal.set(count);
-    this.persist();
-    this.syncGoalsToServer();
+    this.distributeCategoryGoal('englisch', count);
+  }
+
+  private distributeCategoryGoal(category: PracticeCategory, count: number): void {
+    const tiles = tilesForCategory(category);
+    if (tiles.length === 0) return;
+    // Minimum achievable sum is 1 per tile
+    const total = Math.max(tiles.length, clampDailyGoal(count));
+    const defaultSum = tiles.reduce((s, t) => s + t.defaultDailyGoal, 0);
+    const values: Record<string, number> = {};
+    let assigned = 0;
+    tiles.forEach((tile, index) => {
+      if (index === tiles.length - 1) {
+        values[tile.id] = Math.max(1, total - assigned);
+      } else {
+        const remainingSlots = tiles.length - index - 1;
+        const ideal = Math.max(1, Math.round((total * tile.defaultDailyGoal) / defaultSum));
+        const capped = Math.min(ideal, Math.max(1, total - assigned - remainingSlots));
+        values[tile.id] = capped;
+        assigned += capped;
+      }
+    });
+    this.setGoalsForCategory(category, values);
   }
 
   setMathNumberRange(value: number): void {
@@ -281,8 +374,7 @@ export class StatsService {
     this.clockGoalBonusAwarded.set(false);
     this.deutschGoalBonusAwarded.set(false);
     this.englischGoalBonusAwarded.set(false);
-    // Note: goal signals (dailyGoal, clockDailyGoal, vocabDailyGoal, englischDailyGoal) are preserved
-    // across days — they are user preferences, not daily counters.
+    // Goals are user preferences — preserved across days
     this.persist();
   }
 
@@ -297,6 +389,28 @@ export class StatsService {
   private ensureToday() {
     if (this.date() !== this.today()) {
       this.resetToday();
+    }
+  }
+
+  private loadGoalsFromStorage(): void {
+    try {
+      const raw = localStorage.getItem(this.goalsStorageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Record<string, number>;
+        this.goalsByExercise.set(mergeGoalsWithDefaults(parsed));
+        return;
+      }
+    } catch {
+      // fall through to defaults
+    }
+    this.goalsByExercise.set(catalogDefaults());
+  }
+
+  private persistGoals(): void {
+    try {
+      localStorage.setItem(this.goalsStorageKey, JSON.stringify(this.goalsByExercise()));
+    } catch {
+      // ignore storage errors
     }
   }
 
@@ -325,17 +439,9 @@ export class StatsService {
       // Only load if it has the new byType structure
       if (parsed.byType && Object.keys(parsed.byType).length > 0) {
         this.byType.set(parsed.byType);
-        if (parsed.dailyGoal) {
-          this.dailyGoal.set(parsed.dailyGoal);
-        }
-        if (parsed.clockDailyGoal) {
-          this.clockDailyGoal.set(parsed.clockDailyGoal);
-        }
-        if (parsed.vocabDailyGoal) {
-          this.vocabDailyGoal.set(parsed.vocabDailyGoal);
-        }
-        if (parsed.englischDailyGoal) {
-          this.englischDailyGoal.set(parsed.englischDailyGoal);
+        if (parsed.goalsByExercise) {
+          this.goalsByExercise.set(mergeGoalsWithDefaults(parsed.goalsByExercise));
+          this.persistGoals();
         }
       } else {
         // Old format detected, reset to start fresh with new structure
@@ -350,10 +456,11 @@ export class StatsService {
     const payload: DailyStats = {
       date: this.date(),
       byType: this.byType(),
-      dailyGoal: this.dailyGoal(),
-      clockDailyGoal: this.clockDailyGoal(),
-      vocabDailyGoal: this.vocabDailyGoal(),
-      englischDailyGoal: this.englischDailyGoal(),
+      dailyGoal: this.currentGoal(),
+      clockDailyGoal: this.currentClockGoal(),
+      vocabDailyGoal: this.currentDeutschGoal(),
+      englischDailyGoal: this.currentEnglischGoal(),
+      goalsByExercise: this.goalsByExercise(),
     };
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(payload));
@@ -444,10 +551,7 @@ export class StatsService {
   clearUserData(): void {
     this.date.set(this.today());
     this.byType.set({});
-    this.dailyGoal.set(20);
-    this.clockDailyGoal.set(20);
-    this.vocabDailyGoal.set(20);
-    this.englischDailyGoal.set(10);
+    this.goalsByExercise.set(catalogDefaults());
     this.mathNumberRange.set(100);
     this.lifetimeByType.set({});
     this.bestStreaksByTypeSignal.set({});
@@ -457,6 +561,7 @@ export class StatsService {
     localStorage.removeItem(this.storageKey);
     localStorage.removeItem(this.lifetimeStorageKey);
     localStorage.removeItem(this.numberRangeStorageKey);
+    localStorage.removeItem(this.goalsStorageKey);
   }
 
   // ============================================================================
@@ -495,10 +600,12 @@ export class StatsService {
 
       // Load user preferences (goals)
       const user = this.auth.currentUser()!;
-      if (user.math_daily_goal) this.dailyGoal.set(user.math_daily_goal);
-      if (user.clock_daily_goal) this.clockDailyGoal.set(user.clock_daily_goal);
-      if (user.vocab_daily_goal) this.vocabDailyGoal.set(user.vocab_daily_goal);
-      if (user.englisch_daily_goal) this.englischDailyGoal.set(user.englisch_daily_goal);
+      if (user.daily_goals_by_exercise && Object.keys(user.daily_goals_by_exercise).length > 0) {
+        this.goalsByExercise.set(mergeGoalsWithDefaults(user.daily_goals_by_exercise));
+      } else {
+        this.goalsByExercise.set(catalogDefaults());
+      }
+      this.persistGoals();
       if (user.math_number_range && user.math_number_range >= 100) {
         this.mathNumberRange.set(user.math_number_range);
         try { localStorage.setItem(this.numberRangeStorageKey, String(user.math_number_range)); } catch { /* ignore */ }
@@ -567,10 +674,10 @@ export class StatsService {
       const dailyStats = {
         date: this.date(),
         stats_by_type: this.byType(),
-        math_daily_goal: this.dailyGoal(),
-        clock_daily_goal: this.clockDailyGoal(),
-        vocab_daily_goal: this.vocabDailyGoal(),
-        englisch_daily_goal: this.englischDailyGoal(),
+        math_daily_goal: this.currentGoal(),
+        clock_daily_goal: this.currentClockGoal(),
+        vocab_daily_goal: this.currentDeutschGoal(),
+        englisch_daily_goal: this.currentEnglischGoal(),
       };
 
       // Upsert daily stats
@@ -596,21 +703,24 @@ export class StatsService {
     }
     try {
       const userId = this.auth.currentUser()!.id;
+      const goals = this.goalsByExercise();
       await this.supabase.updateUserGoals(
         userId,
-        this.dailyGoal(),
-        this.clockDailyGoal(),
-        this.vocabDailyGoal(),
+        this.currentGoal(),
+        this.currentClockGoal(),
+        this.currentDeutschGoal(),
         this.mathNumberRange(),
-        this.englischDailyGoal()
+        this.currentEnglischGoal(),
+        goals
       );
       // Keep the cached user in sync so that a page refresh loads the latest values
       this.auth.updateCurrentUserCache({
-        math_daily_goal: this.dailyGoal(),
-        clock_daily_goal: this.clockDailyGoal(),
-        vocab_daily_goal: this.vocabDailyGoal(),
-        englisch_daily_goal: this.englischDailyGoal(),
+        math_daily_goal: this.currentGoal(),
+        clock_daily_goal: this.currentClockGoal(),
+        vocab_daily_goal: this.currentDeutschGoal(),
+        englisch_daily_goal: this.currentEnglischGoal(),
         math_number_range: this.mathNumberRange(),
+        daily_goals_by_exercise: goals,
       });
     } catch {
       // Don't throw - sync is non-critical
@@ -663,7 +773,7 @@ export class StatsService {
 
     const isMathType = this.mathTypes.includes(exerciseType);
     const isClockType = this.clockTypes.includes(exerciseType);
-    const isDeutschType = exerciseType.startsWith('deutsch-');
+    const isDeutschType = exerciseType.startsWith('deutsch-') && exerciseType !== 'deutsch-hangman';
     const isEnglischType = exerciseType.startsWith('englisch-');
 
     // Check math goal bonus

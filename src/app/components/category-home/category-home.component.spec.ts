@@ -1,78 +1,92 @@
-import { provideZonelessChangeDetection, signal, Signal } from '@angular/core';
+import { computed, provideZonelessChangeDetection, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CategoryHomeComponent } from './category-home';
 import { StatsService } from '../../services/stats.service';
 import { CoinsService } from '../../services/coins.service';
-import { PracticePlanService } from '../../services/practice-plan.service';
 import { DailyStreakService } from '../../services/daily-streak.service';
 import { STREAK_MILESTONES } from '../../models/daily-streak.model';
-
-interface MockStatsService {
-  statsByType: Signal<Record<string, { correct: number; incorrect: number }>>;
-  currentGoal: Signal<number>;
-  currentClockGoal: Signal<number>;
-  currentDeutschGoal: Signal<number>;
-  currentEnglischGoal: Signal<number>;
-  mathCorrectCount: Signal<number>;
-  goalProgressPercent: Signal<number>;
-  isGoalReached: Signal<boolean>;
-  clockCorrectCount: Signal<number>;
-  clockGoalProgressPercent: Signal<number>;
-  isClockGoalReached: Signal<boolean>;
-  deutschCorrectCount: Signal<number>;
-  deutschGoalProgressPercent: Signal<number>;
-  isDeutschGoalReached: Signal<boolean>;
-  englischCorrectCount: Signal<number>;
-  englischGoalProgressPercent: Signal<number>;
-  isEnglischGoalReached: Signal<boolean>;
-  setDailyGoal: jasmine.Spy;
-  setClockDailyGoal: jasmine.Spy;
-  setDeutschDailyGoal: jasmine.Spy;
-}
+import { PracticeCategory } from '../../models/practice-exercise.catalog';
 
 describe('CategoryHomeComponent', () => {
   let component: CategoryHomeComponent;
   let fixture: ComponentFixture<CategoryHomeComponent>;
-  let mockStatsService: MockStatsService;
-  let byTypeSignal: ReturnType<typeof signal<Record<string, { correct: number; incorrect: number }>>>;
+  let byTypeSignal: ReturnType<
+    typeof signal<Record<string, { correct: number; incorrect: number }>>
+  >;
+  let isGoalReachedSignal: ReturnType<typeof signal<boolean>>;
 
   beforeEach(() => {
     byTypeSignal = signal<Record<string, { correct: number; incorrect: number }>>({});
-    const dailyGoalSignal = signal(20);
-    const clockGoalSignal = signal(20);
-    const deutschGoalSignal = signal(10);
-    const englischGoalSignal = signal(10);
+    isGoalReachedSignal = signal(false);
 
-    mockStatsService = {
+    const mockStats = {
       statsByType: byTypeSignal.asReadonly(),
-      currentGoal: dailyGoalSignal.asReadonly(),
-      currentClockGoal: clockGoalSignal.asReadonly(),
-      currentDeutschGoal: deutschGoalSignal.asReadonly(),
-      currentEnglischGoal: englischGoalSignal.asReadonly(),
-      mathCorrectCount: signal(0).asReadonly(),
+      mathCorrectCount: computed(() => {
+        const types = byTypeSignal();
+        return ['addition', 'subtraction', 'multiplication', 'division', 'word-problems'].reduce(
+          (s, k) => s + (types[k]?.correct ?? 0),
+          0
+        );
+      }),
+      mathIncorrectCount: computed(() => {
+        const types = byTypeSignal();
+        return ['addition', 'subtraction', 'multiplication', 'division', 'word-problems'].reduce(
+          (s, k) => s + (types[k]?.incorrect ?? 0),
+          0
+        );
+      }),
+      clockCorrectCount: computed(() => {
+        const types = byTypeSignal();
+        return Object.entries(types)
+          .filter(([k]) => k.startsWith('clock-'))
+          .reduce((s, [, v]) => s + (v.correct ?? 0), 0);
+      }),
+      clockIncorrectCount: computed(() => {
+        const types = byTypeSignal();
+        return Object.entries(types)
+          .filter(([k]) => k.startsWith('clock-'))
+          .reduce((s, [, v]) => s + (v.incorrect ?? 0), 0);
+      }),
+      deutschCorrectCount: computed(() => {
+        const types = byTypeSignal();
+        return Object.entries(types)
+          .filter(([k]) => k.startsWith('deutsch-'))
+          .reduce((s, [, v]) => s + (v.correct ?? 0), 0);
+      }),
+      deutschIncorrectCount: computed(() => {
+        const types = byTypeSignal();
+        return Object.entries(types)
+          .filter(([k]) => k.startsWith('deutsch-'))
+          .reduce((s, [, v]) => s + (v.incorrect ?? 0), 0);
+      }),
+      englischCorrectCount: computed(() => {
+        const types = byTypeSignal();
+        return Object.entries(types)
+          .filter(([k]) => k.startsWith('englisch-'))
+          .reduce((s, [, v]) => s + (v.correct ?? 0), 0);
+      }),
+      englischIncorrectCount: computed(() => {
+        const types = byTypeSignal();
+        return Object.entries(types)
+          .filter(([k]) => k.startsWith('englisch-'))
+          .reduce((s, [, v]) => s + (v.incorrect ?? 0), 0);
+      }),
       goalProgressPercent: signal(0).asReadonly(),
-      isGoalReached: signal(false).asReadonly(),
-      clockCorrectCount: signal(0).asReadonly(),
+      isGoalReached: isGoalReachedSignal.asReadonly(),
       clockGoalProgressPercent: signal(0).asReadonly(),
       isClockGoalReached: signal(false).asReadonly(),
-      deutschCorrectCount: signal(0).asReadonly(),
       deutschGoalProgressPercent: signal(0).asReadonly(),
       isDeutschGoalReached: signal(false).asReadonly(),
-      englischCorrectCount: signal(0).asReadonly(),
       englischGoalProgressPercent: signal(0).asReadonly(),
       isEnglischGoalReached: signal(false).asReadonly(),
-      setDailyGoal: jasmine.createSpy('setDailyGoal'),
-      setClockDailyGoal: jasmine.createSpy('setClockDailyGoal'),
-      setDeutschDailyGoal: jasmine.createSpy('setDeutschDailyGoal'),
-    };
-
-    const mockPracticePlan = {
-      isActive: signal(false).asReadonly(),
-      progressLabel: signal('').asReadonly(),
-      startFromDailyGoals: jasmine.createSpy('startFromDailyGoals'),
-      resume: jasmine.createSpy('resume'),
-      cancel: jasmine.createSpy('cancel'),
+      categoryCorrectSum: (_cat: PracticeCategory) => 0,
+      categoryGoalSum: (cat: PracticeCategory) => {
+        if (cat === 'math') return 20;
+        if (cat === 'clock') return 20;
+        if (cat === 'deutsch') return 25;
+        return 20;
+      },
     };
 
     const mockStreakService = {
@@ -89,9 +103,8 @@ describe('CategoryHomeComponent', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideRouter([]),
-        { provide: StatsService, useValue: mockStatsService },
+        { provide: StatsService, useValue: mockStats },
         { provide: CoinsService, useValue: { balance: signal(42).asReadonly() } },
-        { provide: PracticePlanService, useValue: mockPracticePlan },
         { provide: DailyStreakService, useValue: mockStreakService },
       ],
     });
@@ -122,27 +135,6 @@ describe('CategoryHomeComponent', () => {
     const el: HTMLElement = fixture.nativeElement;
     expect(el.textContent).toContain('42');
     expect(el.querySelector('a.streak-display')).toBeTruthy();
-  });
-
-  it('should call setDailyGoal on saveGoal', () => {
-    component.editGoalValue = 30;
-    component.saveGoal();
-    expect(mockStatsService.setDailyGoal).toHaveBeenCalledWith(30);
-  });
-
-  it('should toggle goal editor visibility', () => {
-    expect(component.showGoalEditor()).toBeFalse();
-    component.editGoal();
-    expect(component.showGoalEditor()).toBeTrue();
-    component.cancelGoalEdit();
-    expect(component.showGoalEditor()).toBeFalse();
-  });
-
-  it('should return correct exercise labels', () => {
-    expect(component.getExerciseLabel('addition')).toContain('Addition');
-    expect(component.getExerciseLabel('subtraction')).toContain('Subtraktion');
-    expect(component.getExerciseLabel('multiplication')).toContain('Multiplikation');
-    expect(component.getExerciseLabel('division')).toContain('Division');
   });
 
   it('should aggregate math incorrect count', () => {
@@ -202,5 +194,13 @@ describe('CategoryHomeComponent', () => {
     });
     fixture.detectChanges();
     expect(component.englischIncorrectCount()).toBe(2);
+  });
+
+  it('should show Geschafft when math goal reached', () => {
+    isGoalReachedSignal.set(true);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('Geschafft!');
+    expect(el.querySelector('.category-card--goal-done')).toBeTruthy();
   });
 });

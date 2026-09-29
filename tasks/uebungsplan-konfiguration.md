@@ -26,7 +26,7 @@ Not limited to today’s fixed Mathe→Deutsch→Sequences→Uhrzeit chain, and 
 | Min / max steps | At least **1** step; soft max **20** |
 | Tagesziele | Remain for free practice / home cards; plan targets are **independent** (snapshot at start still) |
 | Default plan | Sensible starter: Mathe-Übung (math goal), Deutsch Rechtschreibung (deutsch goal), Englisch Übersetzung (englisch goal), Uhrzeit-Übung (clock goal) — sequences optional off by default or included with target 5 |
-| Config UI | Modal „Plan einrichten“ from home (beside „Übung starten“) |
+| Config UI | Modal „Plan einrichten“ from home (beside „Übung starten“) — **blocked**: Homepage CTA removed for now (2026-09-28); restore CTA when implementing this task |
 | While plan active | Config disabled until cancel |
 | **Per user** | **Each child has an independent plan** — Tom’s steps ≠ Ada’s. Switching user loads that user’s config. |
 | Persistence | `users.practice_plan_config` (jsonb) as source of truth + localStorage cache keyed by `userId` |
@@ -161,6 +161,10 @@ Shared catalog of *possible* tiles is global; **which steps / order / targets** 
 - Persisting mid-session progress across reload
 - Drag-and-drop (↑↓ sufficient)
 - Named presets beyond one saved config + reset default
+
+## Note (2026-09-28)
+
+Homepage entry „Übung starten“ / „Weiterüben“ was removed from [`category-home`](../src/app/components/category-home/category-home.html) because it is unused. `PracticePlanService` and in-exercise guiding hooks remain for when this config feature ships. Related: [`tasks/tagesziele-pro-uebung.md`](tagesziele-pro-uebung.md) (per-exercise daily goals — separate product surface).
 
 ## Implementation checklist
 

@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StatsService } from '../../services/stats.service';
 import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component';
+import { tilesForCategory } from '../../models/practice-exercise.catalog';
 
 @Component({
   selector: 'app-deutsch-category-overview',
@@ -15,38 +16,38 @@ import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component
 export class DeutschCategoryOverviewComponent {
   protected stats = inject(StatsService);
 
-  readonly correctCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const [type, stats] of Object.entries(types)) {
-      if (type.startsWith('deutsch-')) {
-        total += stats.correct ?? 0;
-      }
-    }
-    return total;
-  });
+  readonly correctCount = computed(() => this.stats.deutschCorrectCount());
+  readonly incorrectCount = computed(() => this.stats.deutschIncorrectCount());
 
-  readonly incorrectCount = computed(() => {
-    const types = this.stats.statsByType();
-    let total = 0;
-    for (const [type, stats] of Object.entries(types)) {
-      if (type.startsWith('deutsch-')) {
-        total += stats.incorrect ?? 0;
-      }
-    }
-    return total;
-  });
+  readonly goalCorrect = computed(() => this.stats.categoryCorrectSum('deutsch'));
+  readonly goalTotal = computed(() => this.stats.categoryGoalSum('deutsch'));
+  readonly goalProgressPercent = computed(() => this.stats.deutschGoalProgressPercent());
+  readonly isGoalReached = computed(() => this.stats.isDeutschGoalReached());
+
+  readonly goalTiles = tilesForCategory('deutsch');
 
   readonly showGoalEditor = signal(false);
-  editGoalValue = 10;
+  editGoalDraft = signal<Record<string, number>>({});
 
   editGoal(): void {
-    this.editGoalValue = this.stats.currentDeutschGoal();
+    const draft: Record<string, number> = {};
+    for (const tile of this.goalTiles) {
+      draft[tile.id] = this.stats.goalFor(tile.id);
+    }
+    this.editGoalDraft.set(draft);
     this.showGoalEditor.set(true);
   }
 
+  updateDraft(exerciseId: string, value: string | number): void {
+    const n = typeof value === 'number' ? value : parseInt(String(value), 10);
+    this.editGoalDraft.set({
+      ...this.editGoalDraft(),
+      [exerciseId]: Number.isFinite(n) ? n : 1,
+    });
+  }
+
   saveGoal(): void {
-    this.stats.setDeutschDailyGoal(this.editGoalValue);
+    this.stats.setGoalsForCategory('deutsch', this.editGoalDraft());
     this.showGoalEditor.set(false);
   }
 

@@ -5,6 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { map } from 'rxjs/operators';
 import { StatsService } from '../../services/stats.service';
 import { StatsBadgeComponent } from '../shared/stats-badge/stats-badge.component';
+import {
+  PracticeCategory,
+  tilesForCategory,
+} from '../../models/practice-exercise.catalog';
 
 @Component({
   standalone: true,
@@ -18,20 +22,38 @@ export class CategoryOverviewComponent {
   protected stats = inject(StatsService);
   private route = inject(ActivatedRoute);
 
-  // Read category from route data as signal
   category = toSignal(
     this.route.data.pipe(
-      map(data => (data['category'] === 'clock' ? 'clock' : 'math') as 'math' | 'clock')
+      map((data) => (data['category'] === 'clock' ? 'clock' : 'math') as 'math' | 'clock')
     ),
     { initialValue: 'math' as 'math' | 'clock' }
   );
 
-  // Math types
-  private mathTypes = ['addition', 'subtraction', 'multiplication', 'division'];
-  // Clock types
-  private clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf', 'clock-zeitspanne', 'clock-verspaetung'];
+  private mathTypes = [
+    'addition',
+    'subtraction',
+    'multiplication',
+    'division',
+    'word-problems',
+  ];
+  private clockTypes = [
+    'clock-full',
+    'clock-half',
+    'clock-quarter',
+    'clock-fiveMin',
+    'clock-setClock-full',
+    'clock-setClock-half',
+    'clock-setClock-quarter',
+    'clock-setClock-fiveMin',
+    'clock-setClock-fiveMinAfter',
+    'clock-setClock-fiveMinBefore',
+    'clock-setClock-fiveMinHalf',
+    'clock-zeitspanne',
+    'clock-verspaetung',
+  ];
 
-  // Category-specific stats
+  readonly goalTiles = computed(() => tilesForCategory(this.category()));
+
   readonly categoryCorrectCount = computed(() => {
     const types = this.stats.statsByType();
     const typeList = this.category() === 'math' ? this.mathTypes : this.clockTypes;
@@ -52,17 +74,27 @@ export class CategoryOverviewComponent {
     return total;
   });
 
-  readonly categoryTotalCount = computed(() => this.categoryCorrectCount() + this.categoryIncorrectCount());
+  readonly categoryTotalCount = computed(
+    () => this.categoryCorrectCount() + this.categoryIncorrectCount()
+  );
+
+  readonly categoryGoalCorrect = computed(() =>
+    this.stats.categoryCorrectSum(this.category() as PracticeCategory)
+  );
+
+  readonly categoryGoalTotal = computed(() =>
+    this.stats.categoryGoalSum(this.category() as PracticeCategory)
+  );
 
   readonly categoryGoalProgressPercent = computed(() => {
-    const goal = this.category() === 'math' ? this.stats.currentGoal() : this.stats.currentClockGoal();
-    return Math.min(100, Math.round((this.categoryCorrectCount() / goal) * 100));
+    const goal = this.categoryGoalTotal();
+    if (goal <= 0) return 0;
+    return Math.min(100, Math.round((this.categoryGoalCorrect() / goal) * 100));
   });
 
-  readonly categoryIsGoalReached = computed(() => {
-    const goal = this.category() === 'math' ? this.stats.currentGoal() : this.stats.currentClockGoal();
-    return this.categoryCorrectCount() >= goal;
-  });
+  readonly categoryIsGoalReached = computed(
+    () => this.categoryGoalCorrect() >= this.categoryGoalTotal()
+  );
 
   readonly categoryTitle = computed(() =>
     this.category() === 'math' ? '📐 Mathe' : '🕐 Uhrzeit'
@@ -74,29 +106,31 @@ export class CategoryOverviewComponent {
       : 'Lerne die Uhr zu lesen'
   );
 
-  readonly basePath = computed(() =>
-    this.category() === 'math' ? '/mathe' : '/uhrzeit'
-  );
+  readonly basePath = computed(() => (this.category() === 'math' ? '/mathe' : '/uhrzeit'));
 
-  // Goal editor state
   showGoalEditor = signal(false);
-  editGoalValue = signal(20);
+  /** Draft values in the modal, keyed by exercise id */
+  editGoalDraft = signal<Record<string, number>>({});
 
   editGoal(): void {
-    if (this.category() === 'math') {
-      this.editGoalValue.set(this.stats.currentGoal());
-    } else {
-      this.editGoalValue.set(this.stats.currentClockGoal());
+    const draft: Record<string, number> = {};
+    for (const tile of this.goalTiles()) {
+      draft[tile.id] = this.stats.goalFor(tile.id);
     }
+    this.editGoalDraft.set(draft);
     this.showGoalEditor.set(true);
   }
 
+  updateDraft(exerciseId: string, value: string | number): void {
+    const n = typeof value === 'number' ? value : parseInt(String(value), 10);
+    this.editGoalDraft.set({
+      ...this.editGoalDraft(),
+      [exerciseId]: Number.isFinite(n) ? n : 1,
+    });
+  }
+
   saveGoal(): void {
-    if (this.category() === 'math') {
-      this.stats.setDailyGoal(this.editGoalValue());
-    } else {
-      this.stats.setClockDailyGoal(this.editGoalValue());
-    }
+    this.stats.setGoalsForCategory(this.category() as PracticeCategory, this.editGoalDraft());
     this.showGoalEditor.set(false);
   }
 
@@ -104,7 +138,6 @@ export class CategoryOverviewComponent {
     this.showGoalEditor.set(false);
   }
 
-  // Number range (Zahlenraum) editor — math only
   readonly mathNumberRange = computed(() => this.stats.currentMathNumberRange());
   showRangeEditor = signal(false);
   editRangeInput = signal(100);

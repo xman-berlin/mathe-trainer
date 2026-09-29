@@ -170,6 +170,11 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     const pending = this.pendingProblem.load();
     if (!pending) return false;
 
+    if (!this.isPendingCompatibleWithCurrentLevel(pending)) {
+      this.pendingProblem.clear();
+      return false;
+    }
+
     const type = pending.operation as ExerciseType;
     if (!this.selectedTypes().has(type)) {
       const next = new Set(this.selectedTypes());
@@ -184,6 +189,28 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     this.feedback.set('idle');
     this.showCorrectAnswer.set(false);
     return true;
+  }
+
+  /**
+   * Drop stale pending tasks that no longer match the active difficulty
+   * (e.g. old Drache-style 160+760 while +/− max is reine-Hunderter Löwe).
+   */
+  private isPendingCompatibleWithCurrentLevel(pending: {
+    operation: string;
+    operandA: number;
+    operandB: number;
+  }): boolean {
+    const { operation, operandA: a, operandB: b } = pending;
+    if (operation !== 'addition' && operation !== 'subtraction') {
+      return true;
+    }
+    const level = this.difficultyService.getLevel(operation);
+    if (level >= 5) {
+      // Löwe+: reine Hunderter only
+      return a % 100 === 0 && b % 100 === 0 && a >= 100 && b >= 100;
+    }
+    // Levels 1–4 stay in 1–100
+    return a <= 100 && b <= 100;
   }
 
   operatorSymbol = computed(() => {

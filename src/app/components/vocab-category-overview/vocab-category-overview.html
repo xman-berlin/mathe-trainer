@@ -3,7 +3,16 @@
 
   <div class="hero">
     <div class="hero-content">
-      <h1>📖 Deutsch <a routerLink="/deutsch/verwalten" class="admin-gear" aria-label="Wortlisten verwalten" title="Wortlisten verwalten">⚙️</a></h1>
+      <h1>
+        📖 Deutsch
+        <a
+          routerLink="/deutsch/verwalten"
+          class="admin-gear"
+          aria-label="Wortlisten verwalten"
+          title="Wortlisten verwalten"
+          >⚙️</a
+        >
+      </h1>
       <p>Rechtschreibung üben und Wortlisten verwalten</p>
     </div>
   </div>
@@ -19,23 +28,39 @@
 
       <div class="goal-section">
         <div class="goal-header">
-          <div class="goal-label">Tagesziel: {{ stats.deutschCorrectCount() }} / {{ stats.currentDeutschGoal() }}</div>
-          <button class="goal-edit-btn-inline" (click)="editGoal()" aria-label="Ziel bearbeiten">⚙️</button>
+          <div class="goal-label">Tagesziel: {{ goalCorrect() }} / {{ goalTotal() }}</div>
+          <button class="goal-edit-btn-inline" (click)="editGoal()" aria-label="Ziele bearbeiten">
+            ⚙️
+          </button>
         </div>
         <div class="progress-bar-container">
-          <div class="progress-bar-fill" [style.width.%]="stats.deutschGoalProgressPercent()"></div>
+          <div class="progress-bar-fill" [style.width.%]="goalProgressPercent()"></div>
         </div>
-        @if (stats.isDeutschGoalReached()) {
+        @if (isGoalReached()) {
           <div class="goal-reached-badge">🎯 Ziel erreicht!</div>
         }
       </div>
     </div>
 
     <div class="action-cards">
-      <a routerLink="/deutsch/rechtschreibung" class="action-card practice-card">
+      <a
+        routerLink="/deutsch/rechtschreibung"
+        class="action-card practice-card"
+        [class.action-card--goal-done]="stats.isExerciseGoalReached('deutsch-rechtschreibung')"
+      >
         <div class="card-icon">🔊</div>
         <h3>Rechtschreibung</h3>
         <p>Wörter hören und richtig schreiben</p>
+        <p
+          class="tile-goal"
+          [class.tile-goal--done]="stats.isExerciseGoalReached('deutsch-rechtschreibung')"
+        >
+          Ziel: {{ stats.correctFor('deutsch-rechtschreibung') }} /
+          {{ stats.goalFor('deutsch-rechtschreibung') }}
+          @if (stats.isExerciseGoalReached('deutsch-rechtschreibung')) {
+            <span class="tile-goal-check" aria-label="Teilziel erreicht">✓</span>
+          }
+        </p>
       </a>
 
       <a routerLink="/deutsch/hangman" class="action-card hangman-card">
@@ -44,33 +69,99 @@
         <p>Wörter erraten, Buchstabe für Buchstabe</p>
       </a>
 
-      <a routerLink="/deutsch/wochentage" class="action-card weekdays-card">
+      <a
+        routerLink="/deutsch/wochentage"
+        class="action-card weekdays-card"
+        [class.action-card--goal-done]="stats.isExerciseGoalReached('deutsch-wochentage')"
+      >
         <div class="card-icon">📅</div>
         <h3>Wochentage</h3>
         <p>Tage der Woche und ihre Reihenfolge</p>
+        <p
+          class="tile-goal"
+          [class.tile-goal--done]="stats.isExerciseGoalReached('deutsch-wochentage')"
+        >
+          Ziel: {{ stats.correctFor('deutsch-wochentage') }} /
+          {{ stats.goalFor('deutsch-wochentage') }}
+          @if (stats.isExerciseGoalReached('deutsch-wochentage')) {
+            <span class="tile-goal-check" aria-label="Teilziel erreicht">✓</span>
+          }
+        </p>
       </a>
 
-      <a routerLink="/deutsch/monate" class="action-card months-card">
+      <a
+        routerLink="/deutsch/monate"
+        class="action-card months-card"
+        [class.action-card--goal-done]="stats.isExerciseGoalReached('deutsch-monate')"
+      >
         <div class="card-icon">🗓️</div>
         <h3>Monate</h3>
         <p>Monate des Jahres und ihre Reihenfolge</p>
+        <p
+          class="tile-goal"
+          [class.tile-goal--done]="stats.isExerciseGoalReached('deutsch-monate')"
+        >
+          Ziel: {{ stats.correctFor('deutsch-monate') }} / {{ stats.goalFor('deutsch-monate') }}
+          @if (stats.isExerciseGoalReached('deutsch-monate')) {
+            <span class="tile-goal-check" aria-label="Teilziel erreicht">✓</span>
+          }
+        </p>
       </a>
 
-      <a routerLink="/deutsch/alphabet" class="action-card alphabet-card">
+      <a
+        routerLink="/deutsch/alphabet"
+        class="action-card alphabet-card"
+        [class.action-card--goal-done]="stats.isExerciseGoalReached('deutsch-alphabet')"
+      >
         <div class="card-icon">🔤</div>
         <h3>Alphabet</h3>
         <p>Buchstaben und ihre Reihenfolge im Alphabet</p>
+        <p
+          class="tile-goal"
+          [class.tile-goal--done]="stats.isExerciseGoalReached('deutsch-alphabet')"
+        >
+          Ziel: {{ stats.correctFor('deutsch-alphabet') }} /
+          {{ stats.goalFor('deutsch-alphabet') }}
+          @if (stats.isExerciseGoalReached('deutsch-alphabet')) {
+            <span class="tile-goal-check" aria-label="Teilziel erreicht">✓</span>
+          }
+        </p>
       </a>
     </div>
   </section>
 </div>
 
 @if (showGoalEditor()) {
-  <div class="modal-overlay" (click)="cancelGoalEdit()" (keydown.escape)="cancelGoalEdit()" role="dialog" aria-modal="true" tabindex="-1">
-    <div class="goal-editor-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" role="document">
-      <h3>Tagesziel festlegen</h3>
-      <p>Wie viele Wörter möchtest du heute richtig schreiben?</p>
-      <input type="number" min="1" max="100" [(ngModel)]="editGoalValue" />
+  <div
+    class="modal-overlay"
+    (click)="cancelGoalEdit()"
+    (keydown.escape)="cancelGoalEdit()"
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+  >
+    <div
+      class="goal-editor-modal"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+      role="document"
+    >
+      <h3>Tagesziele festlegen</h3>
+      <p>Wie viele Aufgaben möchtest du pro Übung richtig lösen?</p>
+      <div class="goal-tile-list">
+        @for (tile of goalTiles; track tile.id) {
+          <label class="goal-tile-row">
+            <span>{{ tile.title }}</span>
+            <input
+              type="number"
+              min="1"
+              max="100"
+              [ngModel]="editGoalDraft()[tile.id]"
+              (ngModelChange)="updateDraft(tile.id, $event)"
+            />
+          </label>
+        }
+      </div>
       <div class="modal-actions">
         <button class="primary-btn" (click)="saveGoal()">Speichern</button>
         <button class="secondary-btn" (click)="cancelGoalEdit()">Abbrechen</button>

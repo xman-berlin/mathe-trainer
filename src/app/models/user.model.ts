@@ -11,6 +11,8 @@ export interface User {
   clock_daily_goal: number;
   vocab_daily_goal: number;
   englisch_daily_goal?: number;
+  /** Catalog exercise id → daily correct-answer target */
+  daily_goals_by_exercise?: Record<string, number>;
   difficulty_levels?: DifficultyLevels;
   math_number_range?: number;
 }

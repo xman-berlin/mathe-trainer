@@ -82,3 +82,15 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 ## 2026-09-28 — Persist unsolved Math practice problem
 
 **Rule**: Practice-mode Mathe (`/mathe/uebung`) must resume the same unsolved problem after leave/re-enter (localStorage via `PendingMathProblemService`). Clear on submit; save on each new generate. Time trial stays ephemeral.
+
+## 2026-09-29 — Goal tile borders mean status, not category color
+
+**Mistake**: Home/category exercise cards kept distinct colored borders (blue/purple/green/…) while completed goals also turned green — two competing meanings for the same visual channel.
+
+**Rule**: Incomplete goal tiles use a neutral gray border (category identity via soft background wash only). Green border (+ check) means the tile/category Tagesziel is done. Do not reuse border color for category branding once goals exist.
+
+## 2026-09-29 — E2E: do not match home cards with /Deutsch/
+
+**Mistake**: `getByRole('link', { name: /Deutsch/ })` also matched the Englisch card because accessible name includes copy like „deutsche Bedeutung“.
+
+**Rule**: Prefer `a.category-card.vokabeln-card` / `.englisch-card` (or an emoji-anchored name) for home category links, same pattern as `navigation.spec.ts`.

@@ -10,11 +10,16 @@ describe('DeutschCategoryOverviewComponent', () => {
 
   const mockStatsService = {
     statsByType: signal<Record<string, { correct: number; incorrect: number }>>({}).asReadonly(),
-    currentDeutschGoal: signal(10).asReadonly(),
     deutschCorrectCount: signal(0).asReadonly(),
+    deutschIncorrectCount: signal(0).asReadonly(),
     deutschGoalProgressPercent: signal(0).asReadonly(),
     isDeutschGoalReached: signal(false).asReadonly(),
-    setDeutschDailyGoal: jasmine.createSpy('setDeutschDailyGoal'),
+    categoryCorrectSum: jasmine.createSpy('categoryCorrectSum').and.returnValue(0),
+    categoryGoalSum: jasmine.createSpy('categoryGoalSum').and.returnValue(25),
+    correctFor: jasmine.createSpy('correctFor').and.returnValue(0),
+    goalFor: jasmine.createSpy('goalFor').and.returnValue(5),
+    isExerciseGoalReached: jasmine.createSpy('isExerciseGoalReached').and.returnValue(false),
+    setGoalsForCategory: jasmine.createSpy('setGoalsForCategory'),
   };
 
   beforeEach(() => {
@@ -51,10 +56,11 @@ describe('DeutschCategoryOverviewComponent', () => {
     expect(component.showGoalEditor()).toBeFalse();
   });
 
-  it('should save goal', () => {
-    component.editGoalValue = 15;
+  it('should save goals for category', () => {
+    component.editGoal();
+    component.updateDraft('deutsch-rechtschreibung', 15);
     component.saveGoal();
-    expect(mockStatsService.setDeutschDailyGoal).toHaveBeenCalledWith(15);
+    expect(mockStatsService.setGoalsForCategory).toHaveBeenCalled();
     expect(component.showGoalEditor()).toBeFalse();
   });
 });
