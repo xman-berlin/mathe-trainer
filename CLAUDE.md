@@ -170,7 +170,8 @@ When optimizing components for tablet landscape:
 - **Anon Key**: Public, in `environment.ts`
 - **Service Role Key**: NEVER use in frontend
 - **RLS Enabled**: All tables have Row Level Security
-- **Migrations**: In `src/sql/` with date prefix
+- **Migrations**: In `supabase/migrations/` (and `src/sql/` for local scripts)
+- **Data API grants (from 2026-10-30)**: Every new `public` table needs explicit `GRANT`s to `anon` / `authenticated` / `service_role` in the same migration. Existing tables are fine; required again after `db reset` / preview branches.
 
 ## Environment Variables
 
@@ -191,6 +192,7 @@ When optimizing components for tablet landscape:
 - **Branch Names**: `feature/description`, `fix/description`
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`)
 - **Commits Only on Request**: Do not commit automatically
+- **No direct pushes to main**: Develop on a feature/fix branch, push that branch, open a PR with `gh pr create`. Commit/push to `main` only if the user explicitly asks.
 
 ### Before Commit and Push (IMPORTANT)
 

@@ -94,3 +94,23 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 **Mistake**: `getByRole('link', { name: /Deutsch/ })` also matched the Englisch card because accessible name includes copy like „deutsche Bedeutung“.
 
 **Rule**: Prefer `a.category-card.vokabeln-card` / `.englisch-card` (or an emoji-anchored name) for home category links, same pattern as `navigation.spec.ts`.
+
+## 2026-09-29 — Always ship via feature branch + PR
+
+**Mistake**: Finished Tagesziele on `main` and pushed directly (`2cdc934`), skipping branch/PR because finish-feature/commit-and-push operated on the current branch.
+
+**Rule**: Default is `feature/*` or `fix/*` → push → `gh pr create` → merge after CI. Never commit/push feature work to `main` unless the user explicitly requests it. Cursor rule: `.cursor/rules/feature-branch-pr.mdc` (`alwaysApply: true`).
+
+## 2026-10-20 — Supabase Data API: GRANT on new public tables (from 2026-10-30)
+
+**Context**: Supabase stops auto-granting Data API access to **new** tables in `public` for existing projects starting 2026-10-30. Existing tables keep current grants.
+
+**Rule**: In every migration that `CREATE TABLE`s in `public`, add explicit grants in the same file:
+
+```sql
+grant select on public.your_table to anon;
+grant select, insert, update, delete on public.your_table to authenticated;
+grant select, insert, update, delete on public.your_table to service_role;
+```
+
+Also required after `supabase db reset`, preview branches, and new projects (recreated tables count as new). `ALTER TABLE` on existing tables does not need new grants. Existing prod tables are unaffected.

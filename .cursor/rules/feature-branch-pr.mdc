@@ -1,0 +1,22 @@
+---
+description: Always develop on a feature branch and ship via PR — never commit/push straight to main
+alwaysApply: true
+---
+
+# Feature branch + PR workflow
+
+Default shipping path for this repo:
+
+1. **Start work** on `feature/<name>` or `fix/<name>` — never commit feature work on `main`/`master`.
+2. If already on `main` with uncommitted work: create/switch to a feature branch **before** the first commit.
+3. **Push** the feature branch (`git push -u origin HEAD`).
+4. **Open a PR** with `gh pr create` (summary + test plan).
+5. Merge only after CI is green (and user approval when they want to review first).
+
+**Forbidden unless the user explicitly says so** (e.g. “direkt auf main”, “hotfix on main”):
+
+- Committing on `main`/`master`
+- Pushing commits directly to `main`/`master`
+- Skipping the PR
+
+`finish-feature` / `commit-and-push` still run quality gates and push — but **to the feature branch**, then open/update the PR. Task cleanup (`tasks/done/`, `todo.md`) stays in the same PR or a follow-up PR on that branch.

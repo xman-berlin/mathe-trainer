@@ -102,6 +102,7 @@ Config in `package.json`: `printWidth: 100`, `singleQuote: true`, Angular HTML p
 - RLS enabled on all tables. Service role key never used in frontend.
 - Migrations in `supabase/migrations/` (SQL); `src/sql/` for local scripts
 - Environment files committed with local-only keys (anon key is public); never commit service role keys or secrets
+- **Data API grants (from 2026-10-30)**: New `public` tables need explicit `GRANT`s in the same migration (`anon` / `authenticated` / `service_role`). Existing tables keep their grants. Same applies after `db reset` / preview branches. See `tasks/lessons.md` (2026-10-20).
 
 ## Session Start
 
@@ -126,6 +127,7 @@ Also review `tasks/lessons.md` before starting any work.
 
 - **UI text must be German**, code in English, commit messages in English
 - **Commit and push only on explicit command** — never autonomously
+- **Ship via feature branch + PR** — never commit/push feature work straight to `main` unless the user explicitly says so (see `.cursor/rules/feature-branch-pr.mdc`)
 - **Zoneless**: no `ChangeDetectorRef`, `NgZone`, or `zone.js` patterns
 - **Prod base href**: `/mathe-trainer/` (set via `--base-href` in deploy workflow)
 - **Budget warnings** (< 500KB initial, < 12KB per component style) are acceptable
