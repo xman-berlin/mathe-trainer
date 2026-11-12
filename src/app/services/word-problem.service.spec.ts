@@ -78,6 +78,25 @@ describe('WordProblemService', () => {
       }
     });
 
+    it('should sometimes generate comparison („Um wie viele … mehr/weniger?“) subtraction', () => {
+      const stories: string[] = [];
+      for (let i = 0; i < 40; i++) {
+        const problem = service.generateProblem('subtraction', 'bis100');
+        expect(problem.kind).toBe('one-step');
+        if (problem.kind === 'one-step') {
+          expect(problem.correctAnswer).toBe(problem.operandA - problem.operandB);
+          stories.push(problem.storyText);
+        }
+      }
+      expect(stories.some((s) => /Um wie viele/i.test(s))).toBeTrue();
+      expect(stories.some((s) => /mehr|weniger/i.test(s))).toBeTrue();
+    });
+
+    it('comparison icons resolve for cmp-* template ids', () => {
+      expect(service.getTemplateIcon('cmp-pages')).toBe('📖');
+      expect(service.getTemplateIcon('cmp-stickers-mehr')).toBe('⭐');
+    });
+
     it('should generate multiplication problems within bis20 range', () => {
       for (let i = 0; i < 20; i++) {
         const problem = service.generateProblem('multiplication', 'bis20');

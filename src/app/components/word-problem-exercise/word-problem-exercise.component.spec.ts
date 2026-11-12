@@ -26,6 +26,7 @@ describe('WordProblemExerciseComponent', () => {
 
   beforeEach(() => {
     resetTwoStepRotation();
+    localStorage.removeItem('schlaufuchs-pending-word-problem');
 
     TestBed.configureTestingModule({
       providers: [
@@ -182,6 +183,30 @@ describe('WordProblemExerciseComponent', () => {
       component.generateProblem();
       const lastCall = generateSpy.calls.mostRecent();
       expect(lastCall.args[2]).toBe(100);
+    });
+  });
+
+  describe('pending problem resume', () => {
+    it('should persist the current problem and restore it on remount', () => {
+      showOneStepType('addition');
+      const story = component.storyText();
+      const answer = component.correctAnswer();
+      expect(localStorage.getItem('schlaufuchs-pending-word-problem')).toBeTruthy();
+
+      fixture.destroy();
+      fixture = TestBed.createComponent(WordProblemExerciseComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(component.storyText()).toBe(story);
+      expect(component.correctAnswer()).toBe(answer);
+    });
+
+    it('should clear pending storage after submit', () => {
+      showOneStepType('addition');
+      component.userAnswer.set(String(component.correctAnswer()));
+      component.submitAnswer();
+      expect(localStorage.getItem('schlaufuchs-pending-word-problem')).toBeNull();
     });
   });
 });

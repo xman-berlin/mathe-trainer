@@ -6,6 +6,7 @@ import {
   isTwoStepProblem,
 } from '../../models/word-problem.model';
 import { WordProblemService } from '../../services/word-problem.service';
+import { PendingWordProblemService } from '../../services/pending-word-problem.service';
 import { StatsService } from '../../services/stats.service';
 import { ExerciseStateService } from '../../services/exercise-state.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
@@ -34,6 +35,7 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
   showCorrectAnswer = signal(false);
 
   private wordProblemService = inject(WordProblemService);
+  private pendingProblem = inject(PendingWordProblemService);
   private stats = inject(StatsService);
   private exerciseState = inject(ExerciseStateService);
 
@@ -53,7 +55,9 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.exerciseState.setMilestones([5, 10, 20, 30, 40, 50, 75, 100]);
-    this.generateProblem();
+    if (!this.restorePendingProblem()) {
+      this.generateProblem();
+    }
   }
 
   ngOnInit(): void {
@@ -148,6 +152,26 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
     this.userAnswer.set('');
     this.feedback.set('idle');
     this.showCorrectAnswer.set(false);
+    this.pendingProblem.save(problem);
+  }
+
+  /** Restore pending Sachaufgabe from localStorage. Returns true if restored. */
+  private restorePendingProblem(): boolean {
+    const pending = this.pendingProblem.load();
+    if (!pending) return false;
+
+    if (!this.selectedTypes().has(pending.type)) {
+      const next = new Set(this.selectedTypes());
+      next.add(pending.type);
+      this.selectedTypes.set(next);
+    }
+
+    this.currentProblem.set(pending);
+    this.currentType.set(pending.type);
+    this.userAnswer.set('');
+    this.feedback.set('idle');
+    this.showCorrectAnswer.set(false);
+    return true;
   }
 
   submitAnswer() {
@@ -169,6 +193,9 @@ export class WordProblemExerciseComponent implements OnInit, OnDestroy {
     if (!isCorrect) {
       this.showCorrectAnswer.set(true);
     }
+
+    // Cleared once answered — next generateProblem() saves the new one
+    this.pendingProblem.clear();
 
     this.exerciseState.handleResult(isCorrect, () => this.generateProblem(), 800, 1200);
     this.stats.recordResult(isCorrect, 'word-problems');

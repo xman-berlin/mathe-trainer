@@ -83,6 +83,10 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 
 **Rule**: Practice-mode Mathe (`/mathe/uebung`) must resume the same unsolved problem after leave/re-enter (localStorage via `PendingMathProblemService`). Clear on submit; save on each new generate. Time trial stays ephemeral.
 
+## 2026-11-12 — Persist unsolved Sachaufgaben
+
+**Rule**: Same resume pattern for `/mathe/sachaufgaben` via `PendingWordProblemService` (`schlaufuchs-pending-word-problem`). Store the full `WordProblem` (one-step or two-step); clear on answer; restore before generating a new one.
+
 ## 2026-09-29 — Goal tile borders mean status, not category color
 
 **Mistake**: Home/category exercise cards kept distinct colored borders (blue/purple/green/…) while completed goals also turned green — two competing meanings for the same visual channel.
