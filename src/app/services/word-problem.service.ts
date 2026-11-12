@@ -110,6 +110,68 @@ export class WordProblemService {
     }
   ];
 
+  /**
+   * Comparison / difference stories („Um wie viele … mehr/weniger?“).
+   * {a} = larger amount, {b} = smaller amount → answer a − b.
+   * Mixed into subtraction generation (take-away templates above stay).
+   */
+  private readonly comparisonTemplates: {
+    id: string;
+    icon: string;
+    text: string;
+  }[] = [
+    {
+      id: 'cmp-pages',
+      icon: '📖',
+      text: 'Toni hat {b} Seiten im Buch gelesen, Sabina schon {a}. Um wie viele Seiten hat Sabina mehr gelesen?',
+    },
+    {
+      id: 'cmp-stickers-mehr',
+      icon: '⭐',
+      text: 'Emma hat {b} Sticker. Leon hat {a} Sticker. Um wie viele Sticker hat Leon mehr?',
+    },
+    {
+      id: 'cmp-stickers-weniger',
+      icon: '⭐',
+      text: 'Leon hat {a} Sticker. Emma hat {b} Sticker. Um wie viele Sticker hat Emma weniger?',
+    },
+    {
+      id: 'cmp-marbles-mehr',
+      icon: '⚫',
+      text: 'Max hat {b} Murmeln. Anna hat {a} Murmeln. Um wie viele Murmeln hat Anna mehr?',
+    },
+    {
+      id: 'cmp-marbles-weniger',
+      icon: '⚫',
+      text: 'Anna hat {a} Murmeln. Max hat {b} Murmeln. Um wie viele Murmeln hat Max weniger?',
+    },
+    {
+      id: 'cmp-cards',
+      icon: '🃏',
+      text: 'Paul hat {b} Sammelkarten. Sophie hat {a} Sammelkarten. Um wie viele Karten hat Sophie mehr?',
+    },
+    {
+      id: 'cmp-points',
+      icon: '🎯',
+      text: 'Lukas hat {b} Punkte im Spiel. Marie hat {a} Punkte. Um wie viele Punkte hat Marie mehr?',
+    },
+    {
+      id: 'cmp-steps',
+      icon: '👟',
+      text: 'Mia ist {b} Schritte gelaufen. Ben ist {a} Schritte gelaufen. Um wie viele Schritte ist Ben weiter gelaufen?',
+    },
+    {
+      id: 'cmp-apples',
+      icon: '🍎',
+      text: 'Lisa hat {a} Äpfel gepflückt. Tim hat {b} Äpfel gepflückt. Um wie viele Äpfel hat Tim weniger?',
+    },
+    {
+      id: 'cmp-books',
+      icon: '📚',
+      text: 'In einem Regal stehen {b} Bücher, im anderen {a}. Um wie viele Bücher stehen im anderen Regal mehr?',
+    },
+  ];
+
   private recentProblems: string[] = [];
   private readonly maxRecentProblems = 10;
 
@@ -127,6 +189,11 @@ export class WordProblemService {
 
     if (type === 'two-step') {
       return generateTwoStepProblem(cappedMax);
+    }
+
+    // Subtraction: mix take-away („Wie viele noch?“) and comparison („Um wie viele mehr/weniger?“)
+    if (type === 'subtraction' && Math.random() < 0.5) {
+      return this.generateComparisonProblem(range, cappedMax);
     }
 
     // Select random template
@@ -187,6 +254,62 @@ export class WordProblemService {
 
   isTwoStep(problem: WordProblem | null | undefined): problem is TwoStepWordProblem {
     return isTwoStepProblem(problem);
+  }
+
+  /** One-step comparison difference (type stays `subtraction`). */
+  private generateComparisonProblem(range: NumberRange, maxValue?: number): OneStepWordProblem {
+    const template =
+      this.comparisonTemplates[Math.floor(Math.random() * this.comparisonTemplates.length)];
+
+    let operandA = 0;
+    let operandB = 0;
+    let attempt = 0;
+    const maxAttempts = 50;
+
+    do {
+      const numbers = this.generateComparisonNumbers(range, maxValue);
+      operandA = numbers.a;
+      operandB = numbers.b;
+      attempt++;
+
+      const problemKey = `${template.id}-comparison-${operandA}-${operandB}`;
+      if (!this.recentProblems.includes(problemKey) || attempt >= maxAttempts) {
+        this.recentProblems.push(problemKey);
+        if (this.recentProblems.length > this.maxRecentProblems) {
+          this.recentProblems.shift();
+        }
+        break;
+      }
+    } while (attempt < maxAttempts);
+
+    return {
+      kind: 'one-step',
+      type: 'subtraction',
+      storyText: template.text
+        .replace('{a}', operandA.toString())
+        .replace('{b}', operandB.toString()),
+      operandA,
+      operandB,
+      correctAnswer: operandA - operandB,
+      templateId: template.id,
+      numberRange: range,
+    };
+  }
+
+  /**
+   * Two comparable amounts: {a} larger, {b} smaller (like 56 vs 48 pages).
+   */
+  private generateComparisonNumbers(
+    range: NumberRange,
+    maxValue?: number
+  ): { a: number; b: number } {
+    const max = Math.max(4, maxValue ?? (range === 'bis20' ? 20 : 100));
+    const aMin = Math.min(range === 'bis20' ? 5 : 12, max);
+    const a = Math.floor(Math.random() * (max - aMin + 1)) + aMin;
+    const maxDiff = Math.min(a - 1, range === 'bis20' ? 9 : 20);
+    const diff = maxDiff <= 2 ? 2 : Math.floor(Math.random() * (maxDiff - 1)) + 2;
+    const b = Math.max(1, a - diff);
+    return { a, b };
   }
 
   private generateNumbers(
@@ -264,7 +387,9 @@ export class WordProblemService {
   }
 
   getTemplateIcon(templateId: string): string {
-    const template = this.storyTemplates.find(t => t.id === templateId);
-    return template?.icon ?? '📝';
+    const takeAway = this.storyTemplates.find(t => t.id === templateId);
+    if (takeAway) return takeAway.icon;
+    const comparison = this.comparisonTemplates.find(t => t.id === templateId);
+    return comparison?.icon ?? '📝';
   }
 }
