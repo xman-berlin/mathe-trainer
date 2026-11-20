@@ -1,0 +1,151 @@
+<div class="ns-root">
+  <div class="ns-container">
+    <a routerLink="/mathe" class="back-btn">← Zurück</a>
+
+    <div class="exercise-content">
+      <h1 class="page-title">Zahlenreihen ergänzen</h1>
+
+      <div
+        class="difficulty-chip"
+        [class.flash-up]="levelFlash() === 'up'"
+        [class.flash-down]="levelFlash() === 'down'"
+        aria-live="polite"
+      >
+        <div class="difficulty-chip-main">
+          <span class="difficulty-emoji">{{ difficultyTier().emoji }}</span>
+          <span class="difficulty-name">{{ difficultyTier().name }}</span>
+          <span class="difficulty-level"
+            >Stufe {{ difficultyLevel() }}/{{ difficultyMax() }}</span
+          >
+        </div>
+        @if (!isMaxDifficulty()) {
+          <div class="difficulty-progress" aria-label="Fortschritt zur nächsten Stufe">
+            @for (filled of levelProgressDots(); track $index) {
+              <span class="progress-dot" [class.filled]="filled"></span>
+            }
+          </div>
+          @if (nextDifficultyTier(); as next) {
+            <p class="difficulty-hint">
+              @if (difficultyStreak() === 0) {
+                {{ streakUpNeeded }} richtig bis {{ next.emoji }} {{ next.name }}
+              } @else {
+                Noch {{ streakUpNeeded - difficultyStreak() }} richtig bis {{ next.emoji }}
+                {{ next.name }}
+              }
+            </p>
+          }
+        } @else {
+          <p class="difficulty-hint max">Höchste Stufe erreicht!</p>
+        }
+      </div>
+
+      <div class="sequence-card" role="group" aria-label="Zahlenreihe">
+        <div class="sequence-row">
+          @for (term of displayTerms(); track term.termIndex) {
+            @if (term.isGap) {
+              <button
+                type="button"
+                class="term-tile gap-tile"
+                [class.active]="activeGapSlot() === term.gapSlot"
+                [class.wrong]="isGapWrong(term.gapSlot)"
+                [class.filled]="term.value !== '?'"
+                [attr.aria-label]="'Lücke ' + (term.gapSlot + 1)"
+                [attr.aria-pressed]="activeGapSlot() === term.gapSlot"
+                [disabled]="feedback() === 'correct'"
+                (click)="selectGapSlot(term.gapSlot)"
+              >
+                {{ term.value }}
+              </button>
+            } @else {
+              <div class="term-tile given-tile">{{ term.value }}</div>
+            }
+            @if (!$last) {
+              <span class="term-sep" aria-hidden="true">,</span>
+            }
+          }
+        </div>
+        <p class="hint">Finde das Muster. Du kannst Lücken jederzeit ändern.</p>
+      </div>
+
+      <div class="answer-section">
+        <div class="input-section">
+          <input
+            readonly
+            [value]="activeAnswer()"
+            placeholder="?"
+            class="answer-input"
+            aria-label="Aktive Lücke"
+          />
+        </div>
+
+        <app-keypad
+          [value]="activeAnswer"
+          [mode]="'numeric'"
+          [disabled]="keypadDisabled"
+          (valueChange)="onKeypadValue($event)"
+          (keypadSubmit)="onKeypadSubmit()"
+        />
+
+        <div class="feedback-area">
+          @if (fillHint()) {
+            <div class="feedback-incomplete">Noch nicht alle Lücken ausgefüllt.</div>
+          }
+          @if (feedback() === 'correct') {
+            <div class="feedback-correct">✓ Richtig!</div>
+          }
+          @if (feedback() === 'incorrect' && showCorrect()) {
+            <div class="feedback-incorrect">✗ Schau dir die Reihe noch einmal an.</div>
+          }
+        </div>
+      </div>
+
+      <div class="streak-display" [class.has-streak]="streak() > 0">
+        <div class="streak-item">
+          <span class="streak-label">Serie:</span>
+          <span class="streak-value">{{ streak() }}</span>
+        </div>
+        <div class="streak-item">
+          <span class="streak-label">Beste:</span>
+          <span class="streak-value">{{ bestStreak() }}</span>
+        </div>
+      </div>
+
+      <div class="result-summary">
+        <span class="badge badge-correct">✓ {{ correctCount() }}</span>
+        <span class="badge badge-incorrect">✗ {{ incorrectCount() }}</span>
+        <span class="badge badge-total">Σ {{ totalCount() }}</span>
+        <span class="summary-label">Heute</span>
+      </div>
+
+      @if (showMilestone()) {
+        <div class="milestone-popup">
+          <div class="milestone-content">
+            <div class="milestone-icon">🎉</div>
+            <div class="milestone-text">{{ milestoneValue() }} in Folge!</div>
+          </div>
+          @for (piece of confettiPieces; track piece) {
+            <div class="confetti" [style.left.%]="confettiX[piece]"></div>
+          }
+        </div>
+      }
+
+      @if (levelUpInfo(); as info) {
+        <div
+          class="level-change-popup"
+          [class.level-up]="info.direction === 'up'"
+          [class.level-down]="info.direction === 'down'"
+        >
+          @if (info.direction === 'up') {
+            <div class="level-change-text">
+              {{ info.fromEmoji }} → {{ info.emoji }} {{ info.name }}!
+            </div>
+          } @else {
+            <div class="level-change-text">
+              {{ info.fromEmoji }} → {{ info.emoji }} {{ info.name }}
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -229,6 +229,14 @@
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, white 100%);
 }
 
+.sequence-card {
+  background: linear-gradient(135deg, rgba(51, 130, 191, 0.03) 0%, white 100%);
+}
+
+.sequence-card:hover {
+  background: linear-gradient(135deg, rgba(51, 130, 191, 0.08) 0%, white 100%);
+}
+
 .set-clock-card {
   background: linear-gradient(135deg, rgba(249, 115, 22, 0.03) 0%, white 100%);
 }

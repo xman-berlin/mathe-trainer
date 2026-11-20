@@ -47,6 +47,16 @@ test.describe('Navigation', () => {
       await expect(page).toHaveURL(/\/mathe\/sachaufgaben$/);
       await expect(page.locator('.story-text')).toBeVisible();
     });
+
+    test('should navigate from mathe overview to zahlenreihen', async ({ page }) => {
+      await page.getByRole('link', { name: 'Mathe' }).click();
+      await expect(page).toHaveURL(/\/mathe$/);
+
+      await page.getByRole('link', { name: 'Zahlenreihen' }).click();
+      await expect(page).toHaveURL(/\/mathe\/zahlenreihen$/);
+      await expect(page.getByRole('heading', { name: 'Zahlenreihen ergänzen' })).toBeVisible();
+      await expect(page.locator('.sequence-row')).toBeVisible();
+    });
   });
 
   test.describe('Uhrzeit', () => {

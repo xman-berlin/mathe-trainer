@@ -33,6 +33,14 @@ export const PRACTICE_EXERCISE_CATALOG: readonly PracticeExerciseTile[] = [
     statsKeys: ['word-problems'],
   },
   {
+    id: 'math-zahlenreihen',
+    category: 'math',
+    title: 'Zahlenreihen',
+    route: '/mathe/zahlenreihen',
+    defaultDailyGoal: 5,
+    statsKeys: ['number-sequences'],
+  },
+  {
     id: 'clock-uebung',
     category: 'clock',
     title: 'Übung',

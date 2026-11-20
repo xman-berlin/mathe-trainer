@@ -15,6 +15,10 @@ describe('DifficultyService', () => {
     mockSupabase.getDifficultyLevels.and.resolveTo(null);
     mockSupabase.updateDifficultyLevels.and.resolveTo();
 
+    spyOn(localStorage, 'getItem').and.returnValue(null);
+    spyOn(localStorage, 'setItem');
+    spyOn(localStorage, 'removeItem');
+
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
@@ -147,6 +151,30 @@ describe('DifficultyService', () => {
     mockSupabase.getDifficultyLevels.and.resolveTo(null);
     await service.loadForUser('user-1');
     expect(service.getLevel('addition')).toBe(DEFAULT_LEVELS['addition']);
+  });
+
+  it('should keep local level when server is empty and sync it up', async () => {
+    (localStorage.getItem as jasmine.Spy).and.callFake((key: string) => {
+      if (key === 'schlaufuchs-difficulty-levels:user-1') {
+        return JSON.stringify({
+          numberSequences: { level: 4, streak: 2, recentResults: [true, true] },
+        });
+      }
+      return null;
+    });
+    mockSupabase.getDifficultyLevels.and.resolveTo({});
+    await service.loadForUser('user-1');
+    expect(service.getLevel('numberSequences')).toBe(4);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mockSupabase.updateDifficultyLevels).toHaveBeenCalled();
+  });
+
+  it('ensureAtLeast should raise level without lowering', async () => {
+    await service.loadForUser('user-1');
+    service.ensureAtLeast('numberSequences', 4);
+    expect(service.getLevel('numberSequences')).toBe(4);
+    service.ensureAtLeast('numberSequences', 2);
+    expect(service.getLevel('numberSequences')).toBe(4);
   });
 
   // ─── clearUser ────────────────────────────────────────────────────────────

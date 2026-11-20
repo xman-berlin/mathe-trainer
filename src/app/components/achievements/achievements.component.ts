@@ -6,7 +6,13 @@ import { StatsService } from '../../services/stats.service';
 import { DifficultyService } from '../../services/difficulty.service';
 import type { DifficultyOperationType } from '../../models/user.model';
 
-type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'word-problems';
+type ExerciseType =
+  | 'addition'
+  | 'subtraction'
+  | 'multiplication'
+  | 'division'
+  | 'word-problems'
+  | 'number-sequences';
 type ClockExerciseType = 'clock-full' | 'clock-half' | 'clock-quarter' | 'clock-fiveMin' | 'clock-setClock-full' | 'clock-setClock-half' | 'clock-setClock-quarter' | 'clock-setClock-fiveMin' | 'clock-setClock-fiveMinAfter' | 'clock-setClock-fiveMinBefore' | 'clock-setClock-fiveMinHalf' | 'clock-zeitspanne' | 'clock-verspaetung';
 type MedalLevel = 'none' | 'bronze' | 'silver' | 'gold';
 
@@ -39,7 +45,8 @@ export class AchievementsComponent implements OnInit {
     { key: 'subtraction', label: 'Subtraktion', icon: '−' },
     { key: 'multiplication', label: 'Multiplikation', icon: '×' },
     { key: 'division', label: 'Division', icon: '÷' },
-    { key: 'word-problems', label: 'Sachaufgaben', icon: '📝' }
+    { key: 'word-problems', label: 'Sachaufgaben', icon: '📝' },
+    { key: 'number-sequences', label: 'Zahlenreihen', icon: '🔢' },
   ];
 
   clockExerciseTypes: { key: ClockExerciseType; label: string; icon: string }[] = [
@@ -129,10 +136,17 @@ export class AchievementsComponent implements OnInit {
     return this.categorySignal() === 'clock' ? '/uhrzeit' : '/mathe';
   }
 
-  private readonly CORE_TYPES: DifficultyOperationType[] = ['addition', 'subtraction', 'multiplication', 'division'];
+  private readonly CORE_TYPES = [
+    'addition',
+    'subtraction',
+    'multiplication',
+    'division',
+  ] as const satisfies readonly DifficultyOperationType[];
 
-  isCoreType(type: ExerciseType | ClockExerciseType): type is DifficultyOperationType {
-    return (this.CORE_TYPES as string[]).includes(type);
+  isCoreType(
+    type: ExerciseType | ClockExerciseType
+  ): type is (typeof this.CORE_TYPES)[number] {
+    return (this.CORE_TYPES as readonly string[]).includes(type);
   }
 
   getDifficultyLevel(type: DifficultyOperationType): number {

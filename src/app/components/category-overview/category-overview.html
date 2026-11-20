@@ -143,6 +143,25 @@
             }
           </p>
         </a>
+        <a
+          routerLink="/mathe/zahlenreihen"
+          class="action-card sequence-card"
+          [class.action-card--goal-done]="stats.isExerciseGoalReached('math-zahlenreihen')"
+        >
+          <div class="card-icon">🔢</div>
+          <h3>Zahlenreihen</h3>
+          <p>Ergänze fehlende Zahlen in der Reihe</p>
+          <p
+            class="tile-goal"
+            [class.tile-goal--done]="stats.isExerciseGoalReached('math-zahlenreihen')"
+          >
+            Ziel: {{ stats.correctFor('math-zahlenreihen') }} /
+            {{ stats.goalFor('math-zahlenreihen') }}
+            @if (stats.isExerciseGoalReached('math-zahlenreihen')) {
+              <span class="tile-goal-check" aria-label="Teilziel erreicht">✓</span>
+            }
+          </p>
+        </a>
       }
     </div>
   </section>

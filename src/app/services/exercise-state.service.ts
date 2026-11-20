@@ -66,13 +66,18 @@ export class ExerciseStateService {
     }
   }
 
+  /** Hide milestone popup (e.g. when a level-up toast should take priority). */
+  clearMilestone(): void {
+    this.showMilestone.set(false);
+    this.milestoneValue.set(0);
+    clearTimeout(this.milestoneTimer);
+  }
+
   /** Reset all state (e.g., when starting a new session). */
   reset(): void {
     this.streak.set(0);
     this.bestStreak.set(0);
-    this.showMilestone.set(false);
-    this.milestoneValue.set(0);
-    clearTimeout(this.milestoneTimer);
+    this.clearMilestone();
     clearTimeout(this.advanceTimer);
   }
 }

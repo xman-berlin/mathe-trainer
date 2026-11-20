@@ -37,7 +37,12 @@ export interface DifficultyState {
 /**
  * Per-type difficulty levels stored in users.difficulty_levels
  */
-export type DifficultyOperationType = 'addition' | 'subtraction' | 'multiplication' | 'division';
+export type DifficultyOperationType =
+  | 'addition'
+  | 'subtraction'
+  | 'multiplication'
+  | 'division'
+  | 'numberSequences';
 
 export type DifficultyLevels = Partial<Record<DifficultyOperationType, DifficultyState>>;
 

@@ -98,3 +98,15 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 **Mistake**: `getByRole('link', { name: /Deutsch/ })` also matched the Englisch card because accessible name includes copy like „deutsche Bedeutung“.
 
 **Rule**: Prefer `a.category-card.vokabeln-card` / `.englisch-card` (or an emoji-anchored name) for home category links, same pattern as `navigation.spec.ts`.
+
+## 2026-11-12 — loadFromServer must merge local stats, never overwrite with empty server
+
+**Mistake**: `StatsService.loadFromServer` replaced local `byType` / lifetime with server payloads. When Supabase/Docker was down, answers lived only in localStorage; after DB came back, empty server stats wiped the local cache on reload.
+
+**Rule**: Always merge local + server with per-counter `Math.max`, then `syncToServer` so offline progress is uploaded. Never assign server stats blindly over local memory/localStorage.
+
+## 2026-11-12 — DifficultyService needs localStorage + merge too
+
+**Mistake**: Difficulty lived only in memory + Supabase. Offline progress never cached; empty `loadForUser` reset to defaults (Zahlenreihen → Fuchs) while pending hard problems still showed.
+
+**Rule**: Cache `difficulty_levels` per user in localStorage, merge with remote (higher level / streak wins), push when local is ahead. Pending exercises may call `ensureAtLeast` to recover tier from a harder saved problem.
