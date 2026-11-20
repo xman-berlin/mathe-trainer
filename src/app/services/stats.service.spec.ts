@@ -152,17 +152,17 @@ describe('StatsService', () => {
       for (let i = 0; i < 10; i++) {
         service.recordResult(true, 'addition');
       }
-      // 10 toward math-uebung (15) + 0 sachaufgaben → 10/20 = 50%
-      expect(service.goalProgressPercent()).toBe(50);
+      // 10 toward math-uebung (15) + 0 sach + 0 zahlenreihen → 10/25 = 40%
+      expect(service.goalProgressPercent()).toBe(40);
     });
 
     it('should not let Übung overflow fill Sachaufgaben progress', () => {
       for (let i = 0; i < 30; i++) {
         service.recordResult(true, 'addition');
       }
-      // capped: 15/15 uebung + 0/5 sach → 15/20 = 75%
+      // capped: 15/15 uebung + 0/5 sach + 0/5 zahlenreihen → 15/25 = 60%
       expect(service.categoryCorrectSum('math')).toBe(15);
-      expect(service.goalProgressPercent()).toBe(75);
+      expect(service.goalProgressPercent()).toBe(60);
       expect(service.isGoalReached()).toBeFalse();
     });
 
@@ -172,6 +172,9 @@ describe('StatsService', () => {
       }
       for (let i = 0; i < 5; i++) {
         service.recordResult(true, 'word-problems');
+      }
+      for (let i = 0; i < 5; i++) {
+        service.recordResult(true, 'number-sequences');
       }
       expect(service.isGoalReached()).toBeTrue();
     });
@@ -278,7 +281,7 @@ describe('StatsService', () => {
 
   describe('daily goals', () => {
     it('should use catalog defaults as category roll-up', () => {
-      expect(service.currentGoal()).toBe(20); // 15 + 5
+      expect(service.currentGoal()).toBe(25); // 15 + 5 + 5
       expect(service.currentClockGoal()).toBe(20); // 10 + 5 + 5
       expect(service.currentDeutschGoal()).toBe(25); // 10 + 5 + 5 + 5
       expect(service.currentEnglischGoal()).toBe(20);
@@ -289,7 +292,7 @@ describe('StatsService', () => {
       service.setExerciseGoal('math-sachaufgaben', 3);
       expect(service.goalFor('math-uebung')).toBe(12);
       expect(service.goalFor('math-sachaufgaben')).toBe(3);
-      expect(service.currentGoal()).toBe(15);
+      expect(service.currentGoal()).toBe(20); // 12 + 3 + default 5 zahlenreihen
     });
 
     it('should clamp per-exercise goal min to 1', () => {
@@ -309,7 +312,7 @@ describe('StatsService', () => {
 
     it('should clamp legacy math goal to at least one per tile', () => {
       service.setDailyGoal(0);
-      expect(service.currentGoal()).toBe(2); // math-uebung + math-sachaufgaben
+      expect(service.currentGoal()).toBe(3); // uebung + sachaufgaben + zahlenreihen
     });
 
     it('should clamp legacy math goal max to 100', () => {
@@ -398,7 +401,7 @@ describe('StatsService', () => {
       service.clearUserData();
       expect(Object.keys(service.statsByType()).length).toBe(0);
       expect(service.mathCorrectCount()).toBe(0);
-      expect(service.currentGoal()).toBe(20);
+      expect(service.currentGoal()).toBe(25);
     });
 
     it('should reset mathNumberRange to 100', () => {
@@ -518,6 +521,85 @@ describe('StatsService', () => {
       });
       const freshService = TestBed.inject(StatsService);
       expect(freshService.currentMathNumberRange()).toBe(100);
+    });
+  });
+
+  // ─── loadFromServer merge ───────────────────────────────────
+
+  describe('loadFromServer merge', () => {
+    function today(): string {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    beforeEach(() => {
+      mockAuthService.currentUser.set({
+        id: 'user-1',
+        username: 'test',
+        avatar_style: 'a',
+        created_at: '',
+        last_active_at: '',
+        math_daily_goal: 25,
+        clock_daily_goal: 20,
+        vocab_daily_goal: 20,
+      });
+      mockSupabase.upsertDailyStats.and.resolveTo(undefined as void);
+      mockSupabase.upsertLifetimeStats.and.resolveTo(undefined as void);
+    });
+
+    it('should keep local progress when server is empty and sync it up', async () => {
+      mockSupabase.getDailyStats.and.resolveTo({
+        date: today(),
+        stats_by_type: {},
+        math_daily_goal: 25,
+        clock_daily_goal: 20,
+      });
+      mockSupabase.getLifetimeStats.and.resolveTo({
+        stats_by_type: {},
+        best_streaks_by_type: {},
+      });
+
+      service.recordResult(true, 'number-sequences');
+      service.recordResult(true, 'number-sequences');
+      expect(service.statsByType()['number-sequences'].correct).toBe(2);
+
+      await service.loadFromServer();
+
+      expect(service.statsByType()['number-sequences'].correct).toBe(2);
+      expect(service.lifetimeStatsByType()['number-sequences']).toBe(2);
+      expect(mockSupabase.upsertDailyStats).toHaveBeenCalled();
+      const upserted = mockSupabase.upsertDailyStats.calls.mostRecent().args[1];
+      expect(upserted.stats_by_type['number-sequences'].correct).toBe(2);
+    });
+
+    it('should take max of local and server counters', async () => {
+      mockSupabase.getDailyStats.and.resolveTo({
+        date: today(),
+        stats_by_type: {
+          'number-sequences': { correct: 5, incorrect: 1 },
+        },
+        math_daily_goal: 25,
+        clock_daily_goal: 20,
+      });
+      mockSupabase.getLifetimeStats.and.resolveTo({
+        stats_by_type: { 'number-sequences': 9 },
+        best_streaks_by_type: { 'number-sequences': 4 },
+      });
+
+      service.recordResult(true, 'number-sequences');
+      service.recordResult(true, 'number-sequences');
+
+      await service.loadFromServer();
+
+      expect(service.statsByType()['number-sequences']).toEqual({
+        correct: 5,
+        incorrect: 1,
+      });
+      expect(service.lifetimeStatsByType()['number-sequences']).toBe(9);
+      expect(service.getBestStreak('number-sequences')).toBe(4);
     });
   });
 });

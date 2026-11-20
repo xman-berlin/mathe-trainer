@@ -35,6 +35,7 @@ export class CategoryOverviewComponent {
     'multiplication',
     'division',
     'word-problems',
+    'number-sequences',
   ];
   private clockTypes = [
     'clock-full',

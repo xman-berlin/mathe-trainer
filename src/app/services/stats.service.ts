@@ -70,7 +70,14 @@ export class StatsService {
   private bestStreaksByTypeSignal = signal<Record<string, number>>({});
 
   // Math exercise types
-  private readonly mathTypes = ['addition', 'subtraction', 'multiplication', 'division', 'word-problems'];
+  private readonly mathTypes = [
+    'addition',
+    'subtraction',
+    'multiplication',
+    'division',
+    'word-problems',
+    'number-sequences',
+  ];
   // Clock exercise types
   private readonly clockTypes = ['clock-full', 'clock-half', 'clock-quarter', 'clock-fiveMin', 'clock-setClock-full', 'clock-setClock-half', 'clock-setClock-quarter', 'clock-setClock-fiveMin', 'clock-setClock-fiveMinAfter', 'clock-setClock-fiveMinBefore', 'clock-setClock-fiveMinHalf', 'clock-zeitspanne', 'clock-verspaetung'];
 
@@ -587,7 +594,9 @@ export class StatsService {
   }
 
   /**
-   * Load stats from server and merge with local cache
+   * Load stats from server and merge with local cache.
+   * Uses max() per counter so an empty/offline server cannot wipe local progress
+   * collected while Supabase was down; then pushes the merged result back up.
    */
   async loadFromServer(): Promise<void> {
     if (!this.supabase || !this.auth || !this.auth.isAuthenticated()) {
@@ -598,65 +607,81 @@ export class StatsService {
       const userId = this.auth.currentUser()!.id;
       const today = this.today();
 
-      // Load user preferences (goals)
+      // Load user preferences (goals) — keep richer local map when server is empty
       const user = this.auth.currentUser()!;
       if (user.daily_goals_by_exercise && Object.keys(user.daily_goals_by_exercise).length > 0) {
         this.goalsByExercise.set(mergeGoalsWithDefaults(user.daily_goals_by_exercise));
-      } else {
-        this.goalsByExercise.set(catalogDefaults());
+        this.persistGoals();
       }
-      this.persistGoals();
       if (user.math_number_range && user.math_number_range >= 100) {
         this.mathNumberRange.set(user.math_number_range);
         try { localStorage.setItem(this.numberRangeStorageKey, String(user.math_number_range)); } catch { /* ignore */ }
       }
 
-      // Load daily stats
+      // Load daily stats and merge with whatever is already in memory/localStorage
       const serverDaily = await this.supabase.getDailyStats(userId, today);
+      const localDaily = this.date() === today ? this.byType() : {};
+      const serverByType =
+        serverDaily.date === today ? (serverDaily.stats_by_type ?? {}) : {};
+      const mergedDaily = this.mergeTypeStats(localDaily, serverByType);
 
-      // Convert server format to local format
-      const dailyStats: DailyStats = {
-        date: serverDaily.date,
-        byType: serverDaily.stats_by_type,
-      };
+      this.date.set(today);
+      this.byType.set(mergedDaily);
+      this.hasAnsweredToday.set(Object.keys(mergedDaily).length > 0);
 
-      this.date.set(dailyStats.date);
-      this.byType.set(dailyStats.byType);
-
-      // Check if user has answered today (by checking if any type has stats)
-      const hasAnswered = Object.keys(dailyStats.byType).length > 0;
-      this.hasAnsweredToday.set(hasAnswered);
-
-      // Load lifetime stats
+      // Lifetime: take max per type / streak so neither side loses progress
       const serverLifetime = await this.supabase.getLifetimeStats(userId);
-      this.lifetimeByType.set(serverLifetime.stats_by_type || {});
+      this.lifetimeByType.set(
+        this.mergeCounts(this.lifetimeByType(), serverLifetime.stats_by_type || {})
+      );
+      this.bestStreaksByTypeSignal.set(
+        this.mergeCounts(
+          this.bestStreaksByTypeSignal(),
+          serverLifetime.best_streaks_by_type || {}
+        )
+      );
 
-
-      // Merge server and local best streaks (take maximum of each)
-      if (serverLifetime.best_streaks_by_type) {
-        const localStreaks = this.bestStreaksByTypeSignal();
-        const serverStreaks = serverLifetime.best_streaks_by_type;
-        const mergedStreaks: Record<string, number> = { ...localStreaks };
-
-        // For each exercise type, take the maximum
-        for (const [type, serverValue] of Object.entries(serverStreaks)) {
-          const localValue = localStreaks[type] ?? 0;
-          mergedStreaks[type] = Math.max(localValue, serverValue as number);
-        }
-
-        this.bestStreaksByTypeSignal.set(mergedStreaks);
-      }
-
-
-      // Persist to localStorage (cache)
       this.persist();
       this.persistLifetime();
 
-      // Check badges on load to catch any that should have been awarded
+      // If local had data the server lacked (e.g. Docker was down), write it back
+      await this.syncToServer();
+
       this.checkBadges();
     } catch {
       // Server load failed, using local cache
     }
+  }
+
+  /** Per exercise type: max(correct), max(incorrect) */
+  private mergeTypeStats(
+    local: Record<string, ExerciseTypeStats>,
+    remote: Record<string, ExerciseTypeStats>
+  ): Record<string, ExerciseTypeStats> {
+    const keys = new Set([...Object.keys(local), ...Object.keys(remote)]);
+    const merged: Record<string, ExerciseTypeStats> = {};
+    for (const key of keys) {
+      const l = local[key];
+      const r = remote[key];
+      merged[key] = {
+        correct: Math.max(l?.correct ?? 0, r?.correct ?? 0),
+        incorrect: Math.max(l?.incorrect ?? 0, r?.incorrect ?? 0),
+      };
+    }
+    return merged;
+  }
+
+  /** Per key: max(number) */
+  private mergeCounts(
+    local: Record<string, number>,
+    remote: Record<string, number>
+  ): Record<string, number> {
+    const keys = new Set([...Object.keys(local), ...Object.keys(remote)]);
+    const merged: Record<string, number> = {};
+    for (const key of keys) {
+      merged[key] = Math.max(local[key] ?? 0, remote[key] ?? 0);
+    }
+    return merged;
   }
 
   /**

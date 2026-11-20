@@ -72,7 +72,8 @@ describe('AchievementsComponent', () => {
   });
 
   it('should have exercise types', () => {
-    expect(component.exerciseTypes.length).toBe(5);
+    expect(component.exerciseTypes.length).toBe(6);
+    expect(component.exerciseTypes.map((t) => t.key)).toContain('number-sequences');
     expect(component.exerciseTypes.map(t => t.key)).toContain('addition');
     expect(component.exerciseTypes.map(t => t.key)).toContain('word-problems');
   });

@@ -24,6 +24,7 @@ export const MAX_LEVELS: Record<DifficultyOperationType, number> = {
   subtraction: 5,
   multiplication: 6,
   division: 6,
+  numberSequences: 5,
 };
 
 export const DEFAULT_LEVELS: Record<DifficultyOperationType, number> = {
@@ -31,6 +32,7 @@ export const DEFAULT_LEVELS: Record<DifficultyOperationType, number> = {
   subtraction: 3,
   multiplication: 2,
   division: 2,
+  numberSequences: 2,
 };
 
 // Level up after this many correct answers in a row
@@ -47,6 +49,8 @@ export interface DifficultyLevelChangeEvent {
   /** Level after the change */
   level: number;
 }
+
+const STORAGE_PREFIX = 'schlaufuchs-difficulty-levels:';
 
 // ─── Service ────────────────────────────────────────────────────────────────
 
@@ -77,11 +81,21 @@ export class DifficultyService {
 
   async loadForUser(userId: string): Promise<void> {
     this.currentUserId = userId;
-    const remote = await this.supabase.getDifficultyLevels(userId);
-    if (remote && Object.keys(remote).length > 0) {
-      this._levels.set(this.clampLevels(remote));
-    } else {
-      this._levels.set({});
+    const local = this.loadLocal(userId);
+    let remote: DifficultyLevels | null = null;
+    try {
+      remote = await this.supabase.getDifficultyLevels(userId);
+    } catch (err) {
+      console.error('[DifficultyService] remote load failed, using local cache:', err);
+    }
+
+    const merged = this.clampLevels(this.mergeLevels(local, remote ?? {}));
+    this._levels.set(merged);
+    this.persistLocal();
+
+    // Push merged state when local was ahead of an empty/stale server (e.g. Docker was down)
+    if (Object.keys(merged).length > 0 && this.isAheadOf(merged, remote ?? {})) {
+      this._schedulePersist(0);
     }
   }
 
@@ -127,6 +141,22 @@ export class DifficultyService {
 
   getMaxLevel(type: DifficultyOperationType): number {
     return MAX_LEVELS[type];
+  }
+
+  /**
+   * Raise a type to at least `level` (e.g. recover after empty-server wipe
+   * when a pending harder problem is still in localStorage).
+   */
+  ensureAtLeast(type: DifficultyOperationType, level: number): void {
+    const target = Math.min(Math.max(1, Math.floor(level)), MAX_LEVELS[type]);
+    if (target <= this.getLevel(type)) return;
+    const current = this.getState(type);
+    this._updateType(type, {
+      level: target,
+      streak: current.level === target ? current.streak : 0,
+      recentResults: current.level === target ? current.recentResults : [],
+    });
+    this._schedulePersist();
   }
 
   // ─── Record result + level transitions ─────────────────────────
@@ -191,19 +221,92 @@ export class DifficultyService {
     return next;
   }
 
-  private _updateType(type: DifficultyOperationType, state: DifficultyState): void {
-    this._levels.update((current) => ({ ...current, [type]: state }));
+  private mergeLevels(local: DifficultyLevels, remote: DifficultyLevels): DifficultyLevels {
+    const keys = new Set([
+      ...Object.keys(local),
+      ...Object.keys(remote),
+    ]) as Set<DifficultyOperationType>;
+    const merged: DifficultyLevels = {};
+    for (const key of keys) {
+      const state = this.mergeState(local[key], remote[key]);
+      if (state) merged[key] = state;
+    }
+    return merged;
   }
 
-  private _schedulePersist(): void {
+  private mergeState(
+    local?: DifficultyState,
+    remote?: DifficultyState
+  ): DifficultyState | undefined {
+    if (!local) return remote ? { ...remote, recentResults: [...remote.recentResults] } : undefined;
+    if (!remote) return { ...local, recentResults: [...local.recentResults] };
+    if (local.level !== remote.level) {
+      return local.level > remote.level
+        ? { ...local, recentResults: [...local.recentResults] }
+        : { ...remote, recentResults: [...remote.recentResults] };
+    }
+    if (local.streak !== remote.streak) {
+      return local.streak > remote.streak
+        ? { ...local, recentResults: [...local.recentResults] }
+        : { ...remote, recentResults: [...remote.recentResults] };
+    }
+    return local.recentResults.length >= remote.recentResults.length
+      ? { ...local, recentResults: [...local.recentResults] }
+      : { ...remote, recentResults: [...remote.recentResults] };
+  }
+
+  /** True if `a` has any type at a higher level (or same level with more streak) than `b`. */
+  private isAheadOf(a: DifficultyLevels, b: DifficultyLevels): boolean {
+    for (const key of Object.keys(a) as DifficultyOperationType[]) {
+      const left = a[key];
+      const right = b[key];
+      if (!left) continue;
+      if (!right) return true;
+      if (left.level > right.level) return true;
+      if (left.level === right.level && left.streak > right.streak) return true;
+    }
+    return false;
+  }
+
+  private storageKey(userId: string): string {
+    return `${STORAGE_PREFIX}${userId}`;
+  }
+
+  private loadLocal(userId: string): DifficultyLevels {
+    try {
+      const raw = localStorage.getItem(this.storageKey(userId));
+      if (!raw) return {};
+      const parsed = JSON.parse(raw) as DifficultyLevels;
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private persistLocal(): void {
+    if (!this.currentUserId) return;
+    try {
+      localStorage.setItem(this.storageKey(this.currentUserId), JSON.stringify(this._levels()));
+    } catch {
+      // ignore quota / private mode
+    }
+  }
+
+  private _updateType(type: DifficultyOperationType, state: DifficultyState): void {
+    this._levels.update((current) => ({ ...current, [type]: state }));
+    this.persistLocal();
+  }
+
+  private _schedulePersist(delayMs = 300): void {
     if (!this.currentUserId) return;
     if (this.persistTimer) clearTimeout(this.persistTimer);
     this.persistTimer = setTimeout(() => {
       if (this.currentUserId) {
+        this.persistLocal();
         this.supabase
           .updateDifficultyLevels(this.currentUserId, this._levels())
           .catch((err) => console.error('[DifficultyService] persist failed:', err));
       }
-    }, 300);
+    }, delayMs);
   }
 }

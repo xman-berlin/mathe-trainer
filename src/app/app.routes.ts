@@ -51,6 +51,14 @@ export const routes: Routes = [
     data: { mode: 'practice' },
     canActivate: [authGuard],
   },
+  {
+    path: 'mathe/zahlenreihen',
+    loadComponent: () =>
+      import('./components/number-sequence-exercise/number-sequence-exercise.component').then(
+        (m) => m.NumberSequenceExerciseComponent
+      ),
+    canActivate: [authGuard],
+  },
   { path: 'mathe/erfolge', redirectTo: '/erfolge?tab=math', pathMatch: 'full' },
 
   // Uhrzeit routes

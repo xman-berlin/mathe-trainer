@@ -15,6 +15,7 @@ describe('practice-exercise.catalog', () => {
     const defaults = catalogDefaults();
     expect(defaults['math-uebung']).toBe(15);
     expect(defaults['math-sachaufgaben']).toBe(5);
+    expect(defaults['math-zahlenreihen']).toBe(5);
     expect(defaults['clock-uebung']).toBe(10);
     expect(defaults['clock-zeiger']).toBe(5);
     expect(defaults['clock-zeitspannen']).toBe(5);
@@ -43,7 +44,7 @@ describe('practice-exercise.catalog', () => {
 
   it('should sum goals and correct counts per category', () => {
     const goals = catalogDefaults();
-    expect(sumGoalsForCategory(goals, 'math')).toBe(20);
+    expect(sumGoalsForCategory(goals, 'math')).toBe(25);
     expect(tilesForCategory('deutsch').length).toBe(4);
 
     const byType = {
@@ -61,6 +62,7 @@ describe('practice-exercise.catalog', () => {
     const byType = {
       addition: { correct: 20 },
       'word-problems': { correct: 0 },
+      'number-sequences': { correct: 0 },
     };
     expect(cappedCorrectCountForCategory(byType, goals, 'math')).toBe(15);
     expect(allTileGoalsReached(byType, goals, 'math')).toBeFalse();
@@ -68,8 +70,9 @@ describe('practice-exercise.catalog', () => {
     const done = {
       addition: { correct: 15 },
       'word-problems': { correct: 5 },
+      'number-sequences': { correct: 5 },
     };
-    expect(cappedCorrectCountForCategory(done, goals, 'math')).toBe(20);
+    expect(cappedCorrectCountForCategory(done, goals, 'math')).toBe(25);
     expect(allTileGoalsReached(done, goals, 'math')).toBeTrue();
   });
 });
