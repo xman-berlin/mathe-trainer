@@ -1,33 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { bypassLogin } from './helpers';
 
-/**
- * All five types start selected. Isolate one type by turning the others off
- * (the last remaining type cannot be turned off).
- */
-async function activateOnlyType(page: Page, ariaLabel: string): Promise<void> {
-  const keepBtn = page.locator('.type-selector').getByRole('button', { name: ariaLabel });
-  if (!(await keepBtn.evaluate((el) => el.classList.contains('active')))) {
-    await keepBtn.click();
-  }
-
-  const buttons = page.locator('.type-selector .type-btn');
-  const count = await buttons.count();
-  for (let i = 0; i < count; i++) {
-    const btn = buttons.nth(i);
-    const label = await btn.getAttribute('aria-label');
-    if (label === ariaLabel) {
-      continue;
-    }
-    const active = await btn.evaluate((el) => el.classList.contains('active'));
-    if (active) {
-      await btn.click();
-    }
-  }
-
-  await expect(keepBtn).toHaveClass(/active/);
-}
-
 async function enterAnswerViaKeypad(page: Page, answer: number): Promise<void> {
   for (const digit of String(answer)) {
     await page.locator('.keypad button', { hasText: digit, exact: true }).click();
@@ -35,27 +8,40 @@ async function enterAnswerViaKeypad(page: Page, answer: number): Promise<void> {
   await page.locator('.btn-ok').click();
 }
 
+const BOBBI_PROBLEM = {
+  kind: 'two-step',
+  type: 'two-step',
+  theme: 'money-family',
+  storyText:
+    'Bobbi fährt mit seinen Eltern mit dem Bus. Eine Erwachsenenkarte kostet 17€. Kinder bezahlen 6€ weniger. Wie viel muss die Familie bezahlen?',
+  icon: '🚌',
+  templateId: 'money-family-tickets',
+  givenNumbers: [17, 6],
+  intermediateValues: [11],
+  expectedAddends: [17, 17, 11],
+  correctAnswer: 45,
+  unit: 'euro',
+  sampleRechnung: '17€ + 17€ + 11€ = 45 €',
+  sampleAntwort: 'Die Familie bezahlt 45€.',
+  answerKeywords: ['familie', 'eltern', 'bezal', 'zahl', 'zusammen', 'kost'],
+  numberRange: 'bis100',
+  playerLevel: 4,
+};
+
 test.describe('Mathe Sachaufgaben', () => {
   test.beforeEach(async ({ page }) => {
     await bypassLogin(page);
   });
 
-  test('should show word problem exercise page with mixed types selected', async ({ page }) => {
+  test('should show word problem exercise with status card and no type selector', async ({
+    page,
+  }) => {
     await page.goto('/mathe/sachaufgaben');
 
     await expect(page.getByRole('heading', { name: 'Sachaufgaben lösen' })).toBeVisible();
-    await expect(page.locator('.type-selector')).toBeVisible();
-    await expect(page.locator('.type-btn')).toHaveCount(5);
-    await expect(page.locator('.type-selector').getByRole('button', { name: 'Zweistufig' })).toHaveClass(
-      /active/
-    );
-    await expect(page.locator('.type-selector').getByRole('button', { name: 'Plus' })).toHaveClass(
-      /active/
-    );
-    await expect(page.locator('.type-selector').getByRole('button', { name: 'Geteilt' })).toHaveClass(
-      /active/
-    );
-    await expect(page.locator('.story-display')).toBeVisible();
+    await expect(page.locator('.type-selector')).toHaveCount(0);
+    await expect(page.locator('.task-card')).toBeVisible();
+    await expect(page.locator('app-exercise-status-card')).toBeVisible();
     await expect(page.locator('.keypad')).toBeVisible();
   });
 
@@ -74,22 +60,15 @@ test.describe('Mathe Sachaufgaben', () => {
     await expect(page.locator('.story-icon')).toBeVisible();
   });
 
-  test('should start with the Bobbi bus-ticket story when only two-step is active', async ({
+  test('should resume a seeded two-step Bobbi problem and grade the final number', async ({
     page,
   }) => {
-    await page.goto('/mathe/sachaufgaben');
-    await activateOnlyType(page, 'Zweistufig');
+    await page.goto('/mathe');
+    await page.evaluate((problem) => {
+      localStorage.setItem('schlaufuchs-pending-word-problem', JSON.stringify(problem));
+    }, BOBBI_PROBLEM);
 
-    await expect(page.locator('.story-text')).toContainText(
-      'Bobbi fährt mit seinen Eltern mit dem Bus. Eine Erwachsenenkarte kostet 17€. Kinder bezahlen 6€ weniger. Wie viel muss die Familie bezahlen?'
-    );
-    await expect(page.locator('.answer-input')).toBeVisible();
-    await expect(page.locator('.keypad')).toBeVisible();
-  });
-
-  test('should answer a two-step word problem with the final number only', async ({ page }) => {
     await page.goto('/mathe/sachaufgaben');
-    await activateOnlyType(page, 'Zweistufig');
 
     await expect(page.locator('.story-text')).toContainText('Bobbi');
     await enterAnswerViaKeypad(page, 45);
@@ -97,20 +76,31 @@ test.describe('Mathe Sachaufgaben', () => {
     await expect(page.locator('.feedback-correct')).toBeVisible({ timeout: 2000 });
   });
 
-  test('should still practice classic one-step stories with the numeric keypad', async ({
-    page,
-  }) => {
+  test('should practice a seeded one-step story with the numeric keypad', async ({ page }) => {
+    const oneStep = {
+      kind: 'one-step',
+      type: 'addition',
+      storyText: 'Lisa hat 3 Äpfel. Sie bekommt 2 Äpfel geschenkt. Wie viele hat sie jetzt?',
+      operandA: 3,
+      operandB: 2,
+      correctAnswer: 5,
+      templateId: 'apples',
+      numberRange: 'bis20',
+      playerLevel: 1,
+    };
+
+    await page.goto('/mathe');
+    await page.evaluate((problem) => {
+      localStorage.setItem('schlaufuchs-pending-word-problem', JSON.stringify(problem));
+    }, oneStep);
+
     await page.goto('/mathe/sachaufgaben');
-    await activateOnlyType(page, 'Plus');
 
     await expect(page.locator('.answer-input')).toBeVisible();
     await expect(page.locator('.keypad')).toBeVisible();
 
-    await page.locator('.keypad button', { hasText: '5' }).click();
-    await page.locator('.btn-ok').click();
+    await enterAnswerViaKeypad(page, 5);
 
-    await expect(page.locator('.feedback-correct, .feedback-incorrect')).toBeVisible({
-      timeout: 2000,
-    });
+    await expect(page.locator('.feedback-correct')).toBeVisible({ timeout: 2000 });
   });
 });

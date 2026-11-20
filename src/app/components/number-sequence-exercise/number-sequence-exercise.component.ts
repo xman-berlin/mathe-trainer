@@ -22,6 +22,10 @@ import {
 import { StatsService } from '../../services/stats.service';
 import { ExerciseStateService } from '../../services/exercise-state.service';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
+import {
+  ExerciseStatusCardComponent,
+  ExerciseDifficultyView,
+} from '../shared/exercise-status-card/exercise-status-card.component';
 
 const STATS_KEY = 'number-sequences';
 const DIFF_TYPE = 'numberSequences' as const;
@@ -30,7 +34,7 @@ const STREAK_STORAGE_KEY = 'schlaufuchs-number-sequence-streak';
 @Component({
   standalone: true,
   selector: 'app-number-sequence-exercise',
-  imports: [RouterLink, KeypadComponent],
+  imports: [RouterLink, KeypadComponent, ExerciseStatusCardComponent],
   templateUrl: './number-sequence-exercise.component.html',
   styleUrl: './number-sequence-exercise.component.scss',
   providers: [ExerciseStateService],
@@ -89,9 +93,24 @@ export class NumberSequenceExerciseComponent implements OnInit, OnDestroy {
     return Array.from({ length: DIFFICULTY_STREAK_UP }, (_, i) => i < streak);
   });
 
+  readonly statusDifficulty = computed((): ExerciseDifficultyView => {
+    const tier = this.difficultyTier();
+    const next = this.nextDifficultyTier();
+    return {
+      emoji: tier.emoji,
+      name: tier.name,
+      level: this.difficultyLevel(),
+      maxLevel: this.difficultyMax(),
+      streak: this.difficultyStreak(),
+      streakUpNeeded: this.streakUpNeeded,
+      nextEmoji: next?.emoji ?? null,
+      nextName: next?.name ?? null,
+      flash: this.levelFlash(),
+    };
+  });
+
   readonly correctCount = computed(() => this.stats.statsByType()[STATS_KEY]?.correct ?? 0);
   readonly incorrectCount = computed(() => this.stats.statsByType()[STATS_KEY]?.incorrect ?? 0);
-  readonly totalCount = computed(() => this.correctCount() + this.incorrectCount());
 
   readonly activeAnswer = computed(() => {
     const answers = this.gapAnswers();

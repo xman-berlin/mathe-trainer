@@ -177,6 +177,13 @@ describe('DifficultyService', () => {
     expect(service.getLevel('numberSequences')).toBe(4);
   });
 
+  it('should default wordProblems to level 2 with max 5', () => {
+    expect(service.getLevel('wordProblems')).toBe(DEFAULT_LEVELS.wordProblems);
+    expect(service.getMaxLevel('wordProblems')).toBe(MAX_LEVELS.wordProblems);
+    expect(DEFAULT_LEVELS.wordProblems).toBe(2);
+    expect(MAX_LEVELS.wordProblems).toBe(5);
+  });
+
   // ─── clearUser ────────────────────────────────────────────────────────────
 
   it('should clamp stored addition level 6 down to max 5 on load', async () => {

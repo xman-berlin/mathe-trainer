@@ -25,6 +25,7 @@ export const MAX_LEVELS: Record<DifficultyOperationType, number> = {
   multiplication: 6,
   division: 6,
   numberSequences: 5,
+  wordProblems: 5,
 };
 
 export const DEFAULT_LEVELS: Record<DifficultyOperationType, number> = {
@@ -33,6 +34,7 @@ export const DEFAULT_LEVELS: Record<DifficultyOperationType, number> = {
   multiplication: 2,
   division: 2,
   numberSequences: 2,
+  wordProblems: 2,
 };
 
 // Level up after this many correct answers in a row

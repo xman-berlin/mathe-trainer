@@ -27,7 +27,8 @@ test.describe('Navigation', () => {
 
       await page.getByRole('link', { name: 'Übung' }).click();
       await expect(page).toHaveURL(/\/mathe\/uebung$/);
-      await expect(page.locator('.type-toggle').first()).toBeVisible();
+      await expect(page.locator('.problem-display')).toBeVisible();
+      await expect(page.locator('app-exercise-status-card')).toBeVisible();
     });
 
     test.skip('should navigate from mathe overview to zeitrennen', async ({ page }) => {

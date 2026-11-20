@@ -7,6 +7,10 @@ import { ProblemGeneratorService, OperationType } from '../../services/problem-g
 import { DifficultyService, DIFFICULTY_STREAK_UP } from '../../services/difficulty.service';
 import type { DifficultyOperationType } from '../../models/user.model';
 import { KeypadComponent } from '../shared/keypad/keypad.component';
+import {
+  ExerciseStatusCardComponent,
+  ExerciseDifficultyView,
+} from '../shared/exercise-status-card/exercise-status-card.component';
 import { ExerciseStateService } from '../../services/exercise-state.service';
 import { PracticePlanService } from '../../services/practice-plan.service';
 import { PendingMathProblemService } from '../../services/pending-math-problem.service';
@@ -14,10 +18,17 @@ import { createStatsAggregator } from '../../utils/stats-aggregator';
 
 type ExerciseType = 'addition' | 'subtraction' | 'multiplication' | 'division';
 
+const ALL_MATH_TYPES = new Set<ExerciseType>([
+  'addition',
+  'subtraction',
+  'multiplication',
+  'division',
+]);
+
 @Component({
   standalone: true,
   selector: 'app-exercise',
-  imports: [RouterLink, KeypadComponent],
+  imports: [RouterLink, KeypadComponent, ExerciseStatusCardComponent],
   templateUrl: './exercise.component.html',
   styleUrls: ['./exercise.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -111,7 +122,7 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     this.levelFlashTimer = setTimeout(() => this.levelFlash.set(null), 900);
   }
 
-  selectedTypes = signal<Set<ExerciseType>>(new Set(['addition', 'subtraction', 'multiplication', 'division']));
+  selectedTypes = signal<Set<ExerciseType>>(new Set(ALL_MATH_TYPES));
   currentType = signal<ExerciseType>('addition');
 
   // Selected numbers for multiplication and division (empty = all, otherwise specific ones)
@@ -150,11 +161,14 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
       // In time trial mode: only one type allowed, start with addition
       if (mode === 'timeTrial') {
         this.selectedTypes.set(new Set(['addition']));
+      } else {
+        // Practice: always auto-mix all four operations
+        this.selectedTypes.set(new Set(ALL_MATH_TYPES));
       }
     }
 
     if (this.practicePlan.typesLocked()) {
-      this.selectedTypes.set(new Set(['addition', 'subtraction', 'multiplication', 'division']));
+      this.selectedTypes.set(new Set(ALL_MATH_TYPES));
       this.selectedNumbers.set(new Set());
     }
 
@@ -259,6 +273,24 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   levelProgressDots = computed(() => {
     const filled = Math.min(this.currentDifficultyStreak(), this.streakUpNeeded);
     return Array.from({ length: this.streakUpNeeded }, (_, i) => i < filled);
+  });
+
+  /** Unified status card difficulty (practice only). */
+  readonly statusDifficulty = computed((): ExerciseDifficultyView | null => {
+    if (this.mode() !== 'practice') return null;
+    const tier = this.currentDifficultyTier();
+    const next = this.nextDifficultyTier();
+    return {
+      emoji: tier.emoji,
+      name: tier.name,
+      level: this.currentDifficultyLevel(),
+      maxLevel: this.currentDifficultyMax(),
+      streak: this.currentDifficultyStreak(),
+      streakUpNeeded: this.streakUpNeeded,
+      nextEmoji: next?.emoji ?? null,
+      nextName: next?.name ?? null,
+      flash: this.levelFlash(),
+    };
   });
 
   private statsAgg = createStatsAggregator(this.stats, this.selectedTypes);
@@ -441,6 +473,14 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
 
       this.stats.recordResult(isCorrect, this.currentType());
       this.difficultyService.recordResult(this.currentType() as OperationType, isCorrect);
+
+      const leveled =
+        this.difficultyService.lastLevelUp() !== null ||
+        this.difficultyService.lastLevelDown() !== null;
+      if (leveled) {
+        this.exerciseState.clearMilestone();
+      }
+
       if (isCorrect) {
         this.practicePlan.recordCorrect('math');
       }

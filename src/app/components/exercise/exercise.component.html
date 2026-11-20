@@ -2,10 +2,12 @@
   <div class="exercise-container">
     <a
       [routerLink]="practicePlan.isGuiding() ? '/' : '/mathe'"
-      class="back-home-btn"
+      class="back-btn"
       (click)="practicePlan.pause()"
     >← Zurück</a>
-    <div class="main-area">
+
+    <div class="exercise-content">
+      <h1 class="page-title">{{ mode() === 'timeTrial' ? 'Zeitrennen' : 'Mathe üben' }}</h1>
 
       @if (timeTrialActive()) {
         <div class="timer-display" [class.critical]="timeRemaining() <= 10">
@@ -29,69 +31,49 @@
         </div>
       }
 
-      @if (!practicePlan.typesLocked()) {
-      <div class="type-selector">
-        <button
-          type="button"
-          class="type-toggle"
-          [class.active]="isTypeSelected('addition')"
-          [class.locked]="mode() === 'practice' && lockedTypes().has('addition')"
-          [attr.aria-label]="'Addition'"
-          [attr.aria-pressed]="isTypeSelected('addition')"
-          [title]="mode() === 'practice' && lockedTypes().has('addition') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
-          (click)="toggleType('addition')">
-          <span class="type-icon" aria-hidden="true">+</span>
-          <span class="type-label">Addition</span>
-          @if (mode() === 'practice' && lockedTypes().has('addition')) {
-            <span class="lock-icon">🔒</span>
-          }
-        </button>
-        <button
-          type="button"
-          class="type-toggle"
-          [class.active]="isTypeSelected('subtraction')"
-          [class.locked]="mode() === 'practice' && lockedTypes().has('subtraction')"
-          [attr.aria-label]="'Subtraktion'"
-          [attr.aria-pressed]="isTypeSelected('subtraction')"
-          [title]="mode() === 'practice' && lockedTypes().has('subtraction') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
-          (click)="toggleType('subtraction')">
-          <span class="type-icon" aria-hidden="true">−</span>
-          <span class="type-label">Subtraktion</span>
-          @if (mode() === 'practice' && lockedTypes().has('subtraction')) {
-            <span class="lock-icon">🔒</span>
-          }
-        </button>
-        <button
-          type="button"
-          class="type-toggle"
-          [class.active]="isTypeSelected('multiplication')"
-          [class.locked]="mode() === 'practice' && lockedTypes().has('multiplication')"
-          [attr.aria-label]="'Multiplikation'"
-          [attr.aria-pressed]="isTypeSelected('multiplication')"
-          [title]="mode() === 'practice' && lockedTypes().has('multiplication') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
-          (click)="toggleType('multiplication')">
-          <span class="type-icon" aria-hidden="true">×</span>
-          <span class="type-label">Multiplikation</span>
-          @if (mode() === 'practice' && lockedTypes().has('multiplication')) {
-            <span class="lock-icon">🔒</span>
-          }
-        </button>
-        <button
-          type="button"
-          class="type-toggle"
-          [class.active]="isTypeSelected('division')"
-          [class.locked]="mode() === 'practice' && lockedTypes().has('division')"
-          [attr.aria-label]="'Division'"
-          [attr.aria-pressed]="isTypeSelected('division')"
-          [title]="mode() === 'practice' && lockedTypes().has('division') ? 'Du hast diese Rechenart gemeistert – sie bleibt immer aktiv!' : ''"
-          (click)="toggleType('division')">
-          <span class="type-icon" aria-hidden="true">÷</span>
-          <span class="type-label">Division</span>
-          @if (mode() === 'practice' && lockedTypes().has('division')) {
-            <span class="lock-icon">🔒</span>
-          }
-        </button>
-      </div>
+      @if (mode() === 'timeTrial' && !practicePlan.typesLocked()) {
+        <div class="type-selector">
+          <button
+            type="button"
+            class="type-toggle"
+            [class.active]="isTypeSelected('addition')"
+            [attr.aria-label]="'Addition'"
+            [attr.aria-pressed]="isTypeSelected('addition')"
+            (click)="toggleType('addition')">
+            <span class="type-icon" aria-hidden="true">+</span>
+            <span class="type-label">Addition</span>
+          </button>
+          <button
+            type="button"
+            class="type-toggle"
+            [class.active]="isTypeSelected('subtraction')"
+            [attr.aria-label]="'Subtraktion'"
+            [attr.aria-pressed]="isTypeSelected('subtraction')"
+            (click)="toggleType('subtraction')">
+            <span class="type-icon" aria-hidden="true">−</span>
+            <span class="type-label">Subtraktion</span>
+          </button>
+          <button
+            type="button"
+            class="type-toggle"
+            [class.active]="isTypeSelected('multiplication')"
+            [attr.aria-label]="'Multiplikation'"
+            [attr.aria-pressed]="isTypeSelected('multiplication')"
+            (click)="toggleType('multiplication')">
+            <span class="type-icon" aria-hidden="true">×</span>
+            <span class="type-label">Multiplikation</span>
+          </button>
+          <button
+            type="button"
+            class="type-toggle"
+            [class.active]="isTypeSelected('division')"
+            [attr.aria-label]="'Division'"
+            [attr.aria-pressed]="isTypeSelected('division')"
+            (click)="toggleType('division')">
+            <span class="type-icon" aria-hidden="true">÷</span>
+            <span class="type-label">Division</span>
+          </button>
+        </div>
       } @else if (practicePlan.isGuiding()) {
         <p class="plan-progress-banner">{{ practicePlan.progressLabel() }}</p>
       }
@@ -122,7 +104,7 @@
         </div>
       }
 
-      <div class="task-section">
+      <div class="task-card" role="group" aria-label="Rechenaufgabe">
         <div class="problem-display">
           <div class="operand-display">{{ operandA() }}</div>
           <div class="operator">{{ operatorSymbol() }}</div>
@@ -130,59 +112,17 @@
           <div class="equals">=</div>
           <div class="question-mark">?</div>
         </div>
-
-        @if (mode() === 'practice') {
-          <div
-            class="difficulty-chip"
-            [class.flash-up]="levelFlash() === 'up'"
-            [class.flash-down]="levelFlash() === 'down'"
-            aria-live="polite"
-          >
-            <div class="difficulty-chip-main">
-              <span class="difficulty-emoji">{{ currentDifficultyTier().emoji }}</span>
-              <span class="difficulty-name">{{ currentDifficultyTier().name }}</span>
-              <span class="difficulty-level">Stufe {{ currentDifficultyLevel() }}/{{ currentDifficultyMax() }}</span>
-            </div>
-            @if (!isMaxDifficulty()) {
-              <div class="difficulty-progress" aria-label="Fortschritt zur nächsten Stufe">
-                @for (filled of levelProgressDots(); track $index) {
-                  <span class="progress-dot" [class.filled]="filled"></span>
-                }
-              </div>
-              @if (nextDifficultyTier(); as next) {
-                <p class="difficulty-hint">
-                  @if (currentDifficultyStreak() === 0) {
-                    {{ streakUpNeeded }} richtig bis {{ next.emoji }} {{ next.name }}
-                  } @else {
-                    Noch {{ streakUpNeeded - currentDifficultyStreak() }} richtig bis {{ next.emoji }} {{ next.name }}
-                  }
-                </p>
-              }
-            } @else {
-              <p class="difficulty-hint max">Höchste Stufe erreicht!</p>
-            }
-          </div>
-        }
-
-        @if (mode() === 'practice') {
-          <div class="streak-display" [class.has-streak]="streak() > 0">
-            <span class="streak-icon">&#x1F525;</span>
-            <span class="streak-count">{{ streak() }}</span>
-            @if (bestStreak() > 0 && bestStreak() > streak()) {
-              <span class="best-streak">Rekord: {{ bestStreak() }}</span>
-            }
-          </div>
-        }
-
-        @if (mode() === 'practice') {
-          <div class="result-summary">
-            <span class="badge badge-correct">&#x2713; {{ typeCorrectCount() }}</span>
-            <span class="badge badge-incorrect">&#x2717; {{ typeIncorrectCount() }}</span>
-            <span class="badge badge-total">&#x3a3; {{ typeTotalCount() }}</span>
-            <span class="summary-label">Heute</span>
-          </div>
-        }
       </div>
+
+      @if (mode() === 'practice') {
+        <app-exercise-status-card
+          [streak]="streak"
+          [bestStreak]="bestStreak"
+          [correctCount]="typeCorrectCount"
+          [incorrectCount]="typeIncorrectCount"
+          [difficulty]="statusDifficulty"
+        />
+      }
 
       <div class="answer-section">
         <div class="input-section">
@@ -196,7 +136,7 @@
             aria-label="Ergebnis eingeben"
             autocomplete="off"
             class="answer-input"
-            placeholder="0"
+            placeholder="?"
             tabindex="0"
             maxlength="3"
           />
@@ -212,11 +152,11 @@
 
         <div class="feedback-area">
           @if (feedback() === 'correct') {
-            <div class="feedback correct">&#x2713; Richtig!</div>
+            <div class="feedback correct">✓ Richtig!</div>
           }
           @if (feedback() === 'incorrect') {
             <div class="feedback incorrect">
-              &#x2717; Falsch. @if (showCorrectAnswer()) {
+              ✗ Falsch. @if (showCorrectAnswer()) {
                 <span>Richtige Antwort: {{ correctAnswer() }}</span>
               }
             </div>
@@ -231,18 +171,22 @@
           }
         </div>
         <div class="milestone-popup">
-          &#x1F389; {{ milestoneValue() }}er Serie! &#x1F389;
+          🎉 {{ milestoneValue() }}er Serie! 🎉
         </div>
       }
 
       @if (showLevelUp() && levelUpInfo()) {
-        <div class="level-change-popup" [class.level-up]="levelUpInfo()!.direction === 'up'" [class.level-down]="levelUpInfo()!.direction === 'down'">
+        <div
+          class="level-change-popup"
+          [class.level-up]="levelUpInfo()!.direction === 'up'"
+          [class.level-down]="levelUpInfo()!.direction === 'down'"
+        >
           @if (levelUpInfo()!.direction === 'up') {
-            &#x1F4AA; Aufgestiegen! {{ levelUpInfo()!.fromEmoji }} {{ levelUpInfo()!.fromName }}
-            → {{ levelUpInfo()!.emoji }} {{ levelUpInfo()!.name }}
+            Aufgestiegen! {{ levelUpInfo()!.fromEmoji }} → {{ levelUpInfo()!.emoji }}
+            {{ levelUpInfo()!.name }}
           } @else {
-            Stufe angepasst: {{ levelUpInfo()!.fromEmoji }} {{ levelUpInfo()!.fromName }}
-            → {{ levelUpInfo()!.emoji }} {{ levelUpInfo()!.name }}
+            Stufe angepasst: {{ levelUpInfo()!.fromEmoji }} → {{ levelUpInfo()!.emoji }}
+            {{ levelUpInfo()!.name }}
           }
         </div>
       }
@@ -300,5 +244,5 @@
         <a routerLink="/" class="secondary-btn">← Zurück</a>
       </div>
     </div>
-   </div>
+  </div>
 }
