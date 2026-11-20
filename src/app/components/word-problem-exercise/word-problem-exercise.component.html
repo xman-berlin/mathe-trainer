@@ -1,5 +1,5 @@
-<div class="word-problem-root">
-  <div class="word-problem-container">
+<div class="ex-shell">
+  <div class="ex-shell-container">
     <a routerLink="/mathe" class="back-btn">← Zurück</a>
 
     <div class="exercise-content">
@@ -50,7 +50,7 @@
       </div>
 
       @if (showMilestone()) {
-        <div class="milestone-popup">
+        <div class="milestone-popup ex-shell-full">
           <div class="milestone-content">
             <div class="milestone-icon">🎉</div>
             <div class="milestone-text">{{ milestoneValue() }} in Folge!</div>
@@ -63,7 +63,7 @@
 
       @if (levelUpInfo(); as info) {
         <div
-          class="level-change-popup"
+          class="level-change-popup ex-shell-full"
           [class.level-up]="info.direction === 'up'"
           [class.level-down]="info.direction === 'down'"
         >

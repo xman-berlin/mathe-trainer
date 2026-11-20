@@ -125,4 +125,10 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 
 **Mistake**: Landscape `.exercise-content` used `flex: 1` + CSS Grid with default `align-content: stretch`. Auto rows expanded to fill the viewport, so the title row became ~240px tall and Aufgabe/Keypad floated far below the title.
 
-**Rule**: Exercise workspaces that grow with `flex: 1` must set `align-content: start` (never leave stretch). Prefer a real `.exercise-header` (back + title) outside the grid so the workspace has no fake top margin.
+**Rule**: Exercise workspaces that grow with `flex: 1` must set `align-content: start` (never leave stretch).
+
+## 2026-11-20 — One Mathe shell: Zahlenreihen layout for all three
+
+**Mistake**: Mathe Übung got a custom header band while Zahlenreihen/Sachaufgaben kept absolute back + `margin-top: 3rem` — titles sat at different heights.
+
+**Rule**: All Mathe practice screens use shared `styles/_exercise-shell.scss` (`.ex-shell` / Zahlenreihen structure: absolute back, title inside `.exercise-content`, landscape left=task+status / right=answer).
