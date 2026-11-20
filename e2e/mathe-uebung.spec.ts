@@ -51,23 +51,10 @@ test.describe('Mathe Übung', () => {
     await expect(page.locator('.feedback-area .feedback')).toBeVisible({ timeout: 3000 });
   });
 
-  test('should show multiplier selector when current problem is × or ÷', async ({ page }) => {
+  test('should not show Reihe / multiplier selector', async ({ page }) => {
     await page.goto('/mathe/uebung');
 
-    // Keep regenerating until we land on mult/div (auto-mix includes all ops)
-    for (let i = 0; i < 40; i++) {
-      const op = (await page.locator('.operator').textContent())!.trim();
-      if (op === '×' || op === '÷') {
-        await expect(page.locator('.multiplier-selector')).toBeVisible();
-        await expect(page.locator('.multiplier-btn').first()).toBeVisible();
-        return;
-      }
-      // Skip: submit wrong answer to advance
-      await page.locator('.keypad button', { hasText: '0', exact: true }).click();
-      await page.locator('.btn-ok').click();
-      await page.waitForTimeout(1400);
-    }
-
-    test.skip(true, 'Did not land on multiplication/division within retries');
+    await expect(page.locator('.multiplier-selector')).toHaveCount(0);
+    await expect(page.getByText('Reihe:')).toHaveCount(0);
   });
 });

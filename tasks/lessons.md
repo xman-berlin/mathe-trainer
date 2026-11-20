@@ -114,3 +114,9 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 ## 2026-11-20 — finish-feature: merge PR when CI is green
 
 **Rule**: When the user asks to finish a feature (`finish-feature` / „Feature fertig“), after quality gates + commit + push + PR: if CI is green and the PR is mergeable, **merge the PR** (and delete the feature branch). Do not leave a finished, CI-green PR open waiting for a separate „merge?“ ask.
+
+## 2026-11-20 — Auto-mix Mathe: drop Einmaleins Reihe chips with type selector
+
+**Mistake**: After locking practice to auto-mix (+/−/×/÷), the „Reihe:“ multiplier chips stayed for ×/÷ and cluttered iPad landscape (overlap + unused control).
+
+**Rule**: When practice no longer lets kids pick operation types, do not keep a manual Einmaleins-row filter either — difficulty levels already gate the number ranges.

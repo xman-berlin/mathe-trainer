@@ -79,32 +79,6 @@
       }
 
       <div class="left-stack">
-        @if (
-          !practicePlan.typesLocked() &&
-          mode() === 'practice' &&
-          (currentType() === 'multiplication' || currentType() === 'division')
-        ) {
-          <div class="multiplier-selector">
-            <span class="multiplier-label">Reihe:</span>
-            <button
-              type="button"
-              class="multiplier-btn"
-              [class.active]="allNumbersSelected()"
-              (click)="selectAllNumbers()">
-              Alle
-            </button>
-            @for (opt of numberOptions; track opt) {
-              <button
-                type="button"
-                class="multiplier-btn"
-                [class.active]="isNumberSelected(opt)"
-                (click)="toggleNumber(opt)">
-                {{ opt }}
-              </button>
-            }
-          </div>
-        }
-
         <div class="task-card" role="group" aria-label="Rechenaufgabe">
           <div class="problem-display">
             <div class="operand-display">{{ operandA() }}</div>
