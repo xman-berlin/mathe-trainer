@@ -145,20 +145,6 @@ describe('ExerciseComponent', () => {
     expect(component.isTypeSelected('subtraction')).toBeFalse();
   });
 
-  it('should check number selection', () => {
-    component.selectedNumbers.set(new Set([3, 5]));
-    expect(component.isNumberSelected(3)).toBeTrue();
-    expect(component.isNumberSelected(4)).toBeFalse();
-  });
-
-  it('should check all numbers selected', () => {
-    component.selectedNumbers.set(new Set());
-    expect(component.allNumbersSelected()).toBeTrue();
-
-    component.selectedNumbers.set(new Set([3]));
-    expect(component.allNumbersSelected()).toBeFalse();
-  });
-
   it('should compute time trial accuracy', () => {
     component.timeTrialTotal.set(10);
     component.timeTrialCorrect.set(8);

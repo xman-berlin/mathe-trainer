@@ -114,3 +114,21 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 ## 2026-11-20 — finish-feature: merge PR when CI is green
 
 **Rule**: When the user asks to finish a feature (`finish-feature` / „Feature fertig“), after quality gates + commit + push + PR: if CI is green and the PR is mergeable, **merge the PR** (and delete the feature branch). Do not leave a finished, CI-green PR open waiting for a separate „merge?“ ask.
+
+## 2026-11-20 — Auto-mix Mathe: drop Einmaleins Reihe chips with type selector
+
+**Mistake**: After locking practice to auto-mix (+/−/×/÷), the „Reihe:“ multiplier chips stayed for ×/÷ and cluttered iPad landscape (overlap + unused control).
+
+**Rule**: When practice no longer lets kids pick operation types, do not keep a manual Einmaleins-row filter either — difficulty levels already gate the number ranges.
+
+## 2026-11-20 — Flex+Grid: align-content start or title sits in a stretched row gap
+
+**Mistake**: Landscape `.exercise-content` used `flex: 1` + CSS Grid with default `align-content: stretch`. Auto rows expanded to fill the viewport, so the title row became ~240px tall and Aufgabe/Keypad floated far below the title.
+
+**Rule**: Exercise workspaces that grow with `flex: 1` must set `align-content: start` (never leave stretch).
+
+## 2026-11-20 — One Mathe shell: Zahlenreihen layout for all three
+
+**Mistake**: Mathe Übung got a custom header band while Zahlenreihen/Sachaufgaben kept absolute back + `margin-top: 3rem` — titles sat at different heights.
+
+**Rule**: All Mathe practice screens use shared `styles/_exercise-shell.scss` (`.ex-shell` / Zahlenreihen structure: absolute back, title inside `.exercise-content`, landscape left=task+status / right=answer).

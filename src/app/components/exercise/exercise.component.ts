@@ -125,10 +125,6 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
   selectedTypes = signal<Set<ExerciseType>>(new Set(ALL_MATH_TYPES));
   currentType = signal<ExerciseType>('addition');
 
-  // Selected numbers for multiplication and division (empty = all, otherwise specific ones)
-  selectedNumbers = signal<Set<number>>(new Set());
-  numberOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
   // Time Trial Mode
   readonly mode = signal<'practice' | 'timeTrial'>('practice');
   readonly timeTrialActive = signal(false);
@@ -169,7 +165,6 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
 
     if (this.practicePlan.typesLocked()) {
       this.selectedTypes.set(new Set(ALL_MATH_TYPES));
-      this.selectedNumbers.set(new Set());
     }
 
     // Practice: resume unsolved problem; time trial always starts fresh
@@ -324,36 +319,6 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
     return this.lockedTypes().has(type);
   }
 
-  toggleNumber(value: number) {
-    const current = this.selectedNumbers();
-    const newSet = new Set(current);
-    if (newSet.has(value)) {
-      newSet.delete(value);
-    } else {
-      newSet.add(value);
-    }
-    this.selectedNumbers.set(newSet);
-    // Generate new problem if multiplication or division is active
-    if (this.currentType() === 'multiplication' || this.currentType() === 'division') {
-      this.generateProblem();
-    }
-  }
-
-  isNumberSelected(value: number): boolean {
-    return this.selectedNumbers().has(value);
-  }
-
-  allNumbersSelected(): boolean {
-    return this.selectedNumbers().size === 0;
-  }
-
-  selectAllNumbers() {
-    this.selectedNumbers.set(new Set());
-    if (this.currentType() === 'multiplication' || this.currentType() === 'division') {
-      this.generateProblem();
-    }
-  }
-
   toggleType(type: ExerciseType) {
     if (this.practicePlan.typesLocked()) return;
     const current = this.selectedTypes();
@@ -398,11 +363,8 @@ export class ExerciseComponent implements AfterViewInit, OnDestroy, OnInit {
 
     // Generate until we get a different problem (anti-repetition)
     do {
-      // In time trial mode, always use all numbers; otherwise use selected numbers
-      const allowedNumbers = this.mode() === 'timeTrial' ? undefined :
-        (this.selectedNumbers().size > 0 ? this.selectedNumbers() : undefined);
-
-      problem = this.problemGenerator.generateProblem(types, allowedNumbers, {
+      // Practice + time trial: always mix all Einmaleins rows (no Reihe filter in UI)
+      problem = this.problemGenerator.generateProblem(types, undefined, {
           addition: this.difficultyService.getLevel('addition'),
           subtraction: this.difficultyService.getLevel('subtraction'),
           multiplication: this.difficultyService.getLevel('multiplication'),

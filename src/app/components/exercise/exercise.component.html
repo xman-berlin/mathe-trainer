@@ -1,5 +1,5 @@
-<div class="exercise-root">
-  <div class="exercise-container">
+<div class="ex-shell">
+  <div class="ex-shell-container">
     <a
       [routerLink]="practicePlan.isGuiding() ? '/' : '/mathe'"
       class="back-btn"
@@ -7,102 +7,78 @@
     >← Zurück</a>
 
     <div class="exercise-content">
-      <h1 class="page-title">{{ mode() === 'timeTrial' ? 'Zeitrennen' : 'Mathe üben' }}</h1>
+      <div class="ex-shell-full">
+        <h1 class="page-title">{{ mode() === 'timeTrial' ? 'Zeitrennen' : 'Mathe üben' }}</h1>
 
-      @if (timeTrialActive()) {
-        <div class="timer-display" [class.critical]="timeRemaining() <= 10">
-          <div class="timer-value">{{ timeRemaining() }}s</div>
-          <div class="timer-score">{{ timeTrialCorrect() }}/{{ timeTrialTotal() }} richtig</div>
-        </div>
-      }
+        @if (timeTrialActive()) {
+          <div class="timer-display" [class.critical]="timeRemaining() <= 10">
+            <div class="timer-value">{{ timeRemaining() }}s</div>
+            <div class="timer-score">{{ timeTrialCorrect() }}/{{ timeTrialTotal() }} richtig</div>
+          </div>
+        }
 
-      @if (mode() === 'timeTrial' && !timeTrialActive()) {
-        <div class="trial-start-section">
-          <p class="trial-description">Löse so viele Aufgaben wie möglich in 60 Sekunden!</p>
-          <button class="start-trial-btn" (click)="startTimeTrial()">
-            ▶️ Starten
-          </button>
-          @if (currentPersonalBest()) {
-            <div class="current-best">
-              🏆 Dein Rekord: {{ currentPersonalBest()!.correctCount }} richtig
-              ({{ currentPersonalBest()!.accuracy }}%)
-            </div>
-          }
-        </div>
-      }
+        @if (mode() === 'timeTrial' && !timeTrialActive()) {
+          <div class="trial-start-section">
+            <p class="trial-description">Löse so viele Aufgaben wie möglich in 60 Sekunden!</p>
+            <button class="start-trial-btn" (click)="startTimeTrial()">
+              ▶️ Starten
+            </button>
+            @if (currentPersonalBest()) {
+              <div class="current-best">
+                🏆 Dein Rekord: {{ currentPersonalBest()!.correctCount }} richtig
+                ({{ currentPersonalBest()!.accuracy }}%)
+              </div>
+            }
+          </div>
+        }
 
-      @if (mode() === 'timeTrial' && !practicePlan.typesLocked()) {
-        <div class="type-selector">
-          <button
-            type="button"
-            class="type-toggle"
-            [class.active]="isTypeSelected('addition')"
-            [attr.aria-label]="'Addition'"
-            [attr.aria-pressed]="isTypeSelected('addition')"
-            (click)="toggleType('addition')">
-            <span class="type-icon" aria-hidden="true">+</span>
-            <span class="type-label">Addition</span>
-          </button>
-          <button
-            type="button"
-            class="type-toggle"
-            [class.active]="isTypeSelected('subtraction')"
-            [attr.aria-label]="'Subtraktion'"
-            [attr.aria-pressed]="isTypeSelected('subtraction')"
-            (click)="toggleType('subtraction')">
-            <span class="type-icon" aria-hidden="true">−</span>
-            <span class="type-label">Subtraktion</span>
-          </button>
-          <button
-            type="button"
-            class="type-toggle"
-            [class.active]="isTypeSelected('multiplication')"
-            [attr.aria-label]="'Multiplikation'"
-            [attr.aria-pressed]="isTypeSelected('multiplication')"
-            (click)="toggleType('multiplication')">
-            <span class="type-icon" aria-hidden="true">×</span>
-            <span class="type-label">Multiplikation</span>
-          </button>
-          <button
-            type="button"
-            class="type-toggle"
-            [class.active]="isTypeSelected('division')"
-            [attr.aria-label]="'Division'"
-            [attr.aria-pressed]="isTypeSelected('division')"
-            (click)="toggleType('division')">
-            <span class="type-icon" aria-hidden="true">÷</span>
-            <span class="type-label">Division</span>
-          </button>
-        </div>
-      } @else if (practicePlan.isGuiding()) {
-        <p class="plan-progress-banner">{{ practicePlan.progressLabel() }}</p>
-      }
-
-      @if (
-        !practicePlan.typesLocked() &&
-        mode() === 'practice' &&
-        (currentType() === 'multiplication' || currentType() === 'division')
-      ) {
-        <div class="multiplier-selector">
-          <span class="multiplier-label">Reihe:</span>
-          <button
-            type="button"
-            class="multiplier-btn"
-            [class.active]="allNumbersSelected()"
-            (click)="selectAllNumbers()">
-            Alle
-          </button>
-          @for (opt of numberOptions; track opt) {
+        @if (mode() === 'timeTrial' && !practicePlan.typesLocked()) {
+          <div class="type-selector">
             <button
               type="button"
-              class="multiplier-btn"
-              [class.active]="isNumberSelected(opt)"
-              (click)="toggleNumber(opt)">
-              {{ opt }}
+              class="type-toggle"
+              [class.active]="isTypeSelected('addition')"
+              [attr.aria-label]="'Addition'"
+              [attr.aria-pressed]="isTypeSelected('addition')"
+              (click)="toggleType('addition')">
+              <span class="type-icon" aria-hidden="true">+</span>
+              <span class="type-label">Addition</span>
             </button>
-          }
-        </div>
-      }
+            <button
+              type="button"
+              class="type-toggle"
+              [class.active]="isTypeSelected('subtraction')"
+              [attr.aria-label]="'Subtraktion'"
+              [attr.aria-pressed]="isTypeSelected('subtraction')"
+              (click)="toggleType('subtraction')">
+              <span class="type-icon" aria-hidden="true">−</span>
+              <span class="type-label">Subtraktion</span>
+            </button>
+            <button
+              type="button"
+              class="type-toggle"
+              [class.active]="isTypeSelected('multiplication')"
+              [attr.aria-label]="'Multiplikation'"
+              [attr.aria-pressed]="isTypeSelected('multiplication')"
+              (click)="toggleType('multiplication')">
+              <span class="type-icon" aria-hidden="true">×</span>
+              <span class="type-label">Multiplikation</span>
+            </button>
+            <button
+              type="button"
+              class="type-toggle"
+              [class.active]="isTypeSelected('division')"
+              [attr.aria-label]="'Division'"
+              [attr.aria-pressed]="isTypeSelected('division')"
+              (click)="toggleType('division')">
+              <span class="type-icon" aria-hidden="true">÷</span>
+              <span class="type-label">Division</span>
+            </button>
+          </div>
+        } @else if (practicePlan.isGuiding()) {
+          <p class="plan-progress-banner">{{ practicePlan.progressLabel() }}</p>
+        }
+      </div>
 
       <div class="task-card" role="group" aria-label="Rechenaufgabe">
         <div class="problem-display">
@@ -165,19 +141,19 @@
       </div>
 
       @if (showMilestone()) {
-        <div class="confetti-container">
+        <div class="confetti-container ex-shell-full">
           @for (i of confettiPieces; track i) {
             <div class="confetti" [style.--delay]="i * 0.1 + 's'" [style.--x]="confettiX[i]"></div>
           }
         </div>
-        <div class="milestone-popup">
+        <div class="milestone-popup ex-shell-full">
           🎉 {{ milestoneValue() }}er Serie! 🎉
         </div>
       }
 
       @if (showLevelUp() && levelUpInfo()) {
         <div
-          class="level-change-popup"
+          class="level-change-popup ex-shell-full"
           [class.level-up]="levelUpInfo()!.direction === 'up'"
           [class.level-down]="levelUpInfo()!.direction === 'down'"
         >

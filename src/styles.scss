@@ -6,6 +6,7 @@
 @use 'styles/buttons';
 @use 'styles/badges';
 @use 'styles/modals';
+@use 'styles/exercise-shell';
 
 // --- Reset & base ---
 
@@ -30,6 +31,7 @@ div, section, main, article, aside, header, footer, nav {
 .home-page,
 .overview-page,
 .exercise-container,
+.ex-shell-container,
 .achievements-container {
   overflow-x: hidden;
   width: 100%;
