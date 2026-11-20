@@ -1,14 +1,15 @@
 <div class="exercise-root">
   <div class="exercise-container">
-    <a
-      [routerLink]="practicePlan.isGuiding() ? '/' : '/mathe'"
-      class="back-btn"
-      (click)="practicePlan.pause()"
-    >← Zurück</a>
+    <header class="exercise-header">
+      <a
+        [routerLink]="practicePlan.isGuiding() ? '/' : '/mathe'"
+        class="back-btn"
+        (click)="practicePlan.pause()"
+      >← Zurück</a>
+      <h1 class="page-title">{{ mode() === 'timeTrial' ? 'Zeitrennen' : 'Mathe üben' }}</h1>
+    </header>
 
     <div class="exercise-content">
-      <h1 class="page-title">{{ mode() === 'timeTrial' ? 'Zeitrennen' : 'Mathe üben' }}</h1>
-
       @if (timeTrialActive()) {
         <div class="timer-display" [class.critical]="timeRemaining() <= 10">
           <div class="timer-value">{{ timeRemaining() }}s</div>
