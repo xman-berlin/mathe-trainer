@@ -101,7 +101,9 @@ Config in `package.json`: `printWidth: 100`, `singleQuote: true`, Angular HTML p
 - **Local dev**: `http://127.0.0.1:54321` (config in `src/environments/environment.ts`)
 - RLS enabled on all tables. Service role key never used in frontend.
 - Migrations in `supabase/migrations/` (SQL); `src/sql/` for local scripts
+- New `public` tables need explicit Data API `GRANT`s in the same migration (see `.cursor/rules/supabase-table-grants.mdc`)
 - Environment files committed with local-only keys (anon key is public); never commit service role keys or secrets
+- Ship via feature branch + PR; merge when CI is green (never push feature work straight to `main`)
 
 ## Session Start
 

@@ -110,3 +110,7 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 **Mistake**: Difficulty lived only in memory + Supabase. Offline progress never cached; empty `loadForUser` reset to defaults (Zahlenreihen → Fuchs) while pending hard problems still showed.
 
 **Rule**: Cache `difficulty_levels` per user in localStorage, merge with remote (higher level / streak wins), push when local is ahead. Pending exercises may call `ensureAtLeast` to recover tier from a harder saved problem.
+
+## 2026-11-20 — finish-feature: merge PR when CI is green
+
+**Rule**: When the user asks to finish a feature (`finish-feature` / „Feature fertig“), after quality gates + commit + push + PR: if CI is green and the PR is mergeable, **merge the PR** (and delete the feature branch). Do not leave a finished, CI-green PR open waiting for a separate „merge?“ ask.

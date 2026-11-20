@@ -1,0 +1,21 @@
+---
+description: New public tables need explicit Data API GRANTs (Supabase change from 2026-10-30)
+globs: supabase/migrations/**/*.sql
+alwaysApply: false
+---
+
+# Supabase Data API grants on new tables
+
+From **2026-10-30**, Supabase no longer auto-grants Data API access to new tables in `public`.
+
+When a migration `CREATE TABLE`s in `public`, add in the **same** migration:
+
+```sql
+grant select on public.your_table to anon;
+grant select, insert, update, delete on public.your_table to authenticated;
+grant select, insert, update, delete on public.your_table to service_role;
+```
+
+- Existing tables (already in prod) keep their grants — no backfill needed for them.
+- `ALTER TABLE` alone does not need new grants.
+- Fresh environments count as new tables: `supabase db reset`, preview branches, new projects.
