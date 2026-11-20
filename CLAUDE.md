@@ -170,7 +170,7 @@ When optimizing components for tablet landscape:
 - **Anon Key**: Public, in `environment.ts`
 - **Service Role Key**: NEVER use in frontend
 - **RLS Enabled**: All tables have Row Level Security
-- **Migrations**: In `src/sql/` with date prefix
+- **Migrations**: In `src/sql/` with date prefix; new `public` tables need explicit Data API `GRANT`s (see `.cursor/rules/supabase-table-grants.mdc`)
 
 ## Environment Variables
 
@@ -191,6 +191,7 @@ When optimizing components for tablet landscape:
 - **Branch Names**: `feature/description`, `fix/description`
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`)
 - **Commits Only on Request**: Do not commit automatically
+- **Ship via PR**: feature branch → PR → merge when CI green (never push feature work straight to `main`)
 
 ### Before Commit and Push (IMPORTANT)
 
