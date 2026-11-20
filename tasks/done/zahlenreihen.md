@@ -18,4 +18,10 @@ Plan: Cursor plan `zahlenreihen_ergänzen`.
 
 ## Review
 
-_(fill after merge/deploy)_
+Shipped in PR #52 (merged 2026-11-20).
+
+- Mathe tile `/mathe/zahlenreihen` with adaptive difficulty (`numberSequences`), daily goal 5, pending resume, streak persistence
+- Patterns: constant +/− (1–3), alternating +/− from Adler, ×/÷ from Löwe (softened after playtest)
+- Also hardened Stats/Difficulty load to merge local+server so empty Supabase cannot wipe offline progress
+
+Deviations: Löwe made milder than first draft; review mix capped at −1 tier; no new DB tables (JSONB keys only).

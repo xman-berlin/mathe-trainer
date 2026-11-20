@@ -7,4 +7,3 @@
 | Alphabet-Übungen | `tasks/alphabet-uebungen.md` | ABC-Sortierung, Vorher/Nachher, Lücken-Alphabet (Hinweis: `/deutsch/alphabet` ist bereits Sequence-MC) |
 | Übungsplan konfigurieren | `tasks/uebungsplan-konfiguration.md` | Freie Plan-Schritte pro User; Katalog aus Kategorie-Kacheln (**Homepage-CTA derzeit entfernt**) |
 | Streak + Tagesstatistik UI | `tasks/streak-stats-ui-unify.md` | Serie/Beste + ✓✗Σ Heute im Sachaufgaben-Stil auf allen Übungsseiten |
-| Zahlenreihen ergänzen | `tasks/zahlenreihen.md` | Mathe-Kachel: Zahlenfolgen mit Lücken, Difficulty, Tagesziel 5 |
