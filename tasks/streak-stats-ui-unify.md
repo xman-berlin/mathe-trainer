@@ -1,10 +1,10 @@
-# Unify exercise streak + daily stats UI (Sachaufgaben style)
+# Unify exercise streak + daily stats UI (adopt exercise-status-card)
 
 ## Goal
 
-Bring **session streak** and **daily result summary** on all exercise pages in line with the Sachaufgaben reference UI (`Serie` / `Beste` + `✓ ✗ Σ Heute` badges).
+Bring **session streak** and **daily result summary** on remaining exercise pages in line with the shared [`exercise-status-card`](../src/app/components/shared/exercise-status-card/) (`Serie` / `Beste` + `✓ ✗ Σ Heute`, optional difficulty).
 
-Reference: [`word-problem-exercise.component.html`](../src/app/components/word-problem-exercise/word-problem-exercise.component.html) + styles in the same component SCSS.
+**Already migrated** (see `mathe-sachaufgaben-automix-level`): Mathe Übung, Sachaufgaben, Zahlenreihen.
 
 ## Out of scope
 
@@ -50,9 +50,10 @@ Keep existing badge colors via shared SCSS (`_badges.scss` / `_exercise.scss`).
 
 | Area | Component | Notes |
 |------|-----------|--------|
-| Mathe Übung | `exercise` | Replace 🔥 + optional Rekord |
-| Mathe Sachaufgaben | `word-problem-exercise` | **Reference** — only extract shared styles if needed |
-| Uhrzeit Übung | `clock-exercise` | Practice mode streak + summary |
+| Mathe Übung | `exercise` | ✅ done — uses `app-exercise-status-card` |
+| Mathe Sachaufgaben | `word-problem-exercise` | ✅ done — uses `app-exercise-status-card` |
+| Mathe Zahlenreihen | `number-sequence-exercise` | ✅ done — uses `app-exercise-status-card` |
+| Uhrzeit Übung | `clock-exercise` | Adopt `app-exercise-status-card` (no difficulty) |
 | Uhrzeit Zeiger setzen | `set-clock-exercise` | |
 | Uhrzeit Zeitspannen | `time-span-exercise` | |
 | Deutsch Rechtschreibung | `vocab-exercise` | |

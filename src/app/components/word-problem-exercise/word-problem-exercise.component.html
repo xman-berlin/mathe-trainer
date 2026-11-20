@@ -5,26 +5,18 @@
     <div class="exercise-content">
       <h1 class="page-title">Sachaufgaben lösen</h1>
 
-      <div class="type-selector">
-        @for (type of exerciseTypes; track type) {
-          <button
-            type="button"
-            class="type-btn"
-            [class.active]="isTypeSelected(type)"
-            [attr.aria-label]="typeLabel(type)"
-            [attr.aria-pressed]="isTypeSelected(type)"
-            (click)="toggleType(type)">
-            {{ operatorSymbol(type) }}
-          </button>
-        }
+      <div class="task-card" role="group" aria-label="Sachaufgabe">
+        <div class="story-icon" aria-hidden="true">{{ storyIcon() }}</div>
+        <div class="story-text">{{ storyText() }}</div>
       </div>
 
-      <div class="task-section">
-        <div class="story-display">
-          <div class="story-icon" aria-hidden="true">{{ storyIcon() }}</div>
-          <div class="story-text">{{ storyText() }}</div>
-        </div>
-      </div>
+      <app-exercise-status-card
+        [streak]="streak"
+        [bestStreak]="bestStreak"
+        [correctCount]="wordProblemCorrectCount"
+        [incorrectCount]="wordProblemIncorrectCount"
+        [difficulty]="statusDifficulty"
+      />
 
       <div class="answer-section">
         <div class="input-section">
@@ -57,24 +49,6 @@
         </div>
       </div>
 
-      <div class="streak-display" [class.has-streak]="streak() > 0">
-        <div class="streak-item">
-          <span class="streak-label">Serie:</span>
-          <span class="streak-value">{{ streak() }}</span>
-        </div>
-        <div class="streak-item">
-          <span class="streak-label">Beste:</span>
-          <span class="streak-value">{{ bestStreak() }}</span>
-        </div>
-      </div>
-
-      <div class="result-summary">
-        <span class="badge badge-correct">✓ {{ wordProblemCorrectCount() }}</span>
-        <span class="badge badge-incorrect">✗ {{ wordProblemIncorrectCount() }}</span>
-        <span class="badge badge-total">Σ {{ wordProblemTotalCount() }}</span>
-        <span class="summary-label">Heute</span>
-      </div>
-
       @if (showMilestone()) {
         <div class="milestone-popup">
           <div class="milestone-content">
@@ -83,6 +57,24 @@
           </div>
           @for (piece of confettiPieces; track piece) {
             <div class="confetti" [style.left.%]="confettiX[piece]"></div>
+          }
+        </div>
+      }
+
+      @if (levelUpInfo(); as info) {
+        <div
+          class="level-change-popup"
+          [class.level-up]="info.direction === 'up'"
+          [class.level-down]="info.direction === 'down'"
+        >
+          @if (info.direction === 'up') {
+            <div class="level-change-text">
+              {{ info.fromEmoji }} → {{ info.emoji }} {{ info.name }}!
+            </div>
+          } @else {
+            <div class="level-change-text">
+              {{ info.fromEmoji }} → {{ info.emoji }} {{ info.name }}
+            </div>
           }
         </div>
       }

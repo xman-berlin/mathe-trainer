@@ -1,0 +1,53 @@
+<div class="status-card" role="group" aria-label="Übungsstatus">
+  @if (difficulty(); as diff) {
+    <div
+      class="difficulty-block"
+      [class.flash-up]="diff.flash === 'up'"
+      [class.flash-down]="diff.flash === 'down'"
+      aria-live="polite"
+    >
+      <div class="difficulty-main">
+        <span class="difficulty-emoji">{{ diff.emoji }}</span>
+        <span class="difficulty-name">{{ diff.name }}</span>
+        <span class="difficulty-level">Stufe {{ diff.level }}/{{ diff.maxLevel }}</span>
+      </div>
+      @if (!isMaxDifficulty()) {
+        <div class="difficulty-progress" aria-label="Fortschritt zur nächsten Stufe">
+          @for (filled of levelProgressDots(); track $index) {
+            <span class="progress-dot" [class.filled]="filled"></span>
+          }
+        </div>
+        @if (diff.nextEmoji && diff.nextName) {
+          <p class="difficulty-hint">
+            @if (diff.streak === 0) {
+              {{ diff.streakUpNeeded }} richtig bis {{ diff.nextEmoji }} {{ diff.nextName }}
+            } @else {
+              Noch {{ diff.streakUpNeeded - diff.streak }} richtig bis {{ diff.nextEmoji }}
+              {{ diff.nextName }}
+            }
+          </p>
+        }
+      } @else {
+        <p class="difficulty-hint max">Höchste Stufe erreicht!</p>
+      }
+    </div>
+  }
+
+  <div class="streak-display">
+    <div class="streak-item">
+      <span class="streak-label">Serie:</span>
+      <span class="streak-value">{{ streak() }}</span>
+    </div>
+    <div class="streak-item">
+      <span class="streak-label">Beste:</span>
+      <span class="streak-value">{{ bestStreak() }}</span>
+    </div>
+  </div>
+
+  <div class="result-summary">
+    <span class="badge badge-correct">✓ {{ correctCount() }}</span>
+    <span class="badge badge-incorrect">✗ {{ incorrectCount() }}</span>
+    <span class="badge badge-total">Σ {{ totalCount() }}</span>
+    <span class="summary-label">Heute</span>
+  </div>
+</div>

@@ -175,6 +175,50 @@ export class WordProblemService {
   private recentProblems: string[] = [];
   private readonly maxRecentProblems = 10;
 
+  private static readonly ONE_STEP_TYPES: Exclude<WordProblemType, 'two-step'>[] = [
+    'addition',
+    'subtraction',
+    'multiplication',
+    'division',
+  ];
+
+  /**
+   * Adaptive Sachaufgaben mix by difficulty level:
+   * L1 ZR20 one-step → L2 ZR100 one-step → L3 ZR100 + some two-step → L4–5 ZR1000 full mix.
+   */
+  paramsForLevel(level: number): {
+    range: NumberRange;
+    maxValue: number;
+    twoStepChance: number;
+  } {
+    const clamped = Math.min(5, Math.max(1, Math.floor(level)));
+    switch (clamped) {
+      case 1:
+        return { range: 'bis20', maxValue: 20, twoStepChance: 0 };
+      case 2:
+        return { range: 'bis100', maxValue: 100, twoStepChance: 0 };
+      case 3:
+        return { range: 'bis100', maxValue: 100, twoStepChance: 0.3 };
+      case 4:
+        return { range: 'bis100', maxValue: 999, twoStepChance: 0.45 };
+      default:
+        return { range: 'bis100', maxValue: 999, twoStepChance: 0.55 };
+    }
+  }
+
+  /** Pick type + generate a problem for the given adaptive level. */
+  generateForLevel(level: number): WordProblem {
+    const { range, maxValue, twoStepChance } = this.paramsForLevel(level);
+    const useTwoStep = Math.random() < twoStepChance;
+    const type: WordProblemType = useTwoStep
+      ? 'two-step'
+      : WordProblemService.ONE_STEP_TYPES[
+          Math.floor(Math.random() * WordProblemService.ONE_STEP_TYPES.length)
+        ];
+    const problem = this.generateProblem(type, range, maxValue);
+    return { ...problem, playerLevel: level };
+  }
+
   generateProblem(type: 'two-step', range: NumberRange, maxValue?: number): TwoStepWordProblem;
   generateProblem(
     type: Exclude<WordProblemType, 'two-step'>,

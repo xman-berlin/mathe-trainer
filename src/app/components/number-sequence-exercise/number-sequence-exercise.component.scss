@@ -126,7 +126,7 @@
   font-weight: 600;
 }
 
-.sequence-card {
+.task-card {
   width: 100%;
   padding: 1.25rem 1rem;
   background: linear-gradient(135deg, rgba(51, 130, 191, 0.08) 0%, white 70%);
@@ -474,15 +474,13 @@
     grid-column: 1 / -1;
   }
 
-  .difficulty-chip,
-  .sequence-card,
-  .streak-display,
-  .result-summary {
+  .task-card,
+  app-exercise-status-card {
     grid-column: 1;
   }
 
   .answer-section {
     grid-column: 2;
-    grid-row: 2 / span 4;
+    grid-row: 2 / span 3;
   }
 }

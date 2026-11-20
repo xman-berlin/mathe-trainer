@@ -5,41 +5,7 @@
     <div class="exercise-content">
       <h1 class="page-title">Zahlenreihen ergänzen</h1>
 
-      <div
-        class="difficulty-chip"
-        [class.flash-up]="levelFlash() === 'up'"
-        [class.flash-down]="levelFlash() === 'down'"
-        aria-live="polite"
-      >
-        <div class="difficulty-chip-main">
-          <span class="difficulty-emoji">{{ difficultyTier().emoji }}</span>
-          <span class="difficulty-name">{{ difficultyTier().name }}</span>
-          <span class="difficulty-level"
-            >Stufe {{ difficultyLevel() }}/{{ difficultyMax() }}</span
-          >
-        </div>
-        @if (!isMaxDifficulty()) {
-          <div class="difficulty-progress" aria-label="Fortschritt zur nächsten Stufe">
-            @for (filled of levelProgressDots(); track $index) {
-              <span class="progress-dot" [class.filled]="filled"></span>
-            }
-          </div>
-          @if (nextDifficultyTier(); as next) {
-            <p class="difficulty-hint">
-              @if (difficultyStreak() === 0) {
-                {{ streakUpNeeded }} richtig bis {{ next.emoji }} {{ next.name }}
-              } @else {
-                Noch {{ streakUpNeeded - difficultyStreak() }} richtig bis {{ next.emoji }}
-                {{ next.name }}
-              }
-            </p>
-          }
-        } @else {
-          <p class="difficulty-hint max">Höchste Stufe erreicht!</p>
-        }
-      </div>
-
-      <div class="sequence-card" role="group" aria-label="Zahlenreihe">
+      <div class="task-card" role="group" aria-label="Zahlenreihe">
         <div class="sequence-row">
           @for (term of displayTerms(); track term.termIndex) {
             @if (term.isGap) {
@@ -66,6 +32,14 @@
         </div>
         <p class="hint">Finde das Muster. Du kannst Lücken jederzeit ändern.</p>
       </div>
+
+      <app-exercise-status-card
+        [streak]="streak"
+        [bestStreak]="bestStreak"
+        [correctCount]="correctCount"
+        [incorrectCount]="incorrectCount"
+        [difficulty]="statusDifficulty"
+      />
 
       <div class="answer-section">
         <div class="input-section">
@@ -97,24 +71,6 @@
             <div class="feedback-incorrect">✗ Schau dir die Reihe noch einmal an.</div>
           }
         </div>
-      </div>
-
-      <div class="streak-display" [class.has-streak]="streak() > 0">
-        <div class="streak-item">
-          <span class="streak-label">Serie:</span>
-          <span class="streak-value">{{ streak() }}</span>
-        </div>
-        <div class="streak-item">
-          <span class="streak-label">Beste:</span>
-          <span class="streak-value">{{ bestStreak() }}</span>
-        </div>
-      </div>
-
-      <div class="result-summary">
-        <span class="badge badge-correct">✓ {{ correctCount() }}</span>
-        <span class="badge badge-incorrect">✗ {{ incorrectCount() }}</span>
-        <span class="badge badge-total">Σ {{ totalCount() }}</span>
-        <span class="summary-label">Heute</span>
       </div>
 
       @if (showMilestone()) {

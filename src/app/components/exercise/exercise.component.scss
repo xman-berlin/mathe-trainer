@@ -3,22 +3,30 @@
 
 .exercise-root {
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #f9fafb;
 }
 
 .exercise-container {
-  display: flex;
-  width: 100%;
   flex: 1;
-  min-height: 0;
+  display: flex;
+  flex-direction: column;
   position: relative;
-  background: white;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 1rem;
+  min-height: 0;
 }
 
-/* Back Button */
+/* Back Button — same as Zahlenreihen / Sachaufgaben */
+.back-btn,
 .back-home-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
   padding: 0.5rem 1rem;
   background: white;
   border: 2px solid var(--gray-400);
@@ -27,16 +35,16 @@
   text-decoration: none;
   font-weight: 600;
   font-size: 0.9rem;
+  z-index: 10;
   transition: all 0.2s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.back-btn:hover,
 .back-home-btn:hover {
   background: var(--gray-100);
   border-color: var(--bright-blue);
   color: var(--bright-blue);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .plan-progress-banner {
@@ -144,17 +152,34 @@
   color: var(--bright-blue);
 }
 
-/* Main Content Area */
+/* Main Content Area — Zahlenreihen shell */
+.exercise-content,
 .main-area {
-  flex: 1;
-  min-height: 0;
+  margin-top: 4rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: 0.75rem;
   align-items: center;
-  padding: 3rem 2rem;
-  gap: 2rem;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  text-align: center;
+}
+
+.task-card {
+  width: 100%;
+  padding: 1.25rem 1rem;
+  background: linear-gradient(135deg, rgba(51, 130, 191, 0.08) 0%, white 70%);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
 }
 
 .task-section,
@@ -162,61 +187,59 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   width: 100%;
 }
 
 .problem-display {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 1.5rem;
-  font-size: 5rem;
-  font-weight: 700;
+  gap: 0.5rem;
+  font-size: 2.5rem;
+  font-weight: 800;
   color: var(--gray-900);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 .operand-display {
-  min-width: 6rem;
-  text-align: right;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, rgba(51, 130, 191, 0.08) 0%, rgba(153, 2, 16, 0.08) 100%);
+  min-width: 3.2rem;
+  min-height: 3.2rem;
+  text-align: center;
+  padding: 0.55rem 0.85rem;
+  background: white;
+  border: 2px solid var(--gray-300);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
 }
 
-.operator {
-  color: var(--bright-blue);
-  font-size: 4rem;
-  margin: 0 0.5rem;
-}
-
+.operator,
 .equals {
-  color: var(--orange-red);
-  font-size: 4rem;
-  margin: 0 0.5rem;
+  color: var(--bright-blue);
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0.15rem;
 }
 
 .question-mark {
-  min-width: 6rem;
+  min-width: 3.2rem;
+  min-height: 3.2rem;
   text-align: center;
-  padding: 1rem 2rem;
-  background: var(--red-to-pink-to-purple-horizontal-gradient);
-  color: white;
+  padding: 0.55rem 0.85rem;
+  background: var(--gray-100);
+  border: 2px solid var(--bright-blue);
+  color: var(--bright-blue);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(240, 6, 11, 0.2);
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 4px 12px rgba(240, 6, 11, 0.2);
-  }
-  50% {
-    box-shadow: 0 8px 24px rgba(240, 6, 11, 0.35);
-  }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  box-shadow: 0 0 0 3px rgba(51, 130, 191, 0.2);
 }
 
 .input-section {
@@ -303,14 +326,14 @@
 }
 
 .btn-submit {
-  background: var(--red-to-pink-to-purple-horizontal-gradient);
+  background: var(--bright-blue);
   color: white;
-  box-shadow: 0 4px 12px rgba(240, 6, 11, 0.2);
+  box-shadow: 0 4px 12px rgba(51, 130, 191, 0.2);
 }
 
 .btn-submit:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(240, 6, 11, 0.3);
+  box-shadow: 0 6px 18px rgba(51, 130, 191, 0.3);
 }
 
 .btn-submit:disabled {
@@ -926,23 +949,26 @@
   display: none;
 }
 
-/* Landscape: 2-column like Sachaufgaben / Uhrzeit — left = task, right = keypad */
+/* Landscape: match Zahlenreihen — left = title/task/status, right = keypad */
 @media (orientation: landscape) and (min-width: 700px) {
   .exercise-container {
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 1000px;
   }
 
+  .exercise-content,
   .main-area {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem 2rem;
+    grid-template-rows: auto auto auto 1fr auto;
+    gap: 0.75rem 1.5rem;
     align-items: start;
-    align-content: start;
-    justify-content: stretch;
-    padding: 1rem 1.5rem;
-    margin-top: 0.5rem;
+    margin-top: 3rem;
+    padding: 0;
     overflow-y: auto;
+  }
+
+  .page-title {
+    grid-column: 1 / -1;
   }
 
   .timer-display,
@@ -952,6 +978,11 @@
   .multiplier-selector {
     grid-column: 1 / -1;
     justify-self: center;
+  }
+
+  .task-card,
+  app-exercise-status-card {
+    grid-column: 1;
   }
 
   .timer-display {
@@ -1018,45 +1049,32 @@
     border-radius: 8px;
   }
 
-  .task-section {
-    grid-column: 1;
-    align-self: start;
-    justify-content: flex-start;
-    gap: 1rem;
-    min-width: 0;
-    padding: 0.5rem 1rem;
-  }
-
   .answer-section {
     grid-column: 2;
+    grid-row: 2 / span 3;
     align-self: start;
-    justify-content: flex-start;
     gap: 0.75rem;
     min-width: 0;
-    padding: 0.5rem 1rem;
     justify-self: center;
+    padding: 0;
   }
 
   .problem-display {
-    font-size: 3.25rem;
-    gap: 0.85rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    font-size: 2rem;
+    gap: 0.5rem;
   }
 
-  .operand-display {
-    min-width: 4.25rem;
-    padding: 0.65rem 1.25rem;
+  .operand-display,
+  .question-mark {
+    min-width: 3.5rem;
+    min-height: 3.5rem;
+    font-size: 1.75rem;
+    padding: 0.6rem 0.9rem;
   }
 
   .operator,
   .equals {
-    font-size: 2.75rem;
-  }
-
-  .question-mark {
-    min-width: 4.25rem;
-    padding: 0.65rem 1.25rem;
+    font-size: 2rem;
   }
 
   .difficulty-chip {
@@ -1230,29 +1248,23 @@
   }
 }
 
-/* Portrait: Mobile-like layout for all portrait devices */
+/* Portrait: keep Zahlenreihen-style shell (back top-left, stacked content) */
 @media (orientation: portrait) {
+  .exercise-content,
   .main-area {
-    padding: 1rem;
+    padding: 0;
     gap: 0.75rem;
     width: 100%;
-    justify-content: space-evenly;
-    overflow-y: hidden;
+    justify-content: flex-start;
   }
 
+  .back-btn,
   .back-home-btn {
-    position: fixed;
-    bottom: 1rem;
+    position: absolute;
+    top: 1rem;
     left: 1rem;
-    top: auto;
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-    border-radius: 50px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  .back-home-btn:hover {
-    transform: scale(1.05);
+    bottom: auto;
+    border-radius: 8px;
   }
 
   .timer-value {

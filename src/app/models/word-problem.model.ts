@@ -31,6 +31,8 @@ export interface OneStepWordProblem {
   correctAnswer: number;
   templateId: string;
   numberRange: NumberRange;
+  /** Adaptive difficulty level that produced this problem (for pending restore). */
+  playerLevel?: number;
 }
 
 export interface TwoStepWordProblem {
@@ -49,6 +51,8 @@ export interface TwoStepWordProblem {
   sampleAntwort: string;
   answerKeywords: string[];
   numberRange: NumberRange;
+  /** Adaptive difficulty level that produced this problem (for pending restore). */
+  playerLevel?: number;
 }
 
 export type WordProblem = OneStepWordProblem | TwoStepWordProblem;

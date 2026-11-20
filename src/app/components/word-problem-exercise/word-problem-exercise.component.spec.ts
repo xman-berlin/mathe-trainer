@@ -4,23 +4,40 @@ import { provideRouter } from '@angular/router';
 import { WordProblemExerciseComponent } from './word-problem-exercise.component';
 import { WordProblemService } from '../../services/word-problem.service';
 import { StatsService } from '../../services/stats.service';
+import { DifficultyService } from '../../services/difficulty.service';
+import { SupabaseService } from '../../services/supabase.service';
 import { resetTwoStepRotation } from '../../services/two-step-word-problem';
 
 describe('WordProblemExerciseComponent', () => {
   let component: WordProblemExerciseComponent;
   let fixture: ComponentFixture<WordProblemExerciseComponent>;
   let wordProblemService: WordProblemService;
+  let difficulty: DifficultyService;
 
   function showTwoStepOnly() {
     resetTwoStepRotation();
-    component.selectedTypes.set(new Set(['two-step']));
-    component.generateProblem();
+    const problem = {
+      ...wordProblemService.generateProblem('two-step', 'bis100', 100),
+      playerLevel: 4,
+    };
+    component.currentProblem.set(problem);
+    component.currentType.set('two-step');
+    component.userAnswer.set('');
+    component.feedback.set('idle');
+    component.showCorrectAnswer.set(false);
     fixture.detectChanges();
   }
 
   function showOneStepType(type: 'addition' | 'subtraction' | 'multiplication' | 'division') {
-    component.selectedTypes.set(new Set([type]));
-    component.generateProblem();
+    const problem = {
+      ...wordProblemService.generateProblem(type, 'bis100', 100),
+      playerLevel: 2,
+    };
+    component.currentProblem.set(problem);
+    component.currentType.set(type);
+    component.userAnswer.set('');
+    component.feedback.set('idle');
+    component.showCorrectAnswer.set(false);
     fixture.detectChanges();
   }
 
@@ -28,11 +45,20 @@ describe('WordProblemExerciseComponent', () => {
     resetTwoStepRotation();
     localStorage.removeItem('schlaufuchs-pending-word-problem');
 
+    const mockSupabase = jasmine.createSpyObj('SupabaseService', [
+      'getDifficultyLevels',
+      'updateDifficultyLevels',
+    ]);
+    mockSupabase.getDifficultyLevels.and.resolveTo(null);
+    mockSupabase.updateDifficultyLevels.and.resolveTo();
+
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
         provideRouter([]),
         WordProblemService,
+        DifficultyService,
+        { provide: SupabaseService, useValue: mockSupabase },
         {
           provide: StatsService,
           useValue: {
@@ -47,6 +73,7 @@ describe('WordProblemExerciseComponent', () => {
     });
 
     wordProblemService = TestBed.inject(WordProblemService);
+    difficulty = TestBed.inject(DifficultyService);
     fixture = TestBed.createComponent(WordProblemExerciseComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -56,12 +83,9 @@ describe('WordProblemExerciseComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should select two-step and classic operations together by default', () => {
-    expect(component.isTypeSelected('two-step')).toBeTrue();
-    expect(component.isTypeSelected('addition')).toBeTrue();
-    expect(component.isTypeSelected('subtraction')).toBeTrue();
-    expect(component.isTypeSelected('multiplication')).toBeTrue();
-    expect(component.isTypeSelected('division')).toBeTrue();
+  it('should show status card with difficulty', () => {
+    expect(fixture.nativeElement.querySelector('app-exercise-status-card')).toBeTruthy();
+    expect(component.statusDifficulty().level).toBe(difficulty.getLevel('wordProblems'));
   });
 
   it('should compute keypad disabled when feedback is not idle', () => {
@@ -70,39 +94,6 @@ describe('WordProblemExerciseComponent', () => {
 
     component.feedback.set('correct');
     expect(component.keypadDisabled()).toBeTrue();
-  });
-
-  it('should return operator symbol', () => {
-    expect(component.operatorSymbol('two-step')).toBe('2+');
-    expect(component.operatorSymbol('addition')).toBe('+');
-    expect(component.operatorSymbol('subtraction')).toBe('−');
-    expect(component.operatorSymbol('multiplication')).toBe('×');
-    expect(component.operatorSymbol('division')).toBe('÷');
-  });
-
-  it('should check type selection', () => {
-    component.selectedTypes.set(new Set(['addition', 'subtraction']));
-    expect(component.isTypeSelected('addition')).toBeTrue();
-    expect(component.isTypeSelected('multiplication')).toBeFalse();
-  });
-
-  it('should toggle type', () => {
-    component.selectedTypes.set(new Set(['addition', 'subtraction']));
-    component.toggleType('subtraction');
-    expect(component.selectedTypes().has('subtraction')).toBeFalse();
-    expect(component.selectedTypes().has('addition')).toBeTrue();
-  });
-
-  it('should not remove last type', () => {
-    component.selectedTypes.set(new Set(['addition']));
-    component.toggleType('addition');
-    expect(component.selectedTypes().has('addition')).toBeTrue();
-  });
-
-  it('should add type when not selected', () => {
-    component.selectedTypes.set(new Set(['addition']));
-    component.toggleType('subtraction');
-    expect(component.selectedTypes().has('subtraction')).toBeTrue();
   });
 
   describe('two-step mixed with keypad', () => {
@@ -132,8 +123,13 @@ describe('WordProblemExerciseComponent', () => {
       expect(component.feedback()).toBe('correct');
     });
 
-    it('should accept the Lilo ages problem on the next generate', () => {
-      component.generateProblem();
+    it('should accept the Lilo ages problem on the next two-step generate', () => {
+      resetTwoStepRotation();
+      const first = wordProblemService.generateProblem('two-step', 'bis100', 100);
+      expect(first.storyText).toContain('Bobbi');
+      const second = wordProblemService.generateProblem('two-step', 'bis100', 100);
+      component.currentProblem.set({ ...second, playerLevel: 4 });
+      component.currentType.set('two-step');
       fixture.detectChanges();
 
       expect(component.storyText()).toContain('Lilo ist 12 Jahre alt');
@@ -177,12 +173,23 @@ describe('WordProblemExerciseComponent', () => {
     });
   });
 
-  describe('mathNumberRange integration', () => {
-    it('generateProblem should pass currentMathNumberRange as third arg to wordProblemService', () => {
-      const generateSpy = spyOn(wordProblemService, 'generateProblem').and.callThrough();
+  describe('adaptive level generation', () => {
+    it('generateProblem should use generateForLevel with current difficulty', () => {
+      const generateSpy = spyOn(wordProblemService, 'generateForLevel').and.callThrough();
       component.generateProblem();
-      const lastCall = generateSpy.calls.mostRecent();
-      expect(lastCall.args[2]).toBe(100);
+      expect(generateSpy).toHaveBeenCalledWith(difficulty.getLevel('wordProblems'));
+    });
+
+    it('paramsForLevel should map L1 to ZR20 without two-step', () => {
+      const params = wordProblemService.paramsForLevel(1);
+      expect(params.range).toBe('bis20');
+      expect(params.maxValue).toBe(20);
+      expect(params.twoStepChance).toBe(0);
+    });
+
+    it('paramsForLevel should allow two-step from L3', () => {
+      expect(wordProblemService.paramsForLevel(3).twoStepChance).toBeGreaterThan(0);
+      expect(wordProblemService.paramsForLevel(5).maxValue).toBe(999);
     });
   });
 
@@ -191,6 +198,11 @@ describe('WordProblemExerciseComponent', () => {
       showOneStepType('addition');
       const story = component.storyText();
       const answer = component.correctAnswer();
+      // Re-save after manual set (showOneStepType does not go through generateProblem)
+      const pending = component.currentProblem();
+      if (pending) {
+        localStorage.setItem('schlaufuchs-pending-word-problem', JSON.stringify(pending));
+      }
       expect(localStorage.getItem('schlaufuchs-pending-word-problem')).toBeTruthy();
 
       fixture.destroy();
@@ -204,6 +216,10 @@ describe('WordProblemExerciseComponent', () => {
 
     it('should clear pending storage after submit', () => {
       showOneStepType('addition');
+      localStorage.setItem(
+        'schlaufuchs-pending-word-problem',
+        JSON.stringify(component.currentProblem())
+      );
       component.userAnswer.set(String(component.correctAnswer()));
       component.submitAnswer();
       expect(localStorage.getItem('schlaufuchs-pending-word-problem')).toBeNull();

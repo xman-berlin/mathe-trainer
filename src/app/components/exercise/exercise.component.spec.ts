@@ -229,11 +229,19 @@ describe('ExerciseComponent', () => {
     expect(localStorage.removeItem).toHaveBeenCalledWith('schlaufuchs-pending-math-problem');
   });
 
-  it('should expose difficulty chip data for current type', () => {
+  it('should expose difficulty status for current type', () => {
     component.currentType.set('addition');
     expect(component.currentDifficultyTier().name).toBeTruthy();
     expect(component.currentDifficultyLevel()).toBeGreaterThanOrEqual(1);
+    expect(component.statusDifficulty()?.name).toBeTruthy();
     expect(component.levelProgressDots().length).toBe(5);
+  });
+
+  it('should always auto-mix all four types in practice mode', () => {
+    expect(component.mode()).toBe('practice');
+    expect(component.selectedTypes().size).toBe(4);
+    expect(component.isTypeSelected('addition')).toBeTrue();
+    expect(component.isTypeSelected('division')).toBeTrue();
   });
 
   it('should flash chip on level-up', () => {

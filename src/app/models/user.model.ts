@@ -42,7 +42,8 @@ export type DifficultyOperationType =
   | 'subtraction'
   | 'multiplication'
   | 'division'
-  | 'numberSequences';
+  | 'numberSequences'
+  | 'wordProblems';
 
 export type DifficultyLevels = Partial<Record<DifficultyOperationType, DifficultyState>>;
 
