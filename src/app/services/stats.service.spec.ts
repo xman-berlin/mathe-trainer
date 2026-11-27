@@ -295,9 +295,10 @@ describe('StatsService', () => {
       expect(service.currentGoal()).toBe(20); // 12 + 3 + default 5 zahlenreihen
     });
 
-    it('should clamp per-exercise goal min to 1', () => {
+    it('should allow per-exercise goal of 0 to skip a tile', () => {
       service.setExerciseGoal('math-uebung', 0);
-      expect(service.goalFor('math-uebung')).toBe(1);
+      expect(service.goalFor('math-uebung')).toBe(0);
+      expect(service.currentGoal()).toBe(10); // 0 + default 5 sachaufgaben + 5 zahlenreihen
     });
 
     it('should clamp per-exercise goal max to 100', () => {
