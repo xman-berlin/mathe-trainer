@@ -36,8 +36,21 @@ jobs:
     - name: Unit Tests
       run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
-    - name: Upload coverage to Codecov
+    - name: Check Codecov token
+      id: codecov-token
       if: matrix.node-version == '22.x'
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: |
+        if [ -n "$CODECOV_TOKEN" ]; then
+          echo "present=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "present=false" >> "$GITHUB_OUTPUT"
+          echo "CODECOV_TOKEN not set — skipping Codecov upload"
+        fi
+
+    - name: Upload coverage to Codecov
+      if: matrix.node-version == '22.x' && steps.codecov-token.outputs.present == 'true'
       uses: codecov/codecov-action@v6
       with:
         # Angular writes under coverage/<project>/; lcovonly from karma.conf.js
