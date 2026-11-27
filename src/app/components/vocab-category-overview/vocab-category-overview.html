@@ -154,7 +154,7 @@
             <span>{{ tile.title }}</span>
             <input
               type="number"
-              min="1"
+              min="0"
               max="100"
               [ngModel]="editGoalDraft()[tile.id]"
               (ngModelChange)="updateDraft(tile.id, $event)"

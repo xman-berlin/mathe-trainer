@@ -132,3 +132,9 @@ Do not leave “what's next?” suggestions that include cleanup that should alr
 **Mistake**: Mathe Übung got a custom header band while Zahlenreihen/Sachaufgaben kept absolute back + `margin-top: 3rem` — titles sat at different heights.
 
 **Rule**: All Mathe practice screens use shared `styles/_exercise-shell.scss` (`.ex-shell` / Zahlenreihen structure: absolute back, title inside `.exercise-content`, landscape left=task+status / right=answer).
+
+## 2026-11-27 — Daily goal 0 must stick (skip tile)
+
+**Mistake**: `clampDailyGoal` used `Math.max(1, …)` and inputs had `min="1"`, so setting a tile to 0 always jumped back to 1.
+
+**Rule**: Allow 0 as “no target today” for that exercise. Keep max 100. Category reached = all tiles with goal &gt; 0 met; all-zero category is not reached (no bonus).

@@ -24,6 +24,7 @@ describe('CategoryOverviewComponent', () => {
       return 5;
     }),
     isExerciseGoalReached: jasmine.createSpy('isExerciseGoalReached').and.returnValue(false),
+    isCategoryGoalReached: jasmine.createSpy('isCategoryGoalReached').and.returnValue(false),
     setGoalsForCategory: jasmine.createSpy('setGoalsForCategory'),
     setMathNumberRange: jasmine.createSpy('setMathNumberRange'),
   };

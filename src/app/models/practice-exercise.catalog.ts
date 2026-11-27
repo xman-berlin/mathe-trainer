@@ -126,9 +126,10 @@ export function tilesForCategory(category: PracticeCategory): PracticeExerciseTi
   return PRACTICE_EXERCISE_CATALOG.filter((t) => t.category === category);
 }
 
+/** Clamp per-exercise daily goal. 0 = no target for that tile today. */
 export function clampDailyGoal(value: number): number {
   if (!Number.isFinite(value)) return 1;
-  return Math.min(100, Math.max(1, Math.round(value)));
+  return Math.min(100, Math.max(0, Math.round(value)));
 }
 
 export function mergeGoalsWithDefaults(
@@ -181,13 +182,20 @@ export function cappedCorrectCountForCategory(
   }, 0);
 }
 
-/** Category daily goal is reached only when every tile goal is met. */
+/**
+ * Category daily goal is reached when every tile with a positive goal is met.
+ * Goal 0 means the tile is skipped (always “done”). If every tile is 0, the
+ * category is not considered reached (nothing to achieve → no bonus).
+ */
 export function allTileGoalsReached(
   byType: Record<string, { correct?: number; incorrect?: number }>,
   goals: Record<string, number>,
   category: PracticeCategory
 ): boolean {
-  return tilesForCategory(category).every((tile) => {
+  const tiles = tilesForCategory(category);
+  const active = tiles.filter((tile) => (goals[tile.id] ?? tile.defaultDailyGoal) > 0);
+  if (active.length === 0) return false;
+  return active.every((tile) => {
     const goal = goals[tile.id] ?? tile.defaultDailyGoal;
     return correctCountForTile(byType, tile) >= goal;
   });

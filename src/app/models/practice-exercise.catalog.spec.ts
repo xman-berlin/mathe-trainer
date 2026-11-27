@@ -30,10 +30,30 @@ describe('practice-exercise.catalog', () => {
     expect(PRACTICE_EXERCISE_CATALOG.some((t) => t.id.includes('hangman'))).toBeFalse();
   });
 
-  it('should clamp goals', () => {
-    expect(clampDailyGoal(0)).toBe(1);
+  it('should clamp goals (0 allowed to skip a tile)', () => {
+    expect(clampDailyGoal(0)).toBe(0);
+    expect(clampDailyGoal(-3)).toBe(0);
     expect(clampDailyGoal(200)).toBe(100);
     expect(clampDailyGoal(12.6)).toBe(13);
+  });
+
+  it('should treat goal 0 as skipped and all-zero category as not reached', () => {
+    const goals = {
+      ...catalogDefaults(),
+      'math-uebung': 0,
+      'math-sachaufgaben': 0,
+      'math-zahlenreihen': 5,
+    };
+    expect(
+      allTileGoalsReached({ 'number-sequences': { correct: 5 } }, goals, 'math')
+    ).toBeTrue();
+    expect(
+      allTileGoalsReached(
+        {},
+        { 'math-uebung': 0, 'math-sachaufgaben': 0, 'math-zahlenreihen': 0 },
+        'math'
+      )
+    ).toBeFalse();
   });
 
   it('should merge stored goals with defaults', () => {

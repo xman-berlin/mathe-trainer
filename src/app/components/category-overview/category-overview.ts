@@ -93,8 +93,8 @@ export class CategoryOverviewComponent {
     return Math.min(100, Math.round((this.categoryGoalCorrect() / goal) * 100));
   });
 
-  readonly categoryIsGoalReached = computed(
-    () => this.categoryGoalCorrect() >= this.categoryGoalTotal()
+  readonly categoryIsGoalReached = computed(() =>
+    this.stats.isCategoryGoalReached(this.category() as PracticeCategory)
   );
 
   readonly categoryTitle = computed(() =>
