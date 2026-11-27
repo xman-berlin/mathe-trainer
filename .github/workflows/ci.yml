@@ -37,7 +37,8 @@ jobs:
       run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
     - name: Upload coverage to Codecov
-      if: matrix.node-version == '22.x'
+      # Skip when CODECOV_TOKEN is unset — tokenless upload is rejected by Codecov
+      if: matrix.node-version == '22.x' && secrets.CODECOV_TOKEN != ''
       uses: codecov/codecov-action@v6
       with:
         # Angular writes under coverage/<project>/; lcovonly from karma.conf.js
